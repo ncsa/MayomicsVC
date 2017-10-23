@@ -1,0 +1,15 @@
+{
+  "IndelRealigner_Run.IndelRealigner.IndelRealigner_Output": "/projects/mgc/Project_1/ram/CromwellWDL/IndelRealigner/aligned.sorted.dedupped.realigned.bam",
+  "IndelRealigner_Run.IndelRealigner.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "IndelRealigner_Run.IndelRealigner.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "IndelRealigner_Run.IndelRealigner.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "IndelRealigner_Run.IndelRealigner.Aligned_Sorted_Dedupped_Bam": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/hg19.aligned.sorted.dedupped.bam",
+  "IndelRealigner_Run.IndelRealigner.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "IndelRealigner_Run.IndelRealigner.RealignTargetCreator_Intervals": "/projects/mgc/Project_1/ram/CromwellWDL/RealignerTargetCreator/realignTargetCreator.intervals",
+  "IndelRealigner_Run.IndelRealigner.GoldenVCF": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf",
+  "IndelRealigner_Run.IndelRealigner.Aligned_Sorted_Dedupped_BamIndex": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/hg19.aligned.sorted.dedupped.bai",
+  "IndelRealigner_Run.IndelRealigner.Ref_pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "IndelRealigner_Run.IndelRealigner.Ref_sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "IndelRealigner_Run.IndelRealigner.FastIndex": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "IndelRealigner_Run.IndelRealigner.Ref_bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt"
+}

@@ -1,0 +1,14 @@
+{
+  "RealignTargetCreator_Run.RealignTargetCreator.RealignTargetCreator_Output": "/projects/mgc/Project_1/ram/CromwellWDL/RealignerTargetCreator/realignTargetCreator.intervals",
+  "RealignTargetCreator_Run.RealignTargetCreator.GoldenVCF": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf",
+  "RealignTargetCreator_Run.RealignTargetCreator.DeduppedBamInput": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/hg19.aligned.sorted.dedupped.bam",
+  "RealignTargetCreator_Run.RealignTargetCreator.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "RealignTargetCreator_Run.RealignTargetCreator.FastIndex": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "RealignTargetCreator_Run.RealignTargetCreator.Ref_pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",  
+  "RealignTargetCreator_Run.RealignTargetCreator.DeduppedBamInputIndex": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/hg19.aligned.sorted.dedupped.bai"
+}
