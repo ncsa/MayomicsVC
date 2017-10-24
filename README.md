@@ -20,25 +20,16 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
 1.2 Workflow best practices
 ---------------------------
 
-1. Must be modular to be maintainable
-
-2. Must be robust against hardware/software/data failure
-
-    2.1 user option on whether to fail or continue the whole workflow when something goes wrong with one of the sample
-
-    2.2 produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
-
-    2.3 check everything before workflow actually runs: 
-
+* Must be modular to be maintainable
+* Must be robust against hardware/software/data failure
+    * user option on whether to fail or continue the whole workflow when something goes wrong with one of the sample
+    * produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
+    * check everything before workflow actually runs: 
        * check that all the sample files exist and have nonzero size 
-
        * check that all executables exist
-
        * for each workflow module at runtime, check that output was actualy produced and has nonzero size
-
        * perform QC on each output file, write results into log, give user option to continue anyway if QC is failed
-
-    2.4 Must have tests designed to succeed and designed to fail to ensure that failure mechanisms work
+    * Must have tests designed to succeed and designed to fail to ensure that failure mechanisms work
 
 
 3 Dependencies
