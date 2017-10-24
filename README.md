@@ -36,10 +36,25 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
 2.3 Need workflow diagram here
 ------------------------------
 
-Grab from GenomeGPS documentation, highlight which parts we are doing in what order.
-
+* Reconstruct from GenomeGPS file structure, highlight which parts we are doing in what order.
+* Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
 
 
 
 3 Dependencies
 ==============
+
+
+
+4 To-Dos
+========
+
+* As of Oct 24, 2017: Ram will work only on the bwa-mem module, to implement fully the template that could be used for other modules
+    * multiple samples in parallel
+    * all paths and parameters coded in runfile
+    * loggery, user notification
+    * error capture
+    * checking inputs and executables
+    * checking outputs
+    * QC on input FASTQ
+    * QC on outputs
