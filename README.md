@@ -58,6 +58,7 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
     * checking outputs
     * QC on input FASTQ
     * QC on outputs
+```
   |
   |-call-Samtools
   |  |-shard-2
@@ -166,3 +167,4 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
   |  |  |-execution
   |  |  |  |-tmp.kbVcdk
   |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
+```
