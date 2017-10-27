@@ -44,7 +44,7 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
 3 Dependencies
 ==============
 
-
+Grab from GenomeGPS documentation, highlight which parts we are doing in what order.
 
 4 To-Dos
 ========
@@ -58,3 +58,111 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
     * checking outputs
     * QC on input FASTQ
     * QC on outputs
+  |
+  |-call-Samtools
+  |  |-shard-2
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-mgc
+  |  |  |  |  |  |-Project_1
+  |  |  |  |  |  |  |-ram
+  |  |  |  |  |  |  |  |-CromwellWDL
+  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
+  |  |  |  |  |  |  |  |  |  |-cromwell-executions
+  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
+  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
+  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-2
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-8fbfe7a84f921347caf0a4408578e296
+  |  |  |-execution
+  |  |  |  |-tmp.Jh4vIo
+  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
+  |  |-shard-0
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-mgc
+  |  |  |  |  |  |-Project_1
+  |  |  |  |  |  |  |-ram
+  |  |  |  |  |  |  |  |-CromwellWDL
+  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
+  |  |  |  |  |  |  |  |  |  |-cromwell-executions
+  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
+  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
+  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-0
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-e2984cba736e7acdf7c0536378232fca
+  |  |  |-execution
+  |  |  |  |-tmp.JOg8Ce
+  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
+  |  |-shard-1
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-mgc
+  |  |  |  |  |  |-Project_1
+  |  |  |  |  |  |  |-ram
+  |  |  |  |  |  |  |  |-CromwellWDL
+  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
+  |  |  |  |  |  |  |  |  |  |-cromwell-executions
+  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
+  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
+  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-1
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
+  |  |  |-execution
+  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
+  |  |  |  |-tmp.yCh857
+  |-call-BWA_Mem
+  |  |-shard-2
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-bioinformatics
+  |  |  |  |  |  |-DataPacks
+  |  |  |  |  |  |  |-human
+  |  |  |  |  |  |  |  |-EllensSyntheticData
+  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
+  |  |  |  |  |  |  |  |  |  |-Chunks
+  |  |  |  |  |  |-TestData
+  |  |  |  |  |  |  |-HG19
+  |  |  |  |  |  |  |  |-gatk_bundle_2.8
+  |  |  |  |  |  |  |  |  |-2.8
+  |  |  |  |  |  |  |  |  |  |-hg19
+  |  |  |-execution
+  |  |  |  |-glob-8fbfe7a84f921347caf0a4408578e296
+  |  |  |  |-tmp.OWyZa0
+  |  |-shard-0
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-bioinformatics
+  |  |  |  |  |  |-DataPacks
+  |  |  |  |  |  |  |-human
+  |  |  |  |  |  |  |  |-EllensSyntheticData
+  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
+  |  |  |  |  |  |  |  |  |  |-Chunks
+  |  |  |  |  |  |-TestData
+  |  |  |  |  |  |  |-HG19
+  |  |  |  |  |  |  |  |-gatk_bundle_2.8
+  |  |  |  |  |  |  |  |  |-2.8
+  |  |  |  |  |  |  |  |  |  |-hg19
+  |  |  |-execution
+  |  |  |  |-glob-e2984cba736e7acdf7c0536378232fca
+  |  |  |  |-tmp.rrJiKx
+  |  |-shard-1
+  |  |  |-inputs
+  |  |  |  |-projects
+  |  |  |  |  |-bioinformatics
+  |  |  |  |  |  |-DataPacks
+  |  |  |  |  |  |  |-human
+  |  |  |  |  |  |  |  |-EllensSyntheticData
+  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
+  |  |  |  |  |  |  |  |  |  |-Chunks
+  |  |  |  |  |  |-TestData
+  |  |  |  |  |  |  |-HG19
+  |  |  |  |  |  |  |  |-gatk_bundle_2.8
+  |  |  |  |  |  |  |  |  |-2.8
+  |  |  |  |  |  |  |  |  |  |-hg19
+  |  |  |-execution
+  |  |  |  |-tmp.kbVcdk
+  |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
