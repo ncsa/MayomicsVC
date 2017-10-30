@@ -36,7 +36,7 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
 2.3 Need workflow diagram here
 ------------------------------
 
-* Reconstruct from GenomeGPS file structure, highlight which parts we are doing in what order.
+* Reconstruct from GenomeGPS file structure, highlight which parts will be done by us and in what order.
 * Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
 
 
