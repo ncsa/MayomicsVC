@@ -58,6 +58,55 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
     * checking outputs
     * QC on input FASTQ
     * QC on outputs
+
+
+4 Output Folder Structure
+=============================
+
+Cromwell creates a nested output folder structure, one for each tool, and for each sample inside:
+
+* After every execution of Cromwell tool, a folder named "cromwell-executions" is created in the directory from where the cromwell execution engine is run from
+* Inside the "cromwell-executions" folder, a sub folder is created and its name corresponds to the name of the workflow specified in the .wdl file. For example if the name of the workflow in the .wdl file is BWA_Mem_Run then a sub folder is created with the same name
+* After the workflow has successfully executed an ID for the execution is created and this ID is unique for each run. In the example below "97cbc5de-ff36-4912-aa04-395b08702c85" is an unique ID name. 
+
+```
+  |-cromwell-executions
+  |  |-BWA_Mem_Run
+  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
+```
+
+* Inside each folder with the unique ID name there are sub folders that represent the various tasks defined in the .wdl file.
+* The various tasks have a "call" prefix to it as shown below. 
+
+```
+  |
+  |-call-Samtools
+  |-call-BWA-MEM
+```
+
+* Inside the individual task, every sample has an individual folder created for it.  "shard-0" in the example below represents the Sample 1 and "shard-1" represents Sample 2 and so on.
+
+```
+  |-call-Samtools
+  |  |-shard-0
+  |  |-shard-1
+  |  |-shard-2
+```
+* Every shard folder contains an execution folder as seen below
+
+```
+  |-shard-0
+  |  |-execution
+```
+
+* "glob-" folder is present inside every execution folder and it is inside this folder that the output of our program exists. The example below shows the where the output of our program resides at.
+
+```
+  |-execution
+  |  |-glob-8fbfe7a84f921347caf0a4408578e296
+  |  |  | -aligned.bam
+```
+
 ```
   |
   |-call-Samtools
