@@ -107,6 +107,8 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |  | -aligned.bam
 ```
 
+* The example below shows how the entire directory tree and how the folders are created every time the cromwell excution engine executes a wdl program
+
 ```
   |
   |-call-Samtools
