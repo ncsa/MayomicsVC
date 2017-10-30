@@ -1,0 +1,12 @@
+{
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "MultipleSample_MultiStepWorkFlow.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/inputTSV.txt",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "MultipleSample_MultiStepWorkFlow.BWA_Mem.Ref_pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "MultipleSample_MultiStepWorkFlow.Samtools.aligned_bam": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/aligned.bam"
+}
