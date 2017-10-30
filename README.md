@@ -65,8 +65,8 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
 
 Cromwell creates a nested output folder structure, one for each tool, and for each sample inside:
 
-* After every execution of Cromwell tool, a folder named "cromwell-executions" is created in the directory from where the cromwell execution engine is run from
-* Inside the "cromwell-executions" folder, a sub folder is created and its name corresponds to the name of the workflow specified in the .wdl file. For example if the name of the workflow in the .wdl file is BWA_Mem_Run then a sub folder is created with the same name
+* After every execution of Cromwell tool, a folder named "cromwell-executions" is created in the directory from where the cromwell execution engine is run.
+* Inside the "cromwell-executions" folder, a sub folder is created and its name corresponds to the name of the workflow specified in the .wdl file. For example if the name of the workflow in the .wdl file is BWA_Mem_Run then a sub folder is created with the same name.
 * After the workflow has successfully executed an ID for the execution is created and this ID is unique for each run. In the example below "97cbc5de-ff36-4912-aa04-395b08702c85" is an unique ID name. 
 
 ```
@@ -92,7 +92,7 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |-shard-1
   |  |-shard-2
 ```
-* Every shard folder contains an execution folder as seen below
+* Every shard folder contains an execution folder as seen below.
 
 ```
   |-shard-0
@@ -107,7 +107,7 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |  | -aligned.bam
 ```
 
-* The example below shows how the entire directory tree and how the folders are created every time the cromwell excution engine executes a wdl program
+* The example below shows how the entire directory tree and how the folders are created every time the cromwell excution engine executes a wdl program.
 
 ```
   |
