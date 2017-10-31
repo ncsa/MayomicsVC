@@ -31,7 +31,7 @@ task BWA_Mem {
 
         command {
 
-	# BWA Mem Tool is used to create aligned BAM file from the input FASTA File
+	# BWA Mem Tool is used to create aligned SAM file from the input FASTA File
 
         $BWA bwa mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
 
@@ -56,7 +56,7 @@ task BWA_Mem {
 workflow BWA_Mem_Run {
 	# The variable below represents a text file which has sample input information
 	# Each line represents the various inputs for an individual sample
-	# These inputs for a single sample are seperated from one another by TAB spacing
+	# These inputs for a single sample are separated from one another by TAB spacing
 	
 	File InputSamplesFile 
        
