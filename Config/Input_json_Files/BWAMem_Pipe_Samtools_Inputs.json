@@ -1,0 +1,12 @@
+{
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.OutputBam": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/aligned.bam",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "BWAMem_Pipe_Samtools_Run.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Config/Input_json_Files/inputTSV.txt",
+  "BWAMem_Pipe_Samtools_Run.BWAMem_Pipe_Samtools.Ref_fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai"
+}
