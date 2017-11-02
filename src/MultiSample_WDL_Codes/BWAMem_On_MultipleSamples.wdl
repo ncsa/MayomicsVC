@@ -29,15 +29,18 @@ task BWA_Mem {
         File Ref_pac_File		#
         File Ref_sa_File		#
 
-        command {
+	String BWA			# Variable where path the to BWA MEM Tool is defined
+	String Capture_Exit_Code	# Variable used to capture the exit code
 
+        command {
+ 
 	# BWA Mem Tool is used to create aligned SAM file from the input FASTA File
 
-        $BWA bwa mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
+        ${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
 
 	# The command below is used to capture the exit code
 
-	echo $? > /projects/mgc/Project_1/ram/capture.txt
+	echo $? > ${Capture_Exit_Code}
 	
 	}
    
