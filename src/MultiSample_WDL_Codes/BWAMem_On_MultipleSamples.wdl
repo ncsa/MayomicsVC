@@ -11,15 +11,6 @@
 
 ###########################################################################################
 
-task Start_of_Workflow_Notification{
-
-        command {
-    	#  Email Notification to inform the user of the start of the Workflow
-                        
-		mail -s "Start of the Work Flow" rvenka21@illinois.edu
-         
-         }
-
 # The Task block is where the variables and the functions are defined for performing a certain task
 
 task BWA_Mem {
