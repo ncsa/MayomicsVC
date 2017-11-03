@@ -1,4 +1,0 @@
-{
-  "Novosort_Run.Novosort.OutputSortedBam": "/projects/mgc/Project_1/ram/CromwellWDL/Novosort/hg19.aligned.sorted.bam",
-  "Novosort_Run.Novosort.InputBam": "/projects/mgc/Project_1/ram/CromwellWDL/Samtools/hg19.aligned.bam"
-}
