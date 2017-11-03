@@ -11,7 +11,6 @@
 
 ###########################################################################################
 
-
 # The Task block is where the variables and the functions are defined for performing a certain task
 
 task BWA_Mem {
@@ -29,15 +28,22 @@ task BWA_Mem {
         File Ref_pac_File		#
         File Ref_sa_File		#
 
+	String BWA			# Variable where path the to BWA MEM Tool is defined
+	String Capture_Exit_Code	# Variable used to capture the exit code
+
         command {
 
+	# Email Notification to inform the user of the start of the Workflow
+
+		mail -s "Start of the Work Flow" rvenka21@illinois.edu > /dev/null
+ 
 	# BWA Mem Tool is used to create aligned SAM file from the input FASTA File
 
-        $BWA bwa mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
+        	${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
 
 	# The command below is used to capture the exit code
 
-	echo $? > /projects/mgc/Project_1/ram/capture.txt
+		echo $? > ${Capture_Exit_Code}
 	
 	}
    
@@ -58,31 +64,29 @@ workflow BWA_Mem_Run {
 	# Each line represents the various inputs for an individual sample
 	# These inputs for a single sample are separated from one another by TAB spacing
 	
-	File InputSamplesFile 
+		File InputSamplesFile 
        
 	# The variable below reads a TSV file and store the data in an array	
 
-	Array[Array[File]] inputsamples = read_tsv(InputSamplesFile)
+		Array[Array[File]] inputsamples = read_tsv(InputSamplesFile)
 
 	# Since BWA Mem is performed on multiple samples we have to perform the operation on each sample
 	# The Scatter function helps parallelize a series of identical tasks but give them different inputs
 	
-	scatter(sample in inputsamples)
-	{
+		scatter(sample in inputsamples) {
 	
 	# The Call block is where the task to be performed is called
 	
-        call BWA_Mem
-	{
+        	call BWA_Mem {
 
 	# The Input section inside the Call block is where input variables are assigned either with values                from an array or to an output of another task 
 	# This value is input for the task being called by the call function 	
 
-	input :
-	sampleName = sample[0],		#
-	Input_Read1 = sample[1],	# Samples 0, 1 & 2 represent information for an individual sample
-	Input_Read2 = sample[2]		#
-	}
-	} 
+			input :
+				sampleName = sample[0],		#
+				Input_Read1 = sample[1],        # Samples 0, 1 & 2 represent information for an   								    individual sample
+				Input_Read2 = sample[2]		#
+		            } 	
+		} 
 }  # End of Workflow block
 

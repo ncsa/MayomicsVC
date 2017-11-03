@@ -1,5 +1,0 @@
-{
-  "Picard_Run.Picard_MarkDuplicates.InputSortedBam": "/projects/mgc/Project_1/ram/CromwellWDL/Novosort/hg19.aligned.sorted.bam",
-  "Picard_Run.Picard_MarkDuplicates.PicardMetrics": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/Picard.Metrics.txt",
-  "Picard_Run.Picard_MarkDuplicates.DeduppedOutputBam": "/projects/mgc/Project_1/ram/CromwellWDL/Picard/hg19.aligned.sorted.dedupped.bam"
-}

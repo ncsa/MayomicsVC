@@ -1,4 +1,0 @@
-{
-  "SAM_Tools_Run.SAM_Tools.InputSam": "/projects/mgc/Project_1/ram/CromwellWDL/BWA_Mem/hg19.aligned.sam",
-  "SAM_Tools_Run.SAM_Tools.OutputBam": "/projects/mgc/Project_1/ram/CromwellWDL/Samtools/hg19.aligned.bam"
-}
