@@ -6,8 +6,12 @@
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest
 #PBS -M rvenka21@illinois.edu
-#PBS -m be
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
 
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt --size 0
+
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt --size 0 
 
 module load cromwell/cromwell-29
 module load wdltool/wdltool-0.14
@@ -16,3 +20,23 @@ module load wdltool/wdltool-0.14
 cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
 java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/BWAMem_On_MultipleSamples.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/BWAMem_On_MultipleSamples_Inputs.json
+
+python /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/Cromwell_ID_Capture.py > /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt
+
+var=`cat /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt`
+
+mv /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/cromwell-executions/BWA_Mem_Run/$var /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/cromwell-executions/BWA_Mem_Run/NewName
+
+rm /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt
+
+
+#count=0
+#while line in sample.tsv
+
+#   samplename=`awk '{print $1}' $line` 
+   
+#   mv ${outputfolder}/call-BWA_Me/shard-${count} ${outputfolder}/call-BWA_Mem/${samplename}
+
+#   ((count++))
+#end
+

@@ -11,6 +11,16 @@
 
 ###########################################################################################
 
+# Task block that provides an email notification for the start of the workflow
+
+task Start_WorkFlow {
+
+	command {
+		
+		mailx -s "The WorkFlow is Initiated" rvenka21@illinois.edu > /dev/null
+	}
+}
+
 # The Task block is where the variables and the functions are defined for performing a certain task
 
 task BWA_Mem {
@@ -33,10 +43,6 @@ task BWA_Mem {
 
         command {
 
-	# Email Notification to inform the user of the start of the Workflow
-
-		mail -s "Start of the Work Flow" rvenka21@illinois.edu > /dev/null
- 
 	# BWA Mem Tool is used to create aligned SAM file from the input FASTA File
 
         	${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > ${sampleName}.aligned.sam
@@ -70,21 +76,23 @@ workflow BWA_Mem_Run {
 
 		Array[Array[File]] inputsamples = read_tsv(InputSamplesFile)
 
-	# Since BWA Mem is performed on multiple samples we have to perform the operation on each sample
+        # The Call block is where the task to be performed is called
+        
+                call Start_WorkFlow
+
+	# Since BWA Mem is performed on multiple samples we have to perform BWA Mem  on each sample
 	# The Scatter function helps parallelize a series of identical tasks but give them different inputs
 	
 		scatter(sample in inputsamples) {
 	
-	# The Call block is where the task to be performed is called
-	
         	call BWA_Mem {
 
-	# The Input section inside the Call block is where input variables are assigned either with values                from an array or to an output of another task 
+	# The Input section inside the Call block is where input variables are assigned either with values from an array or to an output of another task 
 	# This value is input for the task being called by the call function 	
 
 			input :
 				sampleName = sample[0],		#
-				Input_Read1 = sample[1],        # Samples 0, 1 & 2 represent information for an   								    individual sample
+				Input_Read1 = sample[1],        # Samples 0, 1 & 2 represent information for an individual sample
 				Input_Read2 = sample[2]		#
 		            } 	
 		} 
