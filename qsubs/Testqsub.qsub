@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#PBS -A bany
+#PBS -q big_mem
+#PBS -l nodes=3:ppn=20
+#PBS -l walltime=00:10:00
+#PBS -N AlignBlockTest
+#PBS -M rvenka21@illinois.edu
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
+
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt --size 0
+
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt --size 0
+
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt --size 0
+
+module load cromwell/cromwell-29
+module load wdltool/wdltool-0.14
+
+
+cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
+
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/MultipleSamples_MultiStepWorkFlow.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/MultipleSamples_MultiStepWorkFlow_Inputs.json 
+
