@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -A bany
-#PBS -q normal
+#PBS -q big_mem
 #PBS -l nodes=3:ppn=20
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest
@@ -9,11 +9,11 @@
 #PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt
 #PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
 
-truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt --size 0
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
 
-truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt --size 0 
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt 
 
-truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt --size 0
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt
 
 module load cromwell/cromwell-29
 module load wdltool/wdltool-0.14
@@ -22,7 +22,7 @@ cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
 echo 'The WorkFlow has been initiated for N Samples' | mailx -s "Start of the WorkFlow" rvenka21@illinois.edu
 
-java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/BWAMem_On_MultipleSamples.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/BWAMem_On_MultipleSamples_Inputs.json
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/BWA_Mem.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/BWA_Mem_inputs.json
 
 echo 'The WorkFlow has completed. Exit_Code.txt has information on Samples that failed and at which step' | mailx -s "End of the WorkFlow" rvenka21@illinois.edu
 
