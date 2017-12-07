@@ -4,11 +4,11 @@
 
 #########################################################################################################
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/Tasks/Bwa_Sam.wdl" as BWA
+import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/Bwa_Sam.wdl" as BWA
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/Tasks/Novosort.wdl" as NSORT
+import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/Novosort.wdl" as NSORT
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/Tasks/PicardMD.wdl" as PICARD
+import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/PicardMD.wdl" as PICARD
 
 workflow AlignBlock_Run {
    # The InputSamplesFile is a variable that stores information on various samples
@@ -28,7 +28,8 @@ workflow AlignBlock_Run {
          input :
             sampleName = sample[0],         
             Input_Read1 = sample[1],         
-            Input_Read2 = sample[2]
+            Input_Read2 = sample[2],
+            Exit_Code = Capture_Exit_Code
       }   
 
       call NSORT.Novosort {
