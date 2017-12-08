@@ -18,7 +18,7 @@ task Picard_MarkDuplicates {
 
    command {
       # Picard Mark Duplicates is used to mark duplicates on input sorted BAMs
-      ${JAVA} -Xmx8g -jar ${PICARD} MarkDuplicates I=${sep=',' Aligned_Sorted_Bam } O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
+      ${JAVA} -Xmx2g -jar ${PICARD} MarkDuplicates I=${sep=',' Aligned_Sorted_Bam } O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
          
       if [ $? -ne 0 ]; then
          echo '${sampleName} has failed at the Mark Duplicates Step' >> ${Exit_Code}
@@ -31,4 +31,11 @@ task Picard_MarkDuplicates {
       Array[File] Aligned_Sorted_Dedupped_Bam = glob("${sampleName}.aligned.sorted.dedupped.bam")
       Array[File] PicardMetrics = glob("${sampleName}.PicardMetrics")
    }
+
+   # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call
+   runtime {
+      continueOnReturnCode: true
+   }
+
 }
+
