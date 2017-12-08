@@ -47,7 +47,7 @@ The /src folder contains three sub folders namely /Tasks, /TestTasks and /TestWo
 The diagram below shows how the individual steps in the Alignemnt Block are written. These steps are part of the Alignment Block cand can be executed as individual tasks as well. 
 
 Inline-style:
-![alt text] ()
+![alt text] (https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/AlignmentBlock.svg)
 
 3 Dependencies
 ==============
