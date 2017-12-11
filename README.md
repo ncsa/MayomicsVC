@@ -40,6 +40,17 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
 * Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
 
 
+Cromwell/WDL is workflow definition language that is designed from the ground up as a human-readable and -writable way to express tasks and workflows. The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
+
+The /src folder contains three sub folders namely /Tasks, /TestTasks and /TestWorkflow. The /Tasks folder contains the individual tasks of the Alignment block. The files are named as per the function that they perform. The scripts inside the /TestTasks folder are used for testing each step of the workflow seperately. For eg. TestBWA_Sam.wdl is script that includes the Bwa_Sam.wdl as a task to execute BWA Mem. The /TestBlock folder has scripts that include all the steps of the workflow as individual modules and performs Alignment for a given set of samples. The TestAlickBlock.wdl imports Bwa_Sam.wdl, Novosort.wdl and PicardMD.wdl to execute Alignment for a set of samples.
+
+The diagram below shows how the individual steps in the Alignemnt Block are written. These steps are part of the Alignment Block cand can be executed as individual tasks as well. 
+
+
+
+![Image of Folder Structure](https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/media/Folder_Design.svg)
+
+
 
 3 Dependencies
 ==============
