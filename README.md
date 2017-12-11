@@ -48,7 +48,7 @@ The diagram below shows how the individual steps in the Alignemnt Block are writ
 
 
 
-![Image of Folder Structure](https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/FolderDesign.svg)
+![Image of Folder Structure](https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/media/Folder_Design.svg)
 
 
 
