@@ -17,6 +17,9 @@ task Picard_MarkDuplicates {
    String PICARD                                   # Variable path to Picard 
 
    command {
+      
+      set -o pipefail
+
       # Picard Mark Duplicates is used to mark duplicates on input sorted BAMs
       ${JAVA} -Xmx2g -jar ${PICARD} MarkDuplicates I=${sep=',' Aligned_Sorted_Bam } O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
          

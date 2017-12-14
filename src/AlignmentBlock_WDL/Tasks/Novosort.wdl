@@ -17,7 +17,9 @@ task Novosort {
    String Exit_Code                # File to capture exit code
    String SORT                         # Variable path to Novosort
    
-   command { 
+   command {
+
+      set -o pipefail
       # Novosort Tools is used to created sort BAM Files 
       ${SORT} -c 18 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
       

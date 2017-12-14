@@ -230,3 +230,15 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |  |  |-tmp.kbVcdk
   |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
 ```
+
+Email Notifications
+====================
+
+It's good practice to notify the analyst of failures in workflow. Failure notifications can be emailed to the analyst. Analysts can be notified at each step as and when a sample fails or a list of all the samples that have failed a step can be collected at the end of the step and that information can be emailed to the user. There are trade-offs to both these methods that have to be considered. 
+
+If we consider the first case where notifications are sent for every sample,  the analyst will be able to figure out that something is wrong and can tend to the errors. On the other hand he/she ends up receiving numerous emails for all the samples that have failed a certain step. For eg. if there are 1000 samples that run on a workflow and if a majority of samples fail at the first step then the analyst can quickly look at the logs and figure out why the samples have failed that particular step. The disadvantage though is if 1000 samples fail a certain step then an email for each sample will be sent out flooding the analyst's inbox.
+
+For the second case if a list of all the failed samples is made and then that information sent as an email will prevent flooding of the inbox. There is an issue with time because he/she will have to wait for the end of the step to find out which samples have failed the step which can be in order of hours depending on the step of the workflow. These are some trade-offs which have to considered while designed a workflow.
+
+
+
