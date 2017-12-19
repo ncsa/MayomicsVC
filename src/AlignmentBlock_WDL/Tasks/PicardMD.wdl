@@ -12,14 +12,16 @@
 task Picard_MarkDuplicates {
    Array[File] Aligned_Sorted_Bam                  # Input Sorted BAM File
    String sampleName                               # Name of the Sample
-   String Exit_Code                        # File to capture exit code
+   String Exit_Code                                # File to capture exit code
    String JAVA                                     # Variable path to Java
    String PICARD                                   # Variable path to Picard 
+   String Failure_Logs                             # Variable to capture Failure Reports
 
    command {
-      
-      set -o pipefail
-
+     
+      # Check to see if input files are non-zero
+      [ -s ${sep=',' Aligned_Sorted_Bam} ] || echo "Input Read 1 File is Empty" >> ${Failure_Logs}
+ 
       # Picard Mark Duplicates is used to mark duplicates on input sorted BAMs
       ${JAVA} -Xmx2g -jar ${PICARD} MarkDuplicates I=${sep=',' Aligned_Sorted_Bam } O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
          
@@ -33,6 +35,9 @@ task Picard_MarkDuplicates {
    output {
       Array[File] Aligned_Sorted_Dedupped_Bam = glob("${sampleName}.aligned.sorted.dedupped.bam")
       Array[File] PicardMetrics = glob("${sampleName}.PicardMetrics")
+
+      # Variable to Email user at the end of step in workflow
+      Int Email_Flag = 3
    }
 
    # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call

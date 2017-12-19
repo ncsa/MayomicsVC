@@ -10,6 +10,7 @@ workflow Call_BWA {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
+
    # The 2-D array stores information of all the samples 
    Array[Array[File]] inputsamples = read_tsv(InputSamplesFile)
 
@@ -23,6 +24,7 @@ workflow Call_BWA {
             sampleName = sample[0],
             Input_Read1 = sample[1],
             Input_Read2 = sample[2]
+            
       }
 
    } # End of scatter block

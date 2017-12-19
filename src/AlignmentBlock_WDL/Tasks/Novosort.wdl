@@ -14,14 +14,17 @@
 task Novosort {
    Array[File] Aligned_Bam                 # Input BAM File
    String sampleName                       # Name of the Sample
-   String Exit_Code                # File to capture exit code
-   String SORT                         # Variable path to Novosort
-   
+   String Exit_Code                        # File to capture exit code
+   String SORT                             # Variable path to Novosort
+   String Failure_Logs                     # Variable to capture Failure Reports
+
    command {
 
-      set -o pipefail
+      # Check to see if input files are non-zero
+      [ -s ${sep=',' Aligned_Bam} ] || echo "Input BAM File is Empty" >> ${Failure_Logs}
+
       # Novosort Tools is used to created sort BAM Files 
-      ${SORT} -c 18 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
+      ${SORT} -c 36 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
       
       # The 'if' check to see if any of the samples have failed this step          
       if [ $? -ne 0 ]; then
@@ -33,6 +36,9 @@ task Novosort {
    # glob function is used to capture the multi sample outputs   
    output {  
       Array[File] Aligned_Sorted_Bam = glob("${sampleName}.aligned.sorted.bam")
+      
+      # Variable to Email user at the end of step in workflow
+      Int Email_Flag = 2
    }
    
    # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call

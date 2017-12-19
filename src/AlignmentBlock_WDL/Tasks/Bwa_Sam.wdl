@@ -31,38 +31,42 @@ task BWA_Mem {
    String BWA			# Variable path to BWA MEM Tool
    String SAMTOOL               # variable path to Samtools
    String Exit_Code		# Variable capture exit code
-   String Failure_Logs          # Variable to capture Failure messages
+   String Failure_Logs          # Variable to capture Failure reports
+   String dollar = "$"          # Variable to access internal bash variables
+   String DummyVar = 0             # Dummy Variable created to force sequential execution
+   Int EndofBWA = 0
 
    command <<<
 
-      # pipefall command sets the exit status to the exit code of the last program to exit non-zero 
-      # or zero if all exited successfully    
-      set -o pipefail
+      # Check to see if input files are non-zero
+      [ -s ${Input_Read1} ] || echo "Input Read 1 File is Empty" >> ${Failure_Logs} 
+      [ -s ${Input_Read2} ] || echo "Input Read 2 File is Empty" >> ${Failure_Logs}
       
-      # To check if the executables are present
-      
-      [ ! -f ${BWA} ] && echo "BWA does not exist" >>${Failure_Logs}
-
-      [ ! -f ${SAMTOOL} ] && echo "Samtools does not exist" >>${Failure_Logs}
-
-      [ ! -f ${RefFasta} ] && echo "Reference File does does not exist" >>${Failure_Logs}
-
-      # To check if the Input Files are present
-
-      [ -s ${RefFasta} ] || echo "Reference File is Empty" >>${Failure_Logs}
-
-      [ -s ${Input_Read1} ] || echo "Input Read 1 is Empty" >>${Failure_Logs}
-
-      [ -s ${Input_Read2} ] || echo "Input Read 2 is Empty" >>${Failure_Logs}
-
       # BWA Mem Tool is used to create aligned SAM file from the input FASTA File
-      ${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} | ${SAMTOOL} view -@ 2 -bSu -> ${sampleName}.aligned.bam
-      
-      
-      # The 'if' check to see if any of the samples have failed this step
-      if [ $? -ne 0 ]; then
-         echo '${sampleName} has failed at the BWA Mem Step ' >> ${Exit_Code}
-      fi
+      # PIPESTATUS is an internal bash variable which holds the exit code of commands in the pipe
+      ${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} | ${SAMTOOL} view -@ 17 -bSu -> ${sampleName}.aligned.bam; B=(${dollar}{PIPESTATUS[*]})
+
+     if [ ${dollar}{B[0]} -ne 0 ] 
+     then
+        echo "${sampleName} exited BWA with code ${dollar}{B[0]}" >> ${Failure_Logs}
+        echo "${sampleName} exited BWA with code ${dollar}{B[0]}" | mailx -s "Sample Failed BWA Step" rvenka21@illinois.edu
+     ##else
+       ## echo "NO ERRORS" >> ${Failure_Logs}
+     fi
+
+     if [ ${dollar}{B[1]} -ne 0 ]
+     then
+        echo "${sampleName} exited SAMTOOLS with code ${dollar}{B[1]}" >> ${Failure_Logs}
+        echo "${sampleName} exited BWA with code ${dollar}{B[1]}" | mailx -s "Sample Failed SAMTOOLS Step" rvenka21@illinois
+.edu
+     ##else
+     #       ## echo "NO ERRORS" >> ${Failure_Logs}
+     fi
+     
+      #The 'if' check to see if any of the samples have failed this step
+     ###if [ $? -ne 0 ]; then
+      ###echo '${sampleName} has failed at the BWA Mem Step ' >> ${Exit_Code}
+      ###fi
   
     >>>
    
