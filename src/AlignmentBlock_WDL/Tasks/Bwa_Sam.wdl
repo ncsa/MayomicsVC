@@ -23,19 +23,18 @@ task BWA_Mem {
    File Ref_Amb_File		#
    File Ref_Dict_File		#
    File Ref_Ann_File		#
-   File Ref_bwt_File		# These are reference files that are provided as implicit inputs
-   File Ref_fai_File		# to the WDL Tool to help perform the alignment
-   File Ref_pac_File		#
-   File Ref_sa_File		#
+   File Ref_Bwt_File		# These are reference files that are provided as implicit inputs
+   File Ref_Fai_File		# to the WDL Tool to help perform the alignment
+   File Ref_Pac_File		#
+   File Ref_Sa_File		#
 
    String BWA			# Variable path to BWA MEM Tool
    String SAMTOOL               # variable path to Samtools
    String Exit_Code		# Variable capture exit code
    String Failure_Logs          # Variable to capture Failure reports
    String dollar = "$"          # Variable to access internal bash variables
-   String DummyVar = 0             # Dummy Variable created to force sequential execution
-   Int EndofBWA = 0
-
+   String DummyVar              # Dummy Variable created to force sequential execution
+   
    command <<<
 
       # Check to see if input files are non-zero
@@ -46,27 +45,28 @@ task BWA_Mem {
       # PIPESTATUS is an internal bash variable which holds the exit code of commands in the pipe
       ${BWA} mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} | ${SAMTOOL} view -@ 17 -bSu -> ${sampleName}.aligned.bam; B=(${dollar}{PIPESTATUS[*]})
 
-     if [ ${dollar}{B[0]} -ne 0 ] 
-     then
-        echo "${sampleName} exited BWA with code ${dollar}{B[0]}" >> ${Failure_Logs}
-        echo "${sampleName} exited BWA with code ${dollar}{B[0]}" | mailx -s "Sample Failed BWA Step" rvenka21@illinois.edu
-     ##else
-       ## echo "NO ERRORS" >> ${Failure_Logs}
-     fi
+      if [ ${dollar}{B[0]} -ne 0 ] 
+      then
+         echo "${sampleName} exited BWA with code ${dollar}{B[0]}" >> ${Exit_Code}
+         echo "${sampleName} exited BWA with code ${dollar}{B[0]}" | mailx -s "Sample Failed BWA Step" rvenka21@illinois.edu
+      ##else
+      ## echo "NO ERRORS" >> ${Failure_Logs}
+      fi
 
-     if [ ${dollar}{B[1]} -ne 0 ]
-     then
-        echo "${sampleName} exited SAMTOOLS with code ${dollar}{B[1]}" >> ${Failure_Logs}
-        echo "${sampleName} exited BWA with code ${dollar}{B[1]}" | mailx -s "Sample Failed SAMTOOLS Step" rvenka21@illinois
-.edu
-     ##else
-     #       ## echo "NO ERRORS" >> ${Failure_Logs}
-     fi
+      if [ ${dollar}{B[1]} -ne 0 ]
+      then
+         echo "${sampleName} exited SAMTOOLS with code ${dollar}{B[1]}" >> ${Exit_Code}
+         echo "${sampleName} exited BWA with code ${dollar}{B[1]}" | mailx -s "Sample Failed SAMTOOLS Step" rvenka21@illinois.edu
+      ##else
+      #       ## echo "NO ERRORS" >> ${Failure_Logs}
+      fi
      
       #The 'if' check to see if any of the samples have failed this step
-     ###if [ $? -ne 0 ]; then
+      ###if [ $? -ne 0 ]; then
       ###echo '${sampleName} has failed at the BWA Mem Step ' >> ${Exit_Code}
       ###fi
+     
+      [ ! -f ${sampleName}.aligned.bam ] && echo "aligned bam not created" >> ${Failure_Logs}
   
     >>>
    

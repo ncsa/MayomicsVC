@@ -7,6 +7,7 @@ import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCod
 import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/Bwa_Sam.wdl" as BWA
 import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/Novosort.wdl" as NSORT
 import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/PicardMD.wdl" as PICARD
+import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/EndofBlock_Notify.wdl" as EMAIL
 
 
 
@@ -34,6 +35,13 @@ workflow AlignBlock_Run {
       call BWA.BWA_Mem {
          input :
             RefFasta = PreExec_QC.RefFasta,
+            Ref_Amb_File = PreExec_QC.Ref_Amb_File,
+            Ref_Dict_File = PreExec_QC.Ref_Dict_File, 
+            Ref_Ann_File = PreExec_QC.Ref_Ann_File,            
+            Ref_Bwt_File = PreExec_QC.Ref_Bwt_File,            
+            Ref_Fai_File = PreExec_QC.Ref_Fai_File,            
+            Ref_Pac_File = PreExec_QC.Ref_Pac_File,            
+            Ref_Sa_File = PreExec_QC.Ref_Sa_File,           
             sampleName = sample[0],         
             Input_Read1 = sample[1],         
             Input_Read2 = sample[2],
@@ -67,7 +75,13 @@ workflow AlignBlock_Run {
       }      
 
    } # End of scatter block
-   
+
+   call EMAIL.EndofBlock_Notify {
+      input :
+         Email = Picard_MarkDuplicates.Notify_EndofAlignment,
+         Failure_Logs = Failure_Logs
+   }
+
 } # End of Workflow block
 
 
