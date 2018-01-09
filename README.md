@@ -1,24 +1,45 @@
 1 Objective
-============
+===========
 
-Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
-
-2 Workflow architecture
-=======================
-
-2.1 Basic coding principles
----------------------------
-
-* Nothing should be hard-coded - paths to executables, software parameters, GATK bundle files should be defined in the runfile
-* Comments in code
-* Documentation in readme files
+Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
 
 
+2 Design principles
+===================
 
-2.2 Workflow best practices
----------------------------
+2.1 Modularity
+--------------
 
-* Must be modular to be maintainable
+This workflow is modular by design, with each bioinformatics task in its own module. 
+WDL ought to make this easy by defining "tasks" and "workflows". Tasks in our case 
+will wrap individual bioinformatics steps that correspond to the blocks in the diagram 
+below. Tasks can be run individually and also strung together into workflows.
+
+Variant calling workflow is complex, so we break it up into smaller blocks that are 
+easier to develop and maintain. Blocks can be run individually and also called sequentially 
+to execute part or full workflow. 
+
+_Reasons for modular design:_
+* flexibility: can execute any part of the workflow; 
+    * useful for testing or after failure
+    * can swap tools in and out for every task based on user's choice
+* optimal resource utilization: can specify number of nodes, walltime etc that is best for every stage
+* maintainability: can edit modules without breaking the rest of the workflow 
+
+
+
+2.1 Data parallelism and scalability
+------------------------------------
+
+
+2.2 Real-time logging and monitoring
+------------------------------------
+
+
+
+2.3 Fault tolerance
+-------------------
+
 * Must be robust against hardware/software/data failure
     * user option on whether to fail or continue the whole workflow when something goes wrong with one of the sample
     * produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
@@ -27,17 +48,37 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
        * check that all executables exist
        * for each workflow module at runtime, check that output was actualy produced and has nonzero size
        * perform QC on each output file, write results into log, give user option to continue anyway if QC is failed
+
+
+2.4 Data provenance tracking
+----------------------------
+
+
+
+
+2.5 Portability
+---------------
+
+
+
+2.6 Development and test automation 
+-----------------------------------
+
+
 * Unit testing
     * Must have tests designed to succeed and designed to fail to ensure that failure mechanisms work
 
 
 
+3 Workflow architecture
+=======================
 
-2.3 Need workflow diagram here
-------------------------------
 
 * Reconstruct from GenomeGPS file structure, highlight which parts will be done by us and in what order.
 * Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
+
+
+[have workflow diagram here]
 
 
 Cromwell/WDL is workflow definition language that is designed from the ground up as a human-readable and -writable way to express tasks and workflows. The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
@@ -52,12 +93,42 @@ The diagram below shows how the individual steps in the Alignemnt Block are writ
 
 
 
-3 Dependencies
-==============
+3.1 pendencies
+--------------
 
 Grab from GenomeGPS documentation, highlight which parts we are doing in what order.
 
-4 To-Dos
+
+
+4 Design
+========
+
+
+command <<< >>>
+
+String dollar = "$"
+
+tasks of tasks
+
+workflows or workflows
+
+
+
+4.1 Naming conventions
+----------------------
+
+gg
+
+
+
+
+5 Testing
+=========
+
+
+
+
+6 To-Dos
 ========
 
 * As of Oct 24, 2017: Ram will work only on the bwa-mem module, to implement fully the template that could be used for other modules
@@ -71,7 +142,7 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
     * QC on outputs
 
 
-4 Output Folder Structure
+7 Output Folder Structure
 =============================
 
 Cromwell creates a nested output folder structure, one for each tool, and for each sample inside:
