@@ -64,9 +64,8 @@ executed on each sample is necessary to ensure reproducibility of
 the analysis. 
 
 
-
-2.3 Fault tolerance
--------------------
+2.3 Fault tolerance and error handling
+--------------------------------------
 
 The workflow must be robust against hardware/software/data failure:
 * have user option to fail or continue the whole workflow when something goes wrong with one of the samples
@@ -78,9 +77,14 @@ To prevent avpidable failures and resource wastage, need to check everything bef
 * for each workflow module at runtime, check that output was actualy produced and has nonzero size,
 * perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
-
-* produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
-
+User notification of the success/failure status to be implemented by capturing exit codes, 
+writing error messages into failure logs, notifying analyst of the success/failure status 
+via email or another notification system. We envision three levels of granularity for user 
+notification:
+* total dump of success/failure messages at the end of the workflow,
+* notification at the end of a stage,
+* notification at the end of a task.
+Granularity to be specified by user as an option in the runfile.
 
 
 2.4 Portability
