@@ -19,7 +19,7 @@ Variant calling workflow is complex, so we break it up into smaller stages that 
 easier to develop and maintain. Blocks can be run individually and also called sequentially 
 to execute part or full workflow. 
 
-___Reasons for modular design:___
+____Reasons for modular design:____
 * flexibility: can execute any part of the workflow; 
     * useful for testing or after failure
     * can swap tools in and out for every task based on user's choice
