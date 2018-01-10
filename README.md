@@ -12,10 +12,10 @@ Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
 
 This workflow is modular by design, with each bioinformatics task in its own module. 
 WDL ought to make this easy by defining "tasks" and "workflows". Tasks in our case 
-will wrap individual bioinformatics steps that correspond to the blocks in the diagram 
+will wrap individual bioinformatics steps that correspond to the stages in the diagram 
 below. Tasks can be run individually and also strung together into workflows.
 
-Variant calling workflow is complex, so we break it up into smaller blocks that are 
+Variant calling workflow is complex, so we break it up into smaller stages that are 
 easier to develop and maintain. Blocks can be run individually and also called sequentially 
 to execute part or full workflow. 
 
@@ -24,59 +24,101 @@ _Reasons for modular design:_
     * useful for testing or after failure
     * can swap tools in and out for every task based on user's choice
 * optimal resource utilization: can specify number of nodes, walltime etc that is best for every stage
-* maintainability: can edit modules without breaking the rest of the workflow 
+* maintainability: 
+    * can edit modules without breaking the rest of the workflow 
+    * certain modules, such as QC and user notification, should serve as plug-ins for other modules, so that we would not need to change multiple places in the workflow if we change the QC procedure or user notification procedure.
 
 
 
 2.1 Data parallelism and scalability
 ------------------------------------
 
+The workflow should run as a single multi-node job, handling the placement of tasks 
+across the nodes using embedded parallel mechanisms. We expect support for:
+* running one sample per node;
+* multiple samples per node on both:
+    * clusters with node sharing,
+    * clusters without node sharing.
 
-2.2 Real-time logging and monitoring
-------------------------------------
+The workflow must support repetitive fans and merges in the codei, conditionally on user choice in the runfile:
+* support splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
+and merging the aligned files per-sample for sorting and deduplication;
+* support splitting of aligned/dedupped BAMs for parallel realignment and recalibration per-chromosome.
+
+Workflow should scale well with the number of samples - although that is a function 
+of the Cromwell execution engine. We will be benchmarking this feature (see Testing section below).
+
+
+
+2.2 Real-time logging and monitoringi, data provenance tracking
+---------------------------------------------------------------
+
+Have a good system for logging and monitoring progress of the jobs. 
+At any moment during the run, the analyst should be able to assess 
+* which stage of the workflow is running for every sample batch, 
+* which samples may have failed and why, 
+* which nodes the analyses are running on, and their health status. 
+
+Additionally, a well-structured post-analysis record of all events 
+executed on each sample is necessary to ensure reproducibility of 
+the analysis. 
 
 
 
 2.3 Fault tolerance
 -------------------
 
-* Must be robust against hardware/software/data failure
-    * user option on whether to fail or continue the whole workflow when something goes wrong with one of the sample
-    * produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
-    * check everything before workflow actually runs: 
-       * check that all the sample files exist and have nonzero size 
-       * check that all executables exist
-       * for each workflow module at runtime, check that output was actualy produced and has nonzero size
-       * perform QC on each output file, write results into log, give user option to continue anyway if QC is failed
+The workflow must be robust against hardware/software/data failure:
+* have user option to fail or continue the whole workflow when something goes wrong with one of the samples
+* in the event of hardware failure, have ability to move a task to a spare node - is a function of Cromwell, but workflow should support it by requesting a few extra nodes (have user specify number of samples and parallelism patternsm and calculate neede dnumber of nodes from there).
+
+To prevent avpidable failures and resource wastage, need to check everything before workflow actually runs: 
+* check that all the sample files exist and have nonzero size,
+* check that all executables exist and have the right permissions,
+* for each workflow module at runtime, check that output was actualy produced and has nonzero size,
+* perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
 
-2.4 Data provenance tracking
-----------------------------
+* produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
 
 
 
-
-2.5 Portability
+2.4 Portability
 ---------------
+
+The workflow should be able to port smoothly among the following four kinds of systems:
+* grid cluster with PBS Torque,
+* grid cluster with OGE,
+* AWS,
+* MS Azure.
 
 
 
 2.6 Development and test automation 
 -----------------------------------
 
-
-* Unit testing
-    * Must have tests designed to succeed and designed to fail to ensure that failure mechanisms work
+The workflow should be constructed in such a way as to support automated testing:
+* Unit testing on each task
+* Integration testing for each codepath in each workflow stage
+* Integration testing for the main path (most often used code path) in the whole workflow
+* Regression testing on all of the above
 
 
 
 3 Workflow architecture
 =======================
 
+GenomeGPS is a massive beast that consists of 5 subworkflows:
+1. BAM cleaning,
+2. germline variant calling,
+3. somatic variant calling,
+4. copy number variant identification,
+5. QC
 
-* Reconstruct from GenomeGPS file structure, highlight which parts will be done by us and in what order.
-* Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
-
+Each workflow may have higher-level modules in it, which we call "stages". 
+For example, in BAM cleaning we have these 2 stages:
+1. Alignment 
+2. Realignment/recalibration
 
 [have workflow diagram here]
 
