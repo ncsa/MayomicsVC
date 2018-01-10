@@ -19,7 +19,7 @@ Variant calling workflow is complex, so we break it up into smaller stages that 
 easier to develop and maintain. Blocks can be run individually and also called sequentially 
 to execute part or full workflow. 
 
-_Reasons for modular design:_
+__Reasons for modular design:__
 * flexibility: can execute any part of the workflow; 
     * useful for testing or after failure
     * can swap tools in and out for every task based on user's choice
@@ -50,7 +50,7 @@ of the Cromwell execution engine. We will be benchmarking this feature (see Test
 
 
 
-2.2 Real-time logging and monitoringi, data provenance tracking
+2.2 Real-time logging and monitoring, data provenance tracking
 ---------------------------------------------------------------
 
 Have a good system for logging and monitoring progress of the jobs. 
