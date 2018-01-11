@@ -105,11 +105,7 @@ The workflow should be constructed in such a way as to support automated testing
 
 GenomeGPS is a massive beast that consists of 5 component workflows:
 
-1. BAM cleaning,                             <img align="right" src="https://user-images.githubusercontent.com/4040442/34808460-b67a4438-f654-11e7-895e-fa5c8c7e9445.png" alt="Image of Folder Structure" width="650"> 
-2. germline variant calling,                 
-3. somatic variant calling,                 
-4. copy number variant identification,     
-5. QC                                       
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34808460-b67a4438-f654-11e7-895e-fa5c8c7e9445.png" alt="Image of Folder Structure"> 
 
 
 # Implementation
