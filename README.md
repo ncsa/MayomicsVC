@@ -138,6 +138,9 @@ The diagram below shows how the individual steps in the Alignemnt Block are writ
 ![Image of Folder Structure](https://user-images.githubusercontent.com/4040442/34805008-32c9c66c-f641-11e7-927a-fa6714f144b5.jpg=100x)
 
 
+<img src="https://user-images.githubusercontent.com/4040442/34805008-32c9c66c-f641-11e7-927a-fa    6714f144b5.jpg" alt="Drawing" style="width: 200px;"/>
+
+
 
 3.1 pendencies
 --------------
