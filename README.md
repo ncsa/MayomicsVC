@@ -149,7 +149,7 @@ which can be called from other .wdl scripts to form workflows (such as the Align
 ```WDL
 #TestSamtools.wdl
 
-import Samtools.wdl" as SamtoolsTask
+import "Samtools.wdl" as SamtoolsTask
 
 workflow Call_Samtools {
    # Define inputs
