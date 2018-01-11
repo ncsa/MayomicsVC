@@ -113,15 +113,14 @@ The workflow should be constructed in such a way as to support automated testing
 =======================
 
 GenomeGPS is a massive beast that consists of 5 subworkflows:
-Solarized dark                              |  Solarized Ocean
-:------------------------------------------:|:-------------------------:
+                                            |                     
+------------------------------------------|-------------------------
 1. BAM cleaning,                            | <img align="right" src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure" width="600">
 2. germline variant calling,                |
 3. somatic variant calling,                 |
 4. copy number variant identification,      |
 5. QC                                       |
 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure" width="600">
 
 Each workflow may have higher-level modules in it, which we call "stages". 
 For example, in BAM cleaning we have these 2 stages:
