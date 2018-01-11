@@ -1,14 +1,14 @@
-1 Objective
+# Objective
 ===========
 
 Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
 
 
-2 Design principles
+# Design principles
 ===================
 
-2.1 Modularity
---------------
+## Modularity
+-------------
 
 This workflow is modular by design, with each bioinformatics task in its own module. 
 WDL ought to make this easy by defining "tasks" and "workflows". Tasks in our case 
@@ -16,7 +16,7 @@ will wrap individual bioinformatics steps that correspond to the stages in the d
 below. Tasks can be run individually and also strung together into workflows.
 
 Variant calling workflow is complex, so we break it up into smaller 
-[stages](#3-Workflow-architecture) that are easier to develop and maintain. 
+[stages](#Workflow-architecture) that are easier to develop and maintain. 
 Blocks can be run individually and also called sequentially 
 to execute part or full workflow. 
 
@@ -31,8 +31,8 @@ Reasons for modular design:
 
 
 
-2.1 Data parallelism and scalability
-------------------------------------
+## Data parallelism and scalability
+-----------------------------------
 
 The workflow should run as a single multi-node job, handling the placement of tasks 
 across the nodes using embedded parallel mechanisms. We expect support for:
@@ -110,7 +110,7 @@ The workflow should be constructed in such a way as to support automated testing
 
 
 
-3 Workflow architecture
+# Workflow architecture
 =======================
 
 GenomeGPS is a massive beast that consists of 5 subworkflows:
