@@ -169,9 +169,18 @@ The /src folder is broken up by stages. Inside a folder for every stage (i.e. Al
 
 
 
-command <<< >>>
+## Naming conventions
 
-String dollar = "$"
+Gotta write those
+
+
+
+## Scripting peculiarities imposed by WDL
+
+The command block in each task specifies the series of bash commands that will be run in series on each input sample. In order to script Bash variables in legible style, we have to use two tricks.
+1. The command block needs to be delimited with <<< >>>, not { }. This is because Bash variable names are best specified as ${variable}, not $variable, for legibility and correct syntax.
+2. The Bash dollar sign for variables cannot be escaped. Therefore, the "dollar" has to be deined at the top of each .wdl script: 
+String dollar = "$"  
 
 tasks of tasks
 
@@ -179,7 +188,6 @@ workflows or workflows
 
 
 
-4.1 Naming conventions
 ----------------------
 
 
