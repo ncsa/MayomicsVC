@@ -163,7 +163,6 @@ workflow Call_Samtools {
 The workflows scripts are run by the Cromwell execution engine. 
 <img align="right" src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="650"> 
 
-The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
 
 The /src folder contains three sub folders namely /Tasks, /TestTasks and /TestWorkflow. The /Tasks folder contains the individual tasks of the Alignment block. The files are named as per the function that they perform. The scripts inside the /TestTasks folder are used for testing each step of the workflow seperately. For eg. TestBWA_Sam.wdl is script that includes the Bwa_Sam.wdl as a task to execute BWA Mem. The /TestBlock folder has scripts that include all the steps of the workflow as individual modules and performs Alignment for a given set of samples. The TestAlickBlock.wdl imports Bwa_Sam.wdl, Novosort.wdl and PicardMD.wdl to execute Alignment for a set of samples.
 
