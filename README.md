@@ -135,7 +135,7 @@ The diagram below shows how the individual steps in the Alignemnt Block are writ
 
 
 
-![Image of Folder Structure](https://user-images.githubusercontent.com/4040442/34805008-32c9c66c-f641-11e7-927a-fa6714f144b5.jpg =100)
+![Image of Folder Structure](https://user-images.githubusercontent.com/4040442/34805008-32c9c66c-f641-11e7-927a-fa6714f144b5.jpg=100)
 
 
 
