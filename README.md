@@ -119,7 +119,7 @@ For example, in BAM cleaning we have these 2 stages:
 1. Alignment 
 2. Realignment/recalibration
 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="800">
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="900">
 
 Each *stage* consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the [figure](https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png) on the right), such as alignment against a reference, or deduplication of aligned BAM. Tasks are written as .wdl scripts:
 
