@@ -115,9 +115,7 @@ GenomeGPS is a massive beast that consists of 5 component workflows:
 # Design
 
 Each workflow may have higher-level [modules](#modularity) in it, which we call "stages". 
-For example, in BAM cleaning we have these 2 stages:
-1. Alignment 
-2. Realignment/recalibration
+For example, in BAM cleaning we have 2 stages: Alignment and Realignment/recalibration.
 
 <img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="900">
 
