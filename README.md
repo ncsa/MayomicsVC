@@ -143,7 +143,7 @@ task Samtools {
 }
 ```
 
-which can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:
+which can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:     <img align="right" src="https://user-images.githubusercontent.com/4040442/34807642-91a433a8-f64f-11e7-8c8b-ec79c568967c.png" alt="Modularity implementation" width="650"> 
 
 
 ```WDL
