@@ -119,7 +119,7 @@ GenomeGPS is a massive beast that consists of 5 subworkflows:
 4. copy number variant identification,
 5. QC
 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure">
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure" width="400">
 
 Each workflow may have higher-level modules in it, which we call "stages". 
 For example, in BAM cleaning we have these 2 stages:
