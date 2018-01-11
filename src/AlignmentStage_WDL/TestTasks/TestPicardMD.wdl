@@ -4,7 +4,7 @@
 
 ###############################################################################################
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/PicardMD.wdl" as PICARD
+import "../Tasks/PicardMD.wdl" as PICARD
 
 workflow Call_PicardMD {
    # The InputSamplesFile is a variable that stores information on various samples

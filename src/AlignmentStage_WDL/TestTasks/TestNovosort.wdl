@@ -4,7 +4,7 @@
 
 #######################################################################################
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/Novosort.wdl" as NSORT
+import "../Tasks/Novosort.wdl" as NSORT
 
 workflow Call_Novosort {
    # The InputSamplesFile is a variable that stores information on various samples
