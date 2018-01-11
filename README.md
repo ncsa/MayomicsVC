@@ -115,7 +115,7 @@ GenomeGPS is a massive beast that consists of 5 component workflows:
 # Design
 
 Each workflow may have higher-level [modules](#modularity) in it, which we call "stages". 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="600">
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="700">
 For example, in BAM cleaning we have these 2 stages:
 1. Alignment 
 2. Realignment/recalibration
@@ -143,7 +143,7 @@ task Samtools {
 }
 ```
 
-which can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:     <img align="right" src="https://user-images.githubusercontent.com/4040442/34807642-91a433a8-f64f-11e7-8c8b-ec79c568967c.png" alt="Modularity implementation" width="650"> 
+which can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:
 
 
 ```WDL
@@ -165,6 +165,7 @@ workflow Call_Samtools {
 
 
 The workflows scripts are run by the Cromwell execution engine. 
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34807642-91a433a8-f64f-11e7-8c8b-ec79c568967c.png" alt="Modularity implementation" width="650"> 
 
 The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
 
