@@ -160,15 +160,10 @@ workflow Call_Samtools {
 ```
 
 
-The workflows scripts are run by the Cromwell execution engine. 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="650"> 
+The /src folder is broken up by stages. Inside a folder for every stage (i.e. AlignmentStage_WDL/) we have three sub folders that contain: (1) the library of tasks (Tasks/), (2) the suite of unit tests, one for each task (TestTasks/), and (3) the resultant workflow stage (Workflows/), which can also serve as tests for integration of individual tasks into workflows. The files are named as per the function that they perform.  
 
 
-The /src folder is broken up by stages. Inside a folder for every stage (i.e. AlignmentStage_WDL/) we have three sub folders that contain:
-1. the library of tasks (Tasks/), 
-2. the suite of tests, one for each task (TestTasks/), and 
-3. the resultant workflows Workflows/. 
-The files are named as per the function that they perform.  The /TestBlock folder has scripts that include all the steps of the workflow as individual modules and performs Alignment for a given set of samples. The TestAlickBlock.wdl imports Bwa_Sam.wdl, Novosort.wdl and PicardMD.wdl to execute Alignment for a set of samples.
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation"> 
 
 The diagram below shows how the individual steps in the Alignemnt Block are written. These steps are part of the Alignment Block cand can be executed as individual tasks as well. 
 
