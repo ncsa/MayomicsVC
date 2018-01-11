@@ -29,7 +29,6 @@ Reasons for modular design:
 
 
 ## Data parallelism and scalability
------------------------------------
 
 The workflow should run as a single multi-node job, handling the placement of tasks 
 across the nodes using embedded parallel mechanisms. We expect support for:
@@ -48,8 +47,7 @@ of the Cromwell execution engine. We will be benchmarking this feature (see Test
 
 
 
-2.2 Real-time logging and monitoring, data provenance tracking
----------------------------------------------------------------
+## Real-time logging and monitoring, data provenance tracking
 
 Have a good system for logging and monitoring progress of the jobs. 
 At any moment during the run, the analyst should be able to assess 
@@ -62,8 +60,7 @@ executed on each sample is necessary to ensure reproducibility of
 the analysis. 
 
 
-2.3 Fault tolerance and error handling
---------------------------------------
+## Fault tolerance and error handling
 
 The workflow must be robust against hardware/software/data failure:
 * have user option to fail or continue the whole workflow when something goes wrong with one of the samples
@@ -85,8 +82,7 @@ notification:
 Granularity to be specified by user as an option in the runfile.
 
 
-2.4 Portability
----------------
+## Portability
 
 The workflow should be able to port smoothly among the following four kinds of systems:
 * grid cluster with PBS Torque,
@@ -96,8 +92,7 @@ The workflow should be able to port smoothly among the following four kinds of s
 
 
 
-2.6 Development and test automation 
------------------------------------
+## Development and test automation 
 
 The workflow should be constructed in such a way as to support automated testing:
 * Unit testing on each task
@@ -108,7 +103,6 @@ The workflow should be constructed in such a way as to support automated testing
 
 
 # Workflow architecture
-=======================
 
 GenomeGPS is a massive beast that consists of 5 subworkflows:
 
