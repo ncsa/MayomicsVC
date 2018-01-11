@@ -119,12 +119,14 @@ GenomeGPS is a massive beast that consists of 5 subworkflows:
 4. copy number variant identification,
 5. QC
 
+<img src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure">
+
 Each workflow may have higher-level modules in it, which we call "stages". 
 For example, in BAM cleaning we have these 2 stages:
 1. Alignment 
 2. Realignment/recalibration
 
-[have workflow diagram here]
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages">
 
 
 Cromwell/WDL is workflow definition language that is designed from the ground up as a human-readable and -writable way to express tasks and workflows. The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
@@ -133,14 +135,6 @@ The /src folder contains three sub folders namely /Tasks, /TestTasks and /TestWo
 
 The diagram below shows how the individual steps in the Alignemnt Block are written. These steps are part of the Alignment Block cand can be executed as individual tasks as well. 
 
-
-
-![Image of Folder Structure](https://user-images.githubusercontent.com/4040442/34805008-32c9c66c-f641-11e7-927a-fa6714f144b5.jpg=100x)
-
-
-<img src="https://user-images.githubusercontent.com/4040442/34805268-bfdbd7f6-f642-11e7-9e8c-6d0d748ff5e4.png" alt="Image of Folder Structure">
-
-<img src="url" alt="alt text" width="whatever" height="whatever">
 
 
 
