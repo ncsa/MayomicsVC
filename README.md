@@ -135,7 +135,7 @@ The diagram below shows how the individual steps in the Alignemnt Block are writ
 
 
 
-![Image of Folder Structure](https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/files/1620955/GGPS_Subworkflows.png)
+![Image of Folder Structure](https://user-images.githubusercontent.com/4040442/34804642-4daf8c52-f63f-11e7-896c-82b1e9969690.png)
 
 
 
