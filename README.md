@@ -121,6 +121,24 @@ For example, in BAM cleaning we have these 2 stages:
 2. Realignment/recalibration
 
 Each *stage* consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps, such as alignment against a reference, or deduplication of aligned BAM.  WDL has 
+```WDL
+#Samtools.wdl
+task Samtools {
+ # Define variables
+
+ command {
+    Samtools view input.sam -o output.bam
+ }
+
+ output {
+    Array[File] Aligned_Bam = glob("output.bam")
+ }
+
+ runtime {
+    continueOnReturnCode: true
+ }
+}
+```
 
 The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
 
