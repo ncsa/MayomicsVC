@@ -160,6 +160,8 @@ workflow Call_Samtools {
 ```
 
 
+## Organization of the code
+
 The /src folder is broken up by stages. Inside a folder for every stage (i.e. AlignmentStage_WDL/) we have three subfolders that contain: (1) the library of tasks (Tasks/), (2) the suite of unit tests, one for each task (TestTasks/), and (3) the resultant workflow stage (Workflows/), which can also serve as tests for integration of individual tasks into workflows. The files are named as per the function that they perform.  
 
 
