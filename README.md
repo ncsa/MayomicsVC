@@ -16,7 +16,7 @@ will wrap individual bioinformatics steps that correspond to the stages in the d
 below. Tasks can be run individually and also strung together into workflows.
 
 Variant calling workflow is complex, so we break it up into smaller 
-[stages](#Workflow architecture) that are easier to develop and maintain. 
+[stages](#workflow-architecture) that are easier to develop and maintain. 
 Blocks can be run individually and also called sequentially 
 to execute part or full workflow. 
 
