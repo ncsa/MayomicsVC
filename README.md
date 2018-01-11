@@ -1,14 +1,11 @@
 # Objective
-===========
 
 Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
 
 
 # Design principles
-===================
 
 ## Modularity
--------------
 
 This workflow is modular by design, with each bioinformatics task in its own module. 
 WDL ought to make this easy by defining "tasks" and "workflows". Tasks in our case 
