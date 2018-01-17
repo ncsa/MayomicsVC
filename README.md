@@ -177,13 +177,23 @@ Gotta write those
 
 ## Scripting peculiarities imposed by WDL
 
+### Bash
+
 The command block in each task specifies the series of bash commands that will be run in series on each input sample. In order to script Bash variables in legible style, we have to use two tricks.
 1. The command block needs to be delimited with `<<< >>>`, not `{ }`. This is because Bash variable names are best specified as ${variable}, not $variable, for legibility and correct syntax.
 2. The Bash dollar sign for variables cannot be escaped. Therefore, the "dollar" has to be deined at the top of each .wdl script: `String dollar = "$"`.
 
-tasks of tasks
 
-workflows or workflows
+### Calling of tasks 
+
+When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This akes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow eith the -p flag. Running the server in an HPC cluster environment poses some security chalenges. So this whole item is a big TO-DO to be resolved.
+
+
+### Workflows or workflows
+
+We would prefer to implement each stage of the BAM cleaning in GenomeGPS as a separate WDL workflow, and then a global workflow to invoke the sub-workflows i.e.  Alignment, Real/Recal. Thus the outputs of the last step of the previous workflow have to feed as the input to the first step of the next workflow. This introduces complexities because Cromwell generates its own output folder structure during runtime. In order to access these folders we would need a wrapper program which will parse out the run ID from the los, traverse the respective output folder tree, find the output files and feed them to the next block. The workflow management system should be able to do that for us, but at present we do not see how. It is a TO-DO item.
+
+Another issue with declaring sub workflows exists when there is a dependency between two tasks that belong to two separate workflows. A workflow which is included as a sub workflow inside another workflow will have issues with accessing variables from the task which is a part of the workflow which was imported.
 
 
 
