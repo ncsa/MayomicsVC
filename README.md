@@ -205,6 +205,12 @@ Another issue with declaring sub workflows exists when there is a dependency bet
 
 # Testing
 
+## Unit testing
+
+Every task is a unit, and is tested by running as its own workflow 
+
+
+
 
 
 # Dependencies

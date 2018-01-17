@@ -1,6 +1,6 @@
 #######################################################################################################
 
-##              This WDL script performs dort on Input BAM File                ##
+##              This WDL script performs sort on Input BAM File       
 
 ##                              Script Options
 ##      -c      "Number of Threads"                                                      (Optional)
