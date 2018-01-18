@@ -218,7 +218,9 @@ Another issue with declaring sub workflows exists when there is a dependency bet
 Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The requisite commands and json runfiles that specify inputs and paths to executables are provided in {put folder here}. - This is a TO-DO.
 
 
+## Integration testing
 
+Every code path through the overall workflow should be tested for integration. For example, a user may choose BWA or Novoalign for alignment - and both options must be tested within the Align stage. We provide the complete set of json files specifying the various workflow configurations here: {insert path}. Thus each integration test can be invokes with the same command, just varying the json config file. 
 
 
 
