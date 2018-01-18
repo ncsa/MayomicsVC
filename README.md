@@ -169,6 +169,14 @@ The /src folder is broken up by stages. Inside a folder for every stage (i.e. Al
 
 
 
+## Special modules
+
+We implemented the initial QC on executables and input data in a separate module that could be invoked from any workflow that is part of this package. A prototype of that is currently here: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/PreExec_QC.wdl
+
+Additionally, there is prototype of a module to notify user of failure at the end of any workflow: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/EndofBlock_Notify.wdl
+
+
+
 ## Naming conventions
 
 Gotta write those
@@ -207,7 +215,9 @@ Another issue with declaring sub workflows exists when there is a dependency bet
 
 ## Unit testing
 
-Every task is a unit, and is tested by running as its own workflow 
+Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The requisite commands and json runfiles that specify inputs and paths to executables are provided in {put folder here}. - This is a TO-DO.
+
+
 
 
 
