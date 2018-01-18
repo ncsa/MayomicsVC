@@ -1,3 +1,30 @@
+   * [Objective](#objective)
+   * [Design principles](#design-principles)
+      * [Modularity](#modularity)
+      * [Data parallelism and scalability](#data-parallelism-and-scalability)
+      * [Real-time logging and monitoring, data provenance tracking](#real-time-logging-and-monitoring-data-provenance-tracking)
+      * [Fault tolerance and error handling](#fault-tolerance-and-error-handling)
+      * [Portability](#portability)
+      * [Development and test automation](#development-and-test-automation)
+   * [Implementation](#implementation)
+      * [Implementing modularity](#implementing-modularity)
+      * [Organization of the code](#organization-of-the-code)
+      * [Special modules](#special-modules)
+      * [Naming conventions](#naming-conventions)
+      * [Scripting peculiarities imposed by WDL](#scripting-peculiarities-imposed-by-wdl)
+         * [Bash](#bash)
+         * [Calling of tasks](#calling-of-tasks)
+         * [Workflows or workflows](#workflows-or-workflows)
+   * [Testing](#testing)
+      * [Unit testing](#unit-testing)
+      * [Integration testing](#integration-testing)
+   * [Dependencies](#dependencies)
+   * [To-Dos](#to-dos)
+   * [7 Output Folder Structure](#7-output-folder-structure)
+   * [Email Notifications](#email-notifications)
+
+
+
 # Objective
 
 Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
