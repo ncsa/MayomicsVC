@@ -1,3 +1,5 @@
+# GenomeGPS in Cromwell/WDL: Table of Contents   
+
    * [Objective](#objective)
    * [Design principles](#design-principles)
       * [Modularity](#modularity)
