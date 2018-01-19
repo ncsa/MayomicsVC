@@ -225,9 +225,9 @@ The command block in each task specifies the series of bash commands that will b
 
 When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This akes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow eith the -p flag. Running the server in an HPC cluster environment poses some security chalenges (running as root, havibg access to all files on the filesystem without group restrictions). A udocker can be used for running the server version of Cromwell at the user level and thus circumvent the security issues.
 
-In non-server mode, one can still invoke Cromwell with the -p option, and it will work, so long as it points to a zip archive containing the tasks that will be called from within the workflow. One should be able to zip up the entire folder tree for this code repository and supply it through this option. Then the task would be invoked in a workflow by `import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NSORT`. 
+In non-server mode, one can still invoke Cromwell with the -p option, and it will work, so long as it points to a zip archive containing the tasks that will be called from within the workflow. One should be able to zip up the entire folder tree for this code repository and supply it through this option. Then the task would be invoked in a workflow by specifying complete relative path to the task wdl script in the zip archive, i.e: `import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NSORT`. 
 
-We create a zip of the entire src/ folder tree and put it inside the src/ folder tree, for download with the repository. This zip archive is created automatically during nightly integration tests - actually this is a requirement that is a TO-DO as of Jan 19, 2018.
+We create a zip of the entire src/ folder tree and put it at the same folder level as the src/ folder, for download with the repository (via `git pull`). This zip archive is created automatically during nightly integration tests - actually this is a requirement that is a TO-DO as of Jan 19, 2018. When running Cromwell, use -p option and specify full path to the zip archive on your filesystem.
 
 
 ### Workflows or workflows
