@@ -65,7 +65,7 @@ across the nodes using embedded parallel mechanisms. We expect support for:
     * clusters with node sharing,
     * clusters without node sharing.
 
-The workflow must support repetitive fans and merges in the codei, conditionally on user choice in the runfile:
+The workflow must support repetitive fans and merges in the code, conditionally on user choice in the runfile:
 * support splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per-sample for sorting and deduplication;
 * support splitting of aligned/dedupped BAMs for parallel realignment and recalibration per-chromosome.
@@ -223,7 +223,11 @@ The command block in each task specifies the series of bash commands that will b
 
 ### Calling of tasks 
 
-When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This akes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow eith the -p flag. Running the server in an HPC cluster environment poses some security chalenges. So this whole item is a big TO-DO to be resolved.
+When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This akes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow eith the -p flag. Running the server in an HPC cluster environment poses some security chalenges (running as root, havibg access to all files on the filesystem without group restrictions). A udocker can be used for running the server version of Cromwell at the user level and thus circumvent the security issues.
+
+In non-server mode, one can still invoke Cromwell with the -p option, and it will work, so long as it points to a zip archive containing the tasks that will be called from within the workflow. One should be able to zip up the entire folder tree for this code repository and supply it through this option. Then the task would be invoked in a workflow by `import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NSORT`. 
+
+We create a zip of the entire src/ folder tree and put it inside the src/ folder tree, for download with the repository. This zip archive is created automatically during nightly integration tests - actually this is a requirement that is a TO-DO as of Jan 19, 2018.
 
 
 ### Workflows or workflows
@@ -232,6 +236,7 @@ We would prefer to implement each stage of the BAM cleaning in GenomeGPS as a se
 
 Another issue with declaring sub workflows exists when there is a dependency between two tasks that belong to two separate workflows. A workflow which is included as a sub workflow inside another workflow will have issues with accessing variables from the task which is a part of the workflow which was imported.
 
+These issues can be resolved by specifying `output` block at the end of each component workflow. Then the master workflow can use those output variables to specify inputs to the downstream components. - TO-DO must test in our context
 
 
 ----------------------
