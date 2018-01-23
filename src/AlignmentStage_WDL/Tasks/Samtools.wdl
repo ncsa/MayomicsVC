@@ -8,11 +8,11 @@
 #
 ####################################################################################################
 
-
+import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Workflows/TestAlignBlock.wdl" as AlignmentB
 
 task Samtools {
 
-   Array[File] Aligned_Sam             # Array of input aligned SAM Files
+   File Bam             # Array of input aligned SAM Files
    String sampleName                   # Name of the Sample
    String Exit_Code                    # A File that captures the list of samples that fails the Samtools step
    String SAMTOOLS                     # Variable where path the to Samtools is defined 
@@ -20,18 +20,28 @@ task Samtools {
    command {
 
       # The SAMTOOLS view is used to convert Sam Files to BAM
-      ${SAMTOOLS} view -@ 17 -o ${sampleName}.aligned.bam ${sep=',' Aligned_Sam}
+      ${SAMTOOLS} sort -o ${sampleName}.bam -n ${Bam}
 
    }
 
    # The output block is where the output of the program is stored. 
    # Since there are multiple output being generated, the glob function is used to capture output
    output {
-      Array[File] Aligned_Bam = glob("${sampleName}.aligned.bam")
+      File Obam = "${sampleName}.bam"
    }
 
    # The runtime block is used to specify Cromwell of runtime attributes to customize the environment for the call
    runtime {
       continueOnReturnCode: true
+   }
+}
+
+workflow Call_Samtools {
+   
+   call AlignmentB.AlignBlock_Run
+   call Samtools {
+      
+      input:
+         Bam = AlignBlock_Run.OBama
    }
 }

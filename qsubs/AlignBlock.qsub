@@ -10,38 +10,23 @@
 #PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
 
 truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
-
 truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt 
-
 truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Failure_Logs.txt
+
 
 module load cromwell/cromwell-29
 module load wdltool/wdltool-0.14
 
+
 cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
-echo 'The WorkFlow has been initiated for N Samples' | mailx -s "Start of the WorkFlow" rvenka21@illinois.edu
+
+echo "The WorkFlow has been initiated for N Samples" | mailx -s "Start of the WorkFlow" rvenka21@illinois.edu
 
 java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/TestBlock/TestAlignBlock.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/TestAlignBlock.json
 
-echo 'The WorkFlow has completed. Exit_Code.txt has information on Samples that failed and at which step' | mailx -s "End of the WorkFlow" rvenka21@illinois.edu
-
-#python /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/Cromwell_ID_Capture.py > /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt
-
-#var=`cat /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt`
-
-#mv /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/cromwell-executions/BWA_Mem_Run/$var /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/cromwell-executions/BWA_Mem_Run/NewName
-
-#rm /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/tempfile.txt
+mailx -s "End of the WorkFlow" rvenka21@illinois.edu < /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Failure_Logs.txt
 
 
-#count=0
-#while line in sample.tsv
-
-#   samplename=`awk '{print $1}' $line` 
-   
-#   mv ${outputfolder}/call-BWA_Me/shard-${count} ${outputfolder}/call-BWA_Mem/${samplename}
-
-#   ((count++))
-#end
 

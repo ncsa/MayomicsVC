@@ -1,64 +1,267 @@
-1 Objective
-============
+# GenomeGPS in Cromwell/WDL: Table of Contents   
 
-Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl
-
-2 Workflow architecture
-=======================
-
-2.1 Basic coding principles
----------------------------
-
-* Nothing should be hard-coded - paths to executables, software parameters, GATK bundle files should be defined in the runfile
-* Comments in code
-* Documentation in readme files
-
-
-
-2.2 Workflow best practices
----------------------------
-
-* Must be modular to be maintainable
-* Must be robust against hardware/software/data failure
-    * user option on whether to fail or continue the whole workflow when something goes wrong with one of the sample
-    * produce logs on failure; capture exit codes; write to FAIL log file; email analyst 
-    * check everything before workflow actually runs: 
-       * check that all the sample files exist and have nonzero size 
-       * check that all executables exist
-       * for each workflow module at runtime, check that output was actualy produced and has nonzero size
-       * perform QC on each output file, write results into log, give user option to continue anyway if QC is failed
-* Unit testing
-    * Must have tests designed to succeed and designed to fail to ensure that failure mechanisms work
+   * [Objective](#objective)
+   * [Design principles](#design-principles)
+      * [Modularity](#modularity)
+      * [Data parallelism and scalability](#data-parallelism-and-scalability)
+      * [Real-time logging and monitoring, data provenance tracking](#real-time-logging-and-monitoring-data-provenance-tracking)
+      * [Fault tolerance and error handling](#fault-tolerance-and-error-handling)
+      * [Portability](#portability)
+      * [Development and test automation](#development-and-test-automation)
+   * [Implementation](#implementation)
+      * [Implementing modularity](#implementing-modularity)
+      * [Organization of the code](#organization-of-the-code)
+      * [Special modules](#special-modules)
+      * [Naming conventions](#naming-conventions)
+      * [Scripting peculiarities imposed by WDL](#scripting-peculiarities-imposed-by-wdl)
+         * [Bash](#bash)
+         * [Calling of tasks](#calling-of-tasks)
+         * [Workflows or workflows](#workflows-or-workflows)
+   * [Testing](#testing)
+      * [Unit testing](#unit-testing)
+      * [Integration testing](#integration-testing)
+   * [Dependencies](#dependencies)
+   * [To-Dos](#to-dos)
+   * [7 Output Folder Structure](#7-output-folder-structure)
+   * [Email Notifications](#email-notifications)
 
 
 
+# Objective
 
-2.3 Need workflow diagram here
-------------------------------
-
-* Reconstruct from GenomeGPS file structure, highlight which parts will be done by us and in what order.
-* Mayo and UIUC will have division of labor among the modules - highlight those too, in different color
+Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
 
 
-Cromwell/WDL is workflow definition language that is designed from the ground up as a human-readable and -writable way to express tasks and workflows. The workflows are written are .wdl scripts and they are executed using cromwell execution engine. The wdl scripts have a task block where the task to be performed is written. For eg. To write a task which performs BWA Mem, the commands are written inside the task block. A wdl script can have more than one task defined in a script. All the tasks are called within a block called the Workflow block. 
+# Design principles
 
-The /src folder contains three sub folders namely /Tasks, /TestTasks and /TestWorkflow. The /Tasks folder contains the individual tasks of the Alignment block. The files are named as per the function that they perform. The scripts inside the /TestTasks folder are used for testing each step of the workflow seperately. For eg. TestBWA_Sam.wdl is script that includes the Bwa_Sam.wdl as a task to execute BWA Mem. The /TestBlock folder has scripts that include all the steps of the workflow as individual modules and performs Alignment for a given set of samples. The TestAlickBlock.wdl imports Bwa_Sam.wdl, Novosort.wdl and PicardMD.wdl to execute Alignment for a set of samples.
+## Modularity
 
-The diagram below shows how the individual steps in the Alignemnt Block are written. These steps are part of the Alignment Block cand can be executed as individual tasks as well. 
+This workflow is modular by design, with each bioinformatics task in its own module. 
+WDL makes this easy by defining "tasks" and "workflows". [Tasks](#workflow-architecture)
+in our case will wrap individual bioinformatics steps comprising the workflow.
+Tasks can be run individually and also strung together into workflows.
+
+Variant calling workflow is complex, so we break it up into smaller subworkflows, or 
+[stages](#workflow-architecture) that are easier to develop and maintain. 
+Stages can be run individually and also called sequentially to execute part or full workflow. 
+
+Reasons for modular design:
+* flexibility: can execute any part of the workflow; 
+    * useful for testing or after failure
+    * can swap tools in and out for every task based on user's choice
+* optimal resource utilization: can specify number of nodes, walltime etc that is best for every stage
+* maintainability: 
+    * can edit modules without breaking the rest of the workflow 
+    * certain modules, such as QC and user notification, should serve as plug-ins for other modules, so that we would not need to change multiple places in the workflow if we change the QC procedure or user notification procedure.
 
 
 
-![Image of Folder Structure](https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/media/Folder_Design.svg)
+## Data parallelism and scalability
+
+The workflow should run as a single multi-node job, handling the placement of tasks 
+across the nodes using embedded parallel mechanisms. We expect support for:
+* running one sample per node;
+* multiple samples per node on both:
+    * clusters with node sharing,
+    * clusters without node sharing.
+
+The workflow must support repetitive fans and merges in the code, conditionally on user choice in the runfile:
+* support splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
+and merging the aligned files per-sample for sorting and deduplication;
+* support splitting of aligned/dedupped BAMs for parallel realignment and recalibration per-chromosome.
+
+Workflow should scale well with the number of samples - although that is a function 
+of the Cromwell execution engine. We will be benchmarking this feature (see Testing section below).
 
 
 
-3 Dependencies
-==============
+## Real-time logging and monitoring, data provenance tracking
 
-Grab from GenomeGPS documentation, highlight which parts we are doing in what order.
+Have a good system for logging and monitoring progress of the jobs. 
+At any moment during the run, the analyst should be able to assess 
+* which stage of the workflow is running for every sample batch, 
+* which samples may have failed and why, 
+* which nodes the analyses are running on, and their health status. 
 
-4 To-Dos
-========
+Additionally, a well-structured post-analysis record of all events 
+executed on each sample is necessary to ensure reproducibility of 
+the analysis. 
+
+
+## Fault tolerance and error handling
+
+The workflow must be robust against hardware/software/data failure:
+* have user option to fail or continue the whole workflow when something goes wrong with one of the samples
+* in the event of hardware failure, have ability to move a task to a spare node - is a function of Cromwell, but workflow should support it by requesting a few extra nodes (have user specify number of samples and parallelism patternsm and calculate neede dnumber of nodes from there).
+
+To prevent avpidable failures and resource wastage, need to check everything before workflow actually runs: 
+* check that all the sample files exist and have nonzero size,
+* check that all executables exist and have the right permissions,
+* for each workflow module at runtime, check that output was actualy produced and has nonzero size,
+* perform QC on each output file, write results into log, give user option to continue even if QC failed.
+
+User notification of the success/failure status to be implemented by capturing exit codes, 
+writing error messages into failure logs, notifying analyst of the success/failure status 
+via email or another notification system. We envision three levels of granularity for user 
+notification:
+* total dump of success/failure messages at the end of the workflow,
+* notification at the end of a stage,
+* notification at the end of a task.
+Granularity to be specified by user as an option in the runfile.
+
+
+## Portability
+
+The workflow should be able to port smoothly among the following four kinds of systems:
+* grid cluster with PBS Torque,
+* grid cluster with OGE,
+* AWS,
+* MS Azure.
+
+
+
+## Development and test automation 
+
+The workflow should be constructed in such a way as to support automated testing:
+* Unit testing on each task
+* Integration testing for each codepath in each workflow stage
+* Integration testing for the main path (most often used code path) in the whole workflow
+* Regression testing on all of the above
+
+
+
+# Implementation
+
+## Implementing modularity
+
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34808679-108a8432-f656-11e7-856a-3542018692a0.png" alt="Image of Folder Structure" width="550">
+
+GenomeGPS is a massive beast that consists of 5 component workflows. Each workflow may have higher-level [modules](#modularity) in it, which we call "stages". For example, in BAM cleaning we have 2 stages: Alignment and Realignment/recalibration.
+
+
+
+
+
+
+<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="850">
+
+Each *stage* consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the [figure](https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png) on the right), such as alignment against a reference, or deduplication of aligned BAM. Tasks are written as .wdl scripts:
+
+
+```WDL
+#Samtools.wdl
+
+task Samtools {
+   # Define variables
+
+   command {
+      Samtools view input.sam -o output.bam
+   }
+
+   output {
+      Array[File] Aligned_Bam = glob("output.bam")
+   }
+
+   runtime {
+      continueOnReturnCode: true
+   }
+}
+```
+
+which can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:
+
+
+```WDL
+#TestSamtools.wdl
+
+import "Samtools.wdl" as SamtoolsTask
+
+workflow Call_Samtools {
+   # Define inputs
+
+   scatter(sample in inputsamples) {
+      call SamtoolsTask.Samtools {
+         input :
+            sampleName = sample[0]
+      }
+   }
+}
+```
+
+
+## Organization of the code
+
+The /src folder is broken up by stages. Inside a folder for every stage (i.e. AlignmentStage_WDL/) we have three subfolders that contain: (1) the library of tasks (Tasks/), (2) the suite of unit tests, one for each task (TestTasks/), and (3) the resultant workflow stage (Workflows/), which can also serve as tests for integration of individual tasks into workflows. The files are named as per the function that they perform.  
+
+
+<img src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="800"> 
+
+
+
+## Special modules
+
+We implemented the initial QC on executables and input data in a separate module that could be invoked from any workflow that is part of this package. A prototype of that is currently here: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/PreExec_QC.wdl
+
+Additionally, there is prototype of a module to notify user of failure at the end of any workflow: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/EndofBlock_Notify.wdl
+
+
+
+## Naming conventions
+
+Gotta write those
+
+
+
+## Scripting peculiarities imposed by WDL
+
+### Bash
+
+The command block in each task specifies the series of bash commands that will be run in series on each input sample. In order to script Bash variables in legible style, we have to use two tricks.
+1. The command block needs to be delimited with `<<< >>>`, not `{ }`. This is because Bash variable names are best specified as ${variable}, not $variable, for legibility and correct syntax.
+2. The Bash dollar sign for variables cannot be escaped. Therefore, the "dollar" has to be deined at the top of each .wdl script: `String dollar = "$"`.
+
+
+### Calling of tasks 
+
+When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This akes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow eith the -p flag. Running the server in an HPC cluster environment poses some security chalenges (running as root, havibg access to all files on the filesystem without group restrictions). A udocker can be used for running the server version of Cromwell at the user level and thus circumvent the security issues.
+
+In non-server mode, one can still invoke Cromwell with the -p option, and it will work, so long as it points to a zip archive containing the tasks that will be called from within the workflow. One should be able to zip up the entire folder tree for this code repository and supply it through this option. Then the task would be invoked in a workflow by specifying complete relative path to the task wdl script in the zip archive, i.e: `import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NSORT`. 
+
+We create a zip of the entire src/ folder tree and put it at the same folder level as the src/ folder, for download with the repository (via `git pull`). This zip archive is created automatically during nightly integration tests - actually this is a requirement that is a TO-DO as of Jan 19, 2018. When running Cromwell, use -p option and specify full path to the zip archive on your filesystem.
+
+
+### Workflows or workflows
+
+We would prefer to implement each stage of the BAM cleaning in GenomeGPS as a separate WDL workflow, and then a global workflow to invoke the sub-workflows i.e.  Alignment, Real/Recal. Thus the outputs of the last step of the previous workflow have to feed as the input to the first step of the next workflow. This introduces complexities because Cromwell generates its own output folder structure during runtime. In order to access these folders we would need a wrapper program which will parse out the run ID from the los, traverse the respective output folder tree, find the output files and feed them to the next block. The workflow management system should be able to do that for us, but at present we do not see how. It is a TO-DO item.
+
+Another issue with declaring sub workflows exists when there is a dependency between two tasks that belong to two separate workflows. A workflow which is included as a sub workflow inside another workflow will have issues with accessing variables from the task which is a part of the workflow which was imported.
+
+These issues can be resolved by specifying `output` block at the end of each component workflow. Then the master workflow can use those output variables to specify inputs to the downstream components. - TO-DO must test in our context
+
+
+----------------------
+
+
+
+
+
+# Testing
+
+## Unit testing
+
+Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The requisite commands and json runfiles that specify inputs and paths to executables are provided in {put folder here}. - This is a TO-DO.
+
+
+## Integration testing
+
+Every code path through the overall workflow should be tested for integration. For example, a user may choose BWA or Novoalign for alignment - and both options must be tested within the Align stage. We provide the complete set of json files specifying the various workflow configurations here: {insert path}. Thus each integration test can be invokes with the same command, just varying the json config file. 
+
+
+
+
+# Dependencies
+
+# To-Dos
 
 * As of Oct 24, 2017: Ram will work only on the bwa-mem module, to implement fully the template that could be used for other modules
     * multiple samples in parallel
@@ -71,7 +274,7 @@ Grab from GenomeGPS documentation, highlight which parts we are doing in what or
     * QC on outputs
 
 
-4 Output Folder Structure
+7 Output Folder Structure
 =============================
 
 Cromwell creates a nested output folder structure, one for each tool, and for each sample inside:
@@ -230,3 +433,15 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |  |  |-tmp.kbVcdk
   |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
 ```
+
+Email Notifications
+====================
+
+It's good practice to notify the analyst of failures in workflow. Failure notifications can be emailed to the analyst. Analysts can be notified at each step as and when a sample fails or a list of all the samples that have failed a step can be collected at the end of the step and that information can be emailed to the user. There are trade-offs to both these methods that have to be considered. 
+
+If we consider the first case where notifications are sent for every sample,  the analyst will be able to figure out that something is wrong and can tend to the errors. On the other hand he/she ends up receiving numerous emails for all the samples that have failed a certain step. For eg. if there are 1000 samples that run on a workflow and if a majority of samples fail at the first step then the analyst can quickly look at the logs and figure out why the samples have failed that particular step. The disadvantage though is if 1000 samples fail a certain step then an email for each sample will be sent out flooding the analyst's inbox.
+
+For the second case if a list of all the failed samples is made and then that information sent as an email will prevent flooding of the inbox. There is an issue with time because he/she will have to wait for the end of the step to find out which samples have failed the step which can be in order of hours depending on the step of the workflow. These are some trade-offs which have to considered while designed a workflow.
+
+
+

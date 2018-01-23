@@ -4,9 +4,9 @@
 
 ###############################################################################################
 
-import "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/Tasks/PicardMD.wdl" as PICARD
+import "AlignmentStage_WDL/Tasks/PicardMarkDuplicates.wdl" as PICARDMARKDUPLICATES
 
-workflow Call_PicardMD {
+workflow CallMarkDuplicatesTask {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
@@ -18,7 +18,7 @@ workflow Call_PicardMD {
    scatter(sample in inputsamples) {
 
       # Novosort is included as a sub task and it is called inside the workflow
-      call PICARD.Picard_MarkDuplicates {
+      call PICARDMARKDUPLICATES.MarkDuplicatesTask {
          input :
             sampleName = sample[0]
       }

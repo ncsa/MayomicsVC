@@ -10,10 +10,9 @@
 #PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
 
 truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt --size 0
-
 truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt --size 0
-
 truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt --size 0
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Failure_Logs.txt --size 0
 
 module load cromwell/cromwell-29
 module load wdltool/wdltool-0.14
@@ -21,5 +20,5 @@ module load wdltool/wdltool-0.14
 
 cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
-java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/MultiSample_WDL_Codes/Samtools.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/Test_sam.json 
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/TestTasks/TestBwa_Sam.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/TestBwa_Sam.json
 

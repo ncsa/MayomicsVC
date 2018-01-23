@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="2000"
+   height="1052.36"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Modularity_Implementation.LSM.svg"
+   inkscape:export-filename="Z:\Current\proj\Mayo\MayoGrandChallenge2017\GGPS_in_CromwellWDL.Design\Modularity_Implementation.LSM.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;">
+      <path
+         id="path4032"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.2) rotate(180) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4020"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <linearGradient
+       id="linearGradient5474"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop5476" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         id="path4044"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(0,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path4026"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker6013"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
+         id="path6011"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-6"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4032-8"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="677.62238"
+     inkscape:cy="526.17999"
+     inkscape:document-units="px"
+     inkscape:current-layer="g5463"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="996"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-0.00218262)">
+    <g
+       transform="translate(46.770983,-203.99005)"
+       inkscape:label="Layer 1"
+       id="layer1-7">
+      <g
+         id="g5446"
+         transform="translate(-34,133.0182)">
+        <rect
+           style="opacity:0.85399996;fill:#e7e9f2;fill-opacity:1;stroke-width:0.68276882"
+           id="rect4589-9"
+           width="397.71918"
+           height="462.75812"
+           x="149.36449"
+           y="477.64868" />
+        <text
+           sodipodi:linespacing="2%"
+           xml:space="preserve"
+           style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.99999996%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+           x="82.507751"
+           y="435.48349"
+           id="text4646-3"
+           transform="scale(0.97864786,1.021818)"><tspan
+             sodipodi:role="line"
+             id="tspan4644-6"
+             x="82.507751"
+             y="435.48349"
+             style="font-size:36px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:1.99999996%;writing-mode:lr-tb;text-anchor:start;font-family:Arial;-inkscape-font-specification:Arial Bold">Suite of tests, one for each task</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="180.46411"
+           y="492.7496"
+           id="text4650-9"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="180.46411"
+             y="492.7496"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772">Test BWA MEM | Samtools</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="276.97195"
+           y="631.59308"
+           id="text4654-4"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             id="tspan4652-0"
+             x="276.97195"
+             y="631.59308"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Test Novosort</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="171.33911"
+           y="778.84448"
+           id="text4658-2"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             id="tspan4656-4"
+             x="171.33911"
+             y="778.84448"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Test Picard MarkDuplicates</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="244.94849"
+           y="529.89587"
+           id="text4650-9-7"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="244.94849"
+             y="529.89587"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9">TestBwa_Sam.wdl</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="250.38599"
+           y="671.52118"
+           id="text4650-9-7-3"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="250.38599"
+             y="671.52118"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8">TestNovosort.wdl</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="247.41724"
+           y="822.46814"
+           id="text4650-9-7-3-0"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="247.41724"
+             y="822.46814"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8-2">TestPicardMD.wdl</tspan></text>
+      </g>
+      <path
+         style="fill:none;stroke:#8b8b8b;stroke-width:10.21751308;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+         d="M 758.71467,525.77935 526.94048,651.38552"
+         id="path5472"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#8b8b8b;stroke-width:10.21751308;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+         d="m 1149.8941,525.77936 231.7742,125.60617"
+         id="path5472-8"
+         inkscape:connector-curvature="0" />
+      <g
+         id="g5429"
+         transform="translate(0,-154)">
+        <rect
+           style="opacity:0.85399996;fill:#e7e9f2;fill-opacity:1;stroke-width:0.68276882"
+           id="rect4589"
+           width="397.71918"
+           height="459.96094"
+           x="754.91461"
+           y="472.51678" />
+        <text
+           sodipodi:linespacing="2%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:36px;line-height:1.99999996%;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="840.03186"
+           y="425.67468"
+           id="text4646"
+           transform="scale(0.97864786,1.021818)"><tspan
+             sodipodi:role="line"
+             id="tspan4644"
+             x="840.03186"
+             y="425.67468"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:36px;line-height:1.99999996%;font-family:Arial;-inkscape-font-specification:'Arial Bold';text-align:start;writing-mode:lr-tb;text-anchor:start">Library of tasks</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="885.25146"
+           y="491.35373"
+           id="text4650"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             id="tspan4648"
+             x="885.25146"
+             y="491.35373"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">BWA MEM | Samtools</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="981.75928"
+           y="633.53796"
+           id="text4654"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             id="tspan4652"
+             x="981.75928"
+             y="633.53796"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Novosort</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="876.12646"
+           y="772.55115"
+           id="text4658"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             id="tspan4656"
+             x="876.12646"
+             y="772.55115"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Picard MarkDuplicates</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="944.64209"
+           y="533.96558"
+           id="text4650-9-7-3-4"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="944.64209"
+             y="533.96558"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8-8">Bwa_Sam.wdl</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="950.07959"
+           y="672.55121"
+           id="text4650-9-7-3-3"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="950.07959"
+             y="672.55121"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8-9">Novosort.wdl</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="947.11084"
+           y="812.85602"
+           id="text4650-9-7-3-05"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="947.11084"
+             y="812.85602"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8-22">PicardMD.wdl</tspan></text>
+      </g>
+      <g
+         id="g5463"
+         transform="translate(-52,-81.077895)">
+        <text
+           sodipodi:linespacing="2%"
+           xml:space="preserve"
+           style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.99999996%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+           x="1423.2101"
+           y="645.00818"
+           id="text4646-3-4"
+           transform="scale(0.97864786,1.021818)"><tspan
+             sodipodi:role="line"
+             id="tspan4644-6-1"
+             x="1423.2101"
+             y="645.00818"
+             style="font-size:36px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:1.99999996%;writing-mode:lr-tb;text-anchor:start;font-family:Arial;-inkscape-font-specification:Arial Bold">Modular workflows that call tasks</tspan></text>
+        <rect
+           style="opacity:0.85399996;fill:#e7e9f2;fill-opacity:1;stroke-width:0.66444027"
+           id="rect4589-7-02"
+           width="488.74847"
+           height="131.91293"
+           x="1430.0312"
+           y="-820.46649"
+           transform="scale(1,-1)" />
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="1609.0216"
+           y="670.73358"
+           id="text4654-1"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             y="670.73358"
+             x="1609.0216"
+             id="tspan3215"
+             sodipodi:role="line">Multiple tasks in one workflow</tspan></text>
+        <text
+           sodipodi:linespacing="3.9999999%"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+           x="1705.8263"
+           y="712.28088"
+           id="text4650-9-7-3-7"
+           transform="scale(0.9041037,1.1060678)"><tspan
+             sodipodi:role="line"
+             x="1705.8263"
+             y="712.28088"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;line-height:3.99999991%;font-family:Courier;-inkscape-font-specification:'Courier, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+             id="tspan4772-9-8-3">TestAlignBlock.wdl</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

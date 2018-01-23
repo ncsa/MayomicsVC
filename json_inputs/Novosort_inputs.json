@@ -1,0 +1,7 @@
+{
+  "CallNovosortTask.NovosortTask.SORT": "String",
+  "CallNovosortTask.NovosortTask.Failure_Logs": "String",
+  "CallNovosortTask.NovosortTask.Exit_Code": "String",
+  "CallNovosortTask.InputSamplesFile": "File",
+  "CallNovosortTask.NovosortTask.Aligned_Bam": "File"
+}
