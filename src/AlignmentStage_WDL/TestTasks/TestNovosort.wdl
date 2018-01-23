@@ -4,9 +4,9 @@
 
 #######################################################################################
 
-import "../Tasks/Novosort.wdl" as NSORT
+import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NOVOSORT
 
-workflow Call_Novosort {
+workflow CallNovosortTask {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
@@ -18,7 +18,7 @@ workflow Call_Novosort {
    scatter(sample in inputsamples) {
 
       # Novosort is included as a sub task and it is called inside the workflow
-      call NSORT.Novosort {
+      call NOVOSORT.NovosortTask {
          input :
             sampleName = sample[0]
       }

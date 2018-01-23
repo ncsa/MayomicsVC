@@ -13,7 +13,7 @@
 
 # The Task block is where the variables and the functions are defined for performing a certain task
 
-task BWA_Mem {
+task ReadMappingTask {
         
    File Input_Read1		# Input Read File		 (REQUIRED)
    File Input_Read2		# Input Read File		 (Optional)
@@ -73,7 +73,7 @@ task BWA_Mem {
    # The output block is where the output of the program is stored.
    # glob function is used to capture the multi sample outputs
    output {
-      Array[File] Aligned_Bam = glob("${sampleName}.aligned.bam")
+      File Aligned_Bam = "${sampleName}.aligned.bam"
    }
 
    # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call

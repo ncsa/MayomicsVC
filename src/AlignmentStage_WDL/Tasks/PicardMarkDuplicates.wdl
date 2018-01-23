@@ -9,8 +9,8 @@
 
 #################################################################################################
 
-task Picard_MarkDuplicates {
-   Array[File] Aligned_Sorted_Bam                  # Input Sorted BAM File
+task MarkDuplicatesTask {
+   File Aligned_Sorted_Bam                  # Input Sorted BAM File
    String sampleName                               # Name of the Sample
    String Exit_Code                                # File to capture exit code
    String JAVA                                     # Variable path to Java
@@ -22,10 +22,10 @@ task Picard_MarkDuplicates {
    command {
      
       # Check to see if input files are non-zero
-      [ -s ${sep=',' Aligned_Sorted_Bam} ] || echo "Aligned Sorted Bam File is Empty" >> ${Failure_Logs}
+      [ -s ${Aligned_Sorted_Bam} ] || echo "Aligned Sorted Bam File is Empty" >> ${Failure_Logs}
  
       # Picard Mark Duplicates is used to mark duplicates on input sorted BAMs
-      ${JAVA} -Xmx2g -jar ${PICARD} MarkDuplicates I=${sep=',' Aligned_Sorted_Bam } O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
+      ${JAVA} -Xmx2g -jar ${PICARD} MarkDuplicates I=${Aligned_Sorted_Bam} O=${sampleName}.aligned.sorted.dedupped.bam M=${sampleName}.PicardMetrics ASSUME_SORTED=true CREATE_INDEX=true
          
       if [ $? -ne 0 ]; then
          echo '${sampleName} has failed at the Mark Duplicates Step' >> ${Exit_Code}
@@ -37,8 +37,8 @@ task Picard_MarkDuplicates {
    # The output block is where the output of the program is stored.
    # glob function is used to capture the multi sample outputs      
    output {
-      Array[File] Aligned_Sorted_Dedupped_Bam = glob("${sampleName}.aligned.sorted.dedupped.bam")
-      Array[File] PicardMetrics = glob("${sampleName}.PicardMetrics")
+      File testAligned_Sorted_Dedupped_Bam = "${sampleName}.aligned.sorted.dedupped.bam"
+      File PicardMetrics = "${sampleName}.PicardMetrics"
 
       #Variable to Notify user of completion of Alignment Block
       Int Notify_EndofAlignment = "${Flag}"

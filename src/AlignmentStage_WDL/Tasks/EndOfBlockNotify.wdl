@@ -2,7 +2,7 @@
 ##      This wdl script sends an email to analyst at the end of each step      ##
 #######################################################################################
 
-task EndofBlock_Notify {
+task EndOfStageEmailTask {
 
    Array[Int] Email
    String Failure_Logs

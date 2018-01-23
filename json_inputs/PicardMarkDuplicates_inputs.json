@@ -1,0 +1,8 @@
+{
+  "CallMarkDuplicatesTask.MarkDuplicatesTask.Exit_Code": "String",
+  "CallMarkDuplicatesTask.MarkDuplicatesTask.JAVA": "String",
+  "CallMarkDuplicatesTask.MarkDuplicatesTask.PICARD": "String",
+  "CallMarkDuplicatesTask.MarkDuplicatesTask.Failure_Logs": "String",
+  "CallMarkDuplicatesTask.MarkDuplicatesTask.Aligned_Sorted_Bam": "File",
+  "CallMarkDuplicatesTask.InputSamplesFile": "File"
+}

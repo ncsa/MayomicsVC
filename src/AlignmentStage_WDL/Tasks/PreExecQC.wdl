@@ -4,7 +4,7 @@
 
 ########################################################################################################
 
-task PreExec_QC {
+task QualityControlTask {
 
    # Variables that hold the path to executables and inputs
 

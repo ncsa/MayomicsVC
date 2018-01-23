@@ -4,11 +4,11 @@
 
 ###########################################################################
 
-import "../Tasks/PreExec_QC.wdl" as PreQC
+import "AlignmentStage_WDL/Tasks/PreExecQC.wdl" as PREEXECQC
 
-workflow Call_PreExec_QC {
+workflow CallQualityControlTask {
 
-   call PreQC.PreExec_QC
+   call PREEXECQC.QualityControlTask
 
 }
  

@@ -4,9 +4,9 @@
 
 #########################################################################################################
 
-import "../Tasks/Bwa_Sam.wdl" as BWA
+import "AlignmentStage_WDL/Tasks/BWASamtoolSort.wdl" as BWASAMTOOLSORT
 
-workflow Call_BWA {
+workflow CallReadMappingTask {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
@@ -19,7 +19,7 @@ workflow Call_BWA {
    scatter(sample in inputsamples) {
 
       # BWA Mem is included as a sub task and it is called inside the workflow
-      call BWA.BWA_Mem {
+      call BWASAMTOOLSORT.ReadMappingTask {
          input :
             sampleName = sample[0],
             Input_Read1 = sample[1],

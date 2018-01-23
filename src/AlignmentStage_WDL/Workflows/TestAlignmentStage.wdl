@@ -3,15 +3,14 @@
 #########################################################################################################
 
 ### ??? figure out how to convert from variable to an explicit path in the import command ??? ###
-import "../Tasks/PreExec_QC.wdl" as PreQC
-import "../Tasks/Bwa_Sam.wdl" as BWA
-import "../Tasks/Novosort.wdl" as NSORT
-import "../Tasks/PicardMD.wdl" as PICARD
-import "../Tasks/EndofBlock_Notify.wdl" as EMAIL
+import "AlignmentStage_WDL/Tasks/PreExecQC.wdl" as PREEXECQC
+import "AlignmentStage_WDL/Tasks/BWASamtoolSort.wdl" as BWASAMTOOLSORT
+import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NOVOSORT
+import "AlignmentStage_WDL/Tasks/PicardMarkDuplicates.wdl" as PICARDMARKDUPLICATES
+import "AlignmentStage_WDL/Tasks/EndOfBlockNotify.wdl" as ENDOFBLOCKNOTIFY
 
 
-
-workflow AlignBlock_Run {
+workflow CallAlignmentStageTasks {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
@@ -22,7 +21,7 @@ workflow AlignBlock_Run {
    String Failure_Logs
    
    # Task to check if the executables and inputs exists and are non-zero
-   call PreQC.PreExec_QC {
+   call PREEXECQC.QualityControlTask {
       input :
          failure_logs = Failure_Logs
       }
@@ -32,53 +31,54 @@ workflow AlignBlock_Run {
    scatter(sample in inputsamples) {
  
       # BWA Mem is included as a sub task and it is called inside the workflow
-      call BWA.BWA_Mem {
+      call BWASAMTOOLSORT.ReadMappingTask {
          input :
-            RefFasta = PreExec_QC.RefFasta,
-            Ref_Amb_File = PreExec_QC.Ref_Amb_File,
-            Ref_Dict_File = PreExec_QC.Ref_Dict_File, 
-            Ref_Ann_File = PreExec_QC.Ref_Ann_File,            
-            Ref_Bwt_File = PreExec_QC.Ref_Bwt_File,            
-            Ref_Fai_File = PreExec_QC.Ref_Fai_File,            
-            Ref_Pac_File = PreExec_QC.Ref_Pac_File,            
-            Ref_Sa_File = PreExec_QC.Ref_Sa_File,           
+            RefFasta = QualityControlTask.RefFasta,
+            Ref_Amb_File = QualityControlTask.Ref_Amb_File,
+            Ref_Dict_File = QualityControlTask.Ref_Dict_File, 
+            Ref_Ann_File = QualityControlTask.Ref_Ann_File,            
+            Ref_Bwt_File = QualityControlTask.Ref_Bwt_File,            
+            Ref_Fai_File = QualityControlTask.Ref_Fai_File,            
+            Ref_Pac_File = QualityControlTask.Ref_Pac_File,            
+            Ref_Sa_File = QualityControlTask.Ref_Sa_File,           
             sampleName = sample[0],         
             Input_Read1 = sample[1],         
             Input_Read2 = sample[2],
-            BWA = PreExec_QC.BWA,
-            SAMTOOL = PreExec_QC.SAMTOOL,
+            BWA = QualityControlTask.BWA,
+            SAMTOOL = QualityControlTask.SAMTOOL,
             Exit_Code = Capture_Exit_Code,
-            Failure_Logs = PreExec_QC.Failure_Logs,
+            Failure_Logs = QualityControlTask.Failure_Logs,
             
             # a dummy variable to enforce sequentiality b/w pre-exec QC and alignment 
             # due to the absence of explicit data dependency
-            DummyVar = PreExec_QC.DummyVar
+            DummyVar = QualityControlTask.DummyVar
       }   
     
-      call NSORT.Novosort {
+      call NOVOSORT.NovosortTask {
          input :
             sampleName = sample[0],
-            SORT = PreExec_QC.SORT,
-            Aligned_Bam = BWA_Mem.Aligned_Bam,
+            SORT = QualityControlTask.SORT,
+            Aligned_Bam = ReadMappingTask.Aligned_Bam,
             Exit_Code = Capture_Exit_Code,
             Failure_Logs = Failure_Logs
       }
 
-      call PICARD.Picard_MarkDuplicates {
+      call PICARDMARKDUPLICATES.MarkDuplicatesTask {
          input :
             sampleName = sample[0],
-            JAVA = PreExec_QC.JAVA,
-            PICARD = PreExec_QC.PICARD,
-            Aligned_Sorted_Bam = Novosort.Aligned_Sorted_Bam,
+            JAVA = QualityControlTask.JAVA,
+            PICARD = QualityControlTask.PICARD,
+            Aligned_Sorted_Bam = NovosortTask.Aligned_Sorted_Bam,
             Exit_Code = Capture_Exit_Code,
             Failure_Logs = Failure_Logs
-      }      
+      } 
+
 
    } # End of scatter block
 
-   call EMAIL.EndofBlock_Notify {
+   call ENDOFBLOCKNOTIFY.EndOfStageEmailTask {
       input :
-         Email = Picard_MarkDuplicates.Notify_EndofAlignment,
+         Email = MarkDuplicatesTask.Notify_EndofAlignment,
          Failure_Logs = Failure_Logs
    }
 
