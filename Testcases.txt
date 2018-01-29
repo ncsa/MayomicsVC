@@ -1,0 +1,38 @@
+Tools to test (Not necessary to test all combinations of these, just have at least one run that uses them at some stage)
+-------------
+1. BWA and Samtools
+2. Novoalign
+3a. Novosort (Sorting only; done on every run)
+3b. Novosort (Sorting and marking duplicates)
+4. Samblaster
+5. Picard
+6. GATK
+
+Functionalities
+----------------
+8. ANALYSIS type
+    8a. ALIGN_ONLY
+    8b. VC_REALIGN
+    8c. VC_NO_REALIGN
+
+9. Splitting by chromosome (SPLIT=Y; CHRNAMES)
+10. Not Splitting by chromosome (SPLIT=N)
+
+11. Exit on error
+    This can be tested by setting the continueOnReturnCode attribute in the runtime block to "false". When this attribute is set to false, if the exit code the non-zero for a tool then cromwell stops executing the pipeline and breaks out
+    
+12. Stop if no samples passed QC
+
+13. Paired-end reads
+14. Single-end reads 
+
+15. Test that one sample actually runs two jobs on a node simultaneously
+
+16. Jump in at:
+    16a. Chromosome Splitting
+    16b. Realign, Recal, and Variant Calling
+    16c. Combine Chromosomes
+    16d. Joint Genotyping
+
+17. Test Timing.log is outputed correctly
+18. Full run (Y for each stage)
