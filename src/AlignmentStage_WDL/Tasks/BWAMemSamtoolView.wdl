@@ -71,7 +71,6 @@ task ReadMappingTask {
     >>>
    
    # The output block is where the output of the program is stored.
-   # glob function is used to capture the multi sample outputs
    output {
       File Aligned_Bam = "${sampleName}.aligned.bam"
    }

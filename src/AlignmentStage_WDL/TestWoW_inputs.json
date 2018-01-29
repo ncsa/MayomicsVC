@@ -1,0 +1,19 @@
+{
+  "CallNovosortTask.Ref_Bwt_File": "File",
+  "CallNovosortTask.Input_Read2": "File",
+  "CallNovosortTask.NovosortTask.SORT": "String",
+  "CallNovosortTask.SAMTOOL": "String",
+  "CallNovosortTask.Input_Read1": "File",
+  "CallNovosortTask.Ref_Fai_File": "File",
+  "CallNovosortTask.Ref_Sa_File": "File",
+  "CallNovosortTask.NovosortTask.Failure_Logs": "String",
+  "CallNovosortTask.NovosortTask.Exit_Code": "String",
+  "CallNovosortTask.CallReadMappingTask.InputSamplesFile": "File",
+  "CallNovosortTask.RefFasta": "File",
+  "CallNovosortTask.Ref_Pac_File": "File",
+  "CallNovosortTask.Ref_Ann_File": "File",
+  "CallNovosortTask.Ref_Amb_File": "File",
+  "CallNovosortTask.Ref_Dict_File": "File",
+  "CallNovosortTask.BWA": "String",
+  "CallNovosortTask.InputSamplesFile": "File"
+}

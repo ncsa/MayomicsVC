@@ -1,0 +1,30 @@
+Picked up _JAVA_OPTIONS: -Djava.io.tmpdir=/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/cromwell-executions/CallFastqQualityControlTask/cfd5eb05-2efb-4f55-8c55-ab43d551bbdb/call-FastqQualityControlTask/shard-1/execution/tmp.7LfA7h
+Failed to process /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/cromwell-executions/CallFastqQualityControlTask/cfd5eb05-2efb-4f55-8c55-ab43d551bbdb/call-FastqQualityControlTask/shard-1/inputs/projects/mgc/Project_1/ram/WGS_chr1_5X_E0.005_read1.fq.job02of23.gz_MALFORMED.gz
+uk.ac.babraham.FastQC.Sequence.SequenceFormatException: ID line didn't start with '@'
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.readNext(FastQFile.java:158)
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.<init>(FastQFile.java:89)
+	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:106)
+	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:62)
+	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.processFile(OfflineRunner.java:129)
+	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.<init>(OfflineRunner.java:102)
+	at uk.ac.babraham.FastQC.FastQCApplication.main(FastQCApplication.java:316)
+Started analysis of WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 5% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 10% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 15% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 20% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 25% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 30% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 35% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 40% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 45% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 50% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 55% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 60% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 65% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 70% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 75% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 80% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 85% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 90% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz
+Approx 95% complete for WGS_chr1_5X_E0.005_read2.fq.job02of23.gz

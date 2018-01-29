@@ -4,7 +4,7 @@
 
 ### ??? figure out how to convert from variable to an explicit path in the import command ??? ###
 import "AlignmentStage_WDL/Tasks/PreExecQC.wdl" as PREEXECQC
-import "AlignmentStage_WDL/Tasks/BWASamtoolSort.wdl" as BWASAMTOOLSORT
+import "AlignmentStage_WDL/Tasks/BWAMemSamtoolView.wdl" as BWAMEMSAMTOOLVIEW
 import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NOVOSORT
 import "AlignmentStage_WDL/Tasks/PicardMarkDuplicates.wdl" as PICARDMARKDUPLICATES
 import "AlignmentStage_WDL/Tasks/EndOfBlockNotify.wdl" as ENDOFBLOCKNOTIFY
@@ -31,7 +31,7 @@ workflow CallAlignmentStageTasks {
    scatter(sample in inputsamples) {
  
       # BWA Mem is included as a sub task and it is called inside the workflow
-      call BWASAMTOOLSORT.ReadMappingTask {
+      call BWAMEMSAMTOOLVIEW.ReadMappingTask {
          input :
             RefFasta = QualityControlTask.RefFasta,
             Ref_Amb_File = QualityControlTask.Ref_Amb_File,
