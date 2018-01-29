@@ -263,6 +263,7 @@ Every task is a unit, and is tested by running as its own workflow. These unit t
 1. Download `source.zip` and the  workflow script of the task which is to be checked. The unit test scripts are located in `src/{Name}Stage_WDL/TestTasks`. For eg. If the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it namely: "TestBWAMemSamtoolView.wdl". 
 
 2. To execute a wdl script using Cromwell we need two inputs:
+
    a) The wdl script to perform Unit Test on. (For eg. "TestBWAMemSamtoolView.wdl")
 
    b) The json input files that specifies where the executables are located for the tools used. The json input       files for our workflow are located in the folder `json_inputs`. 
