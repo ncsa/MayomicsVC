@@ -265,11 +265,16 @@ Every task is a unit, and is tested by running as its own workflow. These unit t
 2. To execute a wdl script using Cromwell we need two inputs:- 
    a) The wdl script to perform Unit Test on. (For eg. "TestBWAMemSamtoolView.wdl")
 
-   b) The json input files that specifies where the executables are located for the tools used. The json input      files are located in the folder `/json_inputs`. The follwoing link provides information on how to create json     files describing inputs. https://software.broadinstitute.org/wdl/documentation/article?id=6751
+   b) The json input files that specifies where the executables are located for the tools used. The json input       files are located in the folder `/json_inputs`. For eg. /json_inputs/BWAMemSamtoolView_inputs.json.               The following link provides information on how to create json files describing inputs. 
+   https://software.broadinstitute.org/wdl/documentation/article?id=6751
 
-3. To cromwell command used to execute a wdl script is as follows:-
+3. Once the json input file is created, it will contains the list of variables to which hard coded paths are to be provided. Hence open the .json file using a text editor and input the paths for the executables, input file paths, output file paths etc. 
+
+4. To cromwell command used to execute a wdl script is as follows:-
 
    java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p source.zip
+
+   For eg: java -jar cromwell.jar run BWAMemSamtoolView.wdl -i BWAMemSamtoolView_inputs.json -p source.zip
    
    In the above command "run" mode will run a single workflow from the command line, and exit when the workflow      completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
    The "-p" flag points to a directory or zipfile to search for workflow imports. Also information on how to         execute a wdl script using cromwell can be found on the following link. 
