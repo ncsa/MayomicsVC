@@ -258,26 +258,27 @@ These issues can be resolved by specifying `output` block at the end of each com
 
 ## Unit testing
 
-Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `/json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
+Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
 
 1. Download `source.zip` and the  workflow script of the task which is to be checked. The unit test scripts are located in `src/{Name}Stage_WDL/TestTasks`. For eg. If the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it namely: "TestBWAMemSamtoolView.wdl". 
 
-2. To execute a wdl script using Cromwell we need two inputs:- 
+2. To execute a wdl script using Cromwell we need two inputs:
    a) The wdl script to perform Unit Test on. (For eg. "TestBWAMemSamtoolView.wdl")
 
-   b) The json input files that specifies where the executables are located for the tools used. The json input       files are located in the folder `/json_inputs`. For eg. /json_inputs/BWAMemSamtoolView_inputs.json.               The following link provides information on how to create json files describing inputs. 
+   b) The json input files that specifies where the executables are located for the tools used. The json input       files for our workflow are located in the folder `json_inputs`. 
+   For eg. json_inputs/BWAMemSamtoolView_inputs.json. Also if the user wants to create json input file of their      own then the following link provides information on how to do so. 
    https://software.broadinstitute.org/wdl/documentation/article?id=6751
 
-3. Once the json input file is created, it will contains the list of variables to which hard coded paths are to be provided. Hence open the .json file using a text editor and input the paths for the executables, input file paths, output file paths etc. 
+3. Once the json input file is created, it will contain the list of variables to which hard coded paths are to be provided. Hence open the .json file using a text editor and input the paths for the executables, input file paths, output file paths etc. 
 
-4. To cromwell command used to execute a wdl script is as follows:-
+4. The cromwell command used to execute a wdl script is as follows:-
 
-   java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p source.zip
+   `java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p source.zip`
 
-   For eg: java -jar cromwell.jar run BWAMemSamtoolView.wdl -i BWAMemSamtoolView_inputs.json -p source.zip
+   `For eg: java -jar cromwell.jar run BWAMemSamtoolView.wdl -i BWAMemSamtoolView_inputs.json -p source.zip`
    
-   In the above command "run" mode will run a single workflow from the command line, and exit when the workflow      completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
-   The "-p" flag points to a directory or zipfile to search for workflow imports. Also information on how to         execute a wdl script using cromwell can be found on the following link. 
+   In the above command "run" mode will execute a single workflow, and exit when the workflow completes              (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
+   The "-p" flag points to a directory or zipfile to search for workflow imports. In case of our workflow the "-p"   flag's use is mandatory. It specifies that source.zip is where the scripts to individual tasks are located.       Also information on how to execute a wdl script using cromwell can be found on the following link. 
    https://software.broadinstitute.org/wdl/documentation/execution
 
 
