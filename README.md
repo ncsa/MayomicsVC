@@ -210,11 +210,11 @@ Additionally, there is prototype of a module to notify user of failure at the en
 The naming convention followed to name tasks, workflows and files is pretty straight forward. The bullets points below should provide a clear understadning how the files are named in this repository.
 
 * Filenames: there are three types of files
-    * Files that represent a task. These files are named in reference to the command that the script executes. For eg. filename "BWAMemSamtoolView.wdl" represents that this file executes BWA Mem and Samtools View command on the input samples. 
+    * Files that represent a task. These files are named in reference to the command that the script executes. Every file name represents the function of the tool/tools that are used to run the script. For eg. filename "BWAMemSamtoolView.wdl" represents that this file executes BWA Mem and Samtools View command on the input samples. 
     * Files that represent the testing of a task. These files are named in reference to the file which it imports to test. The name of the file starts with the word "Test" and has the name of the script it imports to test the functionality of the task defined in the imported script. For eg. filename "TestBWAMemSamtoolView.wdl" represents that this file imports the script "BWAMemSamtoolView.wdl" and the functionality of the Task defined in "BWAMemSamtoolView.wdl" is checked in the script "TestBWAMemSamtoolView.wdl".
     * Files that represent a stage. These files are named in reference to the stage in the workflow that it runs. The name of the file start with the word "Test" and then the name of stage in the workflow it executes and end with the word "Stage". For eg. filename "TestAlignmentStage.wdl" informs that the Alignment stage of the workflow is being tested. 
 
-* Task Names: Certain files have only a task module written in them. These tasks are named with respect to the functionality carried out by the task and the word "Task". For eg. Task Name "ReadMappingTask" stands for the function that the task is responsible for i.e Mapping Reads and ends with the word "Task"
+* Task Names: Certain files have only a task module written in them. These tasks are named with respect to the functionality carried out by the task and the word "Task". Each task name is defined by the name of the function/functions that individual tasks peform. For eg. Task Name "ReadMappingTask" stands for the function that the task is responsible for i.e Mapping Reads and ends with the word "Task"
 
 * TestTask Names: Certain files have only a workflow written in them, which calls to a task in it. These workflows names start with the word "Call" and then have the name of the task which is called inside the workflow. For eg. The "CallReadMappingTask" stands for the task "ReadMappingTask" which the workflow calls inside it. If the workflow represents a stage then instead of using the name of the task, the name of the Stage is used after word "Call".
 
@@ -258,7 +258,24 @@ These issues can be resolved by specifying `output` block at the end of each com
 
 ## Unit testing
 
-Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The requisite commands and json runfiles that specify inputs and paths to executables are provided in {put folder here}. - This is a TO-DO.
+Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `/json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
+
+1. Download `source.zip` and the  workflow script of the task which is to be checked. The unit test scripts are located in `src/{Name}Stage_WDL/TestTasks`. For eg. If the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it namely: "TestBWAMemSamtoolView.wdl". 
+
+2. To execute a wdl script using Cromwell we need two inputs:- 
+   a) The wdl script to perform Unit Test on. (For eg. "TestBWAMemSamtoolView.wdl")
+
+   b) The json input files that specifies where the executables are located for the tools used. The json input      files are located in the folder `/json_inputs`. The follwoing link provides information on how to create json     files describing inputs. https://software.broadinstitute.org/wdl/documentation/article?id=6751
+
+3. To cromwell command used to execute a wdl script is as follows:-
+
+   java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p source.zip
+   
+   In the above command "run" mode will run a single workflow from the command line, and exit when the workflow      completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
+   The "-p" flag points to a directory or zipfile to search for workflow imports. Also information on how to         execute a wdl script using cromwell can be found on the following link. 
+   https://software.broadinstitute.org/wdl/documentation/execution
+
+
 
 
 ## Integration testing
