@@ -16,7 +16,7 @@
       * [Scripting peculiarities imposed by WDL](#scripting-peculiarities-imposed-by-wdl)
          * [Bash](#bash)
          * [Calling of tasks](#calling-of-tasks)
-         * [Workflows or workflows](#workflows-or-workflows)
+         * [Workflows of workflows](#workflows-of-workflows)
    * [Testing](#testing)
       * [Unit testing](#unit-testing)
       * [Integration testing](#integration-testing)
