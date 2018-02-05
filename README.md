@@ -29,7 +29,7 @@
 
 # Objective
 
-Recreate GenomeGPS in Cromwell/WDL instead of Bash/Perl.
+Recreate the GenomeGPS workflow in Cromwell/WDL instead of Bash/Perl.
 
 
 # Design principles
