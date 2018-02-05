@@ -20,5 +20,5 @@ module load wdltool/wdltool-0.14
 
 cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
-java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentBlock_WDL/TestTasks/TestBwa_Sam.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/TestBwa_Sam.json
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestWoW.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestWoW_inputs.json
 

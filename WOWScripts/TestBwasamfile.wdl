@@ -18,7 +18,6 @@ task ReadMappingTask {
    String BWA                   # Variable path to BWA MEM Tool
    String SAMTOOL               # variable path to Samtools
    String dollar = "$"          # Variable to access internal bash variables
-   String DummyVar              # Dummy Variable created to force sequential execution
 
    command <<<
 
@@ -42,27 +41,48 @@ task ReadMappingTask {
 
 }  # End of task block
 
-workflow CallReadMappingTask {
+workflow CallReadMappingTask{
 
-   File InputSamplesFile
+   File Input_Read1            
+   File Input_Read2            
+   String sampleName           
+   File RefFasta              
 
-   Array[Array[File]] inputsamples = read_tsv(InputSamplesFile)
+   File Ref_Amb_File            
+   File Ref_Dict_File           
+   File Ref_Ann_File            
+   File Ref_Bwt_File           
+   File Ref_Fai_File           
+   File Ref_Pac_File           
+   File Ref_Sa_File          
 
-   scatter(sample in inputsamples) {
+   String BWA
+   String SAMTOOL
+  
+   call ReadMappingTask {
+      input :
 
+         RefFasta = RefFasta,
+         Ref_Amb_File = Ref_Amb_File,
+         Ref_Dict_File = Ref_Dict_File,
+         Ref_Ann_File = Ref_Ann_File,
+         Ref_Bwt_File = Ref_Bwt_File,
+         Ref_Fai_File = Ref_Fai_File,
+         Ref_Pac_File = Ref_Pac_File,
+         Ref_Sa_File = Ref_Sa_File,
 
-      call ReadMappingTask {
-         input :
-            sampleName = sample[0],
-            Input_Read1 = sample[1],
-            Input_Read2 = sample[2]
+         Input_Read1 = Input_Read1,
+         Input_Read2 = Input_Read2,
+         RefFasta = RefFasta,
+         sampleName = sampleName,
 
-      }
+         BWA = BWA,
+         SAMTOOL = SAMTOOL
 
    }
 
    output {
-      Array[File] Global_Aligned_Bam = ReadMappingTask.Aligned_Bam
+      File Global_Aligned_Bam = ReadMappingTask.Aligned_Bam
    }
 
 }
