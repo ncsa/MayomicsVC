@@ -37,40 +37,38 @@ Recreate the GenomeGPS workflow in Cromwell/WDL instead of Bash/Perl.
 ## Modularity
 
 This workflow is modular by design, with each bioinformatics task in its own module. 
-WDL makes this easy by defining "tasks" and "workflows". [Tasks](#workflow-architecture)
+WDL makes this easy by defining "tasks" and "workflows." [Tasks](#workflow-architecture)
 in our case will wrap individual bioinformatics steps comprising the workflow.
 Tasks can be run individually and also strung together into workflows.
 
-Variant calling workflow is complex, so we break it up into smaller subworkflows, or 
+The variant calling workflow is complex, so we break it up into smaller subworkflows, or 
 [stages](#workflow-architecture) that are easier to develop and maintain. 
-Stages can be run individually and also called sequentially to execute part or full workflow. 
+Stages can be run individually and also called sequentially to execute the workflow fully or partially. 
 
 Reasons for modular design:
-* flexibility: can execute any part of the workflow; 
+* flexibility: can execute any part of the workflow 
     * useful for testing or after failure
     * can swap tools in and out for every task based on user's choice
-* optimal resource utilization: can specify number of nodes, walltime etc that is best for every stage
+* optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
 * maintainability: 
     * can edit modules without breaking the rest of the workflow 
-    * certain modules, such as QC and user notification, should serve as plug-ins for other modules, so that we would not need to change multiple places in the workflow if we change the QC procedure or user notification procedure.
+    * modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places in the workflow
 
 
 
 ## Data parallelism and scalability
 
 The workflow should run as a single multi-node job, handling the placement of tasks 
-across the nodes using embedded parallel mechanisms. We expect support for:
-* running one sample per node;
-* multiple samples per node on both:
-    * clusters with node sharing,
-    * clusters without node sharing.
+across the nodes using embedded parallel mechanisms. Support is required for:
+* running one sample per node 
+* running multiple samples per node on clusters with and without node sharing.
 
-The workflow must support repetitive fans and merges in the code, conditionally on user choice in the runfile:
-* support splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
-and merging the aligned files per-sample for sorting and deduplication;
-* support splitting of aligned/dedupped BAMs for parallel realignment and recalibration per-chromosome.
+The workflow must support repetitive fans and merges in the code conditional on user choice in the runfile, including:
+* splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
+and merging the aligned files per sample for sorting and deduplication
+* splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
 
-Workflow should scale well with the number of samples - although that is a function 
+The workflow should scale well with the number of samples - although that is a function 
 of the Cromwell execution engine. We will be benchmarking this feature (see Testing section below).
 
 
