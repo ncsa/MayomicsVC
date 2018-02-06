@@ -93,13 +93,13 @@ The workflow must be robust against hardware/software/data failure. It should:
 
 The latter is a function of Cromwell, but the workflow should support it by requesting a few extra nodes (beyond the nodes required based on user specifications).
 
-To prevent avoidable failures and resource waste: 
+To prevent avoidable failures and resource waste, the workflow should: 
 * check that all the sample files exist and have nonzero size before the workflow runs
 * check that all executables exist and have the right permissions before the workflow runs
 * after running each module, check that output was actualy produced and has nonzero size
 * perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
-User notification of success/failure will be implemented by capturing exit codes, 
+[User notification](#email-notifications) of success/failure will be implemented by capturing exit codes, 
 writing error messages into failure logs, and notifying the analyst of the success/failure status 
 via email or another notification system. We envision three levels of granularity for user 
 notification:
@@ -122,7 +122,7 @@ The workflow should be able to port smoothly among the following four kinds of s
 
 ## Development and test automation 
 
-The workflow should be constructed in such a way as to support multiple levels of automated testing:
+The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
 * Unit testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
@@ -136,7 +136,7 @@ The workflow should be constructed in such a way as to support multiple levels o
 
 <img align="right" src="https://user-images.githubusercontent.com/4040442/34808679-108a8432-f656-11e7-856a-3542018692a0.png" alt="Image of Folder Structure" width="550">
 
-GenomeGPS consists of five component workflows. Each workflow may contain higher-level [modules](#modularity), which we call "stages." For example, in BAM cleaning we have 2 stages: Alignment and Realignment/Recalibration.
+GenomeGPS consists of five component workflows. Each workflow may contain higher-level [modules](#modularity), which we call stages. For example, in BAM cleaning we have two stages: Alignment and Realignment/Recalibration.
 
 
 
@@ -199,9 +199,9 @@ The /src folder is broken up by stages. Inside the folder for each stage (i.e. A
 
 ## Special modules
 
-We implemented the initial QC on executables and input data in a separate module that could be invoked from any workflow that is part of this package. A prototype of that module is currently here: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/PreExec_QC.wdl
+We implemented the initial QC on executables and input data in a separate module that could be invoked from any workflow that is part of this package. A prototype of that module is currently here: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/PreExec_QC.wdl.
 
-Additionally, there is prototype of a module to notify the user of failure at the end of any workflow: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/EndofBlock_Notify.wdl
+Additionally, there is prototype of a module to notify the user of failure at the end of any workflow: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/EndofBlock_Notify.wdl.
 
 
 
@@ -281,7 +281,7 @@ Every task is a unit, and is tested by running as its own workflow. These unit t
    a) The wdl script to perform Unit Testing on (e.g. "TestBWAMemSamtoolView.wdl")
 
    b) The json input files that specify where the executables are located for the tools used. The json input files for our workflow are located in the folder `json_inputs` (e.g. json_inputs/BWAMemSamtoolView_inputs.json). If the user wants to create json input files of their own, the following link provides information on how to do so: 
-   https://software.broadinstitute.org/wdl/documentation/article?id=6751
+   https://software.broadinstitute.org/wdl/documentation/article?id=6751.
 
 3. Once the json input file is created, it will contain the list of variables to which hard-coded paths are to be provided. Hence, open the .json file using a text editor and input the paths for the executables, input file paths, output file paths, etc. 
 
@@ -293,7 +293,7 @@ Every task is a unit, and is tested by running as its own workflow. These unit t
    
    In the above command, "run" mode will execute a single workflow, and exit when the workflow completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
    The "-p" flag points to a directory or zipfile to search for workflow imports. In the case of our workflow, use of the "-p" flag is mandatory. It specifies that source.zip is where the scripts to individual tasks are located. Information on how to execute a wdl script using cromwell can be found on the following link: 
-   https://software.broadinstitute.org/wdl/documentation/execution
+   https://software.broadinstitute.org/wdl/documentation/execution.
 
 
 
