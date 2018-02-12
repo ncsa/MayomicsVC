@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#PBS -A aaa
+#PBS -A bany
 #PBS -q normal
-#PBS -l flags=ADVRES:skylake
 #PBS -l nodes=1:ppn=20
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest

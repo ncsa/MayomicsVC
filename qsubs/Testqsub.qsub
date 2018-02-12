@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -A bany
-#PBS -q big_mem
+#PBS -q normal
 #PBS -l nodes=3:ppn=20
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest
@@ -20,5 +20,5 @@ module load wdltool/wdltool-0.14
 
 cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
-java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestWoW.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestWoW_inputs.json
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/WOWScripts/MasterWF.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/WOWScripts/MasterWF_inputs.json
 

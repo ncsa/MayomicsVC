@@ -37,7 +37,7 @@ task MarkDuplicatesTask {
    # The output block is where the output of the program is stored.
    # glob function is used to capture the multi sample outputs      
    output {
-      File testAligned_Sorted_Dedupped_Bam = "${sampleName}.aligned.sorted.dedupped.bam"
+      File Aligned_Sorted_Dedupped_Bam = "${sampleName}.aligned.sorted.dedupped.bam"
       File PicardMetrics = "${sampleName}.PicardMetrics"
 
       #Variable to Notify user of completion of Alignment Block
