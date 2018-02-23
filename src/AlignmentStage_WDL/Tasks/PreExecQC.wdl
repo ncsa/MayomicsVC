@@ -14,6 +14,7 @@ task QualityControlTask {
    String Java
    String sort
    String picard
+   String gatk
    Int Flag = 0
 
    #Inputs
@@ -39,6 +40,7 @@ task QualityControlTask {
       [ ! -f ${Java} ] && echo "Java does not exist" >> ${failure_logs}
       [ ! -f ${sort} ] && echo "Novosort does not exist" >> ${failure_logs}
       [ ! -f ${picard} ] && echo "Picard does not exist" >> ${failure_logs}
+      [ ! -f ${gatk} ] && echo "GATK does not exist" >> ${failure_logs}
 
       [ ! -f ${ref_fasta} ] && echo "Reference Fasta File does does not exist" >> ${failure_logs}
       [ ! -f ${Ref_amb_File} ] && echo "Reference Amb File does does not exist" >> ${failure_logs}
@@ -63,6 +65,7 @@ task QualityControlTask {
       String JAVA = Java
       String SORT = sort
       String PICARD = picard
+      String GATK = gatk
       String Failure_Logs = failure_logs
       File RefFasta = ref_fasta
       File Ref_Amb_File = Ref_amb_File
