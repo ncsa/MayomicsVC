@@ -6,14 +6,13 @@
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest
 #PBS -M rvenka21@illinois.edu
-#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt
-#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Stage_error.txt
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Stage_output.txt
 
-truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/output.txt
-truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/qsubs/error.txt 
-truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Exit_Code.txt
-truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Failure_Logs.txt
-
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Stage_error.txt --size 0
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Stage_output.txt --size 0
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Exit_Code.txt --size 0
+truncate /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs/qsub_info/Failure_Logs.txt --size 0
 
 module load cromwell/cromwell-29
 module load wdltool/wdltool-0.14

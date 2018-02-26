@@ -21,8 +21,7 @@ workflow CallBaseRecalibration {
       call BASERECALIBRATION.BaseRecalibration {
          input :
             sampleName = sample[0],
-            Input_Read1 = sample[1],
-            Input_Read2 = sample[2]
+            Aligned_Sorted_Dedupped_Realigned_Bam = sample[1]
             
       }
 
