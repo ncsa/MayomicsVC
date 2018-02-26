@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -A bany
-#PBS -q big_mem
+#PBS -q normal
 #PBS -l nodes=3:ppn=20
 #PBS -l walltime=00:10:00
 #PBS -N AlignBlockTest
@@ -22,6 +22,6 @@ cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/RunOutputs
 
 echo "The WorkFlow has been initiated for N Samples" | mailx -s "Start of the WorkFlow" rvenka21@illinois.edu
 
-java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestTasks/TestBWAMemSamtoolView.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/TestBwa_Sam.json -p /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/source.zip
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/TestTasks/TestBWAMemSamtoolView.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/BWAMemSamtoolView_inputs.json -p /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/source.zip
 
 mailx -s "End of the WorkFlow" rvenka21@illinois.edu < /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/Failure_Logs.txt

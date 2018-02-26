@@ -1,12 +1,12 @@
 #########################################################################################################
 
-###  This WDL script performs Print Reads to write out sequence read data   ###
+###  This WDL script performs Base Recalibration to detects systematic errors in base quality scores   ##
 
 #########################################################################################################
 
-import "AlignmentStage_WDL/Tasks/PrintReads.wdl" as PRINTREADS
+import "ReAlignRecalStage_WDL/Tasks/BaseRecalibrator.wdl" as BASERECALIBRATION
 
-workflow CallPrintReads {
+workflow CallBaseRecalibration {
    # The InputSamplesFile is a variable that stores information on various samples
    File InputSamplesFile
 
@@ -18,10 +18,11 @@ workflow CallPrintReads {
    scatter(sample in inputsamples) {
 
       # BWA Mem is included as a sub task and it is called inside the workflow
-      call PRINTREADS.PrintReads {
+      call BASERECALIBRATION.BaseRecalibration {
          input :
             sampleName = sample[0],
-            Aligned_Sorted_Dedupped_Realigned_Bam = sample[1]
+            Aligned_Sorted_Dedupped_Bam = sample[1]
+            
       }
 
    } # End of scatter block
