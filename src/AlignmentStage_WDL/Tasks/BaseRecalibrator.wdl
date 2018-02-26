@@ -16,7 +16,7 @@
 task BaseRecalibration {
 
    File RefFasta
-   File Aligned_Sorted_Dedupped.bam
+   File Aligned_Sorted_Dedupped_Bam
    File Millsand1000GIndels
    String sampleName
    String JAVA
@@ -28,10 +28,10 @@ task BaseRecalibration {
    command {
 
       # Check to see if input files are non-zero
-      [ -s ${Aligned_Sorted_Dedupped.bam} ] || echo "Aligned Sorted Dedupped Bam File is Empty" >> ${Failure_Logs}
+      [ -s ${Aligned_Sorted_Dedupped_Bam} ] || echo "Aligned Sorted Dedupped Bam File is Empty" >> ${Failure_Logs}
   
       # Base Recalibration detects systematic errors in base quality scores  
-      ${JAVA} -Xmx16g -jar $GATK -T BaseRecalibrator -R ${RefFasta} -I ${Aligned_Sorted_Dedupped.bam} -knownSites ${Millsand1000GIndels} --out ${sampleName}_recal_report.grp -nct 17
+      ${JAVA} -Xmx16g -jar $GATK -T BaseRecalibrator -R ${RefFasta} -I ${Aligned_Sorted_Dedupped_Bam} -knownSites ${Millsand1000GIndels} --out ${sampleName}_recal_report.grp -nct 17
 
       if [ $? -ne 0 ]; then
          echo '${sampleName} has failed at the Base Recalibration Step' >> ${Exit_Code}
