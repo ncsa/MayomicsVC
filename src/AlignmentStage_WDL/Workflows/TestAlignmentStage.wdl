@@ -2,7 +2,6 @@
 ###              This WDL script is used to run the Alignment steps as individual modules              ##
 #########################################################################################################
 
-### ??? figure out how to convert from variable to an explicit path in the import command ??? ###
 import "AlignmentStage_WDL/Tasks/PreExecQC.wdl" as PREEXECQC
 import "AlignmentStage_WDL/Tasks/BWAMemSamtoolView.wdl" as BWAMEMSAMTOOLVIEW
 import "AlignmentStage_WDL/Tasks/Novosort.wdl" as NOVOSORT

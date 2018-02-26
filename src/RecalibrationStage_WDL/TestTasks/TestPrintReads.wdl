@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "ReAlignRecalStage_WDL/Tasks/PrintReads.wdl" as PRINTREADS
+import "RecalibrationStage_WDL/Tasks/PrintReads.wdl" as PRINTREADS
 
 workflow CallPrintReads {
    # The InputSamplesFile is a variable that stores information on various samples

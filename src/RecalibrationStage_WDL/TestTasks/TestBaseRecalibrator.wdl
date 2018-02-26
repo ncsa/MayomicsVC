@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "ReAlignRecalStage_WDL/Tasks/BaseRecalibrator.wdl" as BASERECALIBRATION
+import "RecalibrationStage_WDL/Tasks/BaseRecalibrator.wdl" as BASERECALIBRATION
 
 workflow CallBaseRecalibration {
    # The InputSamplesFile is a variable that stores information on various samples
