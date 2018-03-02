@@ -15,25 +15,26 @@
 
 task ReadMappingTask {
         
-   File Input_Read1		# Input Read File		 (REQUIRED)
-   File Input_Read2		# Input Read File		 (Optional)
-   String sampleName		# Name of the Sample
-   File RefFasta		# Reference FASTA file		 (REQUIRED)
+   File Input_Read1		   # Input Read File		 (REQUIRED)
+   File Input_Read2		   # Input Read File		 (Optional)
+   String sampleName		   # Name of the Sample
+   File RefFasta		   # Reference FASTA file		 (REQUIRED)
 
-   File Ref_Amb_File		#
-   File Ref_Dict_File		#
-   File Ref_Ann_File		#
-   File Ref_Bwt_File		# These are reference files that are provided as implicit inputs
-   File Ref_Fai_File		# to the WDL Tool to help perform the alignment
-   File Ref_Pac_File		#
-   File Ref_Sa_File		#
+   File Ref_Amb_File		   #
+   File Ref_Dict_File		   #
+   File Ref_Ann_File		   #
+   File Ref_Bwt_File		   # These are reference files that are provided as implicit inputs
+   File Ref_Fai_File		   # to the WDL Tool to help perform the alignment
+   File Ref_Pac_File		   #
+   File Ref_Sa_File		   #
 
-   String BWA			# Variable path to BWA MEM Tool
-   String SAMTOOL               # variable path to Samtools
-   String Exit_Code		# Variable capture exit code
-   String Failure_Logs          # Variable to capture Failure reports
-   String dollar = "$"          # Variable to access internal bash variables
-   String DummyVar              # Dummy Variable created to force sequential execution
+   String BWA			   # Variable path to BWA MEM Tool
+   String SAMTOOL                  # variable path to Samtools
+   String Exit_Code		   # Variable capture exit code
+   String Failure_Logs             # Variable to capture Failure reports
+   String dollar = "$"             # Variable to access internal bash variables
+   String DummyVar                 # Dummy Variable created to force sequential execution
+   String Email_ID                 # Variable to hold the email address
    
    command <<<
 
@@ -48,17 +49,17 @@ task ReadMappingTask {
       if [ ${dollar}{B[0]} -ne 0 ] 
       then
          echo "${sampleName} exited BWA with code ${dollar}{B[0]}" >> ${Exit_Code}
-         echo "${sampleName} exited BWA with code ${dollar}{B[0]}" | mailx -s "Sample Failed BWA Step" rvenka21@illinois.edu
-      ##else
-      ## echo "NO ERRORS" >> ${Failure_Logs}
+         echo "${sampleName} exited BWA with code ${dollar}{B[0]}" | mailx -s "Sample Failed BWA Step" ${Email_ID}
+      else
+         echo "NO ERRORS" >> ${Failure_Logs}
       fi
 
       if [ ${dollar}{B[1]} -ne 0 ]
       then
          echo "${sampleName} exited SAMTOOLS with code ${dollar}{B[1]}" >> ${Exit_Code}
-         echo "${sampleName} exited BWA with code ${dollar}{B[1]}" | mailx -s "Sample Failed SAMTOOLS Step" rvenka21@illinois.edu
-      ##else
-      #       ## echo "NO ERRORS" >> ${Failure_Logs}
+         echo "${sampleName} exited BWA with code ${dollar}{B[1]}" | mailx -s "Sample Failed SAMTOOLS Step" ${Email_ID}
+      else
+         echo "NO ERRORS" >> ${Failure_Logs}
       fi
      
       #The 'if' check to see if any of the samples have failed this step
@@ -79,7 +80,6 @@ task ReadMappingTask {
    runtime {
       # Even if the command in task has a non zero exit code continue with the other tasks
       continueOnReturnCode: true
-      failOnStderr: false
    }
 
 }  # End of task block

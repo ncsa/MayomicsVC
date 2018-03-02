@@ -10,7 +10,7 @@
 ###             -R               "Reference FASTA file"                     (Optional)
 ############################################################################################
 
-task PrintReads {
+task PrintReadsTask {
    File RefFasta
    File Aligned_Sorted_Dedupped_Bam
    File Recal_Report
@@ -38,6 +38,8 @@ task PrintReads {
 
    output {
       File Aligned_Sorted_Dedupped_Realigned_Recalibrated_bam = "${sampeName}.aligned.sorted.dedupped.realigned.recalibrated.bam"
+      String Global_sampleName = "${sampleName}"
+      Array[String] Collect_Name_Bam =[Global_sampleName, Aligned_Sorted_Dedupped_Realigned_Recalibrated_bam]
 
    }
 

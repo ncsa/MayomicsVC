@@ -13,7 +13,7 @@
 
 # The Task block is where the variables and the functions are defined for performing a certain task
 
-task BaseRecalibration {
+task BaseRecalibrationTask {
 
    File RefFasta
    File Aligned_Sorted_Dedupped_Bam
@@ -45,7 +45,9 @@ task BaseRecalibration {
 
    output {
       File Recal_Report = "${sampleName}_recal_report.grp"
-
+      String Global_sampleName = "${sampleName}"
+      File Global_Aligned_Sorted_Dedupped_Bam = "${Aligned_Sorted_Dedupped_Bam}"
+      Array[String] Collect_Name_Report = [Global_sampleName, Recal_Report, Global_Aligned_Sorted_Dedupped_Bam]
    }
 
    # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call

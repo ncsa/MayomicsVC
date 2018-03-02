@@ -17,7 +17,7 @@ task MarkDuplicatesTask {
    String PICARD                                   # Variable path to Picard 
    String Failure_Logs                             # Variable to capture Failure Reports
    String dollar = "$" 
-   Int Flag = 1000
+   Int Flag = 0                                    # Variable to Notify user of completion of Alignment Block
    
    command {
      

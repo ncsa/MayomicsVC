@@ -44,7 +44,6 @@ task FastqQualityControlTask {
    runtime {
       # Even if the command in task has a non zero exit code continue with the other tasks
       continueOnReturnCode: true
-      failOnStderr: false
    }
 
 }  # End of task block
