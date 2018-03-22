@@ -15,17 +15,29 @@ task NovosortTask {
    File Aligned_Bam                 # Input BAM File
    String sampleName                       # Name of the Sample
    String Exit_Code                        # File to capture exit code
-   String SORT                             # Variable path to Novosort
+   String NOVOSORT                             # Variable path to Novosort
    String Failure_Logs                     # Variable to capture Failure Reports
 
 
    command {
 
+      # The 'set' command is used set and examine shell options, as well as set positional parameters
+      set -x
+
       # Check to see if input files are non-zero
       [ -s ${Aligned_Bam} ] || echo "Input BAM File is Empty" >> ${Failure_Logs}
 
+      # Record the start of the program execution
+      StartTime=`date +%s`
+
       # Novosort Tools is used to created sort BAM Files 
-      ${SORT} -c 36 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
+      ${NOVOSORT} -c 36 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
+
+      # Record the End of the program execution
+      EndTime=`date +%s`
+
+      # Calculate the time to complete the run BWA and Samtools on each sample
+      echo "${sampleName} ran Novosort for ${dollar}((${dollar}{EndTime} - ${dollar}{StartTime})) seconds" >> ${Failure_Logs}
       
       # The 'if' check to see if any of the samples have failed this step          
       if [ $? -ne 0 ]; then

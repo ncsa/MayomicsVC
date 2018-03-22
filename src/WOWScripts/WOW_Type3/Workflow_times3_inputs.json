@@ -1,0 +1,14 @@
+{
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "WorkflowTimes3.WorkFlowTimes2.SORT": "/projects/bioinformatics/builds/novocraftV3.04.06.Linux2.6/novosort",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "WorkflowTimes3.WorkFlowTimes2.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa",
+  "WorkflowTimes3.WorkFlowTimes2.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "WorkflowTimes3.WorkFlowTimes2.SAMTOOL": "/usr/local/apps/bioapps/samtools/samtools-1.5/samtools",
+  "WorkflowTimes3.WorkFlowTimes2.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+ "WorkflowTimes3.WorkFlowTimes2.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/inputTSV.txt"
+}

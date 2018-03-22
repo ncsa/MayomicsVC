@@ -41,7 +41,6 @@ task NovosortTask {
 workflow CallNovosortTask {
 
    String SORT 
-   #Array[Pair[String, File]] inputAlignedBam1	
    Array[Array[File]] inputAlignedBam
 
    scatter(AlignedBam in inputAlignedBam) {
@@ -56,8 +55,7 @@ workflow CallNovosortTask {
   }
 
    output {
-      Array[File] Global_Aligned_Sorted_Bam = NovosortTask.Collect_Aligned_Sorted_Bam
-      #Array[Pair[String, File]] Global_out = inputAlignedBam
+      Array[Array[String]] Global_Aligned_Sorted_Bam = NovosortTask.Collect_Aligned_Sorted_Bam
    }
 
 }

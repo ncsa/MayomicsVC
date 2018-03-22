@@ -14,50 +14,32 @@
 task NovosortTask {
    File Aligned_Bam                 # Input BAM File
    String sampleName                       # Name of the Sample
+   String Exit_Code                        # File to capture exit code
    String SORT                             # Variable path to Novosort
+   String Failure_Logs                     # Variable to capture Failure Reports
+   String BashScriptPath
+   String dollar = "$"
 
+   command <<<
 
-   command {
+      A=${Aligned_Bam}
+      B=${sampleName}
+      C=${Exit_Code}
+      D=${SORT}
+      E=${Failure_Logs}
 
+      /bin/bash ${BashScriptPath} A B C D E
+   
+   >>>
 
-      # Novosort Tools is used to created sort BAM Files 
-      ${SORT} -c 36 -m 20G -i -o ${sampleName}.aligned.sorted.bam ${Aligned_Bam}
-
-}
-      
+   # The output block is where the output of the program is stored.
+   # glob function is used to capture the multi sample outputs   
    output {  
-      File Aligned_Sorted_Bam = "${sampleName}.aligned.sorted.bam"
-      String Global_sampleName = "${sampleName}"
-      Array[String] Collect_Aligned_Sorted_Bam = [Global_sampleName, Aligned_Sorted_Bam]
+      File Aligned_Sorted_Bam = stdout()
    }
    
    # Runtime block specifies the Cromwell Engine of runtime attributes to customize the environment for the call
    runtime {  
       continueOnReturnCode: true
    }
-}
-
-
-workflow CallNovosortTask {
-
-   String SORT 
-   #Array[Pair[String, File]] inputAlignedBam1	
-   Array[Array[File]] inputAlignedBam
-
-   scatter(AlignedBam in inputAlignedBam) {
-
-
-      call NovosortTask {
-         input :
-            SORT = SORT,
-            sampleName = AlignedBam[0],
-            Aligned_Bam = AlignedBam[1]
-      }
-  }
-
-   output {
-      Array[File] Global_Aligned_Sorted_Bam = NovosortTask.Collect_Aligned_Sorted_Bam
-      #Array[Pair[String, File]] Global_out = inputAlignedBam
-   }
-
-}
+} # End of Task Block

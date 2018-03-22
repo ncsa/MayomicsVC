@@ -9,12 +9,12 @@ task QualityControlTask {
    # Variables that hold the path to executables and inputs
 
    #Executables 
-   String bwa
-   String samtool
-   String Java
-   String sort
-   String picard
-   String gatk
+   String BWA
+   String SAMTOOLS
+   String JAVA
+   String NOVOSORT
+   String PICARD
+   String GATK
    Int Flag = 0
 
    #Inputs
@@ -35,12 +35,12 @@ task QualityControlTask {
    command <<<
    
       # To check if the executables and inputs are present
-      [ ! -f ${bwa} ] && echo "BWA does not exist" >> ${failure_logs}
-      [ ! -f ${samtool} ] && echo "Samtools does not exist" >> ${failure_logs}
-      [ ! -f ${Java} ] && echo "Java does not exist" >> ${failure_logs}
-      [ ! -f ${sort} ] && echo "Novosort does not exist" >> ${failure_logs}
-      [ ! -f ${picard} ] && echo "Picard does not exist" >> ${failure_logs}
-      [ ! -f ${gatk} ] && echo "GATK does not exist" >> ${failure_logs}
+      [ ! -f ${BWA} ] && echo "BWA does not exist" >> ${failure_logs}
+      [ ! -f ${SAMTOOLS} ] && echo "Samtools does not exist" >> ${failure_logs}
+      [ ! -f ${JAVA} ] && echo "JAVA does not exist" >> ${failure_logs}
+      [ ! -f ${NOVOSORT} ] && echo "NovoNOVOSORT does not exist" >> ${failure_logs}
+      [ ! -f ${PICARD} ] && echo "Picard does not exist" >> ${failure_logs}
+      [ ! -f ${GATK} ] && echo "GATK does not exist" >> ${failure_logs}
 
       [ ! -f ${ref_fasta} ] && echo "Reference Fasta File does does not exist" >> ${failure_logs}
       [ ! -f ${Ref_amb_File} ] && echo "Reference Amb File does does not exist" >> ${failure_logs}
@@ -60,12 +60,12 @@ task QualityControlTask {
    output {
 
       Int DummyVar = Flag
-      String BWA = bwa
-      String SAMTOOL = samtool
-      String JAVA = Java
-      String SORT = sort
-      String PICARD = picard
-      String GATK = gatk
+      String BWA = BWA
+      String SAMTOOLS = SAMTOOLS
+      String JAVA = JAVA
+      String NOVOSORT = NOVOSORT
+      String PICARD = PICARD
+      String GATK = GATK
       String Failure_Logs = failure_logs
       File RefFasta = ref_fasta
       File Ref_Amb_File = Ref_amb_File
