@@ -1,0 +1,14 @@
+{
+  "CallBWAMemSamtoolsViewTask.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/inputTSV.txt",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Failure_Logs": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/Failure_Logs.txt",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.SAMTOOLS": "/usr/local/apps/bioapps/samtools/samtools-1.5/samtools",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.BashScriptPath": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/BWASAMTOOLS.sh",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.Ref_Sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "CallBWAMemSamtoolsViewTask.ReadMappingTask.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa"
+}
