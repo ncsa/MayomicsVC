@@ -1,0 +1,52 @@
+## path to all the tools and references to run workflow
+### no change
+## references
+REF_GENOME=
+BWA_REF=
+
+## exome samples
+
+## annotation
+
+## aligners
+BWA=
+
+## callers
+
+## executables
+JAVA=
+
+## misc tools
+PICARD=
+SAMTOOLS=
+
+## all other modules of GATK
+GATK=
+
+## SV tools
+
+## libraries
+
+## customized parameters
+
+## queue parameters
+
+## flags
+
+## tools parameters
+
+## annotation tool
+
+## sv tools
+
+## GATK tools
+
+## realignment
+
+## recalibration
+
+## callers and vcf manipulators
+
+## parameters
+
+
