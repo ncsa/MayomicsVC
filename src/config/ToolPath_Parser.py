@@ -2,8 +2,9 @@ import ast
 import re
 import json
 
-InputFile = open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Test_Tools.txt","r")
-InputLines = InputFile.read().splitlines()
+with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Test_Tools.txt","r") as InputFile:
+    InputLines = InputFile.read().splitlines()
+
 Tools_Paths_Input = []
 
 for e in InputLines:
@@ -12,12 +13,13 @@ for e in InputLines:
 
 InputFile.close()
 
-Tools = map(lambda x: x[0], Tools_Paths_Input)
-Paths = map(lambda x: x[1], Tools_Paths_Input)
+Tools = list(map(lambda x: x[0], Tools_Paths_Input))
+Paths = list(map(lambda x: x[1], Tools_Paths_Input))
 
 
-OutputFile = open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json","r")
-String = OutputFile.read()
+with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json","r") as OutputFile:
+    String = OutputFile.read()
+
 Tools_Path_Output = []
 
 OutputFile.close()
@@ -31,10 +33,10 @@ for key, value in OutputDict.items():
         if (re.findall(Tools[i], key)):
             OutputDict[key] = Paths[i]
 
-with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json", "r+") as F:
-    json.dump(OutputDict, F, indent=4)
+with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json", "r+") as updated_json:
+    json.dump(OutputDict, updated_json, indent=4)
 
-F.close()
+updated_json.close()
 
 
 
