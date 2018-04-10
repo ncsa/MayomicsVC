@@ -1,6 +1,6 @@
 {
     "CallReadMappingTask.ReadMappingTask.Ref_Sa_File": "File",
-    "CallReadMappingTask.ReadMappingTask.BWA": "String",
+    "CallReadMappingTask.ReadMappingTask.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa",
     "CallReadMappingTask.ReadMappingTask.RefFasta": "File",
     "CallReadMappingTask.ReadMappingTask.DummyVar": "String",
     "CallReadMappingTask.ReadMappingTask.Ref_Ann_File": "File",
@@ -8,7 +8,7 @@
     "CallReadMappingTask.ReadMappingTask.Ref_Amb_File": "File",
     "CallReadMappingTask.ReadMappingTask.Ref_Bwt_File": "File",
     "CallReadMappingTask.ReadMappingTask.Failure_Logs": "File",
-    "CallReadMappingTask.ReadMappingTask.SAMTOOLS": "String",
+    "CallReadMappingTask.ReadMappingTask.SAMTOOLS": "/usr/local/apps/bioapps/samtools/samtools-1.5/samtools",
     "CallReadMappingTask.ReadMappingTask.Ref_Pac_File": "File",
     "CallReadMappingTask.ReadMappingTask.Ref_Fai_File": "File",
     "CallReadMappingTask.ReadMappingTask.Exit_Code": "String",

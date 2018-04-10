@@ -24,6 +24,7 @@
    * [To-Dos](#to-dos)
    * [7 Output Folder Structure](#7-output-folder-structure)
    * [Email Notifications](#email-notifications)
+   * [Parsing](#Parsing json input files)
 
 
 
@@ -490,4 +491,7 @@ If notifications are sent for every sample, the analyst will be able to figure o
 A list of all the failed samples sent as one email will prevent flooding of the inbox. However, the analyst will have to wait for the end of the step to find out which samples have failed, which could take multiple hours (depending on the step of the workflow). These are some trade-offs which have to considered while designing the workflow.
 
 
+Parsing
+============
 
+All the paths to the executables are kept in a file labeled

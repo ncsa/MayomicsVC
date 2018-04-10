@@ -1,8 +1,14 @@
 import ast
 import re
 import json
+import argparse
 
-with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Test_Tools.txt","r") as InputFile:
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", help="Input Tools File which has the paths to all the executables", required=True)
+parser.add_argument("-o", help="Output json File which has to be loaded with the path to executables", required=True)
+args =  parser.parse_args()
+
+with open(args.i,"r") as InputFile:
     InputLines = InputFile.read().splitlines()
 
 Tools_Paths_Input = []
@@ -17,7 +23,7 @@ Tools = list(map(lambda x: x[0], Tools_Paths_Input))
 Paths = list(map(lambda x: x[1], Tools_Paths_Input))
 
 
-with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json","r") as OutputFile:
+with open(args.o,"r") as OutputFile:
     String = OutputFile.read()
 
 Tools_Path_Output = []
@@ -31,12 +37,17 @@ for key, value in OutputDict.items():
 
     for i in range(len(Tools)):
         if (re.findall(Tools[i], key)):
+            Paths[i] = Paths[i].replace('"','')
             OutputDict[key] = Paths[i]
 
-with open("/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/config/Output_File.json", "r+") as updated_json:
+with open(args.o, "r+") as updated_json:
     json.dump(OutputDict, updated_json, indent=4)
 
 updated_json.close()
 
 
+
+
+if __name__ == "__main__":
+    main()
 

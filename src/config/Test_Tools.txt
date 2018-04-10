@@ -1,2 +1,2 @@
-BWA=/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa
-SAMTOOLS=/usr/local/apps/bioapps/samtools/samtools-1.5/samtools
+BWA="/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa"
+SAMTOOLS="/usr/local/apps/bioapps/samtools/samtools-1.5/samtools"
