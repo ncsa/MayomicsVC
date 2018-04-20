@@ -2,6 +2,18 @@ import ast
 import re
 import json
 import argparse
+import unittest
+
+class TestParsingTools(unittest.TestCase):
+
+    def testPass(self):
+        return
+
+    def testFail(self):
+        self.assertFalse(True)
+
+    def testError(self):
+        raise RuntimeError('Test error!')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="Input Tools File which has the paths to all the executables", required=True)
@@ -24,13 +36,13 @@ Paths = list(map(lambda x: x[1], Tools_Paths_Input))
 
 
 with open(args.o,"r") as OutputFile:
-    String = OutputFile.read()
+    Strings = OutputFile.read()
 
 Tools_Path_Output = []
 
 OutputFile.close()
 
-OutputDict = ast.literal_eval(String)
+OutputDict = ast.literal_eval(Strings)
 
 
 for key, value in OutputDict.items():
@@ -46,6 +58,8 @@ with open(args.o, "r+") as updated_json:
 updated_json.close()
 
 
+def main():   
+    unittest.main()
 
 
 if __name__ == "__main__":

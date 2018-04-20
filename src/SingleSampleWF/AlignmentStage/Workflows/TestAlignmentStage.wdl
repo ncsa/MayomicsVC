@@ -27,9 +27,6 @@ workflow CallAlignmentStageTasks {
          Ref_Fai_File = QualityControlTask.Ref_Fai_File,            
          Ref_Pac_File = QualityControlTask.Ref_Pac_File,            
          Ref_Sa_File = QualityControlTask.Ref_Sa_File,           
-         sampleName = sample[0],         
-         Input_Read1 = sample[1],         
-         Input_Read2 = sample[2],
          BWA = QualityControlTask.BWA,
          SAMTOOL = QualityControlTask.SAMTOOL,
          Exit_Code = Capture_Exit_Code,
@@ -42,7 +39,7 @@ workflow CallAlignmentStageTasks {
     
    call NOVOSORT.NovosortTask {
       input :
-         sampleName = sample[0],
+         sampleName = ReadMappingTask.sampleName,
          SORT = QualityControlTask.SORT,
          Aligned_Bam = ReadMappingTask.Aligned_Bam,
          Exit_Code = Capture_Exit_Code,
@@ -51,7 +48,7 @@ workflow CallAlignmentStageTasks {
 
    call PICARDMARKDUPLICATES.MarkDuplicatesTask {
       input :
-         sampleName = sample[0],
+         sampleName = ReadMappingTask.sampleName,
          JAVA = QualityControlTask.JAVA,
          PICARD = QualityControlTask.PICARD,
          Aligned_Sorted_Bam = NovosortTask.Aligned_Sorted_Bam,
