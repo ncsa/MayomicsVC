@@ -1,3 +1,4 @@
+# Import all the required modules
 import ast
 import re
 import json
@@ -5,6 +6,7 @@ import argparse
 import sys
 import string
 
+# Function definition 
 def argParser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="Input Tools File which has the paths to all the executables", required=True)
