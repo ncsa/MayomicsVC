@@ -1,0 +1,4 @@
+{
+  "OutputFlow.HelloTask.Name": "NCSA",
+  "OutputFlow.HelloTask.BashScriptPath": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/HelloWorld.sh"
+}

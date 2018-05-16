@@ -1,0 +1,15 @@
+{
+  "wf_Master.CallNovosortTask.SORT": "/projects/bioinformatics/builds/novocraftV3.04.06.Linux2.6/novosort",
+  "wf_Master.wf_BWA.Ref_Bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "wf_Master.wf_BWA.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "wf_Master.wf_BWA.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "wf_Master.wf_BWA.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "wf_Master.wf_BWA.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "wf_Master.wf_BWA.Ref_Fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "wf_Master.wf_BWA.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/inputTSV.txt",
+  "wf_Master.wf_BWA.Ref_Pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "wf_Master.wf_BWA.Ref_Sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "wf_Master.wf_BWA.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa",
+  "wf_Master.wf_BWA.SAMTOOL": "/usr/local/apps/bioapps/samtools/samtools-1.5/samtools"
+
+}

@@ -1,0 +1,16 @@
+{
+  "wf_Master.CallMarkDuplicatesTask.Ref_Pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "wf_Master.CallMarkDuplicatesTask.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa",
+  "wf_Master.CallMarkDuplicatesTask.PICARD": "/usr/local/apps/bioapps/picard/picard-2.7.1/picard.jar",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "wf_Master.CallMarkDuplicatesTask.SORT": "/projects/bioinformatics/builds/novocraftV3.04.06.Linux2.6/novosort",
+  "wf_Master.CallMarkDuplicatesTask.JAVA": "/usr/local/apps/bioapps/java/java-1.8.0_144/jre/bin/java",
+  "wf_Master.CallMarkDuplicatesTask.Ref_Bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "wf_Master.CallMarkDuplicatesTask.SAMTOOL": "/usr/local/apps/bioapps/samtools/samtools-1.5/samtools",
+  "wf_Master.CallMarkDuplicatesTask.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/ConfigFiles/Input_json_Files/inputTSV.txt",
+  "wf_Master.CallMarkDuplicatesTask.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa"
+}

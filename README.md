@@ -24,6 +24,7 @@
    * [To-Dos](#to-dos)
    * [7 Output Folder Structure](#7-output-folder-structure)
    * [Email Notifications](#email-notifications)
+   * [Parsing](#Parsing json input files)
 
 
 
@@ -490,4 +491,7 @@ If notifications are sent for every sample, the analyst will be able to figure o
 A list of all the failed samples sent as one email will prevent flooding of the inbox. However, the analyst will have to wait for the end of the step to find out which samples have failed, which could take multiple hours (depending on the step of the workflow). These are some trade-offs which have to considered while designing the workflow.
 
 
+Parsing
+============
 
+The paths to the executables cannot be entered manually every time a json input file is created. Hence all the paths to the executables are stored in a tools info text file. The paths to the executables are parsed from the text file into the json input file when required. This is done using a Tool Parser script. The script is written in Python3 and requries two mandatory flags to run. The "-i" flag is for the input Tools Info text file which has paths to the executables. The "-o" flag is for the output in this case the json file which requires the executable paths. The script for the parser and examples input and output files are located in the src/config folder.

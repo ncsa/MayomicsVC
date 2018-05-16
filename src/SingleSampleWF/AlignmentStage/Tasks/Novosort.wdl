@@ -17,34 +17,13 @@ task NovosortTask {
    String Exit_Code                        # File to capture exit code
    String NOVOSORT                             # Variable path to Novosort
    String Failure_Logs                     # Variable to capture Failure Reports
+   String BashScriptPath
 
 
    command {
 
-      # The 'set' command is used set and examine shell options, as well as set positional parameters
-      set -x
+      /bin/bash ${BashScriptPath} ${Aligned_Bam} ${sampleName} ${Exit_Code} ${Novosort} ${Failure_Logs}
 
-      # Check to see if input files are non-zero
-      [ -s ${Aligned_Bam} ] || echo "Input BAM File is Empty" >> ${Failure_Logs}
-
-      # Record the start of the program execution
-      StartTime=`date +%s`
-
-      # Novosort Tools is used to created sort BAM Files 
-      ${NOVOSORT} -c 36 -i -o ${sampleName}.aligned.sorted.bam ${sep=',' Aligned_Bam}
-
-      # Record the End of the program execution
-      EndTime=`date +%s`
-
-      # Calculate the time to complete the run BWA and Samtools on each sample
-      echo "${sampleName} ran Novosort for ${dollar}((${dollar}{EndTime} - ${dollar}{StartTime})) seconds" >> ${Failure_Logs}
-      
-      # The 'if' check to see if any of the samples have failed this step          
-      if [ $? -ne 0 ]; then
-         echo '${sampleName} has failed at the Novosort Step' >> ${Exit_Code}
-      fi
-
-      [ ! -f ${sampleName}.aligned.sorted.bam ] && echo "aligned sorted bam not created" >> ${Failure_Logs}
    }
 
    # The output block is where the output of the program is stored.

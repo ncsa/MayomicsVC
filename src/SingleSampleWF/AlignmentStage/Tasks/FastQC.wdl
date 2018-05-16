@@ -22,21 +22,11 @@ task FastqQualityControlTask {
    String JAVA                  # Variable path for Java
    String Failure_Logs          # Variabkle to capture Failure Reports
    String Exit_Code             # Variable capture exit code
+   String BashScriptPath
 
    command <<<
-
-      # Check to see if input files are non-zero
-      [ -s ${Input_Read1} ] || echo "Input Read1 FastQ is Empty" >> ${Failure_Logs}
-      [ -s ${Input_Read2} ] || echo "Input Read2 FastQ is Empty" >> ${Failure_Logs} 
-
-      #FastQC takes a FastQ file and runs a series of tests on it to generate a comprehensive QC report
-      ${FASTQC} --extract -j ${JAVA} -o ${FastQCDir} ${Input_Read1} ${Input_Read2}
-
-      if [ $? -ne 0 ]; then
-         echo "${sampleName} has failed at the FASTQ/BAM File Quality Control Step" >> ${Exit_Code}
-      fi
-
-      [ ! -d ${FastQCDir} ] && echo "FASTQC directory has not been created" >> ${Failure_Logs}
+   
+   /bin/bash ${BashScriptPath} ${Input_Read1} {Input_Read2} ${sampleName} ${FastQCDir} ${FASTQC} $JAVA{} ${Failure_Logs} ${Exit_Code}
    
    >>>
 

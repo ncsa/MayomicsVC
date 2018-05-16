@@ -1,0 +1,8 @@
+#List of Tools
+BWA="/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa"
+
+#List of Tools
+
+SAMTOOLS="/usr/local/apps/bioapps/samtools/samtools-1.5/samtools"
+#List of Tools
+
