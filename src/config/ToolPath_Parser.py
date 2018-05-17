@@ -1,4 +1,14 @@
-# Import all the required modules
+############################################################################################
+
+##    This script parses path information of Bioinformatics tools to a json Input File    ##
+
+##                              Script Options
+
+##      -I      "The input Tool info text file "                                  (Required) 
+##      -O      "json Input file to which path information is written into"       (Required) 
+
+###########################################################################################
+
 import ast
 import re
 import json
@@ -6,14 +16,16 @@ import argparse
 import sys
 import string
 
-# Function definition 
+
+# This function creates user-friendly command line interfaces. It defines what are the requires arguments for the script
 def argParser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", help="Input Tools File which has the paths to all the executables", required=True)
-    parser.add_argument("-o", help="Output json File which has to be loaded with the path to executables", required=True)
+    parser.add_argument("-i", nargs = 2, metavar=('Tool_info_File', 'Inputs File'), action='append',help='Input Tools File which has the paths to all the executables', required=True)
+    parser.add_argument("-o", help='Output json File which has to be loaded with the path to executables', required=True)
     return parser.parse_args()
 
 
+# Comment line from the script are removed in this function
 def commentRemoval(input_lines):                                                                                       
     filtered_lines = []                                                                                                 
     for line in input_lines:                                                                                            
@@ -24,8 +36,11 @@ def commentRemoval(input_lines):
     return filtered_lines
 
 
+# This function definition is to create a Key:Value pair of Tools and Paths
 def keyValuePairCreation( toolInputLines ):
+
     keyValuePairs = []
+
     for line in toolInputLines:
         if "=" not in line:
             sys.exit("ERROR: no equals sign present in the following line: " + line)
@@ -38,17 +53,24 @@ def keyValuePairCreation( toolInputLines ):
     return keyValuePairs
 
 
+# In this function multiple checks are performed to see if the Tool:Path pairs are unique and void of typos 
 def toolsandPaths( Input_Tools_Path ):
+
+    # List comprehensions to create individual list for Tools and Paths
     Tools = list(map(lambda x: x[0], Input_Tools_Path))
     Paths = list(map(lambda x: x[1], Input_Tools_Path))
 
     for tool, executable in list(zip(Tools, Paths)):
+
+        # Verifies if all the Tools have a corresponding Path to it
         if executable == '':
             sys.exit("ERROR: Tool " + tool + " is missing the path to the executable")
 
+        # Check to see if the Paths are enclosed in double quotes in the Tool info text file
         elif executable[0] != '"' or executable[-1] != '"':
             sys.exit("ERROR: Executable for " + tool + " is not enclosed in double quotes")
 
+        # Check to verify if special characters are present in the Paths information 
         for specialChar in string.punctuation.replace('/', '').replace('"', '').replace('-','').replace('.',''):
             if specialChar in executable:
                 sys.exit("ERROR: Executable for " + tool + ' has an invalid special character: "' + specialChar + '"')
@@ -60,34 +82,44 @@ def toolsandPaths( Input_Tools_Path ):
         else:
             return (Tools, Paths)
 
-
+# In this function Tools in the json input file is parsed with the Path information 
 def executablesCapture( Output_Dict, Tools, Paths ):
 
     for key, value in Output_Dict.items():
 
         for i in range(len(Tools)):
+
+            # Regex check to find the list of tools in the json input file 
             if (re.findall(Tools[i], key)):
+
+                # Removing double quotes from the paths and parsing path information to the json input file
                 Paths[i] = Paths[i].replace('"','')
                 Output_Dict[key] = Paths[i]
 
     return Output_Dict
 
 
-def main():   
+def main():
+
+    # The argParser Function call    
     args = argParser() 
-    
+
     InputFile = open(args.i,"r")
     
+    # The lines in the file are split using line breaks
     ToolsTextLines = InputFile.read().splitlines()  
     
     # Filter out empty strings
     InputLines = list(filter(None, ToolsTextLines))
 
+    # Function call commentRemoval function 
     InputLines = commentRemoval(InputLines)
     
+    # The keyValuePairCreation function call
     Tools_Paths_Input = keyValuePairCreation(InputLines)
     InputFile.close()
  
+    # Function call to toolsandPaths function
     (Tools, Paths) = toolsandPaths(Tools_Paths_Input)
 
     with open(args.o,"r") as OutputFile:
@@ -95,10 +127,13 @@ def main():
 
     OutputFile.close()
 
+    # The "ast" python module helps convert a json file to a Python Dictionary
     OutputDict = ast.literal_eval(Strings)
-
+ 
+    # The executableCapture function call
     OutputDict = executablesCapture(OutputDict, Tools, Paths)
 
+    # The "json" python module can be used to convert a Python Dictionary to a json file
     with open(args.o, "r+") as updated_json:
         json.dump(OutputDict, updated_json, indent=4)
 
