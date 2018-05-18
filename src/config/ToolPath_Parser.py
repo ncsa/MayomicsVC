@@ -20,7 +20,12 @@ import string
 # This function creates user-friendly command line interfaces. It defines what are the requires arguments for the script
 def argParser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", nargs = 2, metavar=('Tool_info_File', 'Inputs File'), action='append',help='Input Tools File which has the paths to all the executables', required=True)
+    parser.add_argument("-i",
+                        nargs = 2,
+                        metavar=('Tool_info_File', 'Inputs File'),
+                        action='append',help='Input Tools File which has the paths to all the executables',
+                        required=True
+                       )
     parser.add_argument("-o", help='Output json File which has to be loaded with the path to executables', required=True)
     return parser.parse_args()
 
