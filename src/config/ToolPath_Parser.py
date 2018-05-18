@@ -104,40 +104,51 @@ def main():
     # The argParser Function call    
     args = argParser() 
 
-    InputFile = open(args.i,"r")
-    
-    # The lines in the file are split using line breaks
-    ToolsTextLines = InputFile.read().splitlines()  
-    
-    # Filter out empty strings
-    InputLines = list(filter(None, ToolsTextLines))
+    # List to hold all the input files
+    ListofInputFiles = []
 
-    # Function call commentRemoval function 
-    InputLines = commentRemoval(InputLines)
+    #This loop converts the list of lists into a list
+    for InputFiles in args.i:
+        for file in InputFiles:
+            ListofInputFiles.append(file)
+
+   # This loops iterates through all the input files and parses the path information
+    for i in range(len(ListofInputFiles)):
+
+        f1 = open(ListofInputFiles[i],"r")
     
-    # The keyValuePairCreation function call
-    Tools_Paths_Input = keyValuePairCreation(InputLines)
-    InputFile.close()
+        # The lines in the file are split using line breaks
+        ToolsTextLines = f1.read().splitlines()  
+    
+        # Filter out empty strings
+        InputLines = list(filter(None, ToolsTextLines))
+
+        # Function call commentRemoval function 
+        InputLines = commentRemoval(InputLines)
+    
+        # The keyValuePairCreation function call
+        Tools_Paths_Input = keyValuePairCreation(InputLines)
+        f1.close()
  
-    # Function call to toolsandPaths function
-    (Tools, Paths) = toolsandPaths(Tools_Paths_Input)
+        # Function call to toolsandPaths function
+        (Tools, Paths) = toolsandPaths(Tools_Paths_Input)
 
-    with open(args.o,"r") as OutputFile:
-        Strings = OutputFile.read()
+        with open(args.o,"r") as OutputFile:
+            Strings = OutputFile.read()
 
-    OutputFile.close()
+        OutputFile.close()
 
-    # The "ast" python module helps convert a json file to a Python Dictionary
-    OutputDict = ast.literal_eval(Strings)
+        # The "ast" python module helps convert a json file to a Python Dictionary
+        OutputDict = ast.literal_eval(Strings)
  
-    # The executableCapture function call
-    OutputDict = executablesCapture(OutputDict, Tools, Paths)
+        # The executableCapture function call
+        OutputDict = executablesCapture(OutputDict, Tools, Paths)
 
-    # The "json" python module can be used to convert a Python Dictionary to a json file
-    with open(args.o, "r+") as updated_json:
-        json.dump(OutputDict, updated_json, indent=4)
+        # The "json" python module can be used to convert a Python Dictionary to a json file
+        with open(args.o, "r+") as updated_json:
+            json.dump(OutputDict, updated_json, indent=4)
 
-    updated_json.close()
+        updated_json.close()
 
 if __name__ == '__main__':
     main()
