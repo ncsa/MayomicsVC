@@ -5,66 +5,68 @@
 # Align reads using BWA-MEM. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# trim_sequences.sh <read1.fq> <read2.fq> <reference_genome> <output_directory> </path/to/BWA> </path/to/SAMTools> <threads> </path/to/error_log>
+# trim_sequences.sh <read1.fq> <read2.fq> <reference_genome> <output_directory> </path/to/BWA> </path/to/SAMTools> <threads> <Is_single_end?> </path/to/error_log>
 #
 ################################################################################################################################
 
 ## Input and Output parameters
 INPUT1=$1
 INPUT2=$2
-REFGEN=$3
-OUTDIR=$4
-BWA=$5
-SAMTOOLS=$6
-thr=$7
-ERRLOG=$8
+SAMPLE=$3
+REFGEN=$4
+OUTDIR=$5
+BWA=$6
+SAMTOOLS=$7
+THR=$8
+IS_SINGLE_END=$9
+ERRLOG=$10
 
 #set -x
 
 ## Check if input files, directories, and variables are non-zero
-if [ ! -s $INPUT1 ]
+if [[ ! -s ${INPUT1} ]]
 then 
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file $INPUT1 is empty." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
 	exit 1;
 fi
-if [ ! -s $INPUT2 ]
+if [[ ! -s ${INPUT2} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file $INPUT2 is empty." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
 	exit 1;
 fi
-if [ ! -s $REFGEN ]
+if [[ ! -s ${REFGEN} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Reference genome file $REFGEN is empty." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty." >> ${ERRLOG}
         exit 1;
 fi
-if [ ! -d $OUTDIR ]
+if [[ ! -d ${OUTDIR} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory $OUTDIR does not exist." >> ${ERRLOG}
+	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
 	exit 1;
 fi
-if [ ! -d $BWA ]
+if [[ ! -d ${BWA} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=BWA directory $BWA does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=BWA directory ${BWA} does not exist." >> ${ERRLOG}
 	exit 1;
 fi
-if [ ! -d $SAMTOOLS ]
+if [[ ! -d ${SAMTOOLS} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=SAMTools directory $SAMTOOLS does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=SAMTools directory ${SAMTOOLS} does not exist." >> ${ERRLOG}
         exit 1;
 fi
-if (( $thr % 2 != 0 ))
+if (( ${THR} % 2 != 0 ))
 then
-	thr=$((thr-1))
+	THR=$((THR-1))
 fi
-if [ ! -s $ERRLOG ]
+if [[ ! -s ${ERRLOG} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file $ERRLOG does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
         exit 1;
 fi
 
 ## Parse filenames without full path
-name=$(echo "$INPUT1" | sed "s/.*\///")
-full=$INPUT1
+name=$(echo "${INPUT1}" | sed "s/.*\///")
+full=${INPUT1}
 sample1=${full##*/}
 sample=${sample1%%.*}
 OUT=${OUTDIR}/${sample}.sam
@@ -72,33 +74,39 @@ OUTBAM=${OUTDIR}/${sample}.bam
 SORTBAM=${OUTDIR}/${sample}.sorted.bam
 
 ## Record start time
-StartTime=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[BWA-MEM] START. ${StartTime}"
+START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+echo "[BWA-MEM] START. ${START_TIME}"
 
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
-${BWA}/bwa mem -t $thr -M -k 32 -I 300,00 $REFGEN $INPUT1 $INPUT2 > $OUT &
-wait
-EndTime=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[BWA-MEM] Aligned reads $INPUT1 and $INPUT2 to reference $REFGEN. ${EndTime}"
+if [[ ${IS_SINGLE_END} == true ]]
+then
+	${BWA}/bwa mem -t ${THR} -M -k 32 ${REFGEN} ${INPUT1} > ${OUT} &
+	wait
+else
+	${BWA}/bwa mem -t ${THR} -M -k 32 -I 300,30 ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
+	wait
+fi
+END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+echo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}. ${END_TIME}"
 
 ## Convert SAM to BAM
 echo "[SAMTools] Converting SAM to BAM..."
-${SAMTOOLS}/samtools view -@ $thr -S -b $OUT > $OUTBAM &
+${SAMTOOLS}/samtools view -@ ${THR} -S -b ${OUT} > ${OUTBAM} &
 wait
-BAMEnd=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SAMTools] Converted output to BAM format. ${BAMEnd}"
+BAM_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+echo "[SAMTools] Converted output to BAM format. ${BAM_TIME}"
 
 ## Sort BAM
 echo "[SAMTools] Sorting BAM..."
-${SAMTOOLS}/samtools sort -@ $thr $OUTBAM -o $SORTBAM
-SortEnd=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SAMTools] Sorted BAM. ${SortEnd}"
+${SAMTOOLS}/samtools sort -@ ${THR} ${OUTBAM} -o ${SORTBAM}
+SORT_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+echo "[SAMTools] Sorted BAM. ${SORT_TIME}"
 
 
 ## Open read permissions to the user group
-chmod g+r $OUT
-chmod g+r $OUTBAM
-chmod g+r $SORTBAM
+chmod g+r ${OUT}
+chmod g+r ${OUTBAM}
+chmod g+r ${SORTBAM}
 
-echo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}. ${EndTime}"
+echo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}. ${END_TIME}"
