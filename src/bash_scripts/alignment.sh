@@ -5,21 +5,74 @@
 # Align reads using BWA-MEM. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# trim_sequences.sh <read1.fq> <read2.fq> <reference_genome> <output_directory> </path/to/BWA> </path/to/SAMTools> <threads> <Is_single_end?> </path/to/error_log>
+# alignment.sh -s <sample_name> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -B </path/to/BWA> -T </path/to/SAMTools> -t <threads> -SE <Is_single_end?> -e </path/to/error_log>
 #
 ################################################################################################################################
 
 ## Input and Output parameters
-INPUT1=$1
-INPUT2=$2
-SAMPLE=$3
-REFGEN=$4
-OUTDIR=$5
-BWA=$6
-SAMTOOLS=$7
-THR=$8
-IS_SINGLE_END=$9
-ERRLOG=$10
+while getopts ":h:s:r:R:G:O:B:T:t:SE:e:" OPT
+do
+        case ${OPT} in
+                h )
+                        echo "Usage:"
+                        echo "  bash alignment.sh -h       Display this help message."
+                        echo "  bash alignment.sh [-s <sample_name>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-B </path/to/BWA>] [-T </path/to/SAMTools>] [-t threads] [-SE single-end? (true/false)] [-e </path/to/error_log>] "
+                        ;;
+                s )
+                        s=${OPTARG}
+                        echo $s
+                        ;;
+                r )
+                        r=${OPTARG}
+                        echo $r
+                        ;;
+                R )
+                        R=${OPTARG}
+                        echo $R
+                        ;;
+                G )
+                        G=${OPTARG}
+                        echo $G
+                        ;;
+                O )
+                        O=${OPTARG}
+                        echo $O
+                        ;;
+                B )
+                        B=${OPTARG}
+                        echo $B
+                        ;;
+		T )
+			T=${OPTARG}
+			echo $T
+			;;
+                t )
+                        t=${OPTARG}
+                        echo $t
+                        ;;
+                SE )
+                        SE=${OPTARG}
+                        echo $SE
+                        ;;
+                e )
+                        e=${OPTARG}
+                        echo $e
+                        ;;
+        esac
+done
+
+
+
+INPUT1=${r}
+INPUT2=${R}
+SAMPLE=${s}
+REFGEN=${G}
+OUTDIR=${O}
+BWA=${B}
+SAMTOOLS=${T}
+THR=${t}
+IS_SINGLE_END=${SE}
+ERRLOG=${e}
 
 #set -x
 
@@ -69,9 +122,9 @@ name=$(echo "${INPUT1}" | sed "s/.*\///")
 full=${INPUT1}
 sample1=${full##*/}
 sample=${sample1%%.*}
-OUT=${OUTDIR}/${sample}.sam
-OUTBAM=${OUTDIR}/${sample}.bam
-SORTBAM=${OUTDIR}/${sample}.sorted.bam
+OUT=${OUTDIR}/${SAMPLE}.sam
+OUTBAM=${OUTDIR}/${SAMPLE}.bam
+SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`

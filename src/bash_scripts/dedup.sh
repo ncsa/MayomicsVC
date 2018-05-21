@@ -5,19 +5,64 @@
 # Deduplicate BAM using Picard MarkDuplicates. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# dedup.sh <aligned.sorted.bam> <temp_directory> <output_directory> </path/to/java> </path/to/picard> <threads> </path/to/error_log>
+# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -T <temp_directory> -O <output_directory> -J </path/to/java> -P </path/to/picard> -t <threads> -e </path/to/error_log>
 #
 ################################################################################################################################
 
 ## Input and Output parameters
-INPUTBAM=$1
-SAMPLE=$2
-TMPDIR=$3
-OUTDIR=$4
-JAVA=$5
-PICARD=$6
-THR=$7
-ERRLOG=$8
+while getopts ":h:s:b:T:O:J:P:t:e:" OPT
+do
+        case ${OPT} in
+                h )
+                        echo "Usage:"
+                        echo "  bash dedup.sh -h       Display this help message."
+                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-T <temp_directory>] [-O <output_directory>] [-J </path/to/java>] [-P </path/to/picard>] [-t threads] [-e </path/to/error_log>] "
+                        ;;
+		s )
+			s=${OPTARG}
+			echo $s
+			;;
+                b )
+                        b=${OPTARG}
+                        echo $b
+                        ;;
+		T )
+			T=${OPTARG}
+			echo $T
+			;;
+                O )
+                        O=${OPTARG}
+                        echo $O
+                        ;;
+		J )
+			J=${OPTARG}
+			echo $J
+			;;
+                P )
+                        P=${OPTARG}
+                        echo $P
+                        ;;
+                t )
+                        t=${OPTARG}
+                        echo $t
+                        ;;
+                e )
+                        e=${OPTARG}
+                        echo $e
+                        ;;
+        esac
+done
+
+
+
+INPUTBAM=${b}
+SAMPLE=${s}
+TMPDIR=${T}
+OUTDIR=${O}
+JAVA=${J}
+PICARD=${P}
+THR=${t}
+ERRLOG=${e}
 
 #set -x
 
@@ -62,7 +107,7 @@ name=$(echo "${INPUTBAM}" | sed "s/.*\///")
 full=${INPUTBAM}
 sample=${full##*/}
 samplename=${sample%.*}
-OUT=${OUTDIR}/${samplename}.deduped.bam
+OUT=${OUTDIR}/${SAMPLE}.deduped.bam
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
