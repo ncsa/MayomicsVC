@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#PBS -A bany
+#PBS -q big_mem
+#PBS -l nodes=1:ppn=20
+#PBS -l walltime=00:10:00
+#PBS -N IdxCaptureTest
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/error.txt
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/output.txt
+
+module load cromwell/cromwell-29
+
+cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs
+
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/BWA_Mem.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Inputs.json

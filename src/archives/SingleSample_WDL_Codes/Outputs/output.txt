@@ -1,0 +1,411 @@
+----------------------------------------
+Begin Torque Prologue (Mon May 21 12:08:46 2018)
+Job ID:           3613926
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge111 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 12:08:48,92] [info] Running with database db.url = jdbc:hsqldb:mem:da559c9d-4e26-41fa-bc80-ba0b3601a68b;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 12:08:54,34] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 12:08:54,35] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 12:08:54,77] [info] Slf4jLogger started
+[2018-05-21 12:08:54,95] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 12:08:54,96] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 12:08:54,97] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 12:08:55,41] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 12:08:55,44] [info] Workflow aca68255-b4a8-4e8c-8634-31cc9c8aaf26 submitted.
+[2018-05-21 12:08:55,44] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2maca68255-b4a8-4e8c-8634-31cc9c8aaf26[0m
+[2018-05-21 12:08:55,44] [info] 1 new workflows fetched
+[2018-05-21 12:08:55,44] [info] WorkflowManagerActor Starting workflow [38;5;2maca68255-b4a8-4e8c-8634-31cc9c8aaf26[0m
+[2018-05-21 12:08:55,45] [info] WorkflowManagerActor Successfully started WorkflowActor-aca68255-b4a8-4e8c-8634-31cc9c8aaf26
+[2018-05-21 12:08:55,45] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 12:08:55,68] [info] MaterializeWorkflowDescriptorActor [[38;5;2maca68255[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 12:08:57,08] [info] WorkflowExecutionActor-aca68255-b4a8-4e8c-8634-31cc9c8aaf26 [[38;5;2maca68255[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 12:08:57,24] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:08:57,24] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 12:08:57,25] [info] Using noop to send events.
+[2018-05-21 12:08:57,26] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:08:57,28] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2maca68255[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 12:08:57,29] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2maca68255[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/aca68255-b4a8-4e8c-8634-31cc9c8aaf26/call-BWA_Mem/execution/script
+[2018-05-21 12:08:57,35] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2maca68255[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 7924
+[2018-05-21 12:08:57,35] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2maca68255[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 12:08:58,53] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2maca68255[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 12:08:58,90] [info] WorkflowExecutionActor-aca68255-b4a8-4e8c-8634-31cc9c8aaf26 [[38;5;2maca68255[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 12:08:58,92] [info] WorkflowManagerActor WorkflowActor-aca68255-b4a8-4e8c-8634-31cc9c8aaf26 is in a terminal state: WorkflowSucceededState
+[2018-05-21 12:09:04,12] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "aca68255-b4a8-4e8c-8634-31cc9c8aaf26"
+}
+[2018-05-21 12:09:04,18] [info] Automatic shutdown of the async connection
+[2018-05-21 12:09:04,18] [info] Gracefully shutdown sentry threads.
+[2018-05-21 12:09:04,18] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 12:09:04 2018)
+Job ID:           3613926
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          7648
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:18,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge111 
+Max Memory Used:  (iforge111)   0.38G
+End Torque Epilogue
+----------------------------------------
+----------------------------------------
+Begin Torque Prologue (Mon May 21 12:11:34 2018)
+Job ID:           3613927
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge111 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 12:11:36,82] [info] Running with database db.url = jdbc:hsqldb:mem:f64c15c5-13d7-486c-a967-928f8ce3fa20;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 12:11:42,25] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 12:11:42,26] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 12:11:42,67] [info] Slf4jLogger started
+[2018-05-21 12:11:42,85] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 12:11:42,85] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 12:11:42,87] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 12:11:43,31] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 12:11:43,34] [info] Workflow 4870096f-78e6-47c1-b497-ae63ad1733c4 submitted.
+[2018-05-21 12:11:43,34] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2m4870096f-78e6-47c1-b497-ae63ad1733c4[0m
+[2018-05-21 12:11:43,34] [info] 1 new workflows fetched
+[2018-05-21 12:11:43,34] [info] WorkflowManagerActor Starting workflow [38;5;2m4870096f-78e6-47c1-b497-ae63ad1733c4[0m
+[2018-05-21 12:11:43,35] [info] WorkflowManagerActor Successfully started WorkflowActor-4870096f-78e6-47c1-b497-ae63ad1733c4
+[2018-05-21 12:11:43,35] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 12:11:43,59] [info] MaterializeWorkflowDescriptorActor [[38;5;2m4870096f[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 12:11:44,98] [info] WorkflowExecutionActor-4870096f-78e6-47c1-b497-ae63ad1733c4 [[38;5;2m4870096f[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 12:11:45,12] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs -> /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs: Operation not permitted
+[2018-05-21 12:11:45,13] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 12:11:45,13] [info] Using noop to send events.
+[2018-05-21 12:11:46,63] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:11:46,63] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:11:46,65] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4870096f[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 12:11:46,67] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4870096f[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4870096f-78e6-47c1-b497-ae63ad1733c4/call-BWA_Mem/execution/script
+[2018-05-21 12:11:46,70] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4870096f[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 8554
+[2018-05-21 12:11:46,70] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4870096f[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 12:11:54,70] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4870096f[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 12:11:54,97] [info] WorkflowExecutionActor-4870096f-78e6-47c1-b497-ae63ad1733c4 [[38;5;2m4870096f[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 12:11:55,00] [info] WorkflowManagerActor WorkflowActor-4870096f-78e6-47c1-b497-ae63ad1733c4 is in a terminal state: WorkflowSucceededState
+[2018-05-21 12:11:59,87] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "4870096f-78e6-47c1-b497-ae63ad1733c4"
+}
+[2018-05-21 12:11:59,94] [info] Automatic shutdown of the async connection
+[2018-05-21 12:11:59,94] [info] Gracefully shutdown sentry threads.
+[2018-05-21 12:11:59,94] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 12:12:00 2018)
+Job ID:           3613927
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          8264
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:25,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge111 
+Max Memory Used:  (iforge111)   1.21G
+End Torque Epilogue
+----------------------------------------
+----------------------------------------
+Begin Torque Prologue (Mon May 21 12:12:37 2018)
+Job ID:           3613928
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge107 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 12:12:40,86] [info] Running with database db.url = jdbc:hsqldb:mem:92d778d7-e405-4170-84d6-62d26770666b;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 12:12:46,38] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 12:12:46,40] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 12:12:46,82] [info] Slf4jLogger started
+[2018-05-21 12:12:47,00] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 12:12:47,01] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 12:12:47,03] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 12:12:47,55] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 12:12:47,58] [info] Workflow fa479c80-1e40-4b7b-a9c0-094a9ae9f289 submitted.
+[2018-05-21 12:12:47,58] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2mfa479c80-1e40-4b7b-a9c0-094a9ae9f289[0m
+[2018-05-21 12:12:47,58] [info] 1 new workflows fetched
+[2018-05-21 12:12:47,59] [info] WorkflowManagerActor Starting workflow [38;5;2mfa479c80-1e40-4b7b-a9c0-094a9ae9f289[0m
+[2018-05-21 12:12:47,59] [info] WorkflowManagerActor Successfully started WorkflowActor-fa479c80-1e40-4b7b-a9c0-094a9ae9f289
+[2018-05-21 12:12:47,59] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 12:12:47,82] [info] MaterializeWorkflowDescriptorActor [[38;5;2mfa479c80[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 12:12:49,23] [info] WorkflowExecutionActor-fa479c80-1e40-4b7b-a9c0-094a9ae9f289 [[38;5;2mfa479c80[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 12:12:49,40] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs -> /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs: Operation not permitted
+[2018-05-21 12:12:49,43] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 12:12:49,44] [info] Using noop to send events.
+[2018-05-21 12:12:51,18] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:12:51,20] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 12:12:51,26] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mfa479c80[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 12:12:51,27] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mfa479c80[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/fa479c80-1e40-4b7b-a9c0-094a9ae9f289/call-BWA_Mem/execution/script
+[2018-05-21 12:12:51,31] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mfa479c80[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 37446
+[2018-05-21 12:12:51,31] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mfa479c80[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 12:13:00,82] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mfa479c80[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 12:13:01,26] [info] WorkflowExecutionActor-fa479c80-1e40-4b7b-a9c0-094a9ae9f289 [[38;5;2mfa479c80[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 12:13:01,28] [info] WorkflowManagerActor WorkflowActor-fa479c80-1e40-4b7b-a9c0-094a9ae9f289 is in a terminal state: WorkflowSucceededState
+[2018-05-21 12:13:05,57] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "fa479c80-1e40-4b7b-a9c0-094a9ae9f289"
+}
+[2018-05-21 12:13:05,63] [info] Automatic shutdown of the async connection
+[2018-05-21 12:13:05,63] [info] Gracefully shutdown sentry threads.
+[2018-05-21 12:13:05,63] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 12:13:05 2018)
+Job ID:           3613928
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          37138
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:28,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge107 
+Max Memory Used:  (iforge107)   1.25G
+End Torque Epilogue
+----------------------------------------
+----------------------------------------
+Begin Torque Prologue (Mon May 21 13:22:04 2018)
+Job ID:           3613937
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge111 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 13:22:07,02] [info] Running with database db.url = jdbc:hsqldb:mem:77a568c8-2dee-42f6-86c7-5748cb070940;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 13:22:12,46] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 13:22:12,48] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 13:22:12,90] [info] Slf4jLogger started
+[2018-05-21 13:22:13,08] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 13:22:13,09] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 13:22:13,11] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 13:22:13,54] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 13:22:13,58] [info] Workflow b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c submitted.
+[2018-05-21 13:22:13,58] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2mb58e5d13-6369-4dc5-89dd-bbaf4ba1a93c[0m
+[2018-05-21 13:22:13,58] [info] 1 new workflows fetched
+[2018-05-21 13:22:13,58] [info] WorkflowManagerActor Starting workflow [38;5;2mb58e5d13-6369-4dc5-89dd-bbaf4ba1a93c[0m
+[2018-05-21 13:22:13,58] [info] WorkflowManagerActor Successfully started WorkflowActor-b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c
+[2018-05-21 13:22:13,58] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 13:22:13,81] [info] MaterializeWorkflowDescriptorActor [[38;5;2mb58e5d13[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 13:22:15,21] [info] WorkflowExecutionActor-b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c [[38;5;2mb58e5d13[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 13:22:15,37] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:22:15,37] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 13:22:15,38] [info] Using noop to send events.
+[2018-05-21 13:22:15,39] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:22:15,41] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mb58e5d13[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 13:22:15,45] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mb58e5d13[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c/call-BWA_Mem/execution/script
+[2018-05-21 13:22:15,48] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mb58e5d13[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 12167
+[2018-05-21 13:22:15,48] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mb58e5d13[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 13:22:16,67] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mb58e5d13[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 13:22:17,04] [info] WorkflowExecutionActor-b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c [[38;5;2mb58e5d13[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 13:22:17,07] [info] WorkflowManagerActor WorkflowActor-b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c is in a terminal state: WorkflowSucceededState
+[2018-05-21 13:22:20,14] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "b58e5d13-6369-4dc5-89dd-bbaf4ba1a93c"
+}
+[2018-05-21 13:22:20,21] [info] Automatic shutdown of the async connection
+[2018-05-21 13:22:20,21] [info] Gracefully shutdown sentry threads.
+[2018-05-21 13:22:20,21] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 13:22:20 2018)
+Job ID:           3613937
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          11875
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:16,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge111 
+Max Memory Used:  (iforge111)   0.37G
+End Torque Epilogue
+----------------------------------------
+----------------------------------------
+Begin Torque Prologue (Mon May 21 13:23:28 2018)
+Job ID:           3613938
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge111 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 13:23:30,81] [info] Running with database db.url = jdbc:hsqldb:mem:adbd3506-36ce-4dea-8243-b92a4cb589bc;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 13:23:36,26] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 13:23:36,27] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 13:23:36,69] [info] Slf4jLogger started
+[2018-05-21 13:23:36,87] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 13:23:36,88] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 13:23:36,89] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 13:23:37,32] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 13:23:37,36] [info] Workflow 4359fa4e-8a32-49be-a3d3-0a0311fba32b submitted.
+[2018-05-21 13:23:37,36] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2m4359fa4e-8a32-49be-a3d3-0a0311fba32b[0m
+[2018-05-21 13:23:37,36] [info] 1 new workflows fetched
+[2018-05-21 13:23:37,36] [info] WorkflowManagerActor Starting workflow [38;5;2m4359fa4e-8a32-49be-a3d3-0a0311fba32b[0m
+[2018-05-21 13:23:37,36] [info] WorkflowManagerActor Successfully started WorkflowActor-4359fa4e-8a32-49be-a3d3-0a0311fba32b
+[2018-05-21 13:23:37,37] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 13:23:37,59] [info] MaterializeWorkflowDescriptorActor [[38;5;2m4359fa4e[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 13:23:38,98] [info] WorkflowExecutionActor-4359fa4e-8a32-49be-a3d3-0a0311fba32b [[38;5;2m4359fa4e[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 13:23:39,13] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:23:39,14] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 13:23:39,14] [info] Using noop to send events.
+[2018-05-21 13:23:39,16] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:23:39,18] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4359fa4e[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 13:23:39,22] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4359fa4e[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/4359fa4e-8a32-49be-a3d3-0a0311fba32b/call-BWA_Mem/execution/script
+[2018-05-21 13:23:39,25] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4359fa4e[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 12729
+[2018-05-21 13:23:39,25] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4359fa4e[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 13:23:40,56] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2m4359fa4e[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 13:23:40,81] [info] WorkflowExecutionActor-4359fa4e-8a32-49be-a3d3-0a0311fba32b [[38;5;2m4359fa4e[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 13:23:40,83] [info] WorkflowManagerActor WorkflowActor-4359fa4e-8a32-49be-a3d3-0a0311fba32b is in a terminal state: WorkflowSucceededState
+[2018-05-21 13:23:44,39] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "4359fa4e-8a32-49be-a3d3-0a0311fba32b"
+}
+[2018-05-21 13:23:44,46] [info] Automatic shutdown of the async connection
+[2018-05-21 13:23:44,46] [info] Gracefully shutdown sentry threads.
+[2018-05-21 13:23:44,46] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 13:23:44 2018)
+Job ID:           3613938
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          12438
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:16,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge111 
+Max Memory Used:  (iforge111)   0.37G
+End Torque Epilogue
+----------------------------------------
+----------------------------------------
+Begin Torque Prologue (Mon May 21 13:31:46 2018)
+Job ID:           3613942
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Job Queue:        big_mem
+Account:          bany
+Nodes:            iforge106 
+End Torque Prologue
+----------------------------------------
+[2018-05-21 13:31:49,83] [info] Running with database db.url = jdbc:hsqldb:mem:46652327-35ee-41db-a39d-c21485261290;shutdown=false;hsqldb.tx=mvcc
+[2018-05-21 13:31:55,39] [info] Running migration RenameWorkflowOptionsInMetadata with a read batch size of 100000 and a write batch size of 100000
+[2018-05-21 13:31:55,41] [info] [RenameWorkflowOptionsInMetadata] 100%
+[2018-05-21 13:31:55,82] [info] Slf4jLogger started
+[2018-05-21 13:31:56,00] [info] Metadata summary refreshing every 2 seconds.
+[2018-05-21 13:31:56,01] [info] WriteMetadataActor configured to write to the database with batch size 200 and flush rate 5 seconds.
+[2018-05-21 13:31:56,03] [info] CallCacheWriteActor configured to write to the database with batch size 100 and flush rate 3 seconds.
+[2018-05-21 13:31:56,55] [info] SingleWorkflowRunnerActor: Submitting workflow
+[2018-05-21 13:31:56,59] [info] Workflow f92c2b49-74e3-4a92-a9fb-b43cc38288df submitted.
+[2018-05-21 13:31:56,59] [info] SingleWorkflowRunnerActor: Workflow submitted [38;5;2mf92c2b49-74e3-4a92-a9fb-b43cc38288df[0m
+[2018-05-21 13:31:56,59] [info] 1 new workflows fetched
+[2018-05-21 13:31:56,59] [info] WorkflowManagerActor Starting workflow [38;5;2mf92c2b49-74e3-4a92-a9fb-b43cc38288df[0m
+[2018-05-21 13:31:56,59] [info] WorkflowManagerActor Successfully started WorkflowActor-f92c2b49-74e3-4a92-a9fb-b43cc38288df
+[2018-05-21 13:31:56,59] [info] Retrieved 1 workflows from the WorkflowStoreActor
+[2018-05-21 13:31:56,84] [info] MaterializeWorkflowDescriptorActor [[38;5;2mf92c2b49[0m]: Call-to-Backend assignments: BWA_Mem_Run.BWA_Mem -> Local
+[2018-05-21 13:31:58,23] [info] WorkflowExecutionActor-f92c2b49-74e3-4a92-a9fb-b43cc38288df [[38;5;2mf92c2b49[0m]: Starting calls: BWA_Mem_Run.BWA_Mem:NA:1
+[2018-05-21 13:31:58,39] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:31:58,42] [[38;5;220mwarn[0m] Couldn't find a suitable DSN, defaulting to a Noop one.
+[2018-05-21 13:31:58,43] [info] Using noop to send events.
+[2018-05-21 13:31:58,44] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz -> /projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz: Invalid cross-device link
+[2018-05-21 13:31:58,47] [[38;5;220mwarn[0m] Localization via hard link has failed: /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs -> /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs: Operation not permitted
+[2018-05-21 13:32:00,54] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mf92c2b49[0mBWA_Mem_Run.BWA_Mem:NA:1]: [38;5;5m/bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz Test	/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/inputs/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs[0m
+[2018-05-21 13:32:00,55] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mf92c2b49[0mBWA_Mem_Run.BWA_Mem:NA:1]: executing: /bin/bash /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Outputs/cromwell-executions/BWA_Mem_Run/f92c2b49-74e3-4a92-a9fb-b43cc38288df/call-BWA_Mem/execution/script
+[2018-05-21 13:32:00,59] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mf92c2b49[0mBWA_Mem_Run.BWA_Mem:NA:1]: job id: 50396
+[2018-05-21 13:32:00,59] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mf92c2b49[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from - to WaitingForReturnCodeFile
+[2018-05-21 13:32:09,67] [info] BackgroundConfigAsyncJobExecutionActor [[38;5;2mf92c2b49[0mBWA_Mem_Run.BWA_Mem:NA:1]: Status change from WaitingForReturnCodeFile to Done
+[2018-05-21 13:32:10,26] [info] WorkflowExecutionActor-f92c2b49-74e3-4a92-a9fb-b43cc38288df [[38;5;2mf92c2b49[0m]: Workflow BWA_Mem_Run complete. Final Outputs:
+{
+  "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+}
+[2018-05-21 13:32:10,28] [info] WorkflowManagerActor WorkflowActor-f92c2b49-74e3-4a92-a9fb-b43cc38288df is in a terminal state: WorkflowSucceededState
+[2018-05-21 13:32:13,42] [info] SingleWorkflowRunnerActor workflow finished with status 'Succeeded'.
+{
+  "outputs": {
+    "BWA_Mem_Run.BWA_Mem.out": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test.aligned.sam"
+  },
+  "id": "f92c2b49-74e3-4a92-a9fb-b43cc38288df"
+}
+[2018-05-21 13:32:13,48] [info] Automatic shutdown of the async connection
+[2018-05-21 13:32:13,48] [info] Gracefully shutdown sentry threads.
+[2018-05-21 13:32:13,48] [info] Shutdown finished.
+----------------------------------------
+Begin Torque Epilogue (Mon May 21 13:32:13 2018)
+Job ID:           3613942
+Username:         rvenka21
+Group:            aaa
+Job Name:         IdxCaptureTest
+Session:          50092
+Limits:           nodes=1:ppn=20,walltime=00:10:00,neednodes=1:ppn=20
+Resources:        cput=00:00:00,vmem=0kb,walltime=00:00:27,mem=0kb,energy_used=0
+Job Queue:        big_mem
+Account:          bany
+Exit code:        0
+Nodes:            iforge106 
+Max Memory Used:  (iforge106)   1.23G
+End Torque Epilogue
+----------------------------------------

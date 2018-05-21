@@ -5,11 +5,13 @@ task BWA_Mem {
         File RefFasta
         File Input_Read1
         File Input_Read2
-        String BWA_REF
         String sampleName
+        File REF
+	File BashScript
 
         command {
-                /usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa mem -t 12 -M -k 32 -I 300,30 -R "@RG\tID:lane1\tLB:${sampleName}\tPL:illumina\tPU:lane1\tSM:lane1\tCN:${sampleName}" ${RefFasta} ${Input_Read1} ${Input_Read2} > /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/${sampleName}.aligned.sam
+
+		/bin/bash ${BashScript} ${RefFasta} ${Input_Read1} ${Input_Read2} ${sampleName}	${REF}
         }
         output {
                 File out = "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/${sampleName}.aligned.sam"

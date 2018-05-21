@@ -1,7 +1,8 @@
 {
   "BWA_Mem_Run.BWA_Mem.Input_Read1": "/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz",
-  "BWA_Mem_Run.BWA_Mem.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "BWA_Mem_Run.BWA_Mem.RefFasta": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/ref.chr1.simple_naming.fa",
   "BWA_Mem_Run.BWA_Mem.sampleName": "Test",
   "BWA_Mem_Run.BWA_Mem.Input_Read2": "/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz",
-  "BWA_Mem_Run.BWA_Mem.BWA_REF": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/Test/ref.chr1.simple_naming"
+  "BWA_Mem_Run.BWA_Mem.REF": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/test_inputs/",
+  "BWA_Mem_Run.BWA_Mem.BashScript": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/bwa.sh"
 }
