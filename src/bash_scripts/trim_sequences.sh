@@ -82,10 +82,13 @@ then
 	echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
 	exit 1;
 fi
-if [[ ! -s ${INPUT2} ]]
+if [[ ${IS_SINGLE_END} == false ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
-	exit 1;
+        if [[ ! -s ${INPUT2} ]]
+        then
+                echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
+                exit 1;
+        fi
 fi
 if [[ ! -d ${OUTDIR} ]]
 then
@@ -101,7 +104,7 @@ if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd
 then
 	THR=$((THR-1))
 fi
-if [[ ! -s ${ERRLOG} ]]
+if [[ ! -f ${ERRLOG} ]]
 then
 	echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
 	exit 1;
@@ -115,9 +118,9 @@ READ1=${full1##*/} # Remove path from variable
 READ2=${full2##*/}
 read1=${READ1%%.*} # Remove all instances of .* suffixes
 read2=${READ2%%.*}
-OUT=${SAMPLE}.trimmed.fq.gz
-OUT1=${SAMPLE}.read1.trimmed.fq.gz
-OUT2=${SAMPLE}.read2.trimmed.fq.gz
+OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
+OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
+OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`

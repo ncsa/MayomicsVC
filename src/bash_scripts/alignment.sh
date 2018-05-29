@@ -82,10 +82,13 @@ then
         echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
 	exit 1;
 fi
-if [[ ! -s ${INPUT2} ]]
+if [[ ${IS_SINGLE_END} == false ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
-	exit 1;
+        if [[ ! -s ${INPUT2} ]]
+        then
+                echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
+	        exit 1;
+        fi
 fi
 if [[ ! -s ${REFGEN} ]]
 then
@@ -111,7 +114,7 @@ if (( ${THR} % 2 != 0 ))
 then
 	THR=$((THR-1))
 fi
-if [[ ! -s ${ERRLOG} ]]
+if [[ ! -f ${ERRLOG} ]]
 then
         echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
         exit 1;
