@@ -10,7 +10,7 @@
 ################################################################################################################################
 
 ## Input and Output parameters
-while getopts ":h:s:b:O:S:t:e:" OPT
+while getopts ":h:s:b:O:S:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -46,12 +46,20 @@ do
                         ERRLOG=${OPTARG}
                         echo ${ERRLOG}
                         ;;
+                d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
+                        DEBUG=${OPTARG}
+                        echo ${DEBUG}
+                        ;;
         esac
 done
 
-SCRIPT_NAME=dedup.sh
+## Turn on Debug Mode to print all code
+if [[ ${DEBUG} == true ]]
+then
+        set -x
+fi
 
-#set -x
+SCRIPT_NAME=dedup.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${INPUTBAM} ]]

@@ -11,7 +11,7 @@
 
 ## Input and Output parameters with getopts
 
-while getopts ":hs:r:R:A:O:C:t:SE:e:" OPT
+while getopts ":hs:r:R:A:O:C:t:SE:e:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -59,12 +59,20 @@ do
 			ERRLOG=${OPTARG}
 			echo ${ERRLOG}
 			;;
+		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
+			DEBUG=${OPTARG}
+			echo ${DEBUG}
+			;;
 	esac
 done
 
-SCRIPT_NAME=trim_sequences.sh
+## Turn on Debug Mode to print all code
+if [[ ${DEBUG} == true ]]
+then
+	set -x
+fi
 
-#set -x
+SCRIPT_NAME=trim_sequences.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${ADAPTERS} ]]  

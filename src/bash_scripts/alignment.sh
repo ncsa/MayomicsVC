@@ -10,7 +10,7 @@
 ################################################################################################################################
 
 ## Input and Output parameters
-while getopts ":hg:s:p:r:R:G:O:S:t:P:e:" OPT
+while getopts ":hg:s:p:r:R:G:O:S:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -66,12 +66,20 @@ do
                         ERRLOG=${OPTARG}
                         echo ${ERRLOG}
                         ;;
+                d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
+                        DEBUG=${OPTARG}
+                        echo ${DEBUG}
+                        ;;
         esac
 done
 
-SCRIPT_NAME=alignment.sh
+## Turn on Debug Mode to print all code
+if [[ ${DEBUG} == true ]]
+then
+        set -x
+fi
 
-#set -x
+SCRIPT_NAME=alignment.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${INPUT1} ]]
