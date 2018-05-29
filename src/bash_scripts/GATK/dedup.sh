@@ -2,21 +2,21 @@
 
 ################################################################################################################################
 #
-# Deduplicate BAM using Sentieon Locus Collector and Dedup algorithms. Part of the MayomicsVC Workflow.
+# Deduplicate BAM using Picard MarkDuplicates. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> -e </path/to/error_log>
+# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -T <temp_directory> -O <output_directory> -J </path/to/java> -P </path/to/picard> -t <threads> -e </path/to/error_log>
 #
 ################################################################################################################################
 
 ## Input and Output parameters
-while getopts ":h:s:b:O:S:t:e:" OPT
+while getopts ":h:s:b:T:O:J:P:t:e:" OPT
 do
         case ${OPT} in
                 h )
                         echo "Usage:"
                         echo "  bash dedup.sh -h       Display this help message."
-                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] "
+                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-T <temp_directory>] [-O <output_directory>] [-J </path/to/java>] [-P </path/to/picard>] [-t threads] [-e </path/to/error_log>] "
                         ;;
 		s )
 			s=${OPTARG}
@@ -26,13 +26,21 @@ do
                         b=${OPTARG}
                         echo $b
                         ;;
+		T )
+			T=${OPTARG}
+			echo $T
+			;;
                 O )
                         O=${OPTARG}
                         echo $O
                         ;;
-                S )
-                        S=${OPTARG}
-                        echo $S
+		J )
+			J=${OPTARG}
+			echo $J
+			;;
+                P )
+                        P=${OPTARG}
+                        echo $P
                         ;;
                 t )
                         t=${OPTARG}
@@ -49,8 +57,10 @@ done
 
 INPUTBAM=${b}
 SAMPLE=${s}
+TMPDIR=${T}
 OUTDIR=${O}
-SENTIEON=${S}
+JAVA=${J}
+PICARD=${P}
 THR=${t}
 ERRLOG=${e}
 
@@ -62,14 +72,24 @@ then
         echo -e "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty." >> ${ERRLOG}
 	exit 1;
 fi
+if [[ ! -d ${TMPDIR} ]]
+then
+        echo -e "$0 stopped at line $LINENO. \nREASON=Temporary directory ${TMPDIR} does not exist." >> ${ERRLOG}
+        exit 1;
+fi
 if [[ ! -d ${OUTDIR} ]]
 then
 	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
 	exit 1;
 fi
-if [[ ! -d ${SENTIEON} ]]
+if [[ ! -d ${JAVA} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Java directory ${JAVA} does not exist." >> ${ERRLOG}
+        exit 1;
+fi
+if [[ ! -d ${PICARD} ]]
+then
+        echo -e "$0 stopped at line $LINENO. \nREASON=Picard directory ${PICARD} does not exist." >> ${ERRLOG}
 	exit 1;
 fi
 if (( ${THR} % 2 != 0 ))
@@ -82,30 +102,30 @@ then
         exit 1;
 fi
 
-samplename=${SAMPLE}
-SCORETXT=${OUTDIR}/${SAMPLE}.score.txt
+## Parse filename without full path
+name=$(echo "${INPUTBAM}" | sed "s/.*\///")
+full=${INPUTBAM}
+sample=${full##*/}
+samplename=${sample%.*}
 OUT=${OUTDIR}/${SAMPLE}.deduped.bam
-OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bam.bai
-DEDUPMETRICS=${OUTDIR}/${SAMPLE}.dedup_metrics.txt
+OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bai
+PICARDMETRICS=${OUTDIR}/${SAMPLE}.picard.metrics
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector. ${START_TIME}"
+echo "[PICARD] Deduplicating BAM with MarkDuplicates. ${START_TIME}"
 
-## Locus Collector command
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} 
+## Picard MarkDuplicates command.
+${JAVA}/java -Djava.io.tmpdir=${TMPDIR} -jar ${PICARD}/picard.jar MarkDuplicates INPUT=${INPUTBAM} OUTPUT=${OUT} TMP_DIR=${TMPDIR} METRICS_FILE=${PICARDMETRICS} ASSUME_SORTED=true MAX_RECORDS_IN_RAM=null CREATE_INDEX=true &
 wait
-echo "[SENTIEON] Locus Collector finished; starting Dedup."
-
-## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT}
+echo "[PICARD] Deduplicated BAM found at ${OUT}."
 
 ## Record end of the program execution
 END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SENTIEON] Deduplication Finished. ${END_TIME}"
-echo "[SENTIEON] Deduplicated BAM found at ${OUT}"
 
 ## Open read permissions to the user group
 chmod g+r ${OUT}
 chmod g+r ${OUTBAMIDX}
-chmod g+r ${DEDUPMETRICS}
+chmod g+r ${PICARDMETRICS}
+
+echo "[PICARD] Finished. ${END_TIME}"

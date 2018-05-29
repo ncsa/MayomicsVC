@@ -2,33 +2,25 @@
 
 ################################################################################################################################
 #
-# Align reads using BWA-MEM and sort. Part of the MayomicsVC Workflow.
+# Align reads using BWA-MEM. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log>
+# alignment.sh -s <sample_name> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -B </path/to/BWA> -T </path/to/SAMTools> -t <threads> -SE <Is_single_end?> -e </path/to/error_log>
 #
 ################################################################################################################################
 
 ## Input and Output parameters
-while getopts ":h:g:s:p:r:R:G:O:S:t:P:e:" OPT
+while getopts ":h:s:r:R:G:O:B:T:t:SE:e:" OPT
 do
         case ${OPT} in
                 h )
                         echo "Usage:"
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID> [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] "
-                        ;;
-                g )
-                        g=${OPTARG}
-                        echo $g
+                        echo "  bash alignment.sh [-s <sample_name>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-B </path/to/BWA>] [-T </path/to/SAMTools>] [-t threads] [-SE single-end? (true/false)] [-e </path/to/error_log>] "
                         ;;
                 s )
                         s=${OPTARG}
                         echo $s
-                        ;;
-                p )
-                        p=${OPTARG}
-                        echo $p
                         ;;
                 r )
                         r=${OPTARG}
@@ -46,17 +38,21 @@ do
                         O=${OPTARG}
                         echo $O
                         ;;
-                S )
-                        S=${OPTARG}
-                        echo $S
+                B )
+                        B=${OPTARG}
+                        echo $B
                         ;;
+		T )
+			T=${OPTARG}
+			echo $T
+			;;
                 t )
                         t=${OPTARG}
                         echo $t
                         ;;
-                P )
-                        P=${OPTARG}
-                        echo $P
+                SE )
+                        SE=${OPTARG}
+                        echo $SE
                         ;;
                 e )
                         e=${OPTARG}
@@ -69,14 +65,13 @@ done
 
 INPUT1=${r}
 INPUT2=${R}
-GROUP=${g}
 SAMPLE=${s}
-PLATFORM=${p}
 REFGEN=${G}
 OUTDIR=${O}
-SENTIEON=${S}
+BWA=${B}
+SAMTOOLS=${T}
 THR=${t}
-IS_SINGLE_END=${P}
+IS_SINGLE_END=${SE}
 ERRLOG=${e}
 
 #set -x
@@ -87,10 +82,13 @@ then
         echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
 	exit 1;
 fi
-if [[ ! -s ${INPUT2} ]]
+if [[ ${IS_SINGLE_END} == false ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
-	exit 1;
+        if [[ ! -s ${INPUT2} ]]
+        then
+                echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
+	        exit 1;
+        fi
 fi
 if [[ ! -s ${REFGEN} ]]
 then
@@ -102,10 +100,15 @@ then
 	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
 	exit 1;
 fi
-if [[ ! -d ${SENTIEON} ]]
+if [[ ! -d ${BWA} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=BWA directory ${BWA} does not exist." >> ${ERRLOG}
 	exit 1;
+fi
+if [[ ! -d ${SAMTOOLS} ]]
+then
+        echo -e "$0 stopped at line $LINENO. \nREASON=SAMTools directory ${SAMTOOLS} does not exist." >> ${ERRLOG}
+        exit 1;
 fi
 if (( ${THR} % 2 != 0 ))
 then
@@ -118,13 +121,13 @@ then
 fi
 
 ## Parse filenames without full path
-#name=$(echo "${INPUT1}" | sed "s/.*\///")
-#full=${INPUT1}
-#sample1=${full##*/}
-#sample=${sample1%%.*}
+name=$(echo "${INPUT1}" | sed "s/.*\///")
+full=${INPUT1}
+sample1=${full##*/}
+sample=${sample1%%.*}
 OUT=${OUTDIR}/${SAMPLE}.sam
+OUTBAM=${OUTDIR}/${SAMPLE}.bam
 SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
-SORTBAMIDX=${OUTDIR}/${SAMPLE}.sorted.bam.bai
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
@@ -132,28 +135,34 @@ echo "[BWA-MEM] START. ${START_TIME}"
 
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
-######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
 if [[ ${IS_SINGLE_END} == true ]]
 then
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} &
+	${BWA}/bwa mem -t ${THR} -M -k 32 ${REFGEN} ${INPUT1} > ${OUT} &
 	wait
 else
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
+	${BWA}/bwa mem -t ${THR} -M -k 32 -I 300,30 ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
 	wait
 fi
 END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
 echo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}. ${END_TIME}"
 
-## Convert SAM to BAM and sort
+## Convert SAM to BAM
 echo "[SAMTools] Converting SAM to BAM..."
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} &
+${SAMTOOLS}/samtools view -@ ${THR} -S -b ${OUT} > ${OUTBAM} &
 wait
 BAM_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SAMTools] Converted output to BAM format and sorted. ${BAM_TIME}"
+echo "[SAMTools] Converted output to BAM format. ${BAM_TIME}"
+
+## Sort BAM
+echo "[SAMTools] Sorting BAM..."
+${SAMTOOLS}/samtools sort -@ ${THR} ${OUTBAM} -o ${SORTBAM}
+SORT_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+echo "[SAMTools] Sorted BAM. ${SORT_TIME}"
+
 
 ## Open read permissions to the user group
 chmod g+r ${OUT}
+chmod g+r ${OUTBAM}
 chmod g+r ${SORTBAM}
-chmod g+r ${SORTBAMIDX}
 
 echo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}. ${END_TIME}"
