@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#PBS -A bany
+#PBS -q big_mem
+#PBS -l nodes=1:ppn=20
+#PBS -l walltime=00:10:00
+#PBS -N IdxCaptureTest
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/error.txt
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/output.txt
+
+truncate --size=0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/error.txt
+
+truncate --size=0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/output.txt
+
+module load cromwell/cromwell-29
+
+#Cromwell Outputs are located in this folder
+cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/
+
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/TestIdxCapture/BWA_Mem.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/archives/SingleSample_WDL_Codes/TestIdxCapture/Inputs.json

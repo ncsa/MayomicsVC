@@ -1,0 +1,20 @@
+{
+  "CallReadMappingTask.ReadMappingTask.Is_Single_End": "false",
+  "CallReadMappingTask.ReadMappingTask.sampleName": "WGS_chr1_5X_E0.005_copy1",
+  "CallReadMappingTask.ReadMappingTask.Error_Logs": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/single_sample_workflow/DesignBlock_1/Tasks/error_logs.txt",
+  "CallReadMappingTask.ReadMappingTask.Input_Read1": "/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read1.fq.job01of23.gz",
+  "CallReadMappingTask.ReadMappingTask.Ref_Fai_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.fai",
+  "CallReadMappingTask.ReadMappingTask.BWA": "/usr/local/apps/bioapps/bwa/bwa-0.7.16",
+  "CallReadMappingTask.ReadMappingTask.Ref_Amb_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.amb",
+  "CallReadMappingTask.ReadMappingTask.OutDir": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/single_sample_workflow/DesignBlock_1/Tasks",
+  "CallReadMappingTask.ReadMappingTask.Input_Read2": "/projects/bioinformatics/DataPacks/human/EllensSyntheticData/WGS_chr1_5X_E0.005/Chunks/WGS_chr1_5X_E0.005_read2.fq.job01of23.gz",
+  "CallReadMappingTask.ReadMappingTask.Ref_Pac_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.pac",
+  "CallReadMappingTask.ReadMappingTask.RefFasta": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa",
+  "CallReadMappingTask.ReadMappingTask.Bash_Script": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/bash_scripts/ram_alignment_test.sh",
+  "CallReadMappingTask.ReadMappingTask.Ref_Ann_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.ann",
+  "CallReadMappingTask.ReadMappingTask.Threads": "16",
+  "CallReadMappingTask.ReadMappingTask.Ref_Dict_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.dict",
+  "CallReadMappingTask.ReadMappingTask.Ref_Sa_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.sa",
+  "CallReadMappingTask.ReadMappingTask.Ref_Bwt_File": "/projects/bioinformatics/TestData/HG19/gatk_bundle_2.8/2.8/hg19/ref.chr1.simple_naming.fa.bwt",
+  "CallReadMappingTask.ReadMappingTask.SAMTOOLS": "/usr/local/apps/bioapps/samtools/samtools-1.5"
+}

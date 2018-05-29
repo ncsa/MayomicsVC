@@ -96,7 +96,7 @@ if (( ${THR} % 2 != 0 ))
 then
 	THR=$((THR-1))
 fi
-if [[ ! -s ${ERRLOG} ]]
+if [[ ! -f ${ERRLOG} ]]
 then
         echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
         exit 1;
@@ -108,13 +108,15 @@ full=${INPUTBAM}
 sample=${full##*/}
 samplename=${sample%.*}
 OUT=${OUTDIR}/${SAMPLE}.deduped.bam
+OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bai
+PICARDMETRICS=${OUTDIR}/${SAMPLE}.picard.metrics
 
 ## Record start time
 START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
 echo "[PICARD] Deduplicating BAM with MarkDuplicates. ${START_TIME}"
 
 ## Picard MarkDuplicates command.
-${JAVA}/java -Djava.io.tmpdir=${TMPDIR} -jar ${PICARD}/picard.jar MarkDuplicates INPUT=${INPUTBAM} OUTPUT=${OUT} TMP_DIR=${TMPDIR} METRICS_FILE=${samplename}.picard.metrics ASSUME_SORTED=true MAX_RECORDS_IN_RAM=null CREATE_INDEX=true &
+${JAVA}/java -Djava.io.tmpdir=${TMPDIR} -jar ${PICARD}/picard.jar MarkDuplicates INPUT=${INPUTBAM} OUTPUT=${OUT} TMP_DIR=${TMPDIR} METRICS_FILE=${PICARDMETRICS} ASSUME_SORTED=true MAX_RECORDS_IN_RAM=null CREATE_INDEX=true &
 wait
 echo "[PICARD] Deduplicated BAM found at ${OUT}."
 
@@ -123,5 +125,7 @@ END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
 
 ## Open read permissions to the user group
 chmod g+r ${OUT}
+chmod g+r ${OUTBAMIDX}
+chmod g+r ${PICARDMETRICS}
 
 echo "[PICARD] Finished. ${END_TIME}"

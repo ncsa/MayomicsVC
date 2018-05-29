@@ -1,0 +1,9 @@
+{
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.Threads": "String",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.SENTIEON": "String",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.Error_Logs": "String",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.Bash_Script": "File",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.InputBam": "File",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.sampleName": "String",
+  "RunMarkDuplicatesTask.MarkDuplicatesTask.OutDir": "String"
+}

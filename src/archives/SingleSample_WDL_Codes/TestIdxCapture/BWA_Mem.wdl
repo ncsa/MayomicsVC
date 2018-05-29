@@ -9,12 +9,12 @@ task BWA_Mem {
         File REF
 	File BashScript
 
-        command {
+        command <<<
 
 		/bin/bash ${BashScript} ${RefFasta} ${Input_Read1} ${Input_Read2} ${sampleName}	${REF}
-        }
+        >>>
         output {
-                File AlignedSam = stdout()
+                File AlignedSam = "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/IdxCaptureOutputs_temp/${sampleName}.aligned.sam"
         }
 
 }
