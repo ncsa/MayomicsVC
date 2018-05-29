@@ -10,74 +10,66 @@
 ################################################################################################################################
 
 ## Input and Output parameters
-while getopts ":h:g:s:p:r:R:G:O:S:t:P:e:" OPT
+while getopts ":hg:s:p:r:R:G:O:S:t:P:e:" OPT
 do
         case ${OPT} in
-                h )
+                h )  # Flag to display usage
+			echo " "
                         echo "Usage:"
+			echo " "
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID> [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] "
+                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] "
+			echo " "
+                        exit 0;
+			;;
+                g )  # Read group ID. String variable invoked with -g
+                        GROUP=${OPTARG}
+                        echo ${GROUP}
                         ;;
-                g )
-                        g=${OPTARG}
-                        echo $g
+                s )  # Sample name. String variable invoked with -s
+                        SAMPLE=${OPTARG}
+                        echo ${SAMPLE}
                         ;;
-                s )
-                        s=${OPTARG}
-                        echo $s
+                p )  # Sequencing platform. String variable invoked with -p
+                        PLATFORM=${OPTARG}
+                        echo ${PLATFORM}
                         ;;
-                p )
-                        p=${OPTARG}
-                        echo $p
+                r )  # Full path to input read 1. String variable invoked with -r
+                        INPUT1=${OPTARG}
+                        echo ${INPUT1}
                         ;;
-                r )
-                        r=${OPTARG}
-                        echo $r
+                R )  # Full path to input read 2. String variable invoked with -r
+                        INPUT2=${OPTARG}
+                        echo ${INPUT2}
                         ;;
-                R )
-                        R=${OPTARG}
-                        echo $R
+                G )  # Full path to referance genome fasta file. String variable invoked with -G
+                        REFGEN=${OPTARG}
+                        echo ${REFGEN}
                         ;;
-                G )
-                        G=${OPTARG}
-                        echo $G
+                O )  # Output directory. String variable invoked with -O
+                        OUTDIR=${OPTARG}
+                        echo ${OUTDIR}
                         ;;
-                O )
-                        O=${OPTARG}
-                        echo $O
+                S )  # Full path to sentieon directory. Invoked with -S
+                        SENTIEON=${OPTARG}
+                        echo ${SENTIEON}
                         ;;
-                S )
-                        S=${OPTARG}
-                        echo $S
+                t )  # Number of threads available. Integer invoked with -t
+                        THR=${OPTARG}
+                        echo ${THR}
                         ;;
-                t )
-                        t=${OPTARG}
-                        echo $t
+                P )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
+                        IS_SINGLE_END=${OPTARG}
+                        echo ${IS_SINGLE_END}
                         ;;
-                P )
-                        P=${OPTARG}
-                        echo $P
-                        ;;
-                e )
-                        e=${OPTARG}
-                        echo $e
+                e )  # Full path to error log file. String variable invoked with -e
+                        ERRLOG=${OPTARG}
+                        echo ${ERRLOG}
                         ;;
         esac
 done
 
-
-
-INPUT1=${r}
-INPUT2=${R}
-GROUP=${g}
-SAMPLE=${s}
-PLATFORM=${p}
-REFGEN=${G}
-OUTDIR=${O}
-SENTIEON=${S}
-THR=${t}
-IS_SINGLE_END=${P}
-ERRLOG=${e}
+SCRIPT_NAME=alignment.sh
 
 #set -x
 

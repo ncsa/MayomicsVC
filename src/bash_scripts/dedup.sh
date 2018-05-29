@@ -13,46 +13,42 @@
 while getopts ":h:s:b:O:S:t:e:" OPT
 do
         case ${OPT} in
-                h )
+                h )  # Flag to display usage 
+			echo " "
                         echo "Usage:"
+			echo " "
                         echo "  bash dedup.sh -h       Display this help message."
                         echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] "
+			echo " "
                         ;;
-		s )
-			s=${OPTARG}
-			echo $s
+		s )  # Sample name. String variable invoked with -s
+			SAMPLE=${OPTARG}
+			echo ${SAMPLE}
 			;;
-                b )
-                        b=${OPTARG}
-                        echo $b
+                b )  # Full path to the input BAM file. String variable invoked with -b
+                        INPUTBAM=${OPTARG}
+                        echo ${INPUTBAM}
                         ;;
-                O )
-                        O=${OPTARG}
-                        echo $O
+                O )  # Output directory. String variable invoked with -O
+                        OUTDIR=${OPTARG}
+                        echo ${OUTDIR}
                         ;;
-                S )
-                        S=${OPTARG}
-                        echo $S
+                S )  # Full path to sentieon directory. String variable invoked with -S
+                        SENTIEON=${OPTARG}
+                        echo ${SENTIEON}
                         ;;
-                t )
-                        t=${OPTARG}
-                        echo $t
+                t )  # Number of threads available. Integer invoked with -t
+                        THR=${OPTARG}
+                        echo ${THR}
                         ;;
-                e )
-                        e=${OPTARG}
-                        echo $e
+                e )  # Full path to error log file. String variable invoked with -e
+                        ERRLOG=${OPTARG}
+                        echo ${ERRLOG}
                         ;;
         esac
 done
 
-
-
-INPUTBAM=${b}
-SAMPLE=${s}
-OUTDIR=${O}
-SENTIEON=${S}
-THR=${t}
-ERRLOG=${e}
+SCRIPT_NAME=dedup.sh
 
 #set -x
 

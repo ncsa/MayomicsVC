@@ -11,62 +11,57 @@
 
 ## Input and Output parameters with getopts
 
-while getopts ":h:s:r:R:A:O:C:t:SE:e:" OPT
+while getopts ":hs:r:R:A:O:C:t:SE:e:" OPT
 do
 	case ${OPT} in
-		h )
+		h )  # Flag to display usage
+			echo " "
 			echo "Usage:"
+			echo " "
 			echo "	bash trim_sequences.sh -h	Display this help message."
 			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-R <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] "
+			echo " "
+			exit 0;
 			;;
-		s )
-			s=${OPTARG}
-			echo $s
+		s )  # Sample name. String variable invoked with -s
+			SAMPLE=${OPTARG}
+			echo ${SAMPLE}
 			;;
-		r )
-			r=${OPTARG}
-			echo $r
+		r )  # Full path to input read 1. String variable invoked with -r
+			INPUT1=${OPTARG}
+			echo ${INPUT1}
 			;;
-		R )
-			R=${OPTARG}
-			echo $R
+		R )  # Full path to input read 2. String variable invoked with -r
+			INPUT2=${OPTARG}
+			echo ${INPUT2}
 			;;
-		A )
-			A=${OPTARG}
-			echo $A
+		A )  # Full path to adapters fasta file. String variable invoked with -A
+			ADAPTERS=${OPTARG}
+			echo ${ADAPTERS}
 			;;
-		O )
-			O=${OPTARG}
-			echo $O
+		O )  # Output directory. String variable invoked with -O
+			OUTDIR=${OPTARG}
+			echo ${OUTDIR}
 			;;
-		C )
-			C=${OPTARG}
-			echo $C
+		C )  # Full path to cutadapt directory. String variable invoked with -C
+			CUTADAPT=${OPTARG}
+			echo ${CUTADAPT}
 			;;
-		t )
-			t=${OPTARG}
-			echo $t
+		t )  # Number of threads available. Integer invoked with -t
+			THR=${OPTARG}
+			echo ${THR}
 			;;
-		SE )
-			SE=${OPTARG}
-			echo $SE
+		SE )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
+			IS_SINGLE_END=${OPTARG}
+			echo ${IS_SINGLE_END}
 			;;
-		e )
-			e=${OPTARG}
-			echo $e
+		e )  # Full path to error log file. String variable invoked with -e
+			ERRLOG=${OPTARG}
+			echo ${ERRLOG}
 			;;
 	esac
 done
 
-ADAPTERS=${A}
-SAMPLE=${s}
-INPUT1=${r}
-INPUT2=${R}
-OUTDIR=${O}
-CUTADAPT=${C}
-THR=${t}
-ERRLOG=${e}
-IS_SINGLE_END=${SE}
 SCRIPT_NAME=trim_sequences.sh
 
 #set -x
