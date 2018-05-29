@@ -5,7 +5,7 @@
 # Align reads using BWA-MEM and sort. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log>
+# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log> -d set_debug_mode [false]
 #
 ################################################################################################################################
 
@@ -18,7 +18,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] "
+                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
                         exit 0;
 			;;

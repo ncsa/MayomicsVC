@@ -5,7 +5,7 @@
 # Deduplicate BAM using Sentieon Locus Collector and Dedup algorithms. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> -e </path/to/error_log>
+# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> -e </path/to/error_log> -d set_debug_mode (true/false)
 #
 ################################################################################################################################
 
@@ -18,7 +18,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash dedup.sh -h       Display this help message."
-                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] "
+                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
                         ;;

@@ -5,7 +5,7 @@
 # Trim input sequences using Cutadapt. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# trim_sequences.sh <adapters.fa> <read1.fq> <read2.fq> <output_directory> </path/to/cutadapt> <threads> </path/to/error_log>
+# trim_sequences.sh -s <sample_name> -A <adapters.fa> -r <read1.fq> -R <read2.fq> -O <output_directory> -C </path/to/cutadapt> -t <threads> -SE single-end [false] -e </path/to/error_log> -d debug_mode [false]
 #
 ################################################################################################################################
 
@@ -19,7 +19,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-R <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] "
+			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-R <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
 			;;
