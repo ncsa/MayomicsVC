@@ -1,0 +1,18 @@
+{
+  "BWA": "ExecFile",
+  "SAMTOOLS": "ExecFile",
+
+  "RefFasta": "File",
+  "Ref_Ann_File": "File",
+  "Ref_Amb_File": "File",
+  "Ref_Bwt_File": "File",
+  "Ref_Dict_File": "File",
+  "Ref_Fai_File": "File",
+  "Ref_Pac_File": "File",
+  "Ref_Sa_File": "File",
+  "Failure_Logs": "File",
+
+  "DummyVar": "String",
+  "InputSamplesFile": "File",
+  "Exit_Code": "String"
+}
