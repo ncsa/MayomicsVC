@@ -9,6 +9,64 @@
 #
 ################################################################################################################################
 
+SCRIPT_NAME=dedup.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+
+## Logging functions
+# Get date and time information
+function getDate()
+{
+    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
+}
+
+# This is "private" function called by the other logging functions, don't call it directly,
+# use logError, logWarn, etc.
+function _logMsg () {
+    echo -e "${1}"
+
+    if [[ -n ${ERRLOG-x} ]]; then
+        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
+    fi
+}
+
+function logError()
+{
+    local LEVEL="ERROR"
+    local CODE="-1"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function logWarn()
+{
+    local LEVEL="WARN"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function logInfo()
+{
+    local LEVEL="INFO"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
 ## Input and Output parameters
 while getopts ":h:s:b:O:S:t:e:d:" OPT
 do
@@ -56,37 +114,38 @@ done
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
+	logInfo "Debug mode is ON."
         set -x
 fi
-
-SCRIPT_NAME=dedup.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${INPUTBAM} ]]
 then 
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty." >> ${ERRLOG}
+        logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty."
 	exit 1;
 fi
 if [[ ! -d ${OUTDIR} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
+	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
 	exit 1;
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist." >> ${ERRLOG}
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist."
 	exit 1;
 fi
 if (( ${THR} % 2 != 0 ))
 then
+	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
 	THR=$((THR-1))
 fi
 if [[ ! -f ${ERRLOG} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." 
         exit 1;
 fi
 
+## Defining file names
 samplename=${SAMPLE}
 SCORETXT=${OUTDIR}/${SAMPLE}.score.txt
 OUT=${OUTDIR}/${SAMPLE}.deduped.bam
@@ -94,21 +153,20 @@ OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bam.bai
 DEDUPMETRICS=${OUTDIR}/${SAMPLE}.dedup_metrics.txt
 
 ## Record start time
-START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector. ${START_TIME}"
+logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} 
 wait
-echo "[SENTIEON] Locus Collector finished; starting Dedup."
+logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT}
 
-## Record end of the program execution
-END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SENTIEON] Deduplication Finished. ${END_TIME}"
-echo "[SENTIEON] Deduplicated BAM found at ${OUT}"
+logInfo "[SENTIEON] Deduplication Finished."
+logInfo "[SENTIEON] Deduplicated BAM found at ${OUT}"
 
 ## Open read permissions to the user group
 chmod g+r ${OUT}

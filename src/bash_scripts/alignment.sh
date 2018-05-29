@@ -9,6 +9,66 @@
 #
 ################################################################################################################################
 
+SCRIPT_NAME=alignment.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+
+## Logging functions
+# Get date and time information
+function getDate()
+{
+    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
+}
+
+# This is "private" function called by the other logging functions, don't call it directly,
+# use logError, logWarn, etc.
+function _logMsg () {
+    echo -e "${1}"
+
+    if [[ -n ${ERRLOG-x} ]]; then
+        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
+    fi
+}
+
+function logError()
+{
+    local LEVEL="ERROR"
+    local CODE="-1"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function logWarn()
+{
+    local LEVEL="WARN"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function logInfo()
+{
+    local LEVEL="INFO"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+
+
 ## Input and Output parameters
 while getopts ":hg:s:p:r:R:G:O:S:t:P:e:d:" OPT
 do
@@ -76,6 +136,7 @@ done
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
+	logInfo "Debug mode is ON."
         set -x
 fi
 
@@ -84,36 +145,40 @@ SCRIPT_NAME=alignment.sh
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${INPUT1} ]]
 then 
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
+        logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
 	exit 1;
 fi
-if [[ ! -s ${INPUT2} ]]
+if [[ ${IS_SINGLE_END} == false ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
-	exit 1;
+	if [[ ! -s ${INPUT2} ]]
+	then
+        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
+		exit 1;
+	fi
 fi
 if [[ ! -s ${REFGEN} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty." >> ${ERRLOG}
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
         exit 1;
 fi
 if [[ ! -d ${OUTDIR} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
+	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
 	exit 1;
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist." >> ${ERRLOG}
+        logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
 	exit 1;
 fi
 if (( ${THR} % 2 != 0 ))
 then
+	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
 	THR=$((THR-1))
 fi
 if [[ ! -f ${ERRLOG} ]]
 then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
+        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist."
         exit 1;
 fi
 
@@ -127,33 +192,33 @@ SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
 SORTBAMIDX=${OUTDIR}/${SAMPLE}.sorted.bam.bai
 
 ## Record start time
-START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[BWA-MEM] START. ${START_TIME}"
+logInfo "[BWA-MEM] START."
 
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
 ######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
 if [[ ${IS_SINGLE_END} == true ]]
 then
+	export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} &
 	wait
 else
+	export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
 	wait
 fi
-END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}. ${END_TIME}"
+logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 ## Convert SAM to BAM and sort
-echo "[SAMTools] Converting SAM to BAM..."
+logInfo "[SAMTools] Converting SAM to BAM..."
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} &
 wait
-BAM_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[SAMTools] Converted output to BAM format and sorted. ${BAM_TIME}"
+logInfo "[SAMTools] Converted output to BAM format and sorted."
 
 ## Open read permissions to the user group
 chmod g+r ${OUT}
 chmod g+r ${SORTBAM}
 chmod g+r ${SORTBAMIDX}
 
-echo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}. ${END_TIME}"
+logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."

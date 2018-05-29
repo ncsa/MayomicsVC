@@ -9,6 +9,71 @@
 #
 ################################################################################################################################
 
+SCRIPT_NAME=trim_sequences.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+
+## Logging functions
+# Get date and time information
+function getDate()
+{
+    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
+}
+  
+# This is "private" function called by the other logging functions, don't call it directly,
+# use logError, logWarn, etc.
+function _logMsg () {
+    echo -e "${1}"
+  
+    if [[ -n ${ERRLOG-x} ]]; then
+        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
+    fi
+}
+  
+function logError()
+{
+    local LEVEL="ERROR"
+    local CODE="-1"
+  
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+  
+    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+  
+function logWarn()
+{
+    local LEVEL="WARN"
+    local CODE="0"
+  
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+  
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+  
+function logInfo()
+{
+    local LEVEL="INFO"
+    local CODE="0"
+  
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+  
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+
+
+
+
+
+
+
 ## Input and Output parameters with getopts
 
 while getopts ":hs:r:R:A:O:C:t:SE:e:d:" OPT
@@ -69,52 +134,51 @@ done
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
+	logInfo "Debug mode is ON."
 	set -x
 fi
-
-SCRIPT_NAME=trim_sequences.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -s ${ADAPTERS} ]]  
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Adapters fasta file ${ADAPTERS} is empty." >> ${ERRLOG} 
+	logError "$0 stopped at line $LINENO. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
 	exit 1;
 fi
 if [[ ! -s ${INPUT1} ]]  
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty." >> ${ERRLOG}
+	logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
 	exit 1;
 fi
 if [[ ${IS_SINGLE_END} == false ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
-                echo -e "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty." >> ${ERRLOG}
+                logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
                 exit 1;
         fi
 fi
 if [[ ! -d ${OUTDIR} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist." >> ${ERRLOG}
+	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
 	exit 1;
 fi
 if [[ ! -d ${CUTADAPT} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Cutadapt directory ${CUTADAPT} does not exist." >> ${ERRLOG}
+	logError "$0 stopped at line $LINENO. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
 	exit 1;
 fi
 if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
 then
+	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
 	THR=$((THR-1))
 fi
 if [[ ! -f ${ERRLOG} ]]
 then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." >> ${ERRLOG}
+	echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist."
 	exit 1;
 fi
 
 ## Parse filename without full path
-
 full1=$INPUT1
 full2=$INPUT2
 READ1=${full1##*/} # Remove path from variable
@@ -126,8 +190,8 @@ OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
 OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
 
 ## Record start time
-START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
-echo "[CUTADAPT] START. ${START_TIME}"
+#START_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
@@ -147,10 +211,10 @@ else
 		wait
 	fi
 fi
-echo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUT}/${read1}.cutadapt.log ${OUT}/${read2}.cutadapt.log"
+logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUT}/${read1}.cutadapt.log ${OUT}/${read2}.cutadapt.log"
 
 ## Record end of the program execution
-END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
+#END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
 
 ## Open read permissions to the user group
 if [[ "$IS_SINGLE_END" = true ]]
@@ -161,4 +225,4 @@ else
 	chmod g+r ${OUT2}
 fi
 
-echo "[CUTADAPT] Finished trimming adapter sequences. Trimmed reads found at ${OUTDIR}/. ${END_TIME}"
+logInfo "[CUTADAPT] Finished trimming adapter sequences. Trimmed reads found at ${OUTDIR}/"
