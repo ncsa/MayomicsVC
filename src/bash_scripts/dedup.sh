@@ -20,6 +20,7 @@ do
                         echo "  bash dedup.sh -h       Display this help message."
                         echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] "
 			echo " "
+			exit 0;
                         ;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
