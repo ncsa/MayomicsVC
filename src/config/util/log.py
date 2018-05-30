@@ -27,7 +27,7 @@ class ProjectLogger:
     def __init__(self, job_id, name):
         # setup logging threshold and format
         logging.basicConfig(level=logging.INFO,
-                            format="%(asctime)s %(levelname)s %(name)s %(message)s",
+                            format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
                             datefmt="%Y-%m-%dT%H:%M:%S%z"
                             )
         self.logger = logging.getLogger(name)
@@ -35,14 +35,14 @@ class ProjectLogger:
         self.warnings_issued = 0
 
     def log_info(self, message):
-        self.logger.info(self.job_id + " - " + message)
+        self.logger.info("[" + self.job_id + "] [-] " + message)
 
     def log_debug(self, message):
-        self.logger.debug(self.job_id + " - " + message)
+        self.logger.debug("[" + self.job_id + "] [-] " + message)
 
     def log_warning(self, message):
-        self.logger.warning(self.job_id + " - " + message)
+        self.logger.warning("[" + self.job_id + "] [-] " + message)
         self.warnings_issued += 1
 
     def log_error(self, error_code, message):
-        self.logger.error(self.job_id + " " + error_code + " " + message)
+        self.logger.error("[" + self.job_id + "] [" + error_code + "] " + message)
