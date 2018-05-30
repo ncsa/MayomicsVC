@@ -119,14 +119,14 @@ then
 fi
 
 ## Check if input files, directories, and variables are non-zero
+if [[ ! -d ${OUTDIR} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
+        exit 1;
+fi
 if [[ ! -s ${INPUTBAM} ]]
 then 
         logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty."
-	exit 1;
-fi
-if [[ ! -d ${OUTDIR} ]]
-then
-	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
 	exit 1;
 fi
 if [[ ! -d ${SENTIEON} ]]
@@ -138,11 +138,6 @@ if (( ${THR} % 2 != 0 ))
 then
 	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
 	THR=$((THR-1))
-fi
-if [[ ! -f ${ERRLOG} ]]
-then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist." 
-        exit 1;
 fi
 
 ## Defining file names

@@ -139,6 +139,11 @@ then
 fi
 
 ## Check if input files, directories, and variables are non-zero
+if [[ ! -d ${OUTDIR} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
+        exit 1;
+fi
 if [[ ! -s ${ADAPTERS} ]]  
 then
 	logError "$0 stopped at line $LINENO. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
@@ -157,11 +162,6 @@ then
                 exit 1;
         fi
 fi
-if [[ ! -d ${OUTDIR} ]]
-then
-	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-	exit 1;
-fi
 if [[ ! -d ${CUTADAPT} ]]
 then
 	logError "$0 stopped at line $LINENO. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
@@ -171,11 +171,6 @@ if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd
 then
 	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
 	THR=$((THR-1))
-fi
-if [[ ! -f ${ERRLOG} ]]
-then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist."
-	exit 1;
 fi
 
 ## Parse filename without full path
