@@ -139,6 +139,11 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${DEDUPEDBAM} is empty."
 	exit 1;
 fi
+if [[ ! -s ${DEDUPEDBAM}.bai ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${DEDUPEDBAM} is empty."
+        exit 1;
+fi
 if [[ ! -s ${REFGEN} ]]
 then
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
@@ -161,7 +166,6 @@ then
 fi
 
 ## Parse known sites list of multiple files. Create multiple -k flags for sentieon
-#SPLITKNOWN=`echo ${KNOWN} | tr ',' ' -k '`
 SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 echo ${SPLITKNOWN}
 
@@ -178,6 +182,16 @@ ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo R
 wait
 logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned BAM located at ${OUT}."
 
-## Open read permissions to the user group
+## Check for creation of realigned BAM and index. Open read permissions to the user group
+if [[ ! -s ${OUT} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT} is empty."
+        exit 1;
+fi
+if [[ ! -s ${OUT}.bai ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT}.bai is empty."
+        exit 1;
+
 chmod g+r ${OUT}
 

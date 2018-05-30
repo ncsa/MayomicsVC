@@ -211,7 +211,18 @@ ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} &
 wait
 logInfo "[SAMTools] Converted output to BAM format and sorted."
 
-## Open read permissions to the user group
+## Check if BAM and index were created. Open read permissions to the user group
+if [[ ! -s ${SORTBAM} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM ${SORTBAM} is empty."
+        exit 1;
+fi
+if [[ ! -s ${SORTBAMIDX} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
+        exit 1;
+fi
+
 chmod g+r ${OUT}
 chmod g+r ${SORTBAM}
 chmod g+r ${SORTBAMIDX}

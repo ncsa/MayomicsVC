@@ -129,6 +129,11 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty."
 	exit 1;
 fi
+if [[ ! -s ${INPUTBAM}.bai ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty."
+        exit 1;
+fi
 if [[ ! -d ${SENTIEON} ]]
 then
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist."
@@ -163,7 +168,18 @@ ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_in
 logInfo "[SENTIEON] Deduplication Finished."
 logInfo "[SENTIEON] Deduplicated BAM found at ${OUT}"
 
-## Open read permissions to the user group
+## Check for creation of output BAM and index. Open read permissions to the user group
+if [[ ! -s ${OUT} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM file ${OUT} is empty."
+        exit 1;
+fi
+if [[ ! -s ${OUTBAMIDX} ]]
+then
+        logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
+        exit 1;
+fi
+
 chmod g+r ${OUT}
 chmod g+r ${OUTBAMIDX}
 chmod g+r ${DEDUPMETRICS}
