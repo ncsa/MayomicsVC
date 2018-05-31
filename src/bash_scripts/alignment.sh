@@ -5,16 +5,23 @@
 # Align reads using BWA-MEM and sort. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log> -d set_debug_mode [false]
+# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> 
+#              -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log> 
+#              -d set_debug_mode [false]
 #
 ################################################################################################################################
 
 SCRIPT_NAME=alignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+LICENSE=
 
 
-## Logging functions
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## LOGGING FUNCTIONS
+#-------------------------------------------------------------------------------------------------------------------------------
+
 # Get date and time information
 function getDate()
 {
@@ -67,7 +74,15 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+#-------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## GETOPTS ARGUMENT PARSER
+#-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
 while getopts ":hg:s:p:r:R:G:O:S:t:P:e:d:" OPT
@@ -133,14 +148,22 @@ do
         esac
 done
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## PRECHECK FOR INPUTS AND OPTIONS
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
 	logInfo "Debug mode is ON."
         set -x
 fi
-
-SCRIPT_NAME=alignment.sh
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
@@ -177,14 +200,30 @@ then
 	THR=$((THR-1))
 fi
 
-## Parse filenames without full path
-#name=$(echo "${INPUT1}" | sed "s/.*\///")
-#full=${INPUT1}
-#sample1=${full##*/}
-#sample=${sample1%%.*}
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## FILENAME PARSING
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Set output file names
 OUT=${OUTDIR}/${SAMPLE}.sam
 SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
 SORTBAMIDX=${OUTDIR}/${SAMPLE}.sorted.bam.bai
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## READ ALIGNMENT
+#-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
 logInfo "[BWA-MEM] START."
@@ -194,22 +233,42 @@ logInfo "[BWA-MEM] START."
 ######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
 if [[ ${IS_SINGLE_END} == true ]]
 then
-	export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} &
 	wait
 else
-	export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
 	wait
 fi
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM CONVERSION AND SORTING
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Convert SAM to BAM and sort
 logInfo "[SAMTools] Converting SAM to BAM..."
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} &
 wait
 logInfo "[SAMTools] Converted output to BAM format and sorted."
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## POST-PROCESSING
+#-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if BAM and index were created. Open read permissions to the user group
 if [[ ! -s ${SORTBAM} ]]
@@ -228,3 +287,13 @@ chmod g+r ${SORTBAM}
 chmod g+r ${SORTBAMIDX}
 
 logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
+## END
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------

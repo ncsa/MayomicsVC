@@ -5,14 +5,21 @@
 # Deduplicate BAM using Sentieon Locus Collector and Dedup algorithms. Part of the MayomicsVC Workflow.
 # 
 # Usage:
-# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> -e </path/to/error_log> -d set_debug_mode (true/false)
+# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> 
+#          -e </path/to/error_log> -d set_debug_mode (true/false)
 #
 ################################################################################################################################
 
 SCRIPT_NAME=dedup.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+LICENSE=
 
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## LOGGING FUNCTIONS
+#-------------------------------------------------------------------------------------------------------------------------------
 
 ## Logging functions
 # Get date and time information
@@ -67,6 +74,16 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## GETOPTS ARGUMENT PARSER
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Input and Output parameters
 while getopts ":h:s:b:O:S:t:e:d:" OPT
 do
@@ -111,6 +128,16 @@ do
         esac
 done
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## PRECHECK FOR INPUTS AND OPTIONS
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
@@ -145,6 +172,16 @@ then
 	THR=$((THR-1))
 fi
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## FILENAME PARSING
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Defining file names
 samplename=${SAMPLE}
 SCORETXT=${OUTDIR}/${SAMPLE}.score.txt
@@ -152,21 +189,41 @@ OUT=${OUTDIR}/${SAMPLE}.deduped.bam
 OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bam.bai
 DEDUPMETRICS=${OUTDIR}/${SAMPLE}.dedup_metrics.txt
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DEDUPLICATION STAGE
+#-------------------------------------------------------------------------------------------------------------------------------
+
 ## Record start time
 logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} 
 wait
 logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT}
 
 logInfo "[SENTIEON] Deduplication Finished."
 logInfo "[SENTIEON] Deduplicated BAM found at ${OUT}"
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## POST-PROCESSING
+#-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index. Open read permissions to the user group
 if [[ ! -s ${OUT} ]]
@@ -183,3 +240,13 @@ fi
 chmod g+r ${OUT}
 chmod g+r ${OUTBAMIDX}
 chmod g+r ${DEDUPMETRICS}
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
+## END
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
