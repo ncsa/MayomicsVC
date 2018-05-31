@@ -1,20 +1,58 @@
 #!/bin/bash
 
-################################################################################################################################
+#-------------------------------------------------------------------------------------------------------------------------------
+## alignment.sh MANIFEST, USAGE DOCS, SET CHECKS
+#-------------------------------------------------------------------------------------------------------------------------------
+
+read -r -d '' MANIFEST << MANIFEST
+*******************************************
+`readlink -m $0` was called by: `whoami` on `date`
+command line input: ${@}
+*******************************************
+MANIFEST
+echo "${MANIFEST}"
+
+read -r -d '' DOCS << DOCS
+#############################################################################
 #
-# Align reads using BWA-MEM and sort. Part of the MayomicsVC Workflow.
+# Align sequences using Sentieon/BWA-MEM. Part of the MayomicsVC Workflow.
 # 
-# Usage:
-# alignment.sh -g <readgroup_ID> -s <sample_name> -p <platform> -r <read1.fq> -R <read2.fq> -G <reference_genome> 
-#              -O <output_directory> -S </path/to/Sentieon> -t <threads> -P <Is_single_end?> -e </path/to/error_log> 
-#              -d set_debug_mode [false]
-#
-################################################################################################################################
+#############################################################################
+
+ USAGE:
+ alignment.sh      -g		<readgroup_ID>
+                   -s           <sample_name> 
+                   -p		<platform>
+                   -r           <read1.fq> 
+                   -R           <read2.fq>
+                   -G		<reference_genome> 
+                   -O           <output_directory> 
+                   -S           </path/to/sentieon> 
+                   -t           <threads> 
+                   -P		single-end read (true/false)
+                   -e           </path/to/error_log> 
+                   -d           debug_mode (true/false)
+
+ EXAMPLES:
+ alignment.sh -h
+ alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -R read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -P false -e /path/to/error.log -d true
+
+#############################################################################
+
+DOCS
+
+set -o errexit
+set -o pipefail
+#set -o nounset
 
 SCRIPT_NAME=alignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 LICENSE=
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -234,12 +272,22 @@ logInfo "[BWA-MEM] START."
 if [[ ${IS_SINGLE_END} == true ]]
 then
 	export SENTIEON_LICENSE=${LICENSE}
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} &
-	wait
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
+	EXITCODE=$?  # Capture exit code
+	if [[ ${EXITCODE} -ne 0 ]]
+        then
+                logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                exit ${EXITCODE};
+        fi
 else
 	export SENTIEON_LICENSE=${LICENSE}
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
-	wait
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
+	EXITCODE=$?  # Capture exit code
+        if [[ ${EXITCODE} -ne 0 ]]
+        then
+                logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                exit ${EXITCODE};
+	fi
 fi
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
@@ -256,8 +304,13 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SAMTools] Converting SAM to BAM..."
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} &
-wait
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM}
+EXITCODE=$?  # Capture exit code
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+	exit ${EXITCODE};
+fi
 logInfo "[SAMTools] Converted output to BAM format and sorted."
 
 #-------------------------------------------------------------------------------------------------------------------------------

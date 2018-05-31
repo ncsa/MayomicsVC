@@ -1,19 +1,53 @@
 #!/bin/bash
 
-################################################################################################################################
+#-------------------------------------------------------------------------------------------------------------------------------
+## dedup.sh MANIFEST, USAGE DOCS, SET CHECKS
+#-------------------------------------------------------------------------------------------------------------------------------
+
+read -r -d '' MANIFEST << MANIFEST
+*******************************************
+`readlink -m $0` was called by: `whoami` on `date`
+command line input: ${@}
+*******************************************
+MANIFEST
+echo "${MANIFEST}"
+
+read -r -d '' DOCS << DOCS
+#############################################################################
 #
-# Deduplicate BAM using Sentieon Locus Collector and Dedup algorithms. Part of the MayomicsVC Workflow.
+# Deduplicate BAMs with Sentieon. Part of the MayomicsVC Workflow.
 # 
-# Usage:
-# dedup.sh -s <sample_name> -b <aligned.sorted.bam> -O <output_directory> -S </path/to/sentieon> -t <threads> 
-#          -e </path/to/error_log> -d set_debug_mode (true/false)
-#
-################################################################################################################################
+#############################################################################
+
+ USAGE:
+ dedup.sh          -s           <sample_name> 
+                   -b		<aligned.sorted.bam>
+                   -O           <output_directory> 
+                   -S           </path/to/sentieon> 
+                   -t           <threads> 
+                   -e           </path/to/error_log> 
+                   -d           debug_mode (true/false)
+
+ EXAMPLES:
+ dedup.sh -h
+ dedup.sh -s sample -b aligned.sorted.bam -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -SE false -e /path/to/error.log -d true
+
+#############################################################################
+
+DOCS
+
+set -o errexit
+set -o pipefail
+#set -o nounset
 
 SCRIPT_NAME=dedup.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 LICENSE=
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -85,7 +119,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":h:s:b:O:S:t:e:d:" OPT
+while getopts ":hs:b:O:S:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -205,13 +239,23 @@ logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 ## Locus Collector command
 export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} 
-wait
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+	exit ${EXITCODE};
+fi
 logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
 export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT}
-
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+        exit ${EXITCODE};
+fi
 logInfo "[SENTIEON] Deduplication Finished."
 logInfo "[SENTIEON] Deduplicated BAM found at ${OUT}"
 

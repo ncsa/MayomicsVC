@@ -1,18 +1,55 @@
 #!/bin/bash
 
-################################################################################################################################
+#-------------------------------------------------------------------------------------------------------------------------------
+## trim_sequences.sh MANIFEST, USAGE DOCS, SET CHECKS
+#-------------------------------------------------------------------------------------------------------------------------------
+
+read -r -d '' MANIFEST << MANIFEST
+*******************************************
+`readlink -m $0` was called by: `whoami` on `date`
+command line input: ${@}
+*******************************************
+MANIFEST
+echo "${MANIFEST}"
+
+read -r -d '' DOCS << DOCS
+#############################################################################
 #
 # Trim input sequences using Cutadapt. Part of the MayomicsVC Workflow.
 # 
-# Usage:
-# trim_sequences.sh -s <sample_name> -A <adapters.fa> -r <read1.fq> -R <read2.fq> -O <output_directory> -C </path/to/cutadapt> 
-#                   -t <threads> -SE single-end [false] -e </path/to/error_log> -d debug_mode [false]
-#
-################################################################################################################################
+#############################################################################
+
+ USAGE:
+ trim_sequences.sh -s 		<sample_name> 
+                   -A 		<adapters.fa> 
+                   -r 		<read1.fq> 
+                   -R 		<read2.fq> 
+                   -O 		<output_directory> 
+                   -C 		</path/to/cutadapt> 
+                   -t 		<threads> 
+                   -SE 		single-end read (true/false)
+                   -e 		</path/to/error_log> 
+                   -d 		debug_mode (true/false)
+
+ EXAMPLES:
+ trim_sequences.sh -h
+ trim_sequences.sh -s sample -r read1.fq -R read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
+
+#############################################################################
+
+DOCS
+
+set -o errexit
+set -o pipefail
+#set -o nounset
 
 SCRIPT_NAME=trim_sequences.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -157,30 +194,30 @@ fi
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
 then
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output directory ${OUTDIR} does not exist."
         exit 1;
 fi
 if [[ ! -s ${ADAPTERS} ]]  
 then
-	logError "$0 stopped at line $LINENO. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
 	exit 1;
 fi
 if [[ ! -s ${INPUT1} ]]  
 then
-	logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty."
 	exit 1;
 fi
 if [[ ${IS_SINGLE_END} == false ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
-                logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
+                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty."
                 exit 1;
         fi
 fi
 if [[ ! -d ${CUTADAPT} ]]
 then
-	logError "$0 stopped at line $LINENO. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
 	exit 1;
 fi
 if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
@@ -204,7 +241,7 @@ full1=$INPUT1
 full2=$INPUT2
 READ1=${full1##*/} # Remove path from variable
 READ2=${full2##*/}
-read1=${READ1%%.*} # Remove all instances of .* suffixes
+read1=${READ1%%.*} # Remove all instances of file extensions
 read2=${READ2%%.*}
 OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
 OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
@@ -225,20 +262,41 @@ logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
-if [[ "$IS_SINGLE_END" = true ]]
+if [[ ${IS_SINGLE_END} = true ]]  # if single-end reads file
 then
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT} ${INPUT1} >> ${SAMPLE}.cutadapt.log &
-	wait
+	# Trim reads
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT} ${INPUT1} >> ${SAMPLE}.cutadapt.log 
+	EXITCODE=$?  # Capture exit code
+	if [[ ${EXITCODE} -ne 0 ]]
+	then
+		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+		exit ${EXITCODE};
+	fi
 else 
-	if [[ $THR = 0 ]]
+	if [[ $THR = 0 ]] # if threads equals zero
 	then
 		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${read1}.cutadapt.log &
 		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${read2}.cutadapt.log &
 		wait
-	else
+		EXITCODE=$?
+                if [[ ${EXITCODE} -ne 0 ]]
+                then
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                        exit ${EXITCODE};
+                fi
+		
+	else  # If threads does not equal zero
+
 		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT1} ${INPUT1} >> ${read1}.cutadapt.log &
 		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT2} ${INPUT2} >> ${read2}.cutadapt.log &
 		wait
+		EXITCODE=$?
+                if [[ ${EXITCODE} -ne 0 ]]
+                then
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                        exit ${EXITCODE};
+                fi
+		
 	fi
 fi
 
@@ -255,7 +313,7 @@ logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADA
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Open read permissions to the user group
-if [[ "$IS_SINGLE_END" = true ]]
+if [[ ${IS_SINGLE_END} = true ]]
 then
 	chmod g+r ${OUT}
 else

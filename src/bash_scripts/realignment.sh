@@ -1,19 +1,55 @@
 #!/bin/bash
 
-################################################################################################################################
+#-------------------------------------------------------------------------------------------------------------------------------
+## realignment.sh MANIFEST, USAGE DOCS, SET CHECKS
+#-------------------------------------------------------------------------------------------------------------------------------
+
+read -r -d '' MANIFEST << MANIFEST
+*******************************************
+`readlink -m $0` was called by: `whoami` on `date`
+command line input: ${@}
+*******************************************
+MANIFEST
+echo "${MANIFEST}"
+
+read -r -d '' DOCS << DOCS
+#############################################################################
 #
 # Realign reads using Sentieon Realigner. Part of the MayomicsVC Workflow.
 # 
-# Usage:
-# realignment.sh -s <sample_name> -b <deduped_bam> -G <reference_genome> -k <known_sites> -O <output_directory> 
-#                -S </path/to/Sentieon> -t <threads> -e </path/to/error_log> -d set_debug_mode [false]
-#
-################################################################################################################################
+#############################################################################
+
+ USAGE:
+ realignment.sh    -s           <sample_name> 
+                   -b           <deduped.bam>
+                   -G		<reference_genome>
+                   -k		<known_sites>
+                   -O           <output_directory> 
+                   -S           </path/to/sentieon> 
+                   -t           <threads> 
+                   -e           </path/to/error_log> 
+                   -d           debug_mode (true/false)
+
+ EXAMPLES:
+ realignment.sh -h
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -e /path/to/error.log -d true
+
+#############################################################################
+
+DOCS
+
+set -o errexit
+set -o pipefail
+#set -o nounset
 
 SCRIPT_NAME=realignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 LICENSE=
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -222,8 +258,13 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 ## Sentieon Realigner command.
 ## Allocates all available threads to the process.
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} &
-wait
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT}
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+        exit ${EXITCODE};
+fi
 logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned BAM located at ${OUT}."
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -246,7 +287,7 @@ if [[ ! -s ${OUT}.bai ]]
 then
         logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT}.bai is empty."
         exit 1;
-
+fi
 chmod g+r ${OUT}
 
 #-------------------------------------------------------------------------------------------------------------------------------
