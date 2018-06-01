@@ -15,22 +15,13 @@ task MarkDuplicatesTask {
    String sampleName                    # Name of the Sample
    String Error_Logs                    # File to capture exit code
    String OutDir                        # Directory for output folder
-   String SENTIEON                      # Variable path to Sentieon 
+   String Sentieon                      # Variable path to Sentieon 
    File Bash_Script                     # Bash script which is called inside the WDL script`
    String Threads                       # Specifies the number of thread required per run
 
-   # Flags to be passed to the scripts
-
-   String b="-b"
-   String s="-s"
-   String O="-O"
-   String S="-S"
-   String t="-t"
-   String e="-e"
-
    command {
 
-   /bin/bash ${Bash_Script} ${b} ${InputBam} ${s} ${sampleName} ${O} ${OutDir} ${S} ${SENTIEON} ${t} ${Threads} ${e} ${Error_Logs}
+   /bin/bash ${Bash_Script} -b ${InputBam} -s ${sampleName} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs}
 
    }
 
@@ -43,10 +34,3 @@ task MarkDuplicatesTask {
 
    }
 }
-
-workflow RunMarkDuplicatesTask {
-
-   call MarkDuplicatesTask
-
-}
-

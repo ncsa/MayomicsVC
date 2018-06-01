@@ -32,33 +32,21 @@ task ReadMappingTask {
    String Group
    String Platform
 
+   Boolean Is_Single_End           # Variable to check if single ended or not
    String Error_Logs               # File Path to ErrorLogs
    String OutDir                   # Directory for output folder
    String Threads                  # Specifies the number of thread required per run
    File Bash_Script                # Bash script which is called inside the WDL script
-
-   # Flags to be passed to the scripts
- 
-   String SE="-SE"
-   String r="-r"
-   String R="-R"
-   String s="-s"
-   String G="-G"
-   String O="-O"
-   String t="-t"
-   String e="-e"
-   String g="-g"
-   String p="-p"
 
    command {
 
       # Check to see if the Input FastQ is Singled Ended or not
       if [[ ${Is_Single_End} == false ]] 
       then
-         /bin/bash ${Bash_Script} ${SE} ${Is_Single_End} ${g} ${Group} ${r} ${Input_Read1} ${R} ${Input_Read2} ${s} ${sampleName} ${p} ${Platform} ${G} ${RefFasta} ${O} ${OutDir} ${S} ${Sentieon} ${t} ${Threads} ${e} ${Error_Logs}
+         /bin/bash ${Bash_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs}
 
       else
-         /bin/bash ${Bash_Script} ${SE} ${Is_Single_End} ${g} ${Group} ${r} ${Input_Read1} ${s} ${sampleName} ${p} ${Platform} ${G} ${RefFasta} ${O} ${OutDir} ${S} ${Sentieon} ${t} ${Threads} ${e} ${Error_Logs}
+         /bin/bash ${Bash_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs}
       fi
 
    }
@@ -74,9 +62,3 @@ task ReadMappingTask {
 
 } 
 
-
-workflow CallReadMappingTask {
-
-call ReadMappingTask
-
-}

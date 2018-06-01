@@ -24,7 +24,7 @@
    * [To-Dos](#to-dos)
    * [7 Output Folder Structure](#7-output-folder-structure)
    * [Email Notifications](#email-notifications)
-   * [Parsing](#Parsing json input files)
+   * [Parsing](#Parsing json Input Files)
 
 
 
@@ -53,7 +53,6 @@ Reasons for modular design:
 * optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
 * maintainability: can edit modules without breaking the rest of the workflow 
     * modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places in the workflow
-
 
 
 ## Data parallelism and scalability
@@ -495,3 +494,10 @@ Parsing
 ============
 
 The paths to the executables cannot be entered manually every time a json input file is created. Hence all the paths to the executables are stored in a tools info text file. The paths to the executables are parsed from the text file into the json input file when required. This is done using a Tool Parser script. The script is written in Python3 and requries two mandatory flags to run. The "-i" flag is for the input Tools Info text file which has paths to the executables. The "-o" flag is for the output in this case the json file which requires the executable paths. The script for the parser and examples input and output files are located in the src/config folder.
+
+Single Sample Workflow
+======================
+
+# Design Decision
+
+The scripts for trimming sequences and alignment work on either single-ended or paired-end reads. Hence to eliminate complexities in the WDL workflow, the output for both the scripts include if checks for single-ended and paired-end reads. If the reads are single-ended then the right read is set to null. This helps remove branches in the workflow and keeps it simple. 
