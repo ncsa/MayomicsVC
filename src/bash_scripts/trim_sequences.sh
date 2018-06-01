@@ -243,7 +243,7 @@ READ1=${full1##*/} # Remove path from variable
 READ2=${full2##*/}
 read1=${READ1%%.*} # Remove all instances of file extensions
 read2=${READ2%%.*}
-OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
+#OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
 OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
 OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
 
@@ -265,18 +265,19 @@ logInfo "[CUTADAPT] START."
 if [[ ${IS_SINGLE_END} = true ]]  # if single-end reads file
 then
 	# Trim reads
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT} ${INPUT1} >> ${SAMPLE}.cutadapt.log 
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.cutadapt.log 
 	EXITCODE=$?  # Capture exit code
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 		exit ${EXITCODE};
 	fi
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${read1}.cutadapt.log"
 else 
-	if [[ $THR = 0 ]] # if threads equals zero
+	if [[ $THR = 0 ]] # if threads equal zero
 	then
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${read1}.cutadapt.log &
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${read2}.cutadapt.log &
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log &
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log &
 		wait
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
@@ -287,8 +288,8 @@ else
 		
 	else  # If threads does not equal zero
 
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT1} ${INPUT1} >> ${read1}.cutadapt.log &
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT2} ${INPUT2} >> ${read2}.cutadapt.log &
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log &
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log &
 		wait
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
@@ -296,11 +297,10 @@ else
                         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
                         exit ${EXITCODE};
                 fi
-		
 	fi
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${read1}.cutadapt.log ${OUTDIR}/${read2}.cutadapt.log"
 fi
 
-logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUT}/${read1}.cutadapt.log ${OUT}/${read2}.cutadapt.log"
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -315,7 +315,7 @@ logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADA
 ## Open read permissions to the user group
 if [[ ${IS_SINGLE_END} = true ]]
 then
-	chmod g+r ${OUT}
+	chmod g+r ${OUT1}
 else
 	chmod g+r ${OUT1}
 	chmod g+r ${OUT2}
