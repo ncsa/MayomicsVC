@@ -245,8 +245,12 @@ read1=${READ1%%.*} # Remove all instances of file extensions
 read2=${READ2%%.*}
 #OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
 OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
-OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
-
+if  [[ ${IS_SINGLE_END} = true ]]  # If single-end, we do not need a second output trimmed read
+then
+	OUT2=NULL
+else
+	OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
+fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
