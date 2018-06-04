@@ -22,8 +22,8 @@ read -r -d '' DOCS << DOCS
  USAGE:
  trim_sequences.sh -s 		<sample_name> 
                    -A 		<adapters.fa> 
-                   -r 		<read1.fq> 
-                   -R 		<read2.fq> 
+                   -r1 		<read1.fq> 
+                   -r2 		<read2.fq> 
                    -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
@@ -33,7 +33,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -r read1.fq -R read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -r1 read1.fq -r2 read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -127,49 +127,49 @@ do
 			echo "Usage:"
 			echo " "
 			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-R <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
+			echo "	bash trim_sequences.sh [-s sample_name] [-r1 <read1.fq>] [-r2 <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			echo ${SAMPLE}
+			logInfo ${SAMPLE}
 			;;
 		r )  # Full path to input read 1. String variable invoked with -r
 			INPUT1=${OPTARG}
-			echo ${INPUT1}
+			logInfo ${INPUT1}
 			;;
 		R )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
-			echo ${INPUT2}
+			logInfo ${INPUT2}
 			;;
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
-			echo ${ADAPTERS}
+			logInfo ${ADAPTERS}
 			;;
 		O )  # Output directory. String variable invoked with -O
 			OUTDIR=${OPTARG}
-			echo ${OUTDIR}
+			logInfo ${OUTDIR}
 			;;
 		C )  # Full path to cutadapt directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
-			echo ${CUTADAPT}
+			logInfo ${CUTADAPT}
 			;;
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
-			echo ${THR}
+			logInfo ${THR}
 			;;
 		SE )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
 			IS_SINGLE_END=${OPTARG}
-			echo ${IS_SINGLE_END}
+			logInfo ${IS_SINGLE_END}
 			;;
 		e )  # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
-			echo ${ERRLOG}
+			logInfo ${ERRLOG}
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
-			echo ${DEBUG}
+			logInfo ${DEBUG}
 			;;
 	esac
 done
@@ -220,11 +220,11 @@ then
 	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
 	exit 1;
 fi
-if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
-then
-	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-	THR=$((THR-1))
-fi
+#if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
+#then
+#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
+#	THR=$((THR-1))
+#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -280,25 +280,35 @@ then
 else 
 	if [[ $THR = 0 ]] # if threads equal zero
 	then
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log &
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log &
-		wait
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
+                        exit ${EXITCODE};
+                fi
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log
+		EXITCODE=$?
+                if [[ ${EXITCODE} -ne 0 ]]
+                then
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
                         exit ${EXITCODE};
                 fi
 		
 	else  # If threads does not equal zero
 
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log &
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=$((THR/2)) -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log &
-		wait
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
+                        exit ${EXITCODE};
+                fi
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log
+		EXITCODE=$?
+                if [[ ${EXITCODE} -ne 0 ]]
+                then
+                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
                         exit ${EXITCODE};
                 fi
 	fi
