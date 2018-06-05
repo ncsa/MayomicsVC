@@ -32,14 +32,14 @@ class Validator:
     def read_json_file(self, json_file):
         try:
             # Open the file
-            json_file_handle = open(json_file)
-            # Read the file's contents as a string
-            json_str = json_file_handle.read()
-            # Return the data as a Python dictionary
-            return json.loads(json_str)
+            with open(json_file) as F:
+                # Read the file's contents as a string
+                json_str = F.read()
+                # Return the data as a Python dictionary
+                return json.loads(json_str)
         except FileNotFoundError:
             self.project_logger.log_error(
-                "errcode", 'Could not open json file "' + str(json_file) + '": JSON file not formatted properly'
+                "errcode", 'Could not open json file "' + str(json_file) + '": JSON file could not be found'
             )
             sys.exit(1)
         except json.decoder.JSONDecodeError:
@@ -73,6 +73,22 @@ class Validator:
     def __file_exists(file_path):
         path = pathlib.Path(file_path)
         return path.is_file()
+
+    '''
+    Confirms that a file exists and is readable
+
+    Returns one of three possible strings: (Success, FileNotFound, or FileNotReadable) 
+    '''
+    def __file_is_readable(self, file_path):
+        if self.__file_exists(file_path):
+            # Check to see if the file on this path is readable by the user calling this script
+            is_readable = os.access(file_path, os.R_OK)
+            if is_readable:
+                return "Success"
+            else:
+                return "FileNotReadable"
+        else:
+            return "FileNotFound"
 
     '''
     Confirms that a file exists and is executable
@@ -117,7 +133,7 @@ class Validator:
     If a value is of a type that has no validation defined (such as String), print an INFO message; return true
     If a faulty value is found, print an ERROR message; return false
     '''
-    def __check_key(self, key_name, key_value, key_type):
+    def check_key(self, key_name, key_value, key_type):
         lowered_key_type = key_type.lower()
 
         def make_message(message):
@@ -139,11 +155,16 @@ class Validator:
 
         # File ###
         elif lowered_key_type == "file":
-            if self.__file_exists(key_value):
-                self.project_logger.log_info(make_message('was found'))
+            # readable_status can only be one of three strings: Success, FileNotFound, or FileNotReadable
+            readable_status = self.__file_is_readable(key_value)
+            if readable_status == "Success":
+                self.project_logger.log_info(make_message('was found and is readable'))
                 return True
-            else:
-                self.project_logger.log_error("errcode",  make_message('was not found'))
+            elif readable_status == "FileNotFound":
+                self.project_logger.log_error("errcode", make_message('could not be found'))
+                return False
+            elif readable_status == "FileNotReadable":
+                self.project_logger.log_error("errcode", make_message('is not readable by the current user'))
                 return False
 
         # Boolean ###
@@ -186,7 +207,7 @@ class Validator:
                 'errorcode',
                 'Input variable "' + key_name + '" has the type "' + key_value +
                 '" in the key types file, which is not a recognized type ' +
-                '(see config/validation/key_types.README.md for a list of valid types)'
+                '(see src/config/validation/key_types.README.md for a list of valid types)'
             )
             return False
 
@@ -207,7 +228,7 @@ class Validator:
         # For all keys that have typing information, confirm that its value is valid
         #   Sorted to ensure repeated problematic runs fail on the same key
         for key in sorted(checked_keys):
-            key_is_valid = self.__check_key(key, configuration_dict[key], key_types_dict[key])
+            key_is_valid = self.check_key(key, configuration_dict[key], key_types_dict[key])
             if not key_is_valid:
                 # The check key function itself wrote to the log; here we just exit because we have found an invalid key
                 sys.exit(1)

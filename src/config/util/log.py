@@ -21,8 +21,6 @@ The JOBID/NA and ERRORCODE terms cannot be easily added to the default logging f
   the logged message directly. To make this easy, this class defines wrapper methods around calls to the logger methods
   that automatically format the JOBID and ERRORCODE terms
 '''
-
-
 class ProjectLogger:
     def __init__(self, job_id, name):
         # setup logging threshold and format
