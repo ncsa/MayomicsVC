@@ -1,5 +1,5 @@
 '''
-    This script parses path information of Bioinformatics tools to a json Input File    ##
+    This script parses path information of Bioinformatics tools to a json Input File
 
                               Script Options
 
@@ -39,8 +39,8 @@ def parse_args():
 '''
 def remove_comments(input_lines):
     filtered_lines = []
-    for line in input_lines:                                                                                            
-        if line != "":                                                                                               
+    for line in input_lines:
+        if line != "":
             # If the first non-space character is a '#', exclude it
             if line.strip()[0] != '#':
                 filtered_lines.append(line)
@@ -114,7 +114,7 @@ def capture_executables(Output_Dict, Tools, Paths):
 
 def main():
 
-    # The argParser Function call    
+    # The argParser Function call
     args = parse_args()
 
     # List to hold all the input files
