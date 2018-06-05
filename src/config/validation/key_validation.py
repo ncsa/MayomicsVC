@@ -11,6 +11,31 @@ import json
 import pathlib
 from src.config.util.log import ProjectLogger
 
+'''
+Exit code Rules:
+
+1. Exit codes in this module are only given when an error has occurred, so they will all start with 'E.'
+2. The letters 'val.' because they are coming from the validation component of the code
+3. A three letter code that hints at what the problem was
+4. A number that can help to differentiate similar error codes
+
+
+Error Code List
+========================================================================================================================
+E.val.JSN.1 = An input JSON file could not be found
+E.val.JSN.2 = An input JSON file was not formatted properly
+
+E.val.ExF.1 = A file expected to be executable could not be found
+E.val.ExF.2 = A file expected to be executable was not executable by the current user
+
+E.val.Fil.1 = A regular file could not be found
+E.val.Fil.2 = A regular file was not readable by the current user
+
+E.val.Boo.1 = A value expected to be a boolean type was not
+E.val.Int.1 = A value expected to be an integer was not
+E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
+E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
+'''
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Validate values in Cromwell/WDL input file')
@@ -39,12 +64,12 @@ class Validator:
                 return json.loads(json_str)
         except FileNotFoundError:
             self.project_logger.log_error(
-                "errcode", 'Could not open json file "' + str(json_file) + '": JSON file could not be found'
+                "E.val.JSN.1", 'Could not open json file "' + str(json_file) + '": JSON file could not be found'
             )
             sys.exit(1)
         except json.decoder.JSONDecodeError:
             self.project_logger.log_error(
-                "errcode", 'Could not open json file "' + str(json_file) + '": JSON file not formatted properly'
+                "E.val.JSN.2", 'Could not open json file "' + str(json_file) + '": JSON file not formatted properly'
             )
             sys.exit(1)
 
@@ -147,10 +172,10 @@ class Validator:
                 self.project_logger.log_info(make_message('was found and is executable'))
                 return True
             elif exec_status == "FileNotFound":
-                self.project_logger.log_error("errcode", make_message('could not be found'))
+                self.project_logger.log_error("E.val.ExF.1", make_message('could not be found'))
                 return False
             elif exec_status == "FileNotExecutable":
-                self.project_logger.log_error("errcode", make_message('is not executable by the current user'))
+                self.project_logger.log_error("E.val.ExF.2", make_message('is not executable by the current user'))
                 return False
 
         # File ###
@@ -161,10 +186,10 @@ class Validator:
                 self.project_logger.log_info(make_message('was found and is readable'))
                 return True
             elif readable_status == "FileNotFound":
-                self.project_logger.log_error("errcode", make_message('could not be found'))
+                self.project_logger.log_error("E.val.Fil.1", make_message('could not be found'))
                 return False
             elif readable_status == "FileNotReadable":
-                self.project_logger.log_error("errcode", make_message('is not readable by the current user'))
+                self.project_logger.log_error("E.val.Fil.2", make_message('is not readable by the current user'))
                 return False
 
         # Boolean ###
@@ -173,7 +198,7 @@ class Validator:
                 self.project_logger.log_info(make_message('is a valid boolean value'))
                 return True
             else:
-                self.project_logger.log_error("errcode", make_message('is not a valid boolean value'))
+                self.project_logger.log_error("E.val.Boo.1", make_message('is not a valid boolean value'))
                 return False
 
         # String ###
@@ -189,7 +214,7 @@ class Validator:
                 self.project_logger.log_info(make_message('is a valid integer'))
                 return True
             else:
-                self.project_logger.log_error('errorcode', make_message('is not a valid integer'))
+                self.project_logger.log_error('E.val.Int.1', make_message('is not a valid integer'))
                 return False
 
         # Decimal ###
@@ -198,13 +223,13 @@ class Validator:
                 self.project_logger.log_info(make_message('is a valid number'))
                 return True
             else:
-                self.project_logger.log_error('errorcode', make_message('is not a valid number'))
+                self.project_logger.log_error('E.val.Dec.1', make_message('is not a valid number'))
                 return False
         # Other ###
         # (kill the program if an unknown type is provided in the type file)
         else:
             self.project_logger.log_error(
-                'errorcode',
+                'E.val.UNK.1',
                 'Input variable "' + key_name + '" has the type "' + key_value +
                 '" in the key types file, which is not a recognized type ' +
                 '(see src/config/validation/key_types.README.md for a list of valid types)'
