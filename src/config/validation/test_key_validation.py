@@ -104,3 +104,7 @@ class TestValidator(unittest.TestCase):
         # An unrecognized key type should return false from the checker method
         result = self.validator.check_key("key_of_unknown_type", "KeyValue", key_type="UnacceptableType")
         self.assertFalse(result)
+
+
+if __name__ == "__main__":
+    unittest.main()
