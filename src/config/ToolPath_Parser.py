@@ -35,9 +35,9 @@ def commentRemoval(input_lines):
     filtered_lines = []                                                                                                 
     for line in input_lines:                                                                                            
         if line != "":                                                                                               
-           # If the first non-space character is a '#', exclude it                                               
+           # If the first non-space character is a '#', exclude it
            if line.strip()[0] != '#':                                                                                   
-               filtered_lines.append(line)                                 
+               filtered_lines.append(line)
     return filtered_lines
 
 

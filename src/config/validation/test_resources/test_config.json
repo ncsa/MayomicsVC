@@ -1,0 +1,7 @@
+{
+  "major_name.minor_name.test_string": "This is just a string; no validation can be done",
+  "major_name.minor_name.test_boolean": "true",
+  "major_name.minor_name.test_integer": "7",
+  "major_name.minor_name.test_decimal": "3.14159"
+
+}
