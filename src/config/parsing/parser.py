@@ -67,9 +67,10 @@ def create_key_value_pairs(tool_input_lines):
 
 
 '''
- In this function multiple checks are performed to see if the Tool:Path pairs are unique and void of typos 
-'''
-def tools_and_paths(input_tools_path):
+ In this function multiple checks are performed to see if the Tool:Path pairs are unique and void of typos
+ 
+ The input is a List of Lists. The function returns separate lists for Tools and Paths'''
+def create_tools_path_list(input_tools_path):
 
     # List comprehensions to create individual list for Tools and Paths
     Tools = list(map(lambda x: x[0], input_tools_path))
@@ -144,7 +145,7 @@ def main():
         f1.close()
  
         # Function call to tools_and_paths function
-        (Tools, Paths) = tools_and_paths(Tools_Paths_Input)
+        (Tools, Paths) = create_tools_path_list(Tools_Paths_Input)
 
         with open(args.o, "r") as OutputFile:
             Strings = OutputFile.read()
