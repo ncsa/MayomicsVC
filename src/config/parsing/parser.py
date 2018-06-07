@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
     This script parses path information of Bioinformatics tools to a json Input File
 
@@ -110,6 +112,8 @@ def capture_executables(Output_Dict, Tools, Paths):
                 Paths[i] = Paths[i].replace('"', '')
                 Output_Dict[key] = Paths[i]
     return Output_Dict
+
+
 
 
 def main():
