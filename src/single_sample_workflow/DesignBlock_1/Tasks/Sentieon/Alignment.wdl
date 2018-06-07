@@ -33,20 +33,21 @@ task ReadMappingTask {
    String Platform
 
    Boolean Is_Single_End           # Variable to check if single ended or not
+   Boolean Debug_Mode_EN           # Variable to check if Debud Mode is on or not
    String Error_Logs               # File Path to ErrorLogs
    String OutDir                   # Directory for output folder
    String Threads                  # Specifies the number of thread required per run
-   File Bash_Script                # Bash script which is called inside the WDL script
+   File Alignment_Script           # Bash script which is called inside the WDL script
 
    command {
 
       # Check to see if the Input FastQ is Singled Ended or not
       if [[ ${Is_Single_End} == false ]] 
       then
-         /bin/bash ${Bash_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs}
+         /bin/bash ${Alignment_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
 
       else
-         /bin/bash ${Bash_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs}
+         /bin/bash ${Alignment_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
       fi
 
    }
