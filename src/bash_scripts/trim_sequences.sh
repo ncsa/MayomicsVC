@@ -22,8 +22,8 @@ read -r -d '' DOCS << DOCS
  USAGE:
  trim_sequences.sh -s 		<sample_name> 
                    -A 		<adapters.fa> 
-                   -r1 		<read1.fq> 
-                   -r2 		<read2.fq> 
+                   -r 		<read1.fq> 
+                   -R 		<read2.fq> 
                    -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
@@ -33,7 +33,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -r1 read1.fq -r2 read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -r read1.fq -R read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -51,12 +51,9 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
 
 
-
-
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
-
 # Get date and time information
 function getDate()
 {
@@ -119,7 +116,7 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
-while getopts ":hs:r:R:A:O:C:t:SE:e:d:" OPT
+while getopts ":he:r:R:A:O:C:t:SE:s:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -131,45 +128,45 @@ do
 			echo " "
 			exit 0;
 			;;
-		s )  # Sample name. String variable invoked with -s
-			SAMPLE=${OPTARG}
-			logInfo ${SAMPLE}
+		e )  # Sample name. String variable invoked with -s
+			ERRLOG=${OPTARG}
+			echo -e ${SAMPLE}
 			;;
 		r )  # Full path to input read 1. String variable invoked with -r
 			INPUT1=${OPTARG}
-			logInfo ${INPUT1}
+			echo -e ${INPUT1}
 			;;
 		R )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
-			logInfo ${INPUT2}
+			echo -e ${INPUT2}
 			;;
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
-			logInfo ${ADAPTERS}
+			echo -e ${ADAPTERS}
 			;;
 		O )  # Output directory. String variable invoked with -O
 			OUTDIR=${OPTARG}
-			logInfo ${OUTDIR}
+			echo -e ${OUTDIR}
 			;;
 		C )  # Full path to cutadapt directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
-			logInfo ${CUTADAPT}
+			echo -e ${CUTADAPT}
 			;;
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
-			logInfo ${THR}
+			echo -e ${THR}
 			;;
 		SE )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
 			IS_SINGLE_END=${OPTARG}
-			logInfo ${IS_SINGLE_END}
+			echo -e ${IS_SINGLE_END}
 			;;
-		e )  # Full path to error log file. String variable invoked with -e
-			ERRLOG=${OPTARG}
-			logInfo ${ERRLOG}
+		s )  # Full path to error log file. String variable invoked with -e
+			SAMPLE=${OPTARG}
+			echo -e ${ERRLOG}
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
-			logInfo ${DEBUG}
+			echo -e ${DEBUG}
 			;;
 	esac
 done
