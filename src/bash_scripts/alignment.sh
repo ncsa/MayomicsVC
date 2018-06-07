@@ -137,51 +137,51 @@ do
 			;;
                 g )  # Read group ID. String variable invoked with -g
                         GROUP=${OPTARG}
-                        logInfo ${GROUP}
+                        echo -e ${GROUP}
                         ;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
-                        logInfo ${SAMPLE}
+                        echo -e ${SAMPLE}
                         ;;
                 p )  # Sequencing platform. String variable invoked with -p
                         PLATFORM=${OPTARG}
-                        logInfo ${PLATFORM}
+                        echo -e ${PLATFORM}
                         ;;
                 r )  # Full path to input read 1. String variable invoked with -r
                         INPUT1=${OPTARG}
-                        logInfo ${INPUT1}
+                        echo -e ${INPUT1}
                         ;;
                 R )  # Full path to input read 2. String variable invoked with -r
                         INPUT2=${OPTARG}
-                        logInfo ${INPUT2}
+                        echo -e ${INPUT2}
                         ;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
-                        logInfo ${REFGEN}
+                        echo -e ${REFGEN}
                         ;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        logInfo ${OUTDIR}
+                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
-                        logInfo ${SENTIEON}
+                        echo -e ${SENTIEON}
                         ;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        logInfo ${THR}
+                        echo -e ${THR}
                         ;;
                 P )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
                         IS_SINGLE_END=${OPTARG}
-                        logInfo ${IS_SINGLE_END}
+                        echo -e ${IS_SINGLE_END}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        logInfo ${ERRLOG}
+                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        logInfo ${DEBUG}
+                        echo -e ${DEBUG}
                         ;;
         esac
 done

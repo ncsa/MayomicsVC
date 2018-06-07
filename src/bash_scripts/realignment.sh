@@ -134,39 +134,39 @@ do
 			;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
-                        logInfo ${SAMPLE}
+                        echo -e ${SAMPLE}
                         ;;
 		b )  # Full path to the input deduped BAM. String variable invoked with -b
 			DEDUPEDBAM=${OPTARG}
-			logInfo ${DEDUPEDBAM}
+			echo -e ${DEDUPEDBAM}
 			;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
-                        logInfo ${REFGEN}
+                        echo -e ${REFGEN}
                         ;;
 		k )  # Full path to known sites file. String variable invoked with -k
 			KNOWN=${OPTARG}
-			logInfo ${KNOWN}
+			echo -e ${KNOWN}
 			;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        logInfo ${OUTDIR}
+                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
-                        logInfo ${SENTIEON}
+                        echo -e ${SENTIEON}
                         ;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        logInfo ${THR}
+                        echo -e ${THR}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        logInfo ${ERRLOG}
+                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        logInfo ${DEBUG}
+                        echo -e ${DEBUG}
                         ;;
         esac
 done

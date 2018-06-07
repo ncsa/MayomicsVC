@@ -133,31 +133,31 @@ do
                         ;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			logInfo ${SAMPLE}
+			echo -e ${SAMPLE}
 			;;
                 b )  # Full path to the input BAM file. String variable invoked with -b
                         INPUTBAM=${OPTARG}
-                        logInfo ${INPUTBAM}
+                        echo -e ${INPUTBAM}
                         ;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        logInfo ${OUTDIR}
+                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. String variable invoked with -S
                         SENTIEON=${OPTARG}
-                        logInfo ${SENTIEON}
+                        echo -e ${SENTIEON}
                         ;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        logInfo ${THR}
+                        echo -e ${THR}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        logInfo ${ERRLOG}
+                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        logInfo ${DEBUG}
+                        echo -e ${DEBUG}
                         ;;
         esac
 done
