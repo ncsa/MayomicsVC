@@ -13,6 +13,7 @@ MANIFEST
 echo "${MANIFEST}"
 
 read -r -d '' DOCS << DOCS
+
 #############################################################################
 #
 # Align sequences using Sentieon/BWA-MEM. Part of the MayomicsVC Workflow.
@@ -200,6 +201,9 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Write manifest to log
+echo "${MANIFEST}" >> ${ERRLOG}
+
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
 then
@@ -308,7 +312,7 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SAMTools] Converting SAM to BAM..."
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM}
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${ERRLOG}
 EXITCODE=$?  # Capture exit code
 if [[ ${EXITCODE} -ne 0 ]]
 then

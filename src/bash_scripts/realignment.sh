@@ -13,6 +13,7 @@ MANIFEST
 echo "${MANIFEST}"
 
 read -r -d '' DOCS << DOCS
+
 #############################################################################
 #
 # Realign reads using Sentieon Realigner. Part of the MayomicsVC Workflow.
@@ -185,6 +186,9 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+
+## Write manifest to log
+echo "${MANIFEST}" >> ${ERRLOG}
 
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]

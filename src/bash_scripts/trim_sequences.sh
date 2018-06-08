@@ -13,6 +13,7 @@ MANIFEST
 echo "${MANIFEST}"
 
 read -r -d '' DOCS << DOCS
+
 #############################################################################
 #
 # Trim input sequences using Cutadapt. Part of the MayomicsVC Workflow.
@@ -162,7 +163,7 @@ do
 			;;
 		s )  # Full path to error log file. String variable invoked with -e
 			SAMPLE=${OPTARG}
-			echo -e ${ERRLOG}
+			echo -e ${SAMPLE}
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
@@ -180,6 +181,8 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+## Send manifest to log
+echo "${MANIFEST}" >> ${ERRLOG}
 
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]
