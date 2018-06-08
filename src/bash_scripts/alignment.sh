@@ -28,6 +28,7 @@ read -r -d '' DOCS << DOCS
                    -G		<reference_genome> 
                    -O           <output_directory> 
                    -S           </path/to/sentieon> 
+                   -L		<sentieon_license>
                    -t           <threads> 
                    -P		single-end read (true/false)
                    -e           </path/to/error_log> 
@@ -35,7 +36,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -R read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -R read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -48,7 +49,6 @@ set -o pipefail
 SCRIPT_NAME=alignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-LICENSE=
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":hg:s:p:r:R:G:O:S:t:P:e:d:" OPT
+while getopts ":hg:s:p:r:R:G:O:S:L:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -131,7 +131,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
+                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
                         exit 0;
 			;;
@@ -167,6 +167,10 @@ do
                         SENTIEON=${OPTARG}
                         echo -e ${SENTIEON}
                         ;;
+		L )  # Sentieon license. Invoked with -L
+			LICENSE=${OPTARG}
+			echo -e ${SENTIEON}
+			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         echo -e ${THR}

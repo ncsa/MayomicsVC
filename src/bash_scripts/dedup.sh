@@ -24,13 +24,14 @@ read -r -d '' DOCS << DOCS
                    -b		<aligned.sorted.bam>
                    -O           <output_directory> 
                    -S           </path/to/sentieon> 
+                   -L		<sentieon_license>
                    -t           <threads> 
                    -e           </path/to/error_log> 
                    -d           debug_mode (true/false)
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned.sorted.bam -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -SE false -e /path/to/error.log -d true
+ dedup.sh -s sample -b aligned.sorted.bam -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -43,7 +44,6 @@ set -o pipefail
 SCRIPT_NAME=dedup.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-LICENSE=
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":hs:b:O:S:t:e:d:" OPT
+while getopts ":hs:b:O:S:L:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -127,7 +127,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash dedup.sh -h       Display this help message."
-                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
+                        echo "  bash dedup.sh [-s sample_name] [-b <aligned.sorted.bam>] [-O <output_directory>] [-S </path/to/sentieon>] [-L <sentieon_license>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
                         ;;
@@ -147,6 +147,10 @@ do
                         SENTIEON=${OPTARG}
                         echo -e ${SENTIEON}
                         ;;
+		L )  # Sentieon license number. Invoked with -L
+			LICENSE=${OPTARG}
+			echo -e ${LICENSE}
+			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         echo -e ${THR}

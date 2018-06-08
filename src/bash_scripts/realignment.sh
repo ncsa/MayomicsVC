@@ -26,13 +26,14 @@ read -r -d '' DOCS << DOCS
                    -k		<known_sites>
                    -O           <output_directory> 
                    -S           </path/to/sentieon> 
+                   -L		<sentieon_license>
                    -t           <threads> 
                    -e           </path/to/error_log> 
                    -d           debug_mode (true/false)
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -O /path/to/output_directory -S /path/to/sentieon_directory -t 12 -e /path/to/error.log -d true
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -120,7 +121,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:O:S:t:e:d:" OPT
+while getopts ":hs:b:G:k:O:S:L:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -128,7 +129,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash realignment.sh -h       Display this help message."
-                        echo "  bash realignment.sh [-s <sample_name>] [-b <input_bam>] [-G <reference_genome>] [-k <known_sites>] [-O <output_directory>] [-S </path/to/Sentieon>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
+                        echo "  bash realignment.sh [-s <sample_name>] [-b <input_bam>] [-G <reference_genome>] [-k <known_sites>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
                         exit 0;
 			;;
@@ -156,6 +157,10 @@ do
                         SENTIEON=${OPTARG}
                         echo -e ${SENTIEON}
                         ;;
+		L )  # Sentieon license number. Invoked with -L
+			LICENSE=${OPTARG}
+			echo -e ${LICENSE}
+			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         echo -e ${THR}
