@@ -26,6 +26,7 @@ read -r -d '' DOCS << DOCS
  BQSR.sh -s 	<sample_name>
 	 -O 	</path/to/output_dir>
 	 -S 	</path/to/sentieon> 
+	 -L	<sentieon_license>
 	 -r 	</path/to/ref.fa>
 	 -t 	<threads>
 	 -i 	</path/to/deDuped.bam>
@@ -124,7 +125,7 @@ function logInfo()
 #--------------------------------------------------------------------------------------------------------------------------------
 ## GETOPS ARGUMENT PARSER
 #--------------------------------------------------------------------------------------------------------------------------------
-while getopts ":hs:O:S:r:t:i:k:e:d:" OPT
+while getopts ":hs:O:S:L:r:t:i:D:k:e:d:" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -144,9 +145,13 @@ do
 			OUTDIR=${OPTARG}
 			echo ${OUTDIR}
 			;;
-		S ) #Full path to Sentieon executable. String variable invoked with -S
+		S ) # Full path to Sentieon executable. String variable invoked with -S
 			SENTIEON=${OPTARG}
 			echo ${SENTIEON}
+			;;
+		L ) # Sentieon license number. Invoked with -L 
+			LICENSE=${OPTARG}
+			echo -e ${LICENSE}
 			;;
 		r ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
@@ -160,7 +165,7 @@ do
 			INPUTBAM=${OPTARG}
 			echo ${INPUTBAM}
 			;;
-		D ) #Full path to DBSNP file. String variable invoked with -D.
+		D ) # Full path to DBSNP file. String variable invoked with -D.
 			DBSNP=${OPTARG}
 			echo ${DBSNP}
 			;;
@@ -168,11 +173,11 @@ do
 			KNOWN=${OPTARG}
 			echo ${KNOWN}
 			;;
-		e ) #Full path to error log file. String variable invoked with -e
+		e ) # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
 			echo ${ERRLOG}
 			;;
-		d ) #Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
+		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
 			DEBUG=${OPTARG}
 			echo ${DEBUG}
 			;;
@@ -273,6 +278,8 @@ fi
 
 ## Record start time
 logInfo "[BQSR] START."
+
+export SENTIEON_LICENSE=${LICENSE}
 
 ## If no number of threads are provided, run Sentieon with the defaults.
 if [[ -z ${NTHREADS} ]]
