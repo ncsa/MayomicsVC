@@ -26,6 +26,7 @@ task RealignmentTask {
    String sampleName               # Name of the Sample
 
    File Known_Sites                # List of known sites
+   File KnownSitesIdx              # Index file for the known sites
    String Threads                  # No of Threads for the Tool
    String Sentieon_License         # Sentieon License Information
    String Sentieon                 # Path to Sentieon
@@ -38,6 +39,8 @@ task RealignmentTask {
    command {
 
       /bin/bash ${Realignment_Script} -L ${Sentieon_License} -s ${sampleName} -b ${InputBam} -G ${RefFasta} -k ${Known_Sites} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+
+   }
 
   
     # The output block is where the output of the program is stored

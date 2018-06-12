@@ -1,5 +1,6 @@
 {
   "CallAlignmentStageTasks.RealignmentTask.Known_Sites": "/projects/mgc/Project_1/KIK/Testing_Sentieon_2018/Reference/Mills_and_1000G_gold_standard.indels.hg38.vcf",
+"CallAlignmentStageTasks.RealignmentTask.KnownSitesIdx": "/projects/mgc/Project_1/KIK/Testing_Sentieon_2018/Reference/Mills_and_1000G_gold_standard.indels.hg38.vcf.idx",
   "CallAlignmentStageTasks.TrimInputSequencesTask.OutDir": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/single_sample_workflow/json_input_files/ramtests",
   "CallAlignmentStageTasks.TrimInputSequencesTask.CutAdaptTrimming_Script": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/bash_scripts/trim_sequences.sh",
   "CallAlignmentStageTasks.ReadMappingTask.Ref_Pac_File": "/projects/mgc/Project_1/KIK/Testing_Sentieon_2018/Reference/Homo_sapiens_assembly38.fasta.pac",

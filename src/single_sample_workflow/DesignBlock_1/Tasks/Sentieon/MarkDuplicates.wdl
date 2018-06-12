@@ -37,7 +37,7 @@ task MarkDuplicatesTask {
       String sName = sampleName
       String SentieonPath = Sentieon
       String LicenseFile = Sentieon_License
-      String DebugMode = Debug_Mode_EN
+      Boolean DebugMode = Debug_Mode_EN
       String ErrLogs = Error_Logs
       String OutputDir = OutDir
       String ThreadCount = Threads
