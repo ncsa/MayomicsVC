@@ -32,9 +32,15 @@ task TrimInputSequencesTask {
    # The output block is where the output of the program is stored
    output {
 
-      File TrimmedInputRead1 = "${Outdir}/${sampleName}.read1.trimmed.fq.gz"
-      File TrimmedInputRead2 = "${Outdir}/${sampleName}.read2.trimmed.fq.gz"
-
+      File TrimmedInputRead1 = "${OutDir}/${sampleName}.read1.trimmed.fq.gz"
+      File TrimmedInputRead2 = "${OutDir}/${sampleName}.read2.trimmed.fq.gz"
+      Boolean Debug_Mode = Debug_Mode_EN
+      String sName = sampleName
+      String ErrLogs = Error_Logs
+      Boolean SingleEnd = Is_Single_End
+      String ThreadCount = Threads
+      String OutputDir = OutDir
+      
    }
 
 }

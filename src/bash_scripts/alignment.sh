@@ -152,7 +152,7 @@ do
                         INPUT1=${OPTARG}
                         echo -e ${INPUT1}
                         ;;
-                R )  # Full path to input read 2. String variable invoked with -r
+                R )  # Full path to input read 2. String variable invoked with -R
                         INPUT2=${OPTARG}
                         echo -e ${INPUT2}
                         ;;
@@ -176,7 +176,7 @@ do
                         THR=${OPTARG}
                         echo -e ${THR}
                         ;;
-                P )  # Is this a single-end process? Boolean variable [true/false] invoked with -SE
+                P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
                         IS_SINGLE_END=${OPTARG}
                         echo -e ${IS_SINGLE_END}
                         ;;
@@ -202,7 +202,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Write manifest to log
-echo "${MANIFEST}" >> ${ERRLOG}
+echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]

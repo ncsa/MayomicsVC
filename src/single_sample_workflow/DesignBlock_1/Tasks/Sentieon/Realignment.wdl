@@ -12,6 +12,7 @@
 task RealignmentTask {
 
    File InputBam                   # Input Sorted Deduped Bam
+   File InputBamIdx                # Input Sorted Deduped Bam Index
    File RefFasta                   # Reference Genome
                                    
    File Ref_Amb_File               #
@@ -26,6 +27,7 @@ task RealignmentTask {
 
    File Known_Sites                # List of known sites
    String Threads                  # No of Threads for the Tool
+   String Sentieon_License         # Sentieon License Information
    String Sentieon                 # Path to Sentieon
    String OutDir                   # Output Directory
    Boolean Debug_Mode_EN           # Enable or Disable Debug Mode
@@ -35,13 +37,14 @@ task RealignmentTask {
  
    command {
 
-      /bin/bash ${Realignment_Script} -s ${sampleName} -b ${InputBam} -G ${RefFasta} -k ${Known_Sites} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+      /bin/bash ${Realignment_Script} -L ${Sentieon_License} -s ${sampleName} -b ${InputBam} -G ${RefFasta} -k ${Known_Sites} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
 
   
     # The output block is where the output of the program is stored
     output {
    
       File OutBam = "${OutDir}/${sampleName}.realigned.bam"
+      File OutBamIdx = "${OutDir}/${sampleName}.realigned.bam.bai"
        
    }  
    

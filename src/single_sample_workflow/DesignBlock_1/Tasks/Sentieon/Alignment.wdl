@@ -28,6 +28,7 @@ task ReadMappingTask {
    File Ref_Pac_File               #
    File Ref_Sa_File                #
 
+   String Sentieon_License         # Sentieon License server
    String Sentieon                 # Path to Sentieon
    String Group
    String Platform
@@ -44,10 +45,10 @@ task ReadMappingTask {
       # Check to see if the Input FastQ is Singled Ended or not
       if [[ ${Is_Single_End} == false ]] 
       then
-         /bin/bash ${Alignment_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+         /bin/bash ${Alignment_Script} -L ${Sentieon_License} -P ${Is_Single_End} -g ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -p ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
 
       else
-         /bin/bash ${Alignment_Script} -SE ${Is_Single_End} -G ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+         /bin/bash ${Alignment_Script} -L ${Sentieon_License} -SE ${Is_Single_End} -g ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
       fi
 
    }
@@ -56,8 +57,24 @@ task ReadMappingTask {
    output {
 
       File OutSam = "${OutDir}/${sampleName}.sam"
-      File OutBam = "${OutDir}/${sampleName}.bam"
       File SortBam = "${OutDir}/${sampleName}.sorted.bam"
+      File SortBamIdx = "${OutDir}/${sampleName}.sorted.bam.bai"
+      String sName= sampleName
+      String SentieonPath = Sentieon
+      String LicenseFile = Sentieon_License
+      Boolean DebugMode = Debug_Mode_EN
+      String ErrLogs = Error_Logs
+      String OutputDir = OutDir
+      String ThreadCount = Threads
+
+      File FastaRef = RefFasta
+      File RefAmbFile = Ref_Amb_File
+      File RefDictFile = Ref_Dict_File
+      File RefAnnFile = Ref_Ann_File
+      File RefBwtFile = Ref_Bwt_File
+      File RefFaiFile = Ref_Fai_File
+      File RefPacFile = Ref_Pac_File
+      File RefSaFile = Ref_Sa_File
 
    }
 

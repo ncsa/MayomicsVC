@@ -188,7 +188,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Write manifest to log
-echo "${MANIFEST}" >> ${ERRLOG}
+echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
 if [[ ${DEBUG} == true ]]

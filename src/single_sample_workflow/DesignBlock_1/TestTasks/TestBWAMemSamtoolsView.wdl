@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "DesignBlock_1/Tasks/BWAMemSamtoolsView.wdl" as BWAMEMSAMTOOLSVIEW
+import "DesignBlock_1/Tasks/Sentieon/Alignment.wdl" as BWAMEMSAMTOOLSVIEW
 
 workflow CallReadMappingTask {
 

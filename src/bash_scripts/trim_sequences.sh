@@ -131,7 +131,7 @@ do
 			;;
 		e )  # Sample name. String variable invoked with -s
 			ERRLOG=${OPTARG}
-			echo -e ${SAMPLE}
+			echo -e ${ERRLOG}
 			;;
 		r )  # Full path to input read 1. String variable invoked with -r
 			INPUT1=${OPTARG}
@@ -237,15 +237,8 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Parse filename without full path
-full1=$INPUT1
-full2=$INPUT2
-READ1=${full1##*/} # Remove path from variable
-READ2=${full2##*/}
-read1=${READ1%%.*} # Remove all instances of file extensions
-read2=${READ2%%.*}
-#OUT=${OUTDIR}/${SAMPLE}.trimmed.fq.gz
 OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
-if  [[ ${IS_SINGLE_END} = true ]]  # If single-end, we do not need a second output trimmed read
+if  [[ ${IS_SINGLE_END} == true ]]  # If single-end, we do not need a second output trimmed read
 then
 	OUT2=NULL
 else
@@ -266,28 +259,28 @@ logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
-if [[ ${IS_SINGLE_END} = true ]]  # if single-end reads file
+if [[ ${IS_SINGLE_END} == true ]]  # if single-end reads file
 then
 	# Trim reads
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.cutadapt.log 
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log 
 	EXITCODE=$?  # Capture exit code
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 		exit ${EXITCODE};
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${read1}.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
 else 
-	if [[ $THR = 0 ]] # if threads equal zero
+	if [[ $THR == 0 ]] # if threads equal zero
 	then
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
                         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
                         exit ${EXITCODE};
                 fi
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.read2.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
@@ -297,14 +290,14 @@ else
 		
 	else  # If threads does not equal zero
 
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${read1}.cutadapt.log
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
                         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
                         exit ${EXITCODE};
                 fi
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${read2}.cutadapt.log
+		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.read2.cutadapt.log
 		EXITCODE=$?
                 if [[ ${EXITCODE} -ne 0 ]]
                 then
@@ -312,7 +305,7 @@ else
                         exit ${EXITCODE};
                 fi
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${read1}.cutadapt.log ${OUTDIR}/${read2}.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log ${OUTDIR}/${SAMPLE}read2.cutadapt.log"
 fi
 
 
@@ -327,7 +320,7 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Open read permissions to the user group
-if [[ ${IS_SINGLE_END} = true ]]
+if [[ ${IS_SINGLE_END} == true ]]
 then
 	chmod g+r ${OUT1}
 else
