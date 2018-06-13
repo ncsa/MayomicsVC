@@ -26,7 +26,6 @@ task alignmentTask {
    File Input_Read1                # Input Read File             (REQUIRED)
    String Input_Read2              # Input Read File             (Optional)
    String sampleName               # Name of the Sample
-
    File Ref_Amb_File               #
    File Ref_Dict_File              #
    File Ref_Ann_File               #
@@ -34,12 +33,10 @@ task alignmentTask {
    File Ref_Fai_File               # to the WDL Tool to help perform the alignment
    File Ref_Pac_File               #
    File Ref_Sa_File                #
-
    String Sentieon_License         # Sentieon License server
    String Sentieon                 # Path to Sentieon
    String Group
    String Platform
-
    Boolean Is_Single_End           # Variable to check if single ended or not
    Boolean Debug_Mode_EN           # Variable to check if Debud Mode is on or not
    String Error_Logs               # File Path to ErrorLogs
