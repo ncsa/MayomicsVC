@@ -12,6 +12,11 @@ command line input: ${@}
 MANIFEST
 echo "${MANIFEST}"
 
+
+
+
+
+
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -24,7 +29,7 @@ read -r -d '' DOCS << DOCS
  trim_sequences.sh -s 		<sample_name> 
                    -A 		<adapters.fa> 
                    -r 		<read1.fq> 
-                   -R 		<read2.fq> 
+                   -l 		<read2.fq> 
                    -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
@@ -34,11 +39,16 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -r read1.fq -R read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -r read1.fq -l read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 
 DOCS
+
+
+
+
+
 
 set -o errexit
 set -o pipefail
@@ -117,7 +127,7 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
-while getopts ":he:r:R:A:O:C:t:SE:s:d:" OPT
+while getopts ":he:r:l:A:O:C:t:SE:s:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -125,7 +135,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-r1 <read1.fq>] [-r2 <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
+			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-l <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
 			;;
@@ -137,7 +147,7 @@ do
 			INPUT1=${OPTARG}
 			echo -e ${INPUT1}
 			;;
-		R )  # Full path to input read 2. String variable invoked with -r
+		l )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
 			echo -e ${INPUT2}
 			;;
@@ -185,7 +195,7 @@ done
 echo "${MANIFEST}" >> ${ERRLOG}
 
 ## Turn on Debug Mode to print all code
-if [[ ${DEBUG} == true ]]
+if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
 	set -x
@@ -207,7 +217,7 @@ then
 	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty."
 	exit 1;
 fi
-if [[ ${IS_SINGLE_END} == false ]]
+if [[ "${IS_SINGLE_END}" == false ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
@@ -238,9 +248,9 @@ fi
 
 ## Parse filename without full path
 OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
-if  [[ ${IS_SINGLE_END} == true ]]  # If single-end, we do not need a second output trimmed read
+if  [[ "${IS_SINGLE_END}" == true ]]  # If single-end, we do not need a second output trimmed read
 then
-	OUT2=NULL
+	OUT2=null
 else
 	OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
 fi
@@ -259,7 +269,7 @@ logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
-if [[ ${IS_SINGLE_END} == true ]]  # if single-end reads file
+if [[ "${IS_SINGLE_END}" == true ]]  # if single-end reads file
 then
 	# Trim reads
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log 
@@ -271,39 +281,17 @@ then
 	fi
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
 else 
-	if [[ $THR == 0 ]] # if threads equal zero
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log
+	EXITCODE=$?
+	if [[ ${EXITCODE} -ne 0 ]]
 	then
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log
-		EXITCODE=$?
-                if [[ ${EXITCODE} -ne 0 ]]
-                then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
-                        exit ${EXITCODE};
-                fi
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.read2.cutadapt.log
-		EXITCODE=$?
-                if [[ ${EXITCODE} -ne 0 ]]
-                then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
-                        exit ${EXITCODE};
-                fi
-		
-	else  # If threads does not equal zero
-
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log
-		EXITCODE=$?
-                if [[ ${EXITCODE} -ne 0 ]]
-                then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
-                        exit ${EXITCODE};
-                fi
-		${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.read2.cutadapt.log
-		EXITCODE=$?
-                if [[ ${EXITCODE} -ne 0 ]]
-                then
-                        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
-                        exit ${EXITCODE};
-                fi
+		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
+		exit ${EXITCODE};
+	fi
+	if [[ ${EXITCODE} -ne 0 ]]
+	then
+		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
+		exit ${EXITCODE};
 	fi
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log ${OUTDIR}/${SAMPLE}read2.cutadapt.log"
 fi
@@ -319,8 +307,23 @@ fi
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check for file creation
+if [[ ! -s ${OUT1} ]]
+then
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
+        exit 1;
+fi
+if [[ "${IS_SINGLE_END}" == false ]]
+then
+	if [[ ! -s ${OUT2} ]]
+	then
+		logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 2 file ${OUT2} is empty."
+		exit 1;
+	fi
+fi
+
 ## Open read permissions to the user group
-if [[ ${IS_SINGLE_END} == true ]]
+if [[ "${IS_SINGLE_END}" == true ]]
 then
 	chmod g+r ${OUT1}
 else
@@ -339,3 +342,4 @@ logInfo "[CUTADAPT] Finished trimming adapter sequences. Trimmed reads found at 
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
+exit 0;

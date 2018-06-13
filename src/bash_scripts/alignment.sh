@@ -12,6 +12,13 @@ command line input: ${@}
 MANIFEST
 echo "${MANIFEST}"
 
+
+
+
+
+
+
+
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -25,7 +32,7 @@ read -r -d '' DOCS << DOCS
                    -s           <sample_name> 
                    -p		<platform>
                    -r           <read1.fq> 
-                   -R           <read2.fq>
+                   -l           <read2.fq>
                    -G		<reference_genome> 
                    -O           <output_directory> 
                    -S           </path/to/sentieon> 
@@ -37,11 +44,17 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -R read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -l read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
 
 #############################################################################
 
 DOCS
+
+
+
+
+
+
 
 set -o errexit
 set -o pipefail
@@ -124,7 +137,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":hg:s:p:r:R:G:O:S:L:t:P:e:d:" OPT
+while getopts ":hg:s:p:r:l:G:O:S:L:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -132,7 +145,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-R <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
+                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-l <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
                         exit 0;
 			;;
@@ -152,7 +165,7 @@ do
                         INPUT1=${OPTARG}
                         echo -e ${INPUT1}
                         ;;
-                R )  # Full path to input read 2. String variable invoked with -R
+                l )  # Full path to input read 2. String variable invoked with -R
                         INPUT2=${OPTARG}
                         echo -e ${INPUT2}
                         ;;
@@ -205,7 +218,7 @@ done
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
-if [[ ${DEBUG} == true ]]
+if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
         set -x
@@ -240,11 +253,11 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
 	exit 1;
 fi
-if (( ${THR} % 2 != 0 ))
-then
-	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-	THR=$((THR-1))
-fi
+#if (( ${THR} % 2 != 0 ))
+#then
+#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
+#	THR=$((THR-1))
+#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -277,7 +290,7 @@ logInfo "[BWA-MEM] START."
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
 ######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
-if [[ ${IS_SINGLE_END} == true ]]
+if [[ "${IS_SINGLE_END}" == true ]]
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
@@ -310,7 +323,7 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Convert SAM to BAM and sort
-logInfo "[SAMTools] Converting SAM to BAM..."
+logInfo "[SENTIEON] Converting SAM to BAM..."
 export SENTIEON_LICENSE=${LICENSE}
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${ERRLOG}
 EXITCODE=$?  # Capture exit code
@@ -319,7 +332,7 @@ then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 	exit ${EXITCODE};
 fi
-logInfo "[SAMTools] Converted output to BAM format and sorted."
+logInfo "[SENTIEON] Converted output to BAM format and sorted."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -358,3 +371,4 @@ logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SO
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
+exit 0;

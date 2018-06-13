@@ -12,6 +12,12 @@ command line input: ${@}
 MANIFEST
 echo "${MANIFEST}"
 
+
+
+
+
+
+
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -40,6 +46,14 @@ read -r -d '' DOCS << DOCS
 
 DOCS
 
+
+
+
+
+
+
+
+
 set -o errexit
 set -o pipefail
 #set -o nounset
@@ -47,7 +61,6 @@ set -o pipefail
 SCRIPT_NAME=realignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-LICENSE=
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -191,7 +204,7 @@ done
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
-if [[ ${DEBUG} == true ]]
+if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
         set -x
@@ -308,3 +321,4 @@ chmod g+r ${OUT}
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
+exit 0;

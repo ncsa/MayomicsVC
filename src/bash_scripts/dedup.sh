@@ -12,6 +12,12 @@ command line input: ${@}
 MANIFEST
 echo "${MANIFEST}"
 
+
+
+
+
+
+
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -37,6 +43,13 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
 DOCS
+
+
+
+
+
+
+
 
 set -o errexit
 set -o pipefail
@@ -181,7 +194,7 @@ done
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
-if [[ ${DEBUG} == true ]]
+if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
         set -x
@@ -264,8 +277,7 @@ then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         exit ${EXITCODE};
 fi
-logInfo "[SENTIEON] Deduplication Finished."
-logInfo "[SENTIEON] Deduplicated BAM found at ${OUT}"
+logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -302,3 +314,4 @@ chmod g+r ${DEDUPMETRICS}
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
+exit 0;
