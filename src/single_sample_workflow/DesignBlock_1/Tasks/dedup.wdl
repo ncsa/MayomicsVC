@@ -3,13 +3,19 @@
 ##              This WDL script marks the duplicates on input sorted BAMs                ##
 
 #                              Script Options
-#      -I      "Input BAM Files"                             (Required)      
-#      -O      "Output BAM Files"                            (Required) 
-#      -M      "File to write Duplication Metrics            (Required) 
+#      -b        "Input BAM File"                            (Required)      
+#      -O        "Directory for the Output"                  (Required)
+#      -s        "Name of the sample"                        (Optional)
+#      -t        "Number of Threads"                         (Optional)
+#      -S        "Path to the Sentieon Tool"                 (Required)
+#      -O        "Directory for the Output"                  (Required)
+#      -L        "Sentieon License File"                     (Required)
+#      -e        "Path to the Error Log File"                (Required)
+#      -d        "Debug Mode Toggle"                         (Optional)
 
 #################################################################################################
 
-task MarkDuplicatesTask {
+task dedupTask {
 
    File InputBam                   # Input Sorted BAM File
    File InputBamIdx                # Input Sorted Bam Index File

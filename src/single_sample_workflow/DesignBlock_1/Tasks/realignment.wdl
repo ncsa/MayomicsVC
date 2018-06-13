@@ -3,13 +3,20 @@
 ##              This WDL script performs realignment using Sentieon                ##
 
 ##                                Script Options
-##      -t      "Number of Threads"                                     (Optional)
-##      -r      "Reference Genome"                                      (Required)
-##      -i      "Input Deduped Bam"                                     (Required)
-##      -k      "List of Known Sites"                                   (Required)
+#       -t        "Number of Threads"                                     (Optional)
+#       -G        "Reference Genome"                                      (Required)
+#       -b        "Input Deduped Bam"                                     (Required)
+#       -k        "List of Known Sites"                                   (Required)
+#       -s        "Name of the sample"                                    (Optional)
+#       -S        "Path to the Sentieon Tool"                             (Required)
+#       -O        "Directory for the Output"                              (Required)
+#       -L        "Sentieon License File"                                 (Required)
+#       -e        "Path to the Error Log File"                            (Required)
+#       -d        "Debug Mode Toggle"                                     (Optional)
+
 ###########################################################################################
 
-task RealignmentTask {
+task realignmentTask {
 
    File InputBam                   # Input Sorted Deduped Bam
    File InputBamIdx                # Input Sorted Deduped Bam Index
@@ -43,11 +50,28 @@ task RealignmentTask {
    }
 
   
-    # The output block is where the output of the program is stored
-    output {
-   
+   # The output block is where the output of the program is stored
+   output {
+  
       File OutBam = "${OutDir}/${sampleName}.realigned.bam"
       File OutBamIdx = "${OutDir}/${sampleName}.realigned.bam.bai"
+      String SentieonPath = Sentieon
+      String LicenseFile = Sentieon_License
+      Boolean DebugMode = Debug_Mode_EN
+      String ErrLogs = Error_Logs
+      String OutputDir = OutDir
+      String ThreadCount = Threads
+
+      File FastaRef = RefFasta
+      File RefAmbFile = Ref_Amb_File
+      File RefDictFile = Ref_Dict_File
+      File RefAnnFile = Ref_Ann_File
+      File RefBwtFile = Ref_Bwt_File
+      File RefFaiFile = Ref_Fai_File
+      File RefPacFile = Ref_Pac_File
+      File RefSaFile = Ref_Sa_File
+      File KnownSites = Known_Sites
+      File KnownSitesIDX = KnownSitesIdx
        
    }  
    

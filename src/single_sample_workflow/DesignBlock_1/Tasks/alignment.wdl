@@ -3,17 +3,24 @@
 ##              This WDL script performs alignment using BWA Mem                ##
 
 ##                              Script Options
-##      -t      "Number of Threads"                                     (Optional)
-##      -M      "Mark shorter split hits as secondary"                  (Optional)      
-##      -k      "Minimun Seed Length"                                   (Optional) 
-##      -I      "The input is in the Illumina 1.3+ read format"         (Optional) 
-##      -R      "Complete read group header line"                       (Optional) 
+#       -t        "Number of Threads"                         (Optional)
+#       -SE       "Single Ended Reads specification"          (Required)
+#       -r        "Left Fasta File"                           (Required)
+#       -R        "Right Fasta File"                          (Optional)
+#       -s        "Name of the sample"                        (Optional)
+#       -S        "Path to the Sentieon Tool"                 (Required)
+#       -O        "Directory for the Output"                  (Required)
+#       -L        "Sentieon License File"                     (Required)
+#       -e        "Path to the Error Log File"                (Required)
+#       -d        "Debug Mode Toggle"                         (Optional)
+#       -g        "Group"                                     (Required)
+#       -p        "Platform"                                  (Required)
 
 ###########################################################################################
 
 # The Task block is where the variables and the functions are defined for performing a certain task
 
-task ReadMappingTask {
+task alignmentTask {
 
    File RefFasta                   # Reference Input Fasta File
    File Input_Read1                # Input Read File             (REQUIRED)
@@ -48,7 +55,7 @@ task ReadMappingTask {
          /bin/bash ${Alignment_Script} -L ${Sentieon_License} -P ${Is_Single_End} -g ${Group} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -p ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
 
       else
-         /bin/bash ${Alignment_Script} -L ${Sentieon_License} -SE ${Is_Single_End} -g ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+         /bin/bash ${Alignment_Script} -L ${Sentieon_License} -P ${Is_Single_End} -g ${Group} -r ${Input_Read1} -R ${sampleName} -P ${Platform} -G ${RefFasta} -O ${OutDir} -S ${Sentieon} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
       fi
 
    }

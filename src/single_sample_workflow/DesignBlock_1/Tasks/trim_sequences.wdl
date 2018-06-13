@@ -1,8 +1,22 @@
-###########################
+###########################################################################################
 
-#Trim Input Sequences using Cutadapt
+##              This WDL scripts trim the Inputs Fasta File using CutAdapt               ##
 
-task TrimInputSequencesTask {
+##                                    Script Options                     
+#         -t        "Number of Threads"                         (Required)
+#         -SE       "Single Ended Reads specification"          (Required)
+#         -r        "Left Fasta File"                           (Required)
+#         -R        "Right Fasta File"                          (Optional)
+#         -s        "Name of the sample"                        (Optional)
+#         -A        "Adapter File for CutAdapt"                 (Required)
+#         -O        "Directory for the Output"                  (Required)
+#         -C        "Path to CutAdapt Tool"                     (Required)
+#         -e        "Path to the Error Log File"                (Required)
+#         -d        "Debug Mode Toggle"                         (Optional)
+
+###########################################################################################         
+
+task trimsequencesTask {
 
    File Input_Read1                # Input Read File             (REQUIRED)
    String Input_Read2              # Input Read File             (Optional)

@@ -4,11 +4,11 @@
 
 ###############################################################################################
 
-import "DesignBlock_1/Tasks/PicardMarkDuplicates_Sentieon.wdl" as PICARDMARKDUPLICATES
+import "DesignBlock_1/Tasks/Sentieon/dedup.wdl" as DEDUP
 
-workflow CallMarkDuplicatesTask {
+workflow CalldedupTask {
 
-   call MarkDuplicatesTask
+   call DEDUP.dedupTask
 
 }
 
