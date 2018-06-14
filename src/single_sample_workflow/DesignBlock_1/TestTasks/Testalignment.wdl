@@ -4,11 +4,11 @@
 
 #########################################################################################################
 
-import "DesignBlock_1/Tasks/BWAMemSamtoolsView.wdl" as BWAMEMSAMTOOLSVIEW
+import "DesignBlock_1/Tasks/Sentieon/alignment.wdl" as ALIGN
 
-workflow CallReadMappingTask {
+workflow CallalignmentTask {
 
    # Call to the ReadMappingTask
-   call BWAMEMSAMTOOLSVIEW.ReadMappingTask
+   call ALIGN.alignmentTask
 
 }
