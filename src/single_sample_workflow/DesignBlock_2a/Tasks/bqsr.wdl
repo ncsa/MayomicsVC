@@ -50,7 +50,7 @@ task bqsrTask {
 
    command {
 
-      /bin/bash ${BQSR_Script} -s ${sampleName} -O ${OutDir} -S ${Sentieon} -r ${RefFasta} -t ${Threads} -i ${InputBam} -D ${DBSNP} -k ${Known_Sites} -e ${Error_Logs} -d ${Debug_mode_EN}
+      /bin/bash ${BQSR_Script} -s ${sampleName} -O ${OutDir} -S ${Sentieon} -r ${RefFasta} -t ${Threads} -b ${InputBam} -D ${DBSNP} -k ${Known_Sites} -e ${Error_Logs} -d ${Debug_mode_EN}
 
    }
 
