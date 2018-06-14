@@ -126,7 +126,7 @@ function logInfo()
 #--------------------------------------------------------------------------------------------------------------------------------
 ## GETOPS ARGUMENT PARSER
 #--------------------------------------------------------------------------------------------------------------------------------
-while getopts ":hs:O:S:L:r:t:i:D:k:e:d" OPT
+while getopts ":hs:O:S:L:G:t:b:D:k:e:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -134,7 +134,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "  bash BQSR.sh -h       Display this help message." 
-			echo "  bash BQSR.sh [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-r </path/to/ref.fa>] [-t <threads>] [-i </path/to/deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-k </path/to/known_indels.vcf>] [-e </path/to/error_log>] [-d debug_mode [false]]"
+			echo "  bash BQSR.sh [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-k </path/to/known_indels.vcf>] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0; 
 			;;
