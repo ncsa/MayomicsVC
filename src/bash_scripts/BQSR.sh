@@ -27,9 +27,9 @@ read -r -d '' DOCS << DOCS
 	 -O 	</path/to/output_dir>
 	 -S 	</path/to/sentieon> 
 	 -L	<sentieon_license>
-	 -r 	</path/to/ref.fa>
+	 -G 	</path/to/ref.fa>
 	 -t 	<threads>
-	 -i 	</path/to/deDuped.bam>
+	 -b 	</path/to/deDuped.bam>
 	 -D 	</path/to/dbsnp.vcf>
 	 -k 	</path/to/known_indels.vcf>
 	 -e 	</path/to/error_log>
