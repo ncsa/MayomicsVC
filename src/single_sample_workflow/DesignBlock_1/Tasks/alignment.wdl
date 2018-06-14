@@ -4,9 +4,9 @@
 
 ##                              Script Options
 #       -t        "Number of Threads"                         (Optional)
-#       -P       "Single Ended Reads specification"          (Required)
-#       -l        "Left Fasta File"                           (Required)
-#       -r        "Right Fasta File"                          (Optional)
+#       -P        "Single Ended Reads specification"          (Required)
+#       -l        "Left Fastq File"                           (Required)
+#       -r        "Right Fastq File"                          (Optional)
 #       -s        "Name of the sample"                        (Optional)
 #       -S        "Path to the Sentieon Tool"                 (Required)
 #       -O        "Directory for the Output"                  (Required)

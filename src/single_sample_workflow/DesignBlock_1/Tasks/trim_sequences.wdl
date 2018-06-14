@@ -4,9 +4,9 @@
 
 ##                                    Script Options                     
 #         -t        "Number of Threads"                         (Required)
-#         -P       "Single Ended Reads specification"          (Required)
-#         -r        "Left Fasta File"                           (Required)
-#         -R        "Right Fasta File"                          (Optional)
+#         -P        "Single Ended Reads specification"          (Required)
+#         -r        "Left Fastq File"                           (Required)
+#         -R        "Right Fastq File"                          (Optional)
 #         -s        "Name of the sample"                        (Optional)
 #         -A        "Adapter File for CutAdapt"                 (Required)
 #         -O        "Directory for the Output"                  (Required)
