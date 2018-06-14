@@ -4,7 +4,6 @@
 
 #                              Script Options
 #      -b        "Input BAM File"                            (Required)      
-#      -O        "Directory for the Output"                  (Required)
 #      -s        "Name of the sample"                        (Optional)
 #      -t        "Number of Threads"                         (Optional)
 #      -S        "Path to the Sentieon Tool"                 (Required)

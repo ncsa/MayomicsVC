@@ -3,9 +3,9 @@
 ##########################################################################################################
 
 import "DesignBlock_1/Tasks/trim_sequences.wdl" as CUTADAPTTRIM
-import "DesignBlock_1/Tasks/Sentieon/alignment.wdl" as ALIGNMENT
-import "DesignBlock_1/Tasks/Sentieon/dedup.wdl" as DEDUP 
-import "DesignBlock_1/Tasks/Sentieon/realignment.wdl" as REALIGN
+import "DesignBlock_1/Tasks/alignment.wdl" as ALIGNMENT
+import "DesignBlock_1/Tasks/dedup.wdl" as DEDUP 
+import "DesignBlock_1/Tasks/realignment.wdl" as REALIGN
 
 workflow CallAlignmentStageTasks {
    
@@ -34,8 +34,8 @@ workflow CallAlignmentStageTasks {
          Threads = alignmentTask.ThreadCount,
          InputBam  = alignmentTask.SortBam,
          InputBamIdx = alignmentTask.SortBamIdx
-   }
-
+   }    
+            
    call REALIGN.realignmentTask {
       input:
          Sentieon_License = dedupTask.LicenseFile,
@@ -47,14 +47,7 @@ workflow CallAlignmentStageTasks {
          Error_Logs = dedupTask.ErrLogs,
          OutDir = dedupTask.OutputDir,
          Threads = dedupTask.ThreadCount,
-         RefFasta = alignmentTask.FastaRef,
-         Ref_Amb_File = alignmentTask.RefAmbFile,
-         Ref_Dict_File = alignmentTask.RefDictFile,
-         Ref_Ann_File = alignmentTask.RefAnnFile,
-         Ref_Bwt_File = alignmentTask.RefBwtFile,
-         Ref_Fai_File = alignmentTask.RefFaiFile,
-         Ref_Pac_File = alignmentTask.RefPacFile,
-         Ref_Sa_File = alignmentTask.RefSaFile
+         RefFasta = alignmentTask.FastaRef
    }   
    
 }

@@ -35,10 +35,10 @@ task trimsequencesTask {
       # Check to see if the Input FastQ is Singled Ended or not
       if [[ ${Is_Single_End} == false ]]
       then
-         /bin/bash ${CutAdaptTrimming_Script} -SE ${Is_Single_End} -r ${Input_Read1} -R ${Input_Read2} -s ${sampleName} -A ${Adapters} -O ${OutDir} -C ${CutAdapt} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+         /bin/bash ${CutAdaptTrimming_Script} -P ${Is_Single_End} -l ${Input_Read1} -r ${Input_Read2} -s ${sampleName} -A ${Adapters} -O ${OutDir} -C ${CutAdapt} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
 
       else
-         /bin/bash ${CutAdaptTrimming_Script} -SE ${Is_Single_End} -r ${Input_Read1} -s ${sampleName} -A ${Adapters} -O ${OutDir} -C ${CutAdapt} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
+         /bin/bash ${CutAdaptTrimming_Script} -P ${Is_Single_End} -l ${Input_Read1} -s ${sampleName} -A ${Adapters} -O ${OutDir} -C ${CutAdapt} -t ${Threads} -e ${Error_Logs} -d ${Debug_Mode_EN}
       fi
 
    }
