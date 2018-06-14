@@ -288,6 +288,8 @@ else
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 failure."
 		exit ${EXITCODE};
 	fi
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT2} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.read2.cutadapt.log
+        EXITCODE=$?
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 2 failure."
