@@ -28,8 +28,8 @@ read -r -d '' DOCS << DOCS
  USAGE:
  trim_sequences.sh -s 		<sample_name> 
                    -A 		<adapters.fa> 
-                   -r 		<read1.fq> 
-                   -l 		<read2.fq> 
+                   -l 		<read1.fq> 
+                   -r 		<read2.fq> 
                    -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
@@ -39,7 +39,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -r read1.fq -l read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 

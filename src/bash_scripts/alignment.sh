@@ -31,8 +31,8 @@ read -r -d '' DOCS << DOCS
  alignment.sh      -g		<readgroup_ID>
                    -s           <sample_name> 
                    -p		<platform>
-                   -r           <read1.fq> 
-                   -l           <read2.fq>
+                   -l           <read1.fq> 
+                   -r           <read2.fq>
                    -G		<reference_genome> 
                    -O           <output_directory> 
                    -S           </path/to/sentieon> 
@@ -44,7 +44,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -r read1.fq -l read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
 
 #############################################################################
 
