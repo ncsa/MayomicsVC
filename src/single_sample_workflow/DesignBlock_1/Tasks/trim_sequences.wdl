@@ -4,7 +4,7 @@
 
 ##                                    Script Options                     
 #         -t        "Number of Threads"                         (Required)
-#         -SE       "Single Ended Reads specification"          (Required)
+#         -P       "Single Ended Reads specification"          (Required)
 #         -r        "Left Fasta File"                           (Required)
 #         -R        "Right Fasta File"                          (Optional)
 #         -s        "Name of the sample"                        (Optional)
