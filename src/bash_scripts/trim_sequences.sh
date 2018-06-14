@@ -280,7 +280,8 @@ then
 		exit ${EXITCODE};
 	fi
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
-else 
+else
+	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.cutadapt.log
 	EXITCODE=$?
 	if [[ ${EXITCODE} -ne 0 ]]
