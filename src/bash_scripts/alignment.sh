@@ -137,7 +137,7 @@ function logInfo()
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Input and Output parameters
-while getopts ":hg:s:p:r:l:G:O:S:L:t:P:e:d:" OPT
+while getopts ":hg:s:p:l:r:G:O:S:L:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -145,7 +145,7 @@ do
                         echo "Usage:"
 			echo " "
                         echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-r <read1.fq>] [-l <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
+                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-l <read1.fq>] [-r <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
                         exit 0;
 			;;
@@ -161,11 +161,11 @@ do
                         PLATFORM=${OPTARG}
                         echo -e ${PLATFORM}
                         ;;
-                r )  # Full path to input read 1. String variable invoked with -r
+                l )  # Full path to input read 1. String variable invoked with -l
                         INPUT1=${OPTARG}
                         echo -e ${INPUT1}
                         ;;
-                l )  # Full path to input read 2. String variable invoked with -R
+                r )  # Full path to input read 2. String variable invoked with -r
                         INPUT2=${OPTARG}
                         echo -e ${INPUT2}
                         ;;

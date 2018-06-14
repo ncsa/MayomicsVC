@@ -127,7 +127,7 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
-while getopts ":he:r:l:A:O:C:t:SE:s:d:" OPT
+while getopts ":he:l:r:A:O:C:t:SE:s:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -135,7 +135,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-r <read1.fq>] [-l <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
+			echo "	bash trim_sequences.sh [-s sample_name] [-l <read1.fq>] [-r <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-SE single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
 			;;
@@ -143,11 +143,11 @@ do
 			ERRLOG=${OPTARG}
 			echo -e ${ERRLOG}
 			;;
-		r )  # Full path to input read 1. String variable invoked with -r
+		l )  # Full path to input read 1. String variable invoked with -l
 			INPUT1=${OPTARG}
 			echo -e ${INPUT1}
 			;;
-		l )  # Full path to input read 2. String variable invoked with -r
+		r )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
 			echo -e ${INPUT2}
 			;;
