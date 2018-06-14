@@ -27,9 +27,9 @@ read -r -d '' DOCS << DOCS
 	 -O 	</path/to/output_dir>
 	 -S 	</path/to/sentieon> 
 	 -L	<sentieon_license>
-	 -r 	</path/to/ref.fa>
+	 -G 	</path/to/ref.fa>
 	 -t 	<threads>
-	 -i 	</path/to/deDuped.bam>
+	 -b 	</path/to/deDuped.bam>
 	 -D 	</path/to/dbsnp.vcf>
 	 -k 	</path/to/known_indels.vcf>
 	 -e 	</path/to/error_log>
@@ -89,6 +89,7 @@ function logError()
     fi
   
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    exit 1
 }
 
 
@@ -125,7 +126,7 @@ function logInfo()
 #--------------------------------------------------------------------------------------------------------------------------------
 ## GETOPS ARGUMENT PARSER
 #--------------------------------------------------------------------------------------------------------------------------------
-while getopts ":hs:O:S:L:r:t:i:D:k:e:d:" OPT
+while getopts ":hs:O:S:L:r:t:i:D:k:e:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -151,9 +152,9 @@ do
 			;;
 		L ) # Sentieon license number. Invoked with -L 
 			LICENSE=${OPTARG}
-			echo -e ${LICENSE}
+			echo ${LICENSE}
 			;;
-		r ) # Full path to reference fasta. String variable invoked with -r
+		G ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
 			echo ${REF}
 			;;
@@ -161,7 +162,7 @@ do
 			NTHREADS=${OPTARG}
 			echo ${NTHREADS}
 			;;
-		i ) # Full path to DeDuped BAM used as input. String variable invoked with -i
+		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
 			INPUTBAM=${OPTARG}
 			echo ${INPUTBAM}
 			;;
@@ -266,6 +267,12 @@ if [[ ! -f ${KNOWN} ]]
 then
 	logError "$0 stopped at line $LINENO. \nREASON=Known indels file ${KNOWN} is not present or does not exist."
 fi
+
+## Check if Sentieon license string is present.
+if [[ -z ${LICENSE} ]]
+then
+	logError "$0 stopped at line $LINENO. \nREASON=Sentieon license ${LICENSE} is not present or does not exist."
+fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -280,6 +287,9 @@ fi
 logInfo "[BQSR] START."
 
 export SENTIEON_LICENSE=${LICENSE}
+#${SENTIEON} driver -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table
+#echo $?
+#exit
 
 ## If no number of threads are provided, run Sentieon with the defaults.
 if [[ -z ${NTHREADS} ]]
