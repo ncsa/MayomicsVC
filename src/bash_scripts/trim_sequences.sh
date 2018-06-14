@@ -139,7 +139,7 @@ do
 			echo " "
 			exit 0;
 			;;
-		e )  # Sample name. String variable invoked with -s
+		e )  # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
 			echo -e ${ERRLOG}
 			;;
@@ -171,7 +171,7 @@ do
 			IS_SINGLE_END=${OPTARG}
 			echo -e ${IS_SINGLE_END}
 			;;
-		s )  # Full path to error log file. String variable invoked with -e
+		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
 			echo -e ${SAMPLE}
 			;;
@@ -192,7 +192,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 ## Send manifest to log
-echo "${MANIFEST}" >> ${ERRLOG}
+echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Turn on Debug Mode to print all code
 if [[ "${DEBUG}" == true ]]
