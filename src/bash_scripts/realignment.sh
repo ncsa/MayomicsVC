@@ -56,7 +56,7 @@ DOCS
 
 set -o errexit
 set -o pipefail
-#set -o nounset
+set -o nounset
 
 SCRIPT_NAME=realignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
@@ -241,11 +241,11 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
 	exit 1;
 fi
-if (( ${THR} % 2 != 0 ))
-then
-	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-	THR=$((THR-1))
-fi
+#if (( ${THR} % 2 != 0 ))
+#then
+#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
+#	THR=$((THR-1))
+#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

@@ -53,7 +53,7 @@ DOCS
 
 set -o errexit
 set -o pipefail
-#set -o nounset
+set -o nounset
 
 SCRIPT_NAME=dedup.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
