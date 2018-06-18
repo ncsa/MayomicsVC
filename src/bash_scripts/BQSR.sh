@@ -17,7 +17,7 @@ read -r -d '' DOCS << DOCS
 
 ############################################################################################################################
 #
-# Perform Base Quality Score Recalibration (BQSR) on the bams produiced in the Alignment stage of the Mayomics workflow.
+# Perform Base Quality Score Recalibration (BQSR) on the bam produiced in the Deduplication stage of the Mayomics workflow.
 # Step 1/3 in Single Sample Variant Calling.
 #
 ############################################################################################################################
