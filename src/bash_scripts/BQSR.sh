@@ -89,7 +89,7 @@ function logError()
     fi
   
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-    exit 1
+    exit ${EXITCODE};
 }
 
 
@@ -140,47 +140,47 @@ do
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			echo ${SAMPLE}
+			#echo ${SAMPLE}
 			;;
 		O ) # Output directory. String variable invoked with -O
 			OUTDIR=${OPTARG}
-			echo ${OUTDIR}
+			#echo ${OUTDIR}
 			;;
 		S ) # Full path to Sentieon executable. String variable invoked with -S
 			SENTIEON=${OPTARG}
-			echo ${SENTIEON}
+			#echo ${SENTIEON}
 			;;
 		L ) # Sentieon license number. Invoked with -L 
 			LICENSE=${OPTARG}
-			echo ${LICENSE}
+			#echo ${LICENSE}
 			;;
 		G ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
-			echo ${REF}
+			#echo ${REF}
 			;;
 		t ) # Number of threads available. Integer invoked with -t
 			NTHREADS=${OPTARG}
-			echo ${NTHREADS}
+			#echo ${NTHREADS}
 			;;
 		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
 			INPUTBAM=${OPTARG}
-			echo ${INPUTBAM}
+			#echo ${INPUTBAM}
 			;;
 		D ) # Full path to DBSNP file. String variable invoked with -D.
 			DBSNP=${OPTARG}
-			echo ${DBSNP}
+			#echo ${DBSNP}
 			;;
 		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k #MIGHT TAKE IN MULTILPE FILES
 			KNOWN=${OPTARG}
-			echo ${KNOWN}
+			#echo ${KNOWN}
 			;;
 		e ) # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
-			echo ${ERRLOG}
+			#echo ${ERRLOG}
 			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
 			DEBUG=${OPTARG}
-			echo ${DEBUG}
+			#echo ${DEBUG}
 			;;
 	esac
 done
@@ -192,7 +192,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 ## Send Manifest to log
-echo "${MANIFEST}" >> ${ERRLOG}
+echo "${MANIFEST}" >> "${ERRLOG}"
 
 
 ## Turn on Debug Mode to print all code
@@ -213,64 +213,63 @@ fi
 ## Check if sample name is present.
 if [[ -z ${SAMPLE} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
-	exit 1
 fi
 
 ## Check if the output directory exists.
 if [[ ! -d ${OUTDIR} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-	exit 1
 fi
 
 ## Check if the Sentieon executable is present.
 if [[ ! -f ${SENTIEON} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
-	exit 1
+fi
+
+#Check if the number of threads is present.
+if [[ -z ${NTHREADS} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Number of threads is not specified."
 fi
 
 ## Check if the reference fasta file is present.
 if [[ ! -f ${REF} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${REF} is not present or does not exist."
-        exit 1
 fi
-
-## Check if the number of threads is specified.
-#if [[ -z ${NTHREADS} ]]
-#then
-#	logError "$0 stopped at line $LINENO. \nREASON=Number of threads is not present."
-#	exit 1
-## Check if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
-#elif (( ${NTHREADS} % 2 != 0 ))
-#then
-#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-#	NTHREADS=$((NTHREADS-1))
-#fi
 
 ## Check if the BAM input file is present.
 if [[ ! -f ${INPUTBAM} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
 fi
 
 ## Check if dbSNP file is present.
 if [[ ! -f ${DBSNP} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is not present or does not exist."
 fi
 
 ## Check if the known indels file is present.
 if [[ ! -f ${KNOWN} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Known indels file ${KNOWN} is not present or does not exist."
 fi
 
 ## Check if Sentieon license string is present.
 if [[ -z ${LICENSE} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Sentieon license ${LICENSE} is not present or does not exist."
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -287,93 +286,44 @@ fi
 logInfo "[BQSR] START."
 
 export SENTIEON_LICENSE=${LICENSE}
-#${SENTIEON} driver -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table
-#echo $?
-#exit
 
-## If no number of threads are provided, run Sentieon with the defaults.
-if [[ -z ${NTHREADS} ]]
+#Calculate required modification of the quality scores in the BAM
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
 then
-	#Calculate required modification of the quality scores in the BAM
-	${SENTIEON} driver -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step1: Calculate required modification of the quality scores in the BAM."
-        	exit ${EXITCODE};
-        fi
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step1: Calculate required modification of the quality scores in the BAM."
+	exit ${EXITCODE};
+fi
 
 
-	#Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
-	${SENTIEON} driver -r ${REF} -i ${INPUTBAM} -q ${OUTDIR}/${SAMPLE}.recal_data.table --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table.post	
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file."
-        	exit ${EXITCODE};
-        fi	
+#Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${OUTDIR}/${SAMPLE}.recal_data.table --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table.post	
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file."
+	exit ${EXITCODE};
+fi	
 
 
-	#Create data for plotting
-	${SENTIEON} driver --algo QualCal --plot --before ${OUTDIR}/${SAMPLE}.recal_data.table --after ${OUTDIR}/${SAMPLE}.recal_data.table.post ${OUTDIR}/${SAMPLE}.recal.csv
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step3: Create data for plotting"
-        	exit ${EXITCODE};
-        fi	
-		
-
-	#Plot the calibration data tables, both pre and post, into graphs in a pdf
-	${SENTIEON} plot bqsr -o ${OUTDIR}/${SAMPLE}.recal_plots.pdf ${OUTDIR}/${SAMPLE}.recal.csv
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
-        	exit ${EXITCODE};
-        fi	
-	
-
-#Run sentieon with specified number of threads
-else
-	#Calculate required modification of the quality scores in the BAM
-	${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step1: Calculate required modification of the quality scores in the BAM."
-        	exit ${EXITCODE};
-        fi
-	
-
-	#Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
-	${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${OUTDIR}/${SAMPLE}.recal_data.table --algo QualCal -k ${DBSNP} -k ${KNOWN} ${OUTDIR}/${SAMPLE}.recal_data.table.post	
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file."
-        	exit ${EXITCODE};
-        fi	
+#Create data for plotting
+${SENTIEON} driver -t ${NTHREADS} --algo QualCal --plot --before ${OUTDIR}/${SAMPLE}.recal_data.table --after ${OUTDIR}/${SAMPLE}.recal_data.table.post ${OUTDIR}/${SAMPLE}.recal.csv
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step3: Create data for plotting"
+	exit ${EXITCODE};
+fi	
 
 
-	#Create data for plotting
-	${SENTIEON} driver -t ${NTHREADS} --algo QualCal --plot --before ${OUTDIR}/${SAMPLE}.recal_data.table --after ${OUTDIR}/${SAMPLE}.recal_data.table.post ${OUTDIR}/${SAMPLE}.recal.csv
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step3: Create data for plotting"
-        	exit ${EXITCODE};
-        fi	
-
-
-	#Plot the calibration data tables, both pre and post, into graphs in a pdf
-	${SENTIEON} plot bqsr -t ${NTHREADS} -o ${OUTDIR}/${SAMPLE}.recal_plots.pdf ${OUTDIR}/${SAMPLE}.recal.csv
-	EXITCODE=$?
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-        	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
-        	exit ${EXITCODE};
-        fi	
+#Plot the calibration data tables, both pre and post, into graphs in a pdf
+${SENTIEON} plot bqsr -t ${NTHREADS} -o ${OUTDIR}/${SAMPLE}.recal_plots.pdf ${OUTDIR}/${SAMPLE}.recal.csv
+EXITCODE=$?
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in BQSR Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
+	exit ${EXITCODE};
 fi	
 #------------------------------------------------------------------------------------------------------------------------------------
 
