@@ -98,6 +98,7 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    exit ${EXITCODE};
 }
 
 function logWarn()
@@ -149,43 +150,33 @@ do
 			;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
-                        echo -e ${SAMPLE}
                         ;;
 		b )  # Full path to the input deduped BAM. String variable invoked with -b
 			DEDUPEDBAM=${OPTARG}
-			echo -e ${DEDUPEDBAM}
 			;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
-                        echo -e ${REFGEN}
                         ;;
 		k )  # Full path to known sites file. String variable invoked with -k
 			KNOWN=${OPTARG}
-			echo -e ${KNOWN}
 			;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
-                        echo -e ${SENTIEON}
                         ;;
 		L )  # Sentieon license number. Invoked with -L
 			LICENSE=${OPTARG}
-			echo -e ${LICENSE}
 			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        echo -e ${THR}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        echo -e ${DEBUG}
                         ;;
         esac
 done
@@ -213,39 +204,34 @@ fi
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-        exit 1;
 fi
 if [[ ! -s ${DEDUPEDBAM} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${DEDUPEDBAM} is empty."
-	exit 1;
 fi
 if [[ ! -s ${DEDUPEDBAM}.bai ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${DEDUPEDBAM} is empty."
-        exit 1;
 fi
 if [[ ! -s ${REFGEN} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
-        exit 1;
 fi
-#if [[ ! -s ${KNOWN} ]]
-#then
-#	logError "$0 stopped at line $LINENO. \nREASON=Known sites file ${KNOWN} is empty."
-#	exit 1;
-#fi
+if [[ ! -z ${KNOWN} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Known sites file ${KNOWN} is empty."
+fi
 if [[ ! -d ${SENTIEON} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
-	exit 1;
 fi
-#if (( ${THR} % 2 != 0 ))
-#then
-#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-#	THR=$((THR-1))
-#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -285,7 +271,6 @@ EXITCODE=$?
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned BAM located at ${OUT}."
 
@@ -302,13 +287,13 @@ logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned
 ## Check for creation of realigned BAM and index. Open read permissions to the user group
 if [[ ! -s ${OUT} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT} is empty."
-        exit 1;
 fi
 if [[ ! -s ${OUT}.bai ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT}.bai is empty."
-        exit 1;
 fi
 chmod g+r ${OUT}
 

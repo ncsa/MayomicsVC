@@ -96,6 +96,7 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    exit ${EXITCODE};
 }
 
 function logWarn()
@@ -147,35 +148,27 @@ do
                         ;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			echo -e ${SAMPLE}
 			;;
                 b )  # Full path to the input BAM file. String variable invoked with -b
                         INPUTBAM=${OPTARG}
-                        echo -e ${INPUTBAM}
                         ;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. String variable invoked with -S
                         SENTIEON=${OPTARG}
-                        echo -e ${SENTIEON}
                         ;;
 		L )  # Sentieon license number. Invoked with -L
 			LICENSE=${OPTARG}
-			echo -e ${LICENSE}
 			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        echo -e ${THR}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        echo -e ${DEBUG}
                         ;;
         esac
 done
@@ -203,28 +196,23 @@ fi
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-        exit 1;
 fi
 if [[ ! -s ${INPUTBAM} ]]
 then 
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty."
-	exit 1;
 fi
 if [[ ! -s ${INPUTBAM}.bai ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty."
-        exit 1;
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist."
-	exit 1;
-fi
-if (( ${THR} % 2 != 0 ))
-then
-	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-	THR=$((THR-1))
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -264,7 +252,6 @@ EXITCODE=$?
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	exit ${EXITCODE};
 fi
 logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
@@ -275,7 +262,6 @@ EXITCODE=$?
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 
@@ -292,13 +278,13 @@ logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 ## Check for creation of output BAM and index. Open read permissions to the user group
 if [[ ! -s ${OUT} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM file ${OUT} is empty."
-        exit 1;
 fi
 if [[ ! -s ${OUTBAMIDX} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
-        exit 1;
 fi
 
 chmod g+r ${OUT}

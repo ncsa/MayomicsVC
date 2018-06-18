@@ -100,6 +100,7 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    exit ${EXITCODE};
 }
 
 function logWarn()
@@ -151,55 +152,42 @@ do
 			;;
                 g )  # Read group ID. String variable invoked with -g
                         GROUP=${OPTARG}
-                        echo -e ${GROUP}
                         ;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
-                        echo -e ${SAMPLE}
                         ;;
                 p )  # Sequencing platform. String variable invoked with -p
                         PLATFORM=${OPTARG}
-                        echo -e ${PLATFORM}
                         ;;
                 l )  # Full path to input read 1. String variable invoked with -l
                         INPUT1=${OPTARG}
-                        echo -e ${INPUT1}
                         ;;
                 r )  # Full path to input read 2. String variable invoked with -r
                         INPUT2=${OPTARG}
-                        echo -e ${INPUT2}
                         ;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
-                        echo -e ${REFGEN}
                         ;;
                 O )  # Output directory. String variable invoked with -O
                         OUTDIR=${OPTARG}
-                        echo -e ${OUTDIR}
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
-                        echo -e ${SENTIEON}
                         ;;
 		L )  # Sentieon license. Invoked with -L
 			LICENSE=${OPTARG}
-			echo -e ${SENTIEON}
 			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
-                        echo -e ${THR}
                         ;;
                 P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
                         IS_SINGLE_END=${OPTARG}
-                        echo -e ${IS_SINGLE_END}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
-                        echo -e ${ERRLOG}
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
-                        echo -e ${DEBUG}
                         ;;
         esac
 done
@@ -227,37 +215,32 @@ fi
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-        exit 1;
 fi
 if [[ ! -s ${INPUT1} ]]
 then 
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
-	exit 1;
 fi
 if [[ ${IS_SINGLE_END} == false ]]
 then
 	if [[ ! -s ${INPUT2} ]]
 	then
+		EXITCODE=1
         	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
-		exit 1;
 	fi
 fi
 if [[ ! -s ${REFGEN} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
-        exit 1;
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
-	exit 1;
 fi
-#if (( ${THR} % 2 != 0 ))
-#then
-#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-#	THR=$((THR-1))
-#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -298,7 +281,6 @@ then
 	if [[ ${EXITCODE} -ne 0 ]]
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-                exit ${EXITCODE};
         fi
 else
 	export SENTIEON_LICENSE=${LICENSE}
@@ -307,7 +289,6 @@ else
         if [[ ${EXITCODE} -ne 0 ]]
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-                exit ${EXITCODE};
 	fi
 fi
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
@@ -330,7 +311,6 @@ EXITCODE=$?  # Capture exit code
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	exit ${EXITCODE};
 fi
 logInfo "[SENTIEON] Converted output to BAM format and sorted."
 
@@ -347,13 +327,13 @@ logInfo "[SENTIEON] Converted output to BAM format and sorted."
 ## Check if BAM and index were created. Open read permissions to the user group
 if [[ ! -s ${SORTBAM} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM ${SORTBAM} is empty."
-        exit 1;
 fi
 if [[ ! -s ${SORTBAMIDX} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
-        exit 1;
 fi
 
 chmod g+r ${OUT}
@@ -361,6 +341,8 @@ chmod g+r ${SORTBAM}
 chmod g+r ${SORTBAMIDX}
 
 logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."
+
+rm ${OUT}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

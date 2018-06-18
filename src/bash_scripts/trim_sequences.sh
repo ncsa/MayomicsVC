@@ -91,6 +91,7 @@ function logError()
     fi
   
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    exit ${EXITCODE};
 }
   
 function logWarn()
@@ -141,43 +142,33 @@ do
 			;;
 		e )  # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
-			echo -e ${ERRLOG}
 			;;
 		l )  # Full path to input read 1. String variable invoked with -l
 			INPUT1=${OPTARG}
-			echo -e ${INPUT1}
 			;;
 		r )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
-			echo -e ${INPUT2}
 			;;
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
-			echo -e ${ADAPTERS}
 			;;
 		O )  # Output directory. String variable invoked with -O
 			OUTDIR=${OPTARG}
-			echo -e ${OUTDIR}
 			;;
 		C )  # Full path to cutadapt directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
-			echo -e ${CUTADAPT}
 			;;
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
-			echo -e ${THR}
 			;;
 		P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
 			IS_SINGLE_END=${OPTARG}
-			echo -e ${IS_SINGLE_END}
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			echo -e ${SAMPLE}
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
-			echo -e ${DEBUG}
 			;;
 	esac
 done
@@ -204,37 +195,32 @@ fi
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Output directory ${OUTDIR} does not exist."
-        exit 1;
 fi
 if [[ ! -s ${ADAPTERS} ]]  
 then
+	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
-	exit 1;
 fi
 if [[ ! -s ${INPUT1} ]]  
 then
+	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty."
-	exit 1;
 fi
 if [[ "${IS_SINGLE_END}" == false ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
+		EXITCODE=1
                 logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty."
-                exit 1;
         fi
 fi
 if [[ ! -d ${CUTADAPT} ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
-	exit 1;
 fi
-#if (( ${THR} % 2 != 0 ))  ## This is checking if the number of threads is an odd number. If that is the case, we subtract 1 from the integer so the parallel processes can run on equal threads.
-#then
-#	logWarn "Threads set to an odd integer. Subtracting 1 to allow for parallel, even threading."
-#	THR=$((THR-1))
-#fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -277,7 +263,6 @@ then
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-		exit ${EXITCODE};
 	fi
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
 else
@@ -287,7 +272,6 @@ else
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
-		exit ${EXITCODE};
 	fi
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log ${OUTDIR}/${SAMPLE}read2.cutadapt.log"
 fi
@@ -306,15 +290,15 @@ fi
 ## Check for file creation
 if [[ ! -s ${OUT1} ]]
 then
+	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
-        exit 1;
 fi
 if [[ "${IS_SINGLE_END}" == false ]]
 then
 	if [[ ! -s ${OUT2} ]]
 	then
+		EXITCODE=1
 		logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 2 file ${OUT2} is empty."
-		exit 1;
 	fi
 fi
 
