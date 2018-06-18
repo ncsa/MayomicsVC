@@ -37,7 +37,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  BQSR.sh -h
- BQSR -s sample -O output_dir -S sentieon -r ref.fa -t 12 -i sample.bam -D dbsnp.vcf -k known_indels.vcf -e error.log 
+ BQSR -s sample -O output_dir -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -k known_indels.vcf -e error.log 
 
 ############################################################################################################################
 
