@@ -1,172 +1,181 @@
 #!/usr/bin/env python
-
-'''
+"""
     This script parses path information of Bioinformatics tools to a json Input File
 
                               Script Options
 
-    -I      "The input Tool info text file "                                  (Required)
-    -O      "json Input file to which path information is written into"       (Required)
-'''
+    -i      "The input Tool info text file "                                  (Required)
+    -o      "json Input file to which path information is written into"       (Required)
+"""
 
-import ast
-import re
 import json
 import argparse
 import sys
 import string
+import src.config.util.util as utility
+from src.config.util.log import ProjectLogger
 
 
-'''
- This function creates user-friendly command line interfaces. It defines what are the requires arguments for the script
-'''
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i",
-                        nargs=2,
-                        metavar=('Tool_info_File', 'Inputs File'),
-                        action='append',
-                        help='Input Tools File which has the paths to all the executables',
-                        required=True
+    parser.add_argument("-i", action='append', required=True,
+                        help="The input configuration files. Multiple entries of this flag are allowed"
                         )
-    parser.add_argument("-o",
-                        help='Output json File which has to be loaded with the path to executables',
-                        required=True
+    parser.add_argument("--jsonTemplate", required=True,
+                        help='The json template file to be filled in with data from the input files'
                         )
+    parser.add_argument('--jobID', type=str, help='The job ID', default='NA', required=False)
     return parser.parse_args()
 
 
-'''
- Comment line from the script are removed in this function
-'''
-def remove_comments(input_lines):
-    filtered_lines = []
-    for line in input_lines:
-        if line != "":
-            # If the first non-space character is a '#', exclude it
-            if line.strip()[0] != '#':
-                filtered_lines.append(line)
-    return filtered_lines
+class Parser:
+    def __init__(self, job_id="NA"):
+        # Initialize the project logger
+        self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser")
+        self.job_id = job_id
 
+    @staticmethod
+    def read_input_file(file_path):
+        with open(file_path, "r") as F:
+            return F.read().splitlines()
 
-'''
- This function definition is to create a Key:Value pair of Tools and Paths
-'''
-def create_key_value_pairs(tool_input_lines):
+    @staticmethod
+    def remove_comments(input_lines):
+        """
+         Remove any comment lines from the list of lines
 
-    key_value_pairs = []
+           A comment line is a line where the first non-whitespace character is a '#'
+        """
+        filtered_lines = []
+        for line in input_lines:
+            if line != "":
+                # If the first non-space character is a '#', exclude it
+                if line.strip()[0] != '#':
+                    filtered_lines.append(line)
+        return filtered_lines
 
-    for line in tool_input_lines:
-        if "=" not in line:
-            sys.exit("ERROR: no equals sign present in the following line: " + line)
-        else:
-            # Get the position of the first equals sign
-            split_pos = line.index("=")
-            key = line[0:split_pos]
-            value = line[split_pos + 1:]
-            key_value_pairs.append([key, value])
-    return key_value_pairs
+    def clean_input_file(self, input_lines):
+        """
+         Takes in a list of input lines, and removes any blank and comment lines (Lines beginning with '#')
+        """
+        # Remove all blank lines
+        non_empty_lines = list(filter(None, input_lines))
+        return self.remove_comments(non_empty_lines)
 
+    def create_key_value_pairs(self, input_lines):
+        """
+        Turns a list of lines with keys and values separated by a '=' into pairs of (key, value) tuples
+        """
+        key_value_pairs = []
 
-'''
- In this function multiple checks are performed to see if the Tool:Path pairs are unique and void of typos
- 
- The input is a List of Lists. The function returns separate lists for Tools and Paths'''
-def create_tools_path_list(input_tools_path):
+        for line in input_lines:
+            if "=" not in line:
+                sys.exit("ERROR: no equals sign present in the following line: " + line)
+            else:
+                # Get the position of the first equals sign (assumes there is no '=' in the key name)
+                split_pos = line.index("=")
+                key = line[0:split_pos]
+                value = line[split_pos + 1:]
+                key_value_pairs.append((key, value))
+        return key_value_pairs
 
-    # List comprehensions to create individual list for Tools and Paths
-    Tools = list(map(lambda x: x[0], input_tools_path))
-    Paths = list(map(lambda x: x[1], input_tools_path))
+    def validate_key_value_pairs(self, key_value_pairs):
+        """
+         Takes in a list of (Key, Value) tuples, and confirms that they are valid (or throws an error)
 
-    for tool, executable in list(zip(Tools, Paths)):
+         Checks performed:
+            1. Verifies that all Keys have an associated Value
+            2. Verifies that the Value is enclosed in double quotes
+            3. Verifies that no special characters are present in the Values
+            4. Verifies that no Key is present more than once
+        """
+        # List comprehensions to create individual list for Keys and Values
+        keys = list(map(lambda x: x[0], key_value_pairs))
+        values = list(map(lambda x: x[1], key_value_pairs))
 
-        # Verifies if all the Tools have a corresponding Path to it
-        if executable == '':
-            sys.exit("ERROR: Tool " + tool + " is missing the path to the executable")
+        for key, value in list(zip(keys, values)):
+            # Verifies if all the Tools have a corresponding Path to it
+            if value == '':
+                sys.exit("ERROR: Tool " + key + " is missing the path to the executable")
 
-        # Check to see if the Paths are enclosed in double quotes in the Tool info text file
-        elif executable[0] != '"' or executable[-1] != '"':
-            sys.exit("ERROR: Executable for " + tool + " is not enclosed in double quotes")
+            # Check to see if the Paths are enclosed in double quotes in the Tool info text file
+            elif value[0] != '"' or value[-1] != '"':
+                sys.exit("ERROR: Executable for " + key + " is not enclosed in double quotes")
 
-        # Check to verify if special characters are present in the Paths information 
-        for specialChar in string.punctuation.replace('/', '').replace('"', '').replace('-', '').replace('.', ''):
-            if specialChar in executable:
-                sys.exit("ERROR: Executable for " + tool + ' has an invalid special character: "' + specialChar + '"')
-        
-        # Check whether any key is present multiple times
-        if Tools.count(tool) > 1:
-            sys.exit("ERROR: Tool " + tool + " is listed twice in the tools list text file")
+            # Check to verify if special characters are present in the Paths information
+            for specialChar in string.punctuation.replace('/', '').replace('"', '').replace('-', '').replace('.', ''):
+                if specialChar in value:
+                    sys.exit("ERROR: Executable for " + key + ' has an invalid special character: "' + specialChar + '"')
 
-        else:
-            return (Tools, Paths)
+            # Check whether any key is present multiple times
+            if keys.count(key) > 1:
+                sys.exit("ERROR: Tool " + key + " is listed twice in the tools list text file")
 
-'''
- In this function Tools in the json input file is parsed with the Path information 
-'''
-def capture_executables(Output_Dict, Tools, Paths):
-    for key, value in Output_Dict.items():
-        for i in range(len(Tools)):
-            # Regex check to find the list of tools in the json input file 
-            if re.findall(Tools[i], key):
+    def insert_values_into_dict(self, starting_dict, key_value_tuple):
+        """
+         Takes an initial dictionary and a list of (Key, Value) tuples.
+           The Values in the tuple list are placed in the initial dictionary by Key.
+        """
+        output_dict = starting_dict.copy()
 
-                # Removing double quotes from the paths and parsing path information to the json input file
-                Paths[i] = Paths[i].replace('"', '')
-                Output_Dict[key] = Paths[i]
-    return Output_Dict
+        # For each key-value pair that will be substituted into the dictionary
+        for original_key, original_value in key_value_tuple:
+            # Loop through each key, and pattern match to see if the original_key is found in this starting_dict.key
+            for dict_key in starting_dict.keys():
+                #  original_key matches the last section of this starting_dict.key
+                #    keys are structured Major.Minor.KeyName, and we are trying to match against the KeyName
+                if original_key == dict_key.split('.')[-1]:
+                    # Trim quote marks off of original value
+                    trimmed_value = original_value.replace('"', '')
+                    output_dict[dict_key] = trimmed_value
+        return output_dict
 
+    def fill_in_json_template(self, input_file_list, json_template_file):
+        """
+         Takes in a list of input files and the location of the json file template, and writes an output file
+           that contains the template's keys filled in with values from the input files
 
+           The original template file will will be replaced with the filled-in version
+        """
+        # Read in the information from the json template file as a Python Dictionary
+        #   The values of the template dictionary are filled in as input files are processed
+        template_dict = utility.read_json_file(json_template_file, self.project_logger,
+                                               json_not_found_error_code="placeholder_error_code",
+                                               json_bad_format_error_code="placeholder_error_code"
+                                               )
+        # This loop iterates through all the input files and parses the path information
+        for input_file in input_file_list:
+            # Read in and clean the input file
+            raw_input_lines = self.read_input_file(input_file)
+            input_lines = self.clean_input_file(raw_input_lines)
+
+            # Turn input lines into Tuples of Key-Value pairs
+            key_value_tuples = self.create_key_value_pairs(input_lines)
+            # Validate the key-value entries (Returns nothing; only possible outputs are error messages)
+            self.validate_key_value_pairs(key_value_tuples)
+
+            # Update the values in the template dictionary
+            template_dict = self.insert_values_into_dict(template_dict, key_value_tuples)
+
+        # Write the python dictionary out as a JSON file in the same location as the original template
+        with open(json_template_file, "r+") as updated_json:
+            json.dump(template_dict, updated_json, indent=4)
 
 
 def main():
-
-    # The argParser Function call
     args = parse_args()
 
     # List to hold all the input files
-    list_of_input_files = []
+    input_file_list = args.i
 
-    # This loop converts the list of lists into a list
-    for InputFiles in args.i:
-        for file in InputFiles:
-            list_of_input_files.append(file)
+    # Instantiation of the Parser class
+    if args.jobID is None:
+        k_v_parser = Parser()
+    else:
+        k_v_parser = Parser(args.jobID)
 
-    # This loops iterates through all the input files and parses the path information
-    for i in range(len(list_of_input_files)):
-
-        f1 = open(list_of_input_files[i], "r")
-    
-        # The lines in the file are split using line breaks
-        ToolsTextLines = f1.read().splitlines()  
-    
-        # Filter out empty strings
-        InputLines = list(filter(None, ToolsTextLines))
-
-        # Function call remove_comments function
-        InputLines = remove_comments(InputLines)
-    
-        # The create_key_value_pairs function call
-        Tools_Paths_Input = create_key_value_pairs(InputLines)
-        f1.close()
- 
-        # Function call to tools_and_paths function
-        (Tools, Paths) = create_tools_path_list(Tools_Paths_Input)
-
-        with open(args.o, "r") as OutputFile:
-            Strings = OutputFile.read()
-
-        OutputFile.close()
-
-        # The "ast" python module helps convert a json file to a Python Dictionary
-        OutputDict = ast.literal_eval(Strings)
- 
-        # The executableCapture function call
-        OutputDict = capture_executables(OutputDict, Tools, Paths)
-
-        # The "json" python module can be used to convert a Python Dictionary to a json file
-        with open(args.o, "r+") as updated_json:
-            json.dump(OutputDict, updated_json, indent=4)
-
-        updated_json.close()
+    # Fill in the json template file with values from the Key="Value" formatted input files
+    k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate)
 
 
 if __name__ == '__main__':

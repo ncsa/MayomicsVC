@@ -1,0 +1,6 @@
+{
+  "major.minor.test_string": "String",
+  "major.minor.test_boolean": "Boolean",
+  "major.minor.test_integer": "Integer",
+  "major.minor.test_decimal": "Float"
+}
