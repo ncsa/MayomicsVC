@@ -55,7 +55,7 @@ set -o pipefail
 set -o nounset
 
 SCRIPT_NAME=trim_sequences.sh
-SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ do
 		O )  # Output directory. String variable invoked with -O
 			OUTDIR=${OPTARG}
 			;;
-		C )  # Full path to cutadapt directory. String variable invoked with -C
+		C )  # Full path to cutadapt installation directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
 			;;
 		t )  # Number of threads available. Integer invoked with -t
