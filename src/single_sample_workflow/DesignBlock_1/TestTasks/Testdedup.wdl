@@ -1,10 +1,10 @@
-###############################################################################################
+#########################################################################
 
-#       This WDL script is performs PICARD Mark Duplicates on input sorted BAM Files     ##
+#       This WDL script calls the Marking Duplicates WDL Task     ##
 
-###############################################################################################
+#########################################################################
 
-import "DesignBlock_1/Tasks/Sentieon/dedup.wdl" as DEDUP
+import "DesignBlock_1/Tasks/dedup.wdl" as DEDUP
 
 workflow CalldedupTask {
 

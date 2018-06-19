@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs realignment using Sentieon                ##
+##                     This WDL script performs BQSR using Sentieon                     ##
 
 ##                                Script Options
 #       -t        "Number of Threads"                                     (Optional)
@@ -23,13 +23,8 @@ task bqsrTask {
    File InputBamIdx                # Input Sorted Deduped Bam Index
    File RefFasta                   # Reference Genome
 
-   File Ref_Amb_File               #
-   File Ref_Dict_File              #
-   File Ref_Ann_File               #
-   File Ref_Bwt_File               # These are reference files that are provided as implicit inputs
+   File Ref_Amb_File               # These are reference files that are provided as implicit inputs
    File Ref_Fai_File               # to the WDL Tool to help perform the realignment
-   File Ref_Pac_File               #
-   File Ref_Sa_File                #
 
    String sampleName               # Name of the Sample
 
