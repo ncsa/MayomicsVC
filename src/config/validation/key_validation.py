@@ -7,9 +7,9 @@ if sys.version_info[0] != 3 or sys.version_info[1] < 6:
 
 import os
 import argparse
-import json
 import pathlib
-from src.config.util.log import ProjectLogger
+from ..util.util import read_json_file
+from ..util.log import ProjectLogger
 
 '''
 Exit code Rules:
@@ -50,28 +50,6 @@ class Validator:
         # Initialize the project logger
         self.project_logger = ProjectLogger(job_id, "validation.key_validation.Validator")
         self.job_id = job_id
-
-    '''
-    Reads a JSON formatted file, and returns its contents as a Python dictionary
-    '''
-    def read_json_file(self, json_file):
-        try:
-            # Open the file
-            with open(json_file) as F:
-                # Read the file's contents as a string
-                json_str = F.read()
-                # Return the data as a Python dictionary
-                return json.loads(json_str)
-        except FileNotFoundError:
-            self.project_logger.log_error(
-                "E.val.JSN.1", 'Could not open json file "' + str(json_file) + '": JSON file could not be found'
-            )
-            sys.exit(1)
-        except json.decoder.JSONDecodeError:
-            self.project_logger.log_error(
-                "E.val.JSN.2", 'Could not open json file "' + str(json_file) + '": JSON file not formatted properly'
-            )
-            sys.exit(1)
 
     '''
     In the json config file, the keys are in a long format, such as MainTask.MinorTask.KeyName. 
@@ -132,7 +110,7 @@ class Validator:
             return "FileNotFound"
 
     '''
-    Will return true for integer strings like "9", "2", etc. but false for strings like "3.14 or "NotAString"
+    Will return true for integer strings like "9", "2", etc. but false for strings like "3.14" or "NotAString"
     '''
     @staticmethod
     def __is_integer(input_string):
@@ -273,11 +251,19 @@ def main():
     else:
         validator = Validator(args.jobID)
 
+    json_input_file = read_json_file(args.i, validator.project_logger,
+                                     json_not_found_error_code="E.val.JSN.1",
+                                     json_bad_format_error_code="E.val.JSN.2"
+                                     )
+
     # The config file as a dictionary, with long key names replaced with their short names
-    config_dict = validator.trim_config_file_keys(validator.read_json_file(args.i))
+    config_dict = validator.trim_config_file_keys(json_input_file)
 
     # The key type dictionary
-    key_type_dict = validator.read_json_file(args.KeyTypeFile)
+    key_type_dict = read_json_file(args.KeyTypeFile, validator.project_logger,
+                                   json_not_found_error_code="E.val.JSN.1",
+                                   json_bad_format_error_code="E.val.JSN.2"
+                                   )
 
     # Check the values present in the configuration file
     validator.validate_keys(config_dict, key_type_dict)
