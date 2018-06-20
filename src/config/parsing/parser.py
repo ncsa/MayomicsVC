@@ -14,7 +14,7 @@ import json
 import argparse
 import sys
 import string
-import src.config.util.util as utility
+from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
 
 """
@@ -37,6 +37,8 @@ E.par.Key.1 = A key is present multiple times in a config file
 
 E.par.JSN.1 = An input JSON file could not be found
 E.par.JSN.2 = An input JSON file was not formatted properly
+
+E.par.REF.1 = The config file REF key points to a value that does not have an '.fa' or '.fasta' extension
 """
 
 
@@ -165,6 +167,54 @@ class Parser:
                 )
                 sys.exit(1)
 
+    def handle_special_keys(self, config_key, full_dict_key, output_dictionary, trimmed_value, file_path):
+        """
+         Wrapper function designed to handle all special keys, i.e. configuration keys that need more than one
+           corresponding value added to the JSON config file
+
+         Designed to be extendable as the workflow changes
+
+         Example:
+            # In the config file, there is only one key
+            DBSNP="dbsnp.vcf"
+
+            # But in the JSON file, we need extra information:
+            {
+                "major.minor.DBSNP": "dbsnp.vcf"
+                "major.minor.DBSNP_IDX": "dbsnp.vcf.idx"
+                ...
+            }
+        """
+        def add_index_key_value(key_suffix, value_suffix):
+            json_key = full_dict_key + "_" + key_suffix
+            json_value = trimmed_value + "." + value_suffix
+            output_dictionary[json_key] = json_value
+
+        if config_key == "REF":
+            add_index_key_value("AMB", "amb")
+            add_index_key_value("ANN", "ann")
+            add_index_key_value("BWT", "bwt")
+            add_index_key_value("PAC", "pac")
+            add_index_key_value("SA", "sa")
+
+            # dict files replace the '.fasta'/'.fa' extension with '.dict'
+            # 'find' returns the index of the first char in the string searched for (or -1 if the string was not found)
+            extension_start_index = trimmed_value.find(".fa")
+            if extension_start_index == -1:
+                self.project_logger.log_error(
+                    "E.par.REF.1",
+                    "REF key from input file '" + file_path +
+                    "' appears to not have a valid value: '" + trimmed_value + "has no '.fa' or '.fasta' extension"
+                )
+                sys.exit(1)
+            else:
+                base_name = trimmed_value[:extension_start_index]
+                output_dictionary[full_dict_key + "_DICT"] = base_name + ".dict"
+
+        elif config_key == "DBSNP":
+            output_dictionary[str(full_dict_key) + "_IDX"] = str(trimmed_value) + ".idx"
+
+
     def insert_values_into_dict(self, starting_dict, key_value_tuple, file_path):
         """
          Takes an initial dictionary and a list of (Key, Value) tuples.
@@ -173,24 +223,27 @@ class Parser:
         output_dict = starting_dict.copy()
 
         # For each key-value pair that will be substituted into the dictionary
-        for original_key, original_value in key_value_tuple:
+        for config_key, config_value in key_value_tuple:
             # Switch signaling whether the key from the config file was found in the json template
             config_key_was_present = False
 
-            # Loop through each key, and pattern match to see if the original_key is found in this starting_dict.key
+            # Loop through each key, and pattern match to see if the config_key is found in this starting_dict.key
             for dict_key in starting_dict.keys():
-                #  original_key matches the last section of this starting_dict.key
+                #  config_key matches the last section of this starting_dict.key
                 #    keys are structured Major.Minor.KeyName, and we are matching against the KeyName
-                if original_key == dict_key.split('.')[-1]:
+                if config_key == dict_key.split('.')[-1]:
                     config_key_was_present = True
                     # Trim quote marks off of original value
-                    trimmed_value = original_value.replace('"', '')
+                    trimmed_value = config_value.replace('"', '')
                     output_dict[dict_key] = trimmed_value
+
+                    # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
+                    self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value, file_path)
 
             # Log a warning message if a key was in the config file but not in the template
             if not config_key_was_present:
                 self.project_logger.log_warning(
-                    "Key '" + original_key + "' in config file '" + file_path +
+                    "Key '" + config_key + "' in config file '" + file_path +
                     "' had no corresponding key in the JSON template; this key-value pair was ignored"
                 )
 
@@ -205,7 +258,7 @@ class Parser:
         """
         # Read in the information from the json template file as a Python Dictionary
         #   The values of the template dictionary are filled in as input files are processed
-        template_dict = utility.read_json_file(json_template_file, self.project_logger,
+        template_dict = read_json_file(json_template_file, self.project_logger,
                                                json_not_found_error_code="E.par.JSN.1",
                                                json_bad_format_error_code="E.par.JSN.2"
                                                )
