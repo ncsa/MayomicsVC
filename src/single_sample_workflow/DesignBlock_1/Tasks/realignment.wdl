@@ -57,6 +57,7 @@ task realignmentTask {
       String ThreadCount = Threads
 
       File FastaRef = RefFasta
+      File RefFaiFile = Ref_Fai_File
       File KnownSites = Known_Sites
       File KnownSitesIDX = KnownSitesIdx
        

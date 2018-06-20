@@ -23,8 +23,8 @@ task bqsrTask {
    File InputBamIdx                # Input Sorted Deduped Bam Index
    File RefFasta                   # Reference Genome
 
-   File Ref_Amb_File               # These are reference files that are provided as implicit inputs
-   File Ref_Fai_File               # to the WDL Tool to help perform the realignment
+   File Ref_Fai_File               # These are reference files that are provided as implicit inputs
+                                   # to the WDL Tool to help perform the realignment
 
    String sampleName               # Name of the Sample
 
@@ -45,7 +45,7 @@ task bqsrTask {
 
    command {
 
-      /bin/bash ${BQSR_Script} -s ${sampleName} -O ${OutDir} -S ${Sentieon} -r ${RefFasta} -t ${Threads} -b ${InputBam} -D ${DBSNP} -k ${Known_Sites} -e ${Error_Logs} -d ${Debug_mode_EN}
+      /bin/bash ${BQSR_Script} -s ${sampleName} -O ${OutDir} -S ${Sentieon} -G ${RefFasta} -t ${Threads} -b ${InputBam} -D ${DBSNP} -k ${Known_Sites} -e ${Error_Logs} -d ${Debug_mode_EN}
 
    }
 
@@ -56,6 +56,17 @@ task bqsrTask {
       File RecalTablePost = "${OutDir}/${sampleName}..recal_data.table.post"
       File RecalCSV = "${OutDir}/${sampleName}.recal.csv"
       File RecalPlots = "${OutDir}/${sampleName}.recal_plots.pdf"
+      String SentieonPath = Sentieon
+      String LicenseFile = Sentieon_License
+      Boolean DebugMode = Debug_Mode_EN
+      String ErrLogs = Error_Logs
+      String OutputDir = OutDir
+      String ThreadCount = Threads
+
+      File FastaRef = RefFasta
+      File RefFaiFile = Ref_Fai_File
+      File KnownSites = Known_Sites
+      File KnownSitesIDX = KnownSitesIdx
 
    }
 
