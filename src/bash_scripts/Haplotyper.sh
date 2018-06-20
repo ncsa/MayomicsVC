@@ -30,7 +30,7 @@ read -r -d '' DOCS << DOCS
 		   -L	<sentieon_license>
 		   -G	</path/to/ref.fa>
 		   -t	<threads>
-		   -b	</path/to/deDuped.bam>
+		   -b	</path/to/Sorted_deDuped.bam>
 		   -D	</path/to/dbsnp.vcf>
 		   -r	</path/to/recal_data.table>
 		   -e	</path/to/error_log>
@@ -38,7 +38,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -O output_dir -S sention -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -e error.log
+ Haplotyper.sh -s sample -O output_dir -S sention -L sentieon_license -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -e error.log
 
 ##########################################################################################################################################################
 
@@ -48,6 +48,11 @@ DOCS
 set -o errexit
 set -o pipefail
 #set -o nounset
+
+SCRIPT_NAME=Haplotyper.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -126,7 +131,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "	bash Haplotyper.sh -h       Display this help message."
-			echo "	bash Haplotyper.sh  [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-r </path/to/recal_data.table>] [-e </path/to/error_log>] [-d debug_mode [false]]"
+			echo "	bash Haplotyper.sh  [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-L <sentieon_license>]   [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/Sorted_deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-r </path/to/recal_data.table>] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0;
 			;;

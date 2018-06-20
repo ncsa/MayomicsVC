@@ -17,7 +17,7 @@ read -r -d '' DOCS << DOCS
 
 ############################################################################################################################
 #
-# Perform Base Quality Score Recalibration (BQSR) on the bam produiced in the Deduplication stage of the Mayomics workflow.
+# Perform Base Quality Score Recalibration (BQSR) on the bam produced in the Deduplication stage of the Mayomics workflow.
 # Step 1/3 in Single Sample Variant Calling.
 #
 ############################################################################################################################
@@ -29,7 +29,7 @@ read -r -d '' DOCS << DOCS
 	 -L	<sentieon_license>
 	 -G 	</path/to/ref.fa>
 	 -t 	<threads>
-	 -b 	</path/to/deDuped.bam>
+	 -b 	</path/to/Sorted_deDuped.bam>
 	 -D 	</path/to/dbsnp.vcf>
 	 -k 	</path/to/known_indels.vcf>
 	 -e 	</path/to/error_log>
@@ -134,7 +134,7 @@ do
 			echo "Usage:"
 			echo " "
 			echo "  bash BQSR.sh -h       Display this help message." 
-			echo "  bash BQSR.sh [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-k </path/to/known_indels.vcf>] [-e </path/to/error_log>] [-d debug_mode [false]]"
+			echo "  bash BQSR.sh [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-L <sentieon_license>] [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/Sorted_deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-k </path/to/known_indels.vcf>] [-e </path/to/error_log>] [-d debug_mode [false]]"
 			echo " "
 			exit 0; 
 			;;
