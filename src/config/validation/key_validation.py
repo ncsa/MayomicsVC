@@ -8,8 +8,8 @@ if sys.version_info[0] != 3 or sys.version_info[1] < 6:
 import os
 import argparse
 import pathlib
-from ..util.util import read_json_file
-from ..util.log import ProjectLogger
+from src.config.util.util import read_json_file
+from src.config.util.log import ProjectLogger
 
 '''
 Exit code Rules:
