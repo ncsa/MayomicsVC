@@ -170,6 +170,7 @@ do
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
 			;;
+                ? ) echo ${DOCS}; exit 1;
 	esac
 done
 
