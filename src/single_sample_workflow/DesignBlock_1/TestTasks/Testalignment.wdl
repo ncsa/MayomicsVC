@@ -1,10 +1,10 @@
 #########################################################################################################
 
-###       This WDL script is performs BWA to create sam files and converts to bam using Samtools       ##
+###       This WDL script performs BWA to create sam files and converts to bam using Samtools       ##
 
 #########################################################################################################
 
-import "DesignBlock_1/Tasks/Sentieon/alignment.wdl" as ALIGN
+import "DesignBlock_1/Tasks/alignment.wdl" as ALIGN
 
 workflow CallalignmentTask {
 

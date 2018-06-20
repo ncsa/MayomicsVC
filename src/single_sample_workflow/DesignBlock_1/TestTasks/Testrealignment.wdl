@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "DesignBlock_1/Tasks/Sentieon/realignment.wdl" as REALIGN
+import "DesignBlock_1/Tasks/realignment.wdl" as REALIGN
 
 workflow CallRealignmentTask {
 
