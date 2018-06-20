@@ -1,8 +1,34 @@
-import ToolPath_Parser
+import src.config.parsing.parser as parser
 import unittest
 
 
 class TestParsingTools(unittest.TestCase):
+
+    def test_create_key_value_pairs(self):
+        # Note: the second test case purposefully has an '=' in the value (the parser only assumes the key has no '=')
+        input_lines = ['Key1="Value1"', 'Key2="Value=2"']
+
+        expected_output = [('Key1', 'Value1'), ('Key2', 'Value=2')]
+        self.assertEqual(expected_output, parser.create_key_value_pairs(input_lines))
+
+    def test_insert_values_into_dict(self):
+        original_dict = {'major.minor.A': "init_A_value",
+                         'major.minor.B': "init_B_value",
+                         'major.minor.C': "init_C_value"
+                         }
+        key_value_tuples = [('A', '"final_A_value"'), ("B", '"final_B_value"')]
+
+        substituted_dict = parser.insert_values_into_dict(original_dict, key_value_tuples)
+
+        # The final dictionary should have new values for A and B, which C's value unchanged
+        expected_dict = {'major.minor.A': "final_A_value",
+                         'major.minor.B': "final_B_value",
+                         'major.minor.C': "init_C_value"
+                         }
+
+        self.assertEqual(expected_dict, substituted_dict)
+
+
 
     testInputLines = ['#List of Tools', 'BWA="/usr/local/apps/bioapps/bwa/bwa-0.7.16/bwa"']
     testDummyInputLine = ['#List of Tools', 'BWA="/usr/local/apps====/bioapps=======/bwa/bwa-0.7.16/bwa"']
