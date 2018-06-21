@@ -5,11 +5,14 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
-*******************************************
+
+*****************************************************************************
 `readlink -m $0` was called by: `whoami` on `date`
 command line input: ${@}
-*******************************************
+*****************************************************************************
+
 MANIFEST
+echo ""
 echo "${MANIFEST}"
 
 
@@ -137,18 +140,20 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if no arguments were passed
+if (($# == 0))
+then
+	echo -e "\nNo arguments passed.\n\n${DOCS}\n"
+	exit 1
+fi
+
 ## Input and Output parameters
 while getopts ":hg:s:p:l:r:G:O:S:L:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
-			echo " "
-                        echo "Usage:"
-			echo " "
-                        echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-l <read1.fq>] [-r <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
-			echo " "
-                        exit 0;
+                        echo -e "\n${DOCS}\n"
+                        exit 0
 			;;
                 g )  # Read group ID. String variable invoked with -g
                         GROUP=${OPTARG}
@@ -189,6 +194,15 @@ do
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
                         ;;
+		\? )  # Check for unsupported flag, print usage and exit.
+                        echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+                        exit 1
+                        ;;
+                : )  # Check for missing arguments, print usage and exit.
+                        echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
+                        exit 1
+                        ;;
+
         esac
 done
 
@@ -202,15 +216,47 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check for existence of all command line options
+if [[ -z ${GROUP+x} ]] || [[ -z ${SAMPLE+x} ]] || [[ -z ${PLATFORM+x} ]] || [[ -z ${INPUT1+x} ]] || [[ -z ${INPUT2+x} ]] || [[ -z ${REFGEN+x} ]] || [[ -z ${SENTIEON+x} ]] || [[ -z ${LICENSE+x} ]] || [[ -z ${THR+x} ]] || [[ -z ${IS_SINGLE_END+x} ]] || [[ -z ${ERRLOG+x} ]] || [[ -z ${DEBUG+x} ]]
+then
+	echo -e "\nMissing at least one required command line option.\n\n${DOCS}\n"
+	exit 1
+fi
+
+
+## Check for log existence
+if [[ -z ${ERRLOG+x} ]]
+then
+        echo -e "\nMissing error log option: -e\n\n${DOCS}\n"
+        exit 1
+fi
+if [[ ! -f ${ERRLOG} ]]
+then
+        echo -e "\nLog file ${ERRLOG} is not a file.\n"
+        exit 1
+fi
+truncate -s 0 "${ERRLOG}"
+
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Turn on Debug Mode to print all code
+## Sanity Check for debug mode. Turn on Debug Mode to print all code
+#if [[ -z ${DEBUG+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing debug option: -d. Set -d false to turn off debug mode."
+#fi
 if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
         set -x
 fi
+if [[ "${DEBUG}" != true ]] && [[ "${DEBUG}" != false ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for debug mode option -d. Must be set to true or false."
+fi
+
 
 ## Check if input files, directories, and variables are non-zero
 if [[ ! -d ${OUTDIR} ]]
@@ -218,11 +264,21 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
 fi
+#if [[ -z ${INPUT1+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
+#fi
 if [[ ! -s ${INPUT1} ]]
 then 
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
 fi
+#if [[ -z ${INPUT2+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
+#fi
 if [[ ${IS_SINGLE_END} == false ]]
 then
 	if [[ ! -s ${INPUT2} ]]
@@ -231,11 +287,26 @@ then
         	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
 	fi
 fi
+#if [[ -z ${REFGEN+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
+#fi
 if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
 fi
+#if [[ -z ${SAMPLE+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+#fi
+#if [[ -z ${SENTIEON+x} ]]
+#then
+#        EXITCODE=1
+#        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
+#fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1

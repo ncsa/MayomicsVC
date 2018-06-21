@@ -5,11 +5,15 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
-*******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+ 
+*****************************************************************************
+`readlink -m $0` 
+called by: `whoami` on `date`
 command line input: ${@}
-*******************************************
+*****************************************************************************
+
 MANIFEST
+echo ""
 echo "${MANIFEST}"
 
 
@@ -128,17 +132,25 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if no arguments were passed
+if (($# == 0))
+then
+	echo ""
+	echo "No arguments passed."
+	echo ""
+	echo "${DOCS}"
+	echo ""
+	exit 1
+fi
+
 while getopts ":he:l:r:A:O:C:t:P:s:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
 			echo " "
-			echo "Usage:"
-			echo " "
-			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-l <read1.fq>] [-r <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-P single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
-			echo " "
-			exit 0;
+			echo "${DOCS}"
+			echo ""
+			exit 0
 			;;
 		e )  # Full path to error log file. String variable invoked with -e
 			ERRLOG=${OPTARG}
@@ -170,7 +182,22 @@ do
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			DEBUG=${OPTARG}
 			;;
-                ? ) echo ${DOCS}; exit 1;
+                \? )  # Check for unsupported flag, print usage and exit.
+			echo ""
+			echo "Invalid option: -${OPTARG}"
+			echo ""
+			echo "${DOCS}" 
+			echo ""
+			exit 1
+			;;
+		: )  # Check for missing arguments, print usage and exit.
+			echo ""
+			echo "Option -${OPTARG} requires an argument."
+			echo ""
+			echo "${DOCS}"
+			echo ""
+			exit 1
+			;;
 	esac
 done
 
@@ -183,14 +210,38 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+
+## Check for log existence
+if [[ -z ${ERRLOG+x} ]]
+then
+	echo -e "\nMissing error log option: -e\n\n${DOCS}\n"
+	exit 1
+fi
+if [[ ! -f ${ERRLOG} ]]
+then
+	echo -e "\nLog file ${ERRLOG} is not a file.\n"
+	exit 1
+fi
+truncate -s 0 "${ERRLOG}"
+
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Turn on Debug Mode to print all code
+## Sanity check for debug mode. Turn on Debug Mode to print all code
+if [[ -z ${DEBUG+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing debug option: -d. Set -d false to turn off debug mode."
+fi
 if [[ "${DEBUG}" == true ]]
 then
 	logInfo "Debug mode is ON."
 	set -x
+fi
+if [[ "${DEBUG}" != true ]] && [[ "${DEBUG}" != false ]]
+then
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for debug mode option -d. Must be set to true or false."
 fi
 
 ## Check if input files, directories, and variables are non-zero
@@ -199,28 +250,68 @@ then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Output directory ${OUTDIR} does not exist."
 fi
+if [[ -z ${ADAPTERS+x} ]]
+then
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing adapters file option: -A"
+fi
 if [[ ! -s ${ADAPTERS} ]]  
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty or does not exist."
+fi
+if [[ -z ${INPUT1+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
 fi
 if [[ ! -s ${INPUT1} ]]  
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
+fi
+if [[ -z ${INPUT2+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
+fi
+if [[ -z ${IS_SINGLE_END+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P. If running a single-end job, set -P false in command."
+fi
+if [[ "${IS_SINGLE_END}" != true ]] && [[ "${IS_SINGLE_END}" != false ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
 fi
 if [[ "${IS_SINGLE_END}" == false ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
 		EXITCODE=1
-                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty."
+                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
         fi
+fi
+if [[ -z ${CUTADAPT+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing CutAdapt software path option: -C"
 fi
 if [[ ! -d ${CUTADAPT} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} is empty or does not exist."
+fi
+if [[ -z ${THR+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+fi
+if [[ -z ${SAMPLE+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------

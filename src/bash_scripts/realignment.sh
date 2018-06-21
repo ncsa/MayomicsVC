@@ -5,11 +5,14 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
-*******************************************
+
+*****************************************************************************
 `readlink -m $0` was called by: `whoami` on `date`
 command line input: ${@}
-*******************************************
+*****************************************************************************
+
 MANIFEST
+echo ""
 echo "${MANIFEST}"
 
 
@@ -135,18 +138,22 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if no arguments were passed
+if (($# == 0))
+then
+        echo -e "\nNo arguments passed.\n\n${DOCS}\n"
+        exit 1
+fi
+
 ## Input and Output parameters
 while getopts ":hs:b:G:k:O:S:L:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
-			echo " "
-                        echo "Usage:"
-			echo " "
-                        echo "  bash realignment.sh -h       Display this help message."
-                        echo "  bash realignment.sh [-s <sample_name>] [-b <input_bam>] [-G <reference_genome>] [-k <known_sites>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-e </path/to/error_log>] [-d debug_mode [false]]"
-			echo " "
-                        exit 0;
+			echo ""
+                        echo "${DOCS}"
+			echo ""
+                        exit 0
 			;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
@@ -177,6 +184,14 @@ do
                         ;;
                 d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
                         DEBUG=${OPTARG}
+                        ;;
+		\? )  # Check for unsupported flag, print usage and exit.
+                        echo "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+                        exit 1
+                        ;;
+		: )  # Check for missing arguments, print usage and exit.
+                        echo "\nOption -${OPTARG} requires an argument.\n"
+                        exit 1
                         ;;
         esac
 done
