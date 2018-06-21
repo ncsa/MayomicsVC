@@ -149,12 +149,13 @@ class Parser:
                     "No quotes around the value for key '" + key + "' in input file '" + file_path + "'"
                 )
                 sys.exit(1)
-            # Check to verify if special characters are present in the Paths information
-            for specialChar in string.punctuation.replace('/', '').replace('"', '').replace('-', '').replace('.', ''):
-                if specialChar in value:
+            # Check if any special characters are present
+            special_chars = "!#$%&()*+,:;<>?@[]^`{|}~"
+            for special_char in special_chars:
+                if special_char in value:
                     self.project_logger.log_error(
                         "E.par.SpC.1",
-                        "Invalid special character '" + specialChar + "' found in value '" + value +
+                        "Invalid special character '" + special_char + "' found in value '" + value +
                         "' of key '" + key + "' in input file '" + file_path + "'"
                     )
                     sys.exit(1)
