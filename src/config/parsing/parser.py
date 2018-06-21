@@ -32,6 +32,7 @@ E.par.Fil.1 = An input file could not be found
 E.par.NEq.1 = A non-comment line in a config file had no equals sign 
 E.par.NVa.1 = A non-comment line in a config file had no value specified
 E.par.NQt.1 = A non-comment line in a config file had a value that was not enclosed in quotes
+E.par.WhS.1 = A non-comment line in a config file had a value with only whitespace in between the quote marks
 E.par.SpC.1 = A non-comment line in a config file had an invalid special character
 E.par.Key.1 = A key is present multiple times in a config file
 
@@ -137,7 +138,7 @@ class Parser:
         keys_list = [k for k, v in key_value_pairs]
 
         for key, value in key_value_pairs:
-            # Verifies if all the Tools have a corresponding Path to it
+            # Check that the value is not empty
             if value == '':
                 self.project_logger.log_error(
                     "E.par.NVa.1",
@@ -149,6 +150,15 @@ class Parser:
                 self.project_logger.log_error(
                     "E.par.NQt.1",
                     "No quotes around the value for key '" + key + "' in input file '" + file_path + "'"
+                )
+                sys.exit(1)
+            # Check to see that non-whitespace are present between the quote marks
+            #   value[1:-1] trims off the first and last chars and strip removes all whitespace characters from the ends
+            elif value[1:-1].strip() == '':
+                self.project_logger.log_error(
+                    "E.par.WhS.1",
+                    "Only whitespace found in value '" + value + "' of key '" + key + "' in input file '" +
+                    file_path + "'"
                 )
                 sys.exit(1)
             # Check if any special characters are present
