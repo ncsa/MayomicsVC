@@ -11,7 +11,7 @@ import pathlib
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
 
-'''
+"""
 Exit code Rules:
 
 1. Exit codes in this module are only given when an error has occurred, so they will all start with 'E.'
@@ -35,7 +35,7 @@ E.val.Boo.1 = A value expected to be a boolean type was not
 E.val.Int.1 = A value expected to be an integer was not
 E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
 E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
-'''
+"""
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Validate values in Cromwell/WDL input file')
@@ -51,15 +51,15 @@ class Validator:
         self.project_logger = ProjectLogger(job_id, "validation.key_validation.Validator")
         self.job_id = job_id
 
-    '''
-    In the json config file, the keys are in a long format, such as MainTask.MinorTask.KeyName. 
-      We want the last item only: the KeyName
-      
-    This function trims off all but the last name (we can assume there are no '.' characters in the KeyName)
-    The input is the key-value dict with the original long keys, and the output is the same dict with short keys
-    '''
     @staticmethod
     def trim_config_file_keys(long_key_dict):
+        """
+        In the json config file, the keys are in a long format, such as MainTask.MinorTask.KeyName.
+            We want the last item only: the KeyName
+
+        This function trims off all but the last name (we can assume there are no '.' characters in the KeyName)
+        The input is the key-value dict with the original long keys, and the output is the same dict with short keys
+        """
         short_key_dict = {}
         for long_key in long_key_dict.keys():
             # Split the long key by '.' and select the last string (if no '.' present, the full string is selected)
@@ -68,21 +68,21 @@ class Validator:
             short_key_dict[short_key] = long_key_dict[long_key]
         return short_key_dict
 
-    '''
-    Confirms that a file exists
-    Returns a boolean
-    '''
     @staticmethod
     def __file_exists(file_path):
+        """
+        Confirms that a file exists
+        Returns a boolean
+        """
         path = pathlib.Path(file_path)
         return path.is_file()
 
-    '''
-    Confirms that a file exists and is readable
-
-    Returns one of three possible strings: (Success, FileNotFound, or FileNotReadable) 
-    '''
     def __file_is_readable(self, file_path):
+        """
+        Confirms that a file exists and is readable
+
+        Returns one of three possible strings: (Success, FileNotFound, or FileNotReadable)
+        """
         if self.__file_exists(file_path):
             # Check to see if the file on this path is readable by the user calling this script
             is_readable = os.access(file_path, os.R_OK)
@@ -93,12 +93,12 @@ class Validator:
         else:
             return "FileNotFound"
 
-    '''
-    Confirms that a file exists and is executable
-        
-    Returns one of three possible strings: (Success, FileNotFound, or FileNotExecutable) 
-    '''
     def __file_is_executable(self, file_path):
+        """
+        Confirms that a file exists and is executable
+
+        Returns one of three possible strings: (Success, FileNotFound, or FileNotExecutable)
+        """
         if self.__file_exists(file_path):
             # Check to see if the file on this path is executable by the user calling this script
             is_executable = os.access(file_path, os.X_OK)
@@ -109,11 +109,11 @@ class Validator:
         else:
             return "FileNotFound"
 
-    '''
-    Will return true for integer strings like "9", "2", etc. but false for strings like "3.14" or "NotAString"
-    '''
     @staticmethod
     def __is_integer(input_string):
+        """
+        Will return true for integer strings like "9", "2", etc. but false for strings like "3.14" or "NotAString"
+        """
         try:
             int(input_string)
             return True
@@ -128,15 +128,15 @@ class Validator:
         except ValueError:
             return False
 
-    '''
-    For a given key, confirm that its value is of the type that is expected; returns True if the key is valid and False
-      if it is not
-    
-    If a value is validated, print an INFO message stating that X key was validated; return true
-    If a value is of a type that has no validation defined (such as String), print an INFO message; return true
-    If a faulty value is found, print an ERROR message; return false
-    '''
     def check_key(self, key_name, key_value, key_type):
+        """
+        For a given key, confirm that its value is of the type that is expected; returns True if the key is valid and False
+            if it is not
+
+        If a value is validated, print an INFO message stating that X key was validated; return true
+        If a value is of a type that has no validation defined (such as String), print an INFO message; return true
+        If a faulty value is found, print an ERROR message; return false
+        """
         lowered_key_type = key_type.lower()
 
         def make_message(message):
@@ -210,11 +210,14 @@ class Validator:
                 'E.val.UNK.1',
                 'Input variable "' + key_name + '" has the type "' + key_value +
                 '" in the key types file, which is not a recognized type ' +
-                '(see src/config/validation/key_types.README.md for a list of valid types)'
+                '(see src/config/validation/README.md for a list of valid types)'
             )
             return False
 
     def validate_keys(self, configuration_dict, key_types_dict):
+        """
+        Loop through all keys and validate the types of all keys that have types listed in the Key-Types file
+        """
         unchecked_keys = []
         checked_keys = []
         for key in configuration_dict:
