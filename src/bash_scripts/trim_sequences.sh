@@ -36,13 +36,13 @@ read -r -d '' DOCS << DOCS
                    -r 		<read2.fq> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
-                   -P 		single-end read (true/false)
+                   -P 		paired-end reads (true/false)
                    -e 		</path/to/error_log> 
                    -d 		debug_mode (true/false)
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/error.log -d false
 
 #############################################################################
 
@@ -163,8 +163,8 @@ do
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
 			;;
-		P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
-			IS_SINGLE_END=${OPTARG}
+		P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+			IS_PAIRED_END=${OPTARG}
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
@@ -252,17 +252,17 @@ then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
 fi
-if [[ -z ${IS_SINGLE_END+x} ]]
+if [[ -z ${IS_PAIRED_END+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P. If running a single-end job, set -P false in command."
 fi
-if [[ "${IS_SINGLE_END}" != true ]] && [[ "${IS_SINGLE_END}" != false ]]
+if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
 fi
-if [[ "${IS_SINGLE_END}" == false ]]
+if [[ "${IS_PAIRED_END}" == true ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
@@ -303,7 +303,7 @@ fi
 
 ## Parse filename without full path
 OUT1=${SAMPLE}.read1.trimmed.fq.gz
-if  [[ "${IS_SINGLE_END}" == true ]]  # If single-end, we do not need a second output trimmed read
+if  [[ "${IS_PAIRED_END}" == false ]]  # If single-end, we do not need a second output trimmed read
 then
 	OUT2=null
 else
@@ -324,7 +324,7 @@ logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
-if [[ "${IS_SINGLE_END}" == true ]]  # if single-end reads file
+if [[ "${IS_PAIRED_END}" == false ]]  # if single-end reads file
 then
 	# Trim reads
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.read1.cutadapt.log 
@@ -362,7 +362,7 @@ then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
 fi
-if [[ "${IS_SINGLE_END}" == false ]]
+if [[ "${IS_PAIRED_END}" == true ]]
 then
 	if [[ ! -s ${OUT2} ]]
 	then
@@ -372,7 +372,7 @@ then
 fi
 
 ## Open read permissions to the user group
-if [[ "${IS_SINGLE_END}" == true ]]
+if [[ "${IS_PAIRED_END}" == false ]]
 then
 	chmod g+r ${OUT1}
 else

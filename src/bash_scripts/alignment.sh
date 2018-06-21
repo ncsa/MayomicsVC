@@ -40,13 +40,13 @@ read -r -d '' DOCS << DOCS
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
-                   -P		single-end read (true/false)
+                   -P		paired-end reads (true/false)
                    -e           </path/to/error_log> 
                    -d           debug_mode (true/false)
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -e /path/to/error.log -d false
 
 #############################################################################
 
@@ -181,8 +181,8 @@ do
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         ;;
-                P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
-                        IS_SINGLE_END=${OPTARG}
+                P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+                        IS_PAIRED_END=${OPTARG}
                         ;;
                 e )  # Full path to error log file. String variable invoked with -e
                         ERRLOG=${OPTARG}
@@ -213,7 +213,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for existence of all command line options
-if [[ -z ${GROUP+x} ]] || [[ -z ${SAMPLE+x} ]] || [[ -z ${PLATFORM+x} ]] || [[ -z ${INPUT1+x} ]] || [[ -z ${INPUT2+x} ]] || [[ -z ${REFGEN+x} ]] || [[ -z ${SENTIEON+x} ]] || [[ -z ${LICENSE+x} ]] || [[ -z ${THR+x} ]] || [[ -z ${IS_SINGLE_END+x} ]] || [[ -z ${ERRLOG+x} ]] || [[ -z ${DEBUG+x} ]]
+if [[ -z ${GROUP+x} ]] || [[ -z ${SAMPLE+x} ]] || [[ -z ${PLATFORM+x} ]] || [[ -z ${INPUT1+x} ]] || [[ -z ${INPUT2+x} ]] || [[ -z ${REFGEN+x} ]] || [[ -z ${SENTIEON+x} ]] || [[ -z ${LICENSE+x} ]] || [[ -z ${THR+x} ]] || [[ -z ${IS_PAIRED_END+x} ]] || [[ -z ${ERRLOG+x} ]] || [[ -z ${DEBUG+x} ]]
 then
 	echo -e "\nMissing at least one required command line option.\n\n${DOCS}\n"
 	exit 1
@@ -270,7 +270,7 @@ fi
 #        EXITCODE=1
 #        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
 #fi
-if [[ ${IS_SINGLE_END} == false ]]
+if [[ ${IS_PAIRED_END} == true ]]
 then
 	if [[ ! -s ${INPUT2} ]]
 	then
@@ -335,7 +335,7 @@ logInfo "[BWA-MEM] START."
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
 ######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
-if [[ "${IS_SINGLE_END}" == true ]]
+if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
@@ -344,7 +344,7 @@ then
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
-else
+else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
 	EXITCODE=$?  # Capture exit code
