@@ -32,7 +32,6 @@ read -r -d '' DOCS << DOCS
  USAGE:
  dedup.sh          -s           <sample_name> 
                    -b		<aligned.sorted.bam>
-                   -O           <output_directory> 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
@@ -41,7 +40,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned.sorted.bam -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -SE false -e /path/to/error.log -d true
+ dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -SE false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -144,7 +143,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:O:S:L:t:e:d:" OPT
+while getopts ":hs:b:S:L:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -156,9 +155,6 @@ do
 			;;
                 b )  # Full path to the input BAM file. String variable invoked with -b
                         INPUTBAM=${OPTARG}
-                        ;;
-                O )  # Output directory. String variable invoked with -O
-                        OUTDIR=${OPTARG}
                         ;;
                 S )  # Full path to sentieon directory. String variable invoked with -S
                         SENTIEON=${OPTARG}
@@ -207,11 +203,6 @@ then
 fi
 
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-fi
 if [[ ! -s ${INPUTBAM} ]]
 then 
 	EXITCODE=1
@@ -240,10 +231,10 @@ fi
 
 ## Defining file names
 samplename=${SAMPLE}
-SCORETXT=${OUTDIR}/${SAMPLE}.score.txt
-OUT=${OUTDIR}/${SAMPLE}.deduped.bam
-OUTBAMIDX=${OUTDIR}/${SAMPLE}.deduped.bam.bai
-DEDUPMETRICS=${OUTDIR}/${SAMPLE}.dedup_metrics.txt
+SCORETXT=${SAMPLE}.score.txt
+OUT=${SAMPLE}.deduped.bam
+OUTBAMIDX=${SAMPLE}.deduped.bam.bai
+DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

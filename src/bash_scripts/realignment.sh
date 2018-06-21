@@ -34,7 +34,6 @@ read -r -d '' DOCS << DOCS
                    -b           <deduped.bam>
                    -G		<reference_genome>
                    -k		<known_sites>
-                   -O           <output_directory> 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
@@ -43,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -e /path/to/error.log -d true
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -146,7 +145,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:O:S:L:t:e:d:" OPT
+while getopts ":hs:b:G:k:S:L:t:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -167,9 +166,6 @@ do
 		k )  # Full path to known sites file. String variable invoked with -k
 			KNOWN=${OPTARG}
 			;;
-                O )  # Output directory. String variable invoked with -O
-                        OUTDIR=${OPTARG}
-                        ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
                         ;;
@@ -217,11 +213,6 @@ then
 fi
 
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-fi
 if [[ ! -s ${DEDUPEDBAM} ]]
 then
 	EXITCODE=1
@@ -263,7 +254,7 @@ SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 echo ${SPLITKNOWN}
 
 ## Parse filenames without full path
-OUT=${OUTDIR}/${SAMPLE}.realigned.bam
+OUT=${SAMPLE}.realigned.bam
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

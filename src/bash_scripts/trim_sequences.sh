@@ -34,7 +34,6 @@ read -r -d '' DOCS << DOCS
                    -A 		<adapters.fa> 
                    -l 		<read1.fq> 
                    -r 		<read2.fq> 
-                   -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		single-end read (true/false)
@@ -43,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -P false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -135,21 +134,15 @@ function logInfo()
 ## Check if no arguments were passed
 if (($# == 0))
 then
-	echo ""
-	echo "No arguments passed."
-	echo ""
-	echo "${DOCS}"
-	echo ""
+	echo -e "\nNo arguments passed.\n\n${DOCS}\n"
 	exit 1
 fi
 
-while getopts ":he:l:r:A:O:C:t:P:s:d:" OPT
+while getopts ":he:l:r:A:C:t:P:s:d:" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
-			echo " "
-			echo "${DOCS}"
-			echo ""
+			echo -e"\n${DOCS}\n"
 			exit 0
 			;;
 		e )  # Full path to error log file. String variable invoked with -e
@@ -163,9 +156,6 @@ do
 			;;
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
-			;;
-		O )  # Output directory. String variable invoked with -O
-			OUTDIR=${OPTARG}
 			;;
 		C )  # Full path to cutadapt installation directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
@@ -183,19 +173,11 @@ do
 			DEBUG=${OPTARG}
 			;;
                 \? )  # Check for unsupported flag, print usage and exit.
-			echo ""
-			echo "Invalid option: -${OPTARG}"
-			echo ""
-			echo "${DOCS}" 
-			echo ""
+			echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
 			exit 1
 			;;
 		: )  # Check for missing arguments, print usage and exit.
-			echo ""
-			echo "Option -${OPTARG} requires an argument."
-			echo ""
-			echo "${DOCS}"
-			echo ""
+			echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
 			exit 1
 			;;
 	esac
@@ -245,11 +227,6 @@ then
 fi
 
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output directory ${OUTDIR} does not exist."
-fi
 if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1
@@ -325,12 +302,12 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Parse filename without full path
-OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
+OUT1=${SAMPLE}.read1.trimmed.fq.gz
 if  [[ "${IS_SINGLE_END}" == true ]]  # If single-end, we do not need a second output trimmed read
 then
 	OUT2=null
 else
-	OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
+	OUT2=/${SAMPLE}.read2.trimmed.fq.gz
 fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -350,22 +327,22 @@ logInfo "[CUTADAPT] START."
 if [[ "${IS_SINGLE_END}" == true ]]  # if single-end reads file
 then
 	# Trim reads
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log 
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.read1.cutadapt.log 
 	EXITCODE=$?  # Capture exit code
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.read1.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.cutadapt.log
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${SAMPLE}.cutadapt.log
 	EXITCODE=$?
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log ${OUTDIR}/${SAMPLE}read2.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${SAMPLE}.read1.cutadapt.log ${SAMPLE}read2.cutadapt.log"
 fi
 
 
@@ -403,7 +380,7 @@ else
 	chmod g+r ${OUT2}
 fi
 
-logInfo "[CUTADAPT] Finished trimming adapter sequences. Trimmed reads found at ${OUTDIR}/"
+logInfo "[CUTADAPT] Finished trimming adapter sequences."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

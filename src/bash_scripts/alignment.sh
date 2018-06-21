@@ -37,7 +37,6 @@ read -r -d '' DOCS << DOCS
                    -l           <read1.fq> 
                    -r           <read2.fq>
                    -G		<reference_genome> 
-                   -O           <output_directory> 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
@@ -47,7 +46,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
 
 #############################################################################
 
@@ -148,7 +147,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:O:S:L:t:P:e:d:" OPT
+while getopts ":hg:s:p:l:r:G:S:L:t:P:e:d:" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -172,9 +171,6 @@ do
                         ;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
-                        ;;
-                O )  # Output directory. String variable invoked with -O
-                        OUTDIR=${OPTARG}
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
@@ -259,11 +255,6 @@ fi
 
 
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-fi
 #if [[ -z ${INPUT1+x} ]]
 #then
 #        EXITCODE=1
@@ -324,9 +315,9 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
-OUT=${OUTDIR}/${SAMPLE}.sam
-SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
-SORTBAMIDX=${OUTDIR}/${SAMPLE}.sorted.bam.bai
+OUT=${SAMPLE}.sam
+SORTBAM=${SAMPLE}.sorted.bam
+SORTBAMIDX=${SAMPLE}.sorted.bam.bai
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
