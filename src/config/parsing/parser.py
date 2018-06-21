@@ -152,7 +152,7 @@ class Parser:
                 )
                 sys.exit(1)
             # Check if any special characters are present
-            special_chars = "!#$%&()*+,;<>?@[]^`{|}~"
+            special_chars = "!#$%&()*,;<>?@[]^`{|}~"
             for special_char in special_chars:
                 if special_char in value:
                     self.project_logger.log_error(
