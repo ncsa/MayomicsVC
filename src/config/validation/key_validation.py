@@ -37,11 +37,23 @@ E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
 E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
 """
 
+
 def parse_args():
+    """
+    By default, argparse treats all arguments that begin with '-' or '--' as optional in the help menu
+        (preferring to have required arguments be positional).
+
+    To get around this, we must define a required group to contain the required arguments
+        This will cause the help menu to be displayed correctly
+    """
     parser = argparse.ArgumentParser(description='Validate values in Cromwell/WDL input file')
-    parser.add_argument('-i', type=str, help='configuration file to validate', required=True)
-    parser.add_argument('--KeyTypeFile', type=str, help='JSON file with typing info for keys', required=True)
-    parser.add_argument('--jobID', type=str, help='The job ID', default='NA', required=False)
+
+    required_group = parser.add_argument_group('required arguments')
+    required_group.add_argument('-i', type=str, help='JSON configuration file to validate', required=True)
+    required_group.add_argument('--KeyTypeFile', type=str, help='JSON file with typing info for keys', required=True)
+
+    # Truly optional argument
+    parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
     return parser.parse_args()
 
 
@@ -130,8 +142,8 @@ class Validator:
 
     def check_key(self, key_name, key_value, key_type):
         """
-        For a given key, confirm that its value is of the type that is expected; returns True if the key is valid and False
-            if it is not
+        For a given key, confirm that its value is of the type that is expected; returns True if the key is
+            valid and False if it is not
 
         If a value is validated, print an INFO message stating that X key was validated; return true
         If a value is of a type that has no validation defined (such as String), print an INFO message; return true
