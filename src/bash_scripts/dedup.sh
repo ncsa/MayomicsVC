@@ -7,7 +7,8 @@
 read -r -d '' MANIFEST << MANIFEST
 
 *****************************************************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *****************************************************************************
 
@@ -35,12 +36,11 @@ read -r -d '' DOCS << DOCS
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
-                   -e           </path/to/error_log> 
-                   -d           debug_mode (true/false)
+                   -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -SE false -e /path/to/error.log -d true
+ dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
 
 #############################################################################
 
@@ -98,6 +98,11 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+
+    if [[ -z ${EXITCODE+x} ]]; then
+        EXITCODE=1
+    fi
+
     exit ${EXITCODE};
 }
 
@@ -138,12 +143,12 @@ function logInfo()
 ## Check if no arguments were passed
 if (($# == 0))
 then
-        echo "\nNo arguments passed.\n\n${DOCS}\n"
+        echo -e "\nNo arguments passed.\n\n${DOCS}\n"
         exit 1
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:L:t:e:d:" OPT
+while getopts ":hs:b:S:L:t:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -165,18 +170,16 @@ do
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         ;;
-                e )  # Full path to error log file. String variable invoked with -e
-                        ERRLOG=${OPTARG}
-                        ;;
-                d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
-                        DEBUG=${OPTARG}
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                        echo -e "\nDebug mode is ON.\n"
+			set -x
                         ;;
 		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
                 : )  # Check for missing arguments, print usage and exit.
-                        echo "\nOption -${OPTARG} requires an argument.\n"
+                        echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
         esac
@@ -192,31 +195,61 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if Sample Name variable exists
+if [[ -z ${SAMPLE+x} ]]
+then
+        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+        exit 1
+fi
+
+## Create log for JOB_ID/script
+ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+
+if [[ ! -f ${ERRLOG} ]]
+then
+        echo -e "\nLog file ${ERRLOG} is not a file.\n"
+        exit 1
+fi
+
+
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Turn on Debug Mode to print all code
-if [[ "${DEBUG}" == true ]]
-then
-	logInfo "Debug mode is ON."
-        set -x
-fi
-
 ## Check if input files, directories, and variables are non-zero
+if [[ -z ${INPUTBAM+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
+fi
 if [[ ! -s ${INPUTBAM} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty."
+        logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
 fi
 if [[ ! -s ${INPUTBAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty."
+        logError "$0 stopped at line $LINENO. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
+fi
+if [[ -z ${SENTIEON+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is empty or does not exist."
+fi
+if [[ -z ${LICENSE+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
+fi
+if [[ -z ${THR+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -231,9 +264,9 @@ fi
 
 ## Defining file names
 samplename=${SAMPLE}
-SCORETXT=${SAMPLE}.score.txt
-OUT=${SAMPLE}.deduped.bam
-OUTBAMIDX=${SAMPLE}.deduped.bam.bai
+SCORETXT=${SAMPLE}.deduped.score.txt
+OUT=${SAMPLE}.aligned.sorted.deduped.bam
+OUTBAMIDX=${SAMPLE}.aligned.sorted.deduped.bam.bai
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -251,7 +284,7 @@ logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} 
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup.log 2>&1
 EXITCODE=$?
 if [[ ${EXITCODE} -ne 0 ]]
 then
@@ -261,7 +294,7 @@ logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT}
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup.log 2>&1
 EXITCODE=$?
 if [[ ${EXITCODE} -ne 0 ]]
 then
