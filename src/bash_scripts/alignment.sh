@@ -310,8 +310,8 @@ fi
 
 ## Set output file names
 OUT=${SAMPLE}.sam
-SORTBAM=${SAMPLE}.sorted.bam
-SORTBAMIDX=${SAMPLE}.sorted.bam.bai
+SORTBAM=${SAMPLE}.aligned.sorted.bam
+SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -332,16 +332,22 @@ logInfo "[BWA-MEM] START."
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
+	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
 	EXITCODE=$?  # Capture exit code
+	trap - INT TERM EXIT
+
 	if [[ ${EXITCODE} -ne 0 ]]
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
+	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
 	EXITCODE=$?  # Capture exit code
+	trap - INT TERM EXIT
+
         if [[ ${EXITCODE} -ne 0 ]]
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
@@ -361,9 +367,13 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 ## Convert SAM to BAM and sort
 logInfo "[SENTIEON] Converting SAM to BAM..."
+
 export SENTIEON_LICENSE=${LICENSE}
+trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.alignment.log 2>&1
 EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."

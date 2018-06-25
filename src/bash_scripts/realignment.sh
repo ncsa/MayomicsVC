@@ -305,10 +305,12 @@ OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
 logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN}."
 
 ## Sentieon Realigner command.
-## Allocates all available threads to the process.
 export SENTIEON_LICENSE=${LICENSE}
+trap 'logError " $0 stopped at line ${LINENO}. Sentieon Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realignment.log 2>&1
 EXITCODE=$?
+trap - INT TERM EXIT
+
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
