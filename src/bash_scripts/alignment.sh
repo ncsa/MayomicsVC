@@ -5,11 +5,15 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
-*******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+
+*****************************************************************************
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
-*******************************************
+*****************************************************************************
+
 MANIFEST
+echo ""
 echo "${MANIFEST}"
 
 
@@ -34,17 +38,15 @@ read -r -d '' DOCS << DOCS
                    -l           <read1.fq> 
                    -r           <read2.fq>
                    -G		<reference_genome> 
-                   -O           <output_directory> 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
-                   -P		single-end read (true/false)
-                   -e           </path/to/error_log> 
-                   -d           debug_mode (true/false)
+                   -P		paired-end reads (true/false)
+                   -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -O /path/to/output_directory -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P false -e /path/to/error.log -d true
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
 
 #############################################################################
 
@@ -100,6 +102,11 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+
+    if [[ -z ${EXITCODE+x} ]]; then
+        EXITCODE=1
+    fi
+
     exit ${EXITCODE};
 }
 
@@ -137,18 +144,20 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if no arguments were passed
+if (($# == 0))
+then
+	echo -e "\nNo arguments passed.\n\n${DOCS}\n"
+	exit 1
+fi
+
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:O:S:L:t:P:e:d:" OPT
+while getopts ":hg:s:p:l:r:G:S:L:t:P:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
-			echo " "
-                        echo "Usage:"
-			echo " "
-                        echo "  bash alignment.sh -h       Display this help message."
-                        echo "  bash alignment.sh [-g <readgroup_ID>] [-s <sample_name>] [-p <platform>] [-l <read1.fq>] [-r <read2.fq>] [-G <reference_genome>] [-O <output_directory>] [-S </path/to/Sentieon>] [-L <sentieon_license>] [-t threads] [-P single-end? (true/false)] [-e </path/to/error_log>] [-d debug_mode [false]]"
-			echo " "
-                        exit 0;
+                        echo -e "\n${DOCS}\n"
+                        exit 0
 			;;
                 g )  # Read group ID. String variable invoked with -g
                         GROUP=${OPTARG}
@@ -168,9 +177,6 @@ do
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
                         ;;
-                O )  # Output directory. String variable invoked with -O
-                        OUTDIR=${OPTARG}
-                        ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
                         ;;
@@ -180,15 +186,22 @@ do
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
                         ;;
-                P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
-                        IS_SINGLE_END=${OPTARG}
+                P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+                        IS_PAIRED_END=${OPTARG}
                         ;;
-                e )  # Full path to error log file. String variable invoked with -e
-                        ERRLOG=${OPTARG}
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+			echo -e "\nDebug mode is ON.\n"
+                        set -x
                         ;;
-                d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
-                        DEBUG=${OPTARG}
+		\? )  # Check for unsupported flag, print usage and exit.
+                        echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+                        exit 1
                         ;;
+                : )  # Check for missing arguments, print usage and exit.
+                        echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
+                        exit 1
+                        ;;
+
         esac
 done
 
@@ -202,46 +215,89 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if Sample Name variable exists
+if [[ -z ${SAMPLE+x} ]]
+then
+        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+        exit 1
+fi
+
+## Create log for JOB_ID/script
+ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+
+if [[ ! -f ${ERRLOG} ]]
+then
+        echo -e "\nLog file ${ERRLOG} is not a file.\n"
+        exit 1
+fi
+
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Turn on Debug Mode to print all code
-if [[ "${DEBUG}" == true ]]
-then
-	logInfo "Debug mode is ON."
-        set -x
-fi
 
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
+if [[ -z ${INPUT1+x} ]]
 then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
 fi
 if [[ ! -s ${INPUT1} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty."
+        logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
 fi
-if [[ ${IS_SINGLE_END} == false ]]
+if [[ -z ${INPUT2+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
+fi
+if [[ -z ${IS_PAIRED_END+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P"
+fi
+if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
+then
+	logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
+fi
+if [[ "${IS_PAIRED_END}" == true ]]
 then
 	if [[ ! -s ${INPUT2} ]]
 	then
 		EXITCODE=1
-        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty."
+        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
 	fi
+fi
+if [[ -z ${REFGEN+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
 fi
 if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty."
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+fi
+if [[ -z ${SENTIEON+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
 fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} is empty or does not exist."
 fi
-
+if [[ -z ${LICENSE+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
+fi
+if [[ -z ${THR+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -253,9 +309,9 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
-OUT=${OUTDIR}/${SAMPLE}.sam
-SORTBAM=${OUTDIR}/${SAMPLE}.sorted.bam
-SORTBAMIDX=${OUTDIR}/${SAMPLE}.sorted.bam.bai
+OUT=${SAMPLE}.sam
+SORTBAM=${SAMPLE}.sorted.bam
+SORTBAMIDX=${SAMPLE}.sorted.bam.bai
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -273,7 +329,7 @@ logInfo "[BWA-MEM] START."
 ## BWA-MEM command, run for each read against a reference genome.
 ## Allocates all available threads to the process.
 ######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
-if [[ "${IS_SINGLE_END}" == true ]]
+if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
@@ -282,7 +338,7 @@ then
         then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
-else
+else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
 	EXITCODE=$?  # Capture exit code
@@ -306,7 +362,7 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SENTIEON] Converting SAM to BAM..."
 export SENTIEON_LICENSE=${LICENSE}
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${ERRLOG}
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.alignment.log 2>&1
 EXITCODE=$?  # Capture exit code
 if [[ ${EXITCODE} -ne 0 ]]
 then

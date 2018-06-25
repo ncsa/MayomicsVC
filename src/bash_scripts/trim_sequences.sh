@@ -5,11 +5,15 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
-*******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+ 
+*****************************************************************************
+`readlink -m $0` 
+called by: `whoami` on `date`
 command line input: ${@}
-*******************************************
+*****************************************************************************
+
 MANIFEST
+echo ""
 echo "${MANIFEST}"
 
 
@@ -30,16 +34,14 @@ read -r -d '' DOCS << DOCS
                    -A 		<adapters.fa> 
                    -l 		<read1.fq> 
                    -r 		<read2.fq> 
-                   -O 		<output_directory> 
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
-                   -P 		single-end read (true/false)
-                   -e 		</path/to/error_log> 
-                   -d 		debug_mode (true/false)
+                   -P 		paired-end reads (true/false)
+                   -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -O /path/to/output_directory -C /path/to/cutadapt_directory -t 12 -P false -e /path/to/error.log -d true
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -d
 
 #############################################################################
 
@@ -91,6 +93,11 @@ function logError()
     fi
   
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+    
+    if [[ -z ${EXITCODE+x} ]]; then
+        EXITCODE=1
+    fi
+    
     exit ${EXITCODE};
 }
   
@@ -128,20 +135,19 @@ function logInfo()
 ## GETOPTS ARGUMENT PARSER
 #-------------------------------------------------------------------------------------------------------------------------------
 
-while getopts ":he:l:r:A:O:C:t:P:s:d:" OPT
+## Check if no arguments were passed
+if (($# == 0))
+then
+	echo -e "\nNo arguments passed.\n\n${DOCS}\n"
+	exit 1
+fi
+
+while getopts ":hl:r:A:C:t:P:s:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
-			echo " "
-			echo "Usage:"
-			echo " "
-			echo "	bash trim_sequences.sh -h	Display this help message."
-			echo "	bash trim_sequences.sh [-s sample_name] [-l <read1.fq>] [-r <read2.fq>] [-A <adapters.fa>] [-O </path/to/output_directory>] [-C </path/to/cutadapt_directory>] [-t threads] [-P single_end? (true/false)] [-e <error_log>] [-d debug_mode [false]]"
-			echo " "
-			exit 0;
-			;;
-		e )  # Full path to error log file. String variable invoked with -e
-			ERRLOG=${OPTARG}
+			echo -e"\n${DOCS}\n"
+			exit 0
 			;;
 		l )  # Full path to input read 1. String variable invoked with -l
 			INPUT1=${OPTARG}
@@ -152,25 +158,30 @@ do
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
 			;;
-		O )  # Output directory. String variable invoked with -O
-			OUTDIR=${OPTARG}
-			;;
 		C )  # Full path to cutadapt installation directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
 			;;
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
 			;;
-		P )  # Is this a single-end process? Boolean variable [true/false] invoked with -P
-			IS_SINGLE_END=${OPTARG}
+		P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+			IS_PAIRED_END=${OPTARG}
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
-			DEBUG=${OPTARG}
+			echo -e "\nDebug mode is ON.\n"
+			set -x
 			;;
-                ? ) echo ${DOCS}; exit 1;
+                \? )  # Check for unsupported flag, print usage and exit.
+			echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+			exit 1
+			;;
+		: )  # Check for missing arguments, print usage and exit.
+			echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
+			exit 1
+			;;
 	esac
 done
 
@@ -183,44 +194,79 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+
+## Check if Sample Name variable exists
+if [[ -z ${SAMPLE+x} ]]
+then
+        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+	exit 1
+fi
+
+## Create log for JOB_ID/script
+ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Turn on Debug Mode to print all code
-if [[ "${DEBUG}" == true ]]
-then
-	logInfo "Debug mode is ON."
-	set -x
-fi
-
 ## Check if input files, directories, and variables are non-zero
-if [[ ! -d ${OUTDIR} ]]
+if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output directory ${OUTDIR} does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing adapters file option: -A"
 fi
 if [[ ! -s ${ADAPTERS} ]]  
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty or does not exist."
+fi
+if [[ -z ${INPUT1+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
 fi
 if [[ ! -s ${INPUT1} ]]  
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
 fi
-if [[ "${IS_SINGLE_END}" == false ]]
+if [[ -z ${INPUT2+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
+fi
+if [[ -z ${IS_PAIRED_END+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P. If running a single-end job, set -P false in command."
+fi
+if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
+fi
+if [[ "${IS_PAIRED_END}" == true ]]
 then
         if [[ ! -s ${INPUT2} ]]
         then
 		EXITCODE=1
-                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty."
+                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
         fi
+fi
+if [[ -z ${CUTADAPT+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing CutAdapt software path option: -C"
 fi
 if [[ ! -d ${CUTADAPT} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} does not exist."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} is empty or does not exist."
+fi
+if [[ -z ${THR+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -234,12 +280,12 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Parse filename without full path
-OUT1=${OUTDIR}/${SAMPLE}.read1.trimmed.fq.gz
-if  [[ "${IS_SINGLE_END}" == true ]]  # If single-end, we do not need a second output trimmed read
+OUT1=${SAMPLE}.read1.trimmed.fq.gz
+if  [[ "${IS_PAIRED_END}" == false ]]  # If single-end, we do not need a second output trimmed read
 then
 	OUT2=null
 else
-	OUT2=${OUTDIR}/${SAMPLE}.read2.trimmed.fq.gz
+	OUT2=${SAMPLE}.read2.trimmed.fq.gz
 fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -256,25 +302,25 @@ logInfo "[CUTADAPT] START."
 
 ## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
 ## Allocates half of the available threads to each process.
-if [[ "${IS_SINGLE_END}" == true ]]  # if single-end reads file
+if [[ "${IS_PAIRED_END}" == false ]]  # if single-end reads file
 then
 	# Trim reads
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${OUTDIR}/${SAMPLE}.read1.cutadapt.log 
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?  # Capture exit code
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
-	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${OUTDIR}/${SAMPLE}.cutadapt.log
+	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${OUTDIR}/${SAMPLE}.read1.cutadapt.log ${OUTDIR}/${SAMPLE}read2.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${SAMPLE}.cutadapt.log"
 fi
 
 
@@ -294,7 +340,7 @@ then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
 fi
-if [[ "${IS_SINGLE_END}" == false ]]
+if [[ "${IS_PAIRED_END}" == true ]]
 then
 	if [[ ! -s ${OUT2} ]]
 	then
@@ -304,7 +350,7 @@ then
 fi
 
 ## Open read permissions to the user group
-if [[ "${IS_SINGLE_END}" == true ]]
+if [[ "${IS_PAIRED_END}" == false ]]
 then
 	chmod g+r ${OUT1}
 else
@@ -312,7 +358,7 @@ else
 	chmod g+r ${OUT2}
 fi
 
-logInfo "[CUTADAPT] Finished trimming adapter sequences. Trimmed reads found at ${OUTDIR}/"
+logInfo "[CUTADAPT] Finished trimming adapter sequences."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
