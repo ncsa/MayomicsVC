@@ -13,8 +13,7 @@ command line input: ${@}
 *****************************************************************************
 
 MANIFEST
-echo ""
-echo "${MANIFEST}"
+echo -e "\n${MANIFEST}"
 
 
 
@@ -146,7 +145,7 @@ while getopts ":hl:r:A:C:t:P:s:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
-			echo -e"\n${DOCS}\n"
+			echo -e "\n${DOCS}\n"
 			exit 0
 			;;
 		l )  # Full path to input read 1. String variable invoked with -l
