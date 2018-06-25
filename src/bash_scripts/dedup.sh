@@ -152,7 +152,7 @@ while getopts ":hs:b:S:L:t:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
-                        echo "\n${DOCS}\n"
+                        echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
 		s )  # Sample name. String variable invoked with -s
@@ -284,8 +284,11 @@ logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
 export SENTIEON_LICENSE=${LICENSE}
+trap 'logError " $0 stopped at line ${LINENO}. Sentieon LocusCollector error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup.log 2>&1
 EXITCODE=$?
+trap - INT TERM EXIT
+
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
@@ -294,8 +297,11 @@ logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
 export SENTIEON_LICENSE=${LICENSE}
+trap 'logError " $0 stopped at line ${LINENO}. Sentieon Deduplication error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup.log 2>&1
 EXITCODE=$?
+trap - INT TERM EXIT
+
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."

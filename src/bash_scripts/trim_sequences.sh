@@ -304,9 +304,13 @@ logInfo "[CUTADAPT] START."
 ## Allocates half of the available threads to each process.
 if [[ "${IS_PAIRED_END}" == false ]]  # if single-end reads file
 then
-	# Trim reads
+	# Trim single-end reads
+
+	trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?  # Capture exit code
+	trap - INT TERM EXIT
+
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
@@ -314,13 +318,17 @@ then
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
+	
+	trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 and 2 failure. " ' INT TERM EXIT
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?
+	trap - INT TERM EXIT
+
 	if [[ ${EXITCODE} -ne 0 ]]
 	then
 		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
 	fi
-	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT logs: ${SAMPLE}.cutadapt.log"
+	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 fi
 
 
