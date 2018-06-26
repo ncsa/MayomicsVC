@@ -25,7 +25,7 @@ task dedupTask {
    String SentieonLicense                       # License Server Information
 
    String Threads                               # Specifies the number of thread required per run
-   Boolean DebugMode                            # Variable to check if Debud Mode is on or not
+   String DebugMode                            # Variable to check if Debud Mode is on or not
 
    File DedupScript                             # Bash script which is called inside the WDL script
 
@@ -39,7 +39,6 @@ task dedupTask {
 
       File AlignedSortedDeduppedBam = "${SampleName}.sorted.deduped.bam"
       File AlignedSortedDeduppedBamIdx = "${SampleName}.sorted.deduped.bam.bai"
-      File DedupMetrics = "${SampleName}.dedup_metrics.txt"
 
    }
 }

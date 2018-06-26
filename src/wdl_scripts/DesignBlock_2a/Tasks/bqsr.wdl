@@ -48,9 +48,6 @@ task bqsrTask {
    output {
 
       File RecalTable = "${SampleName}.recal_data.table"
-      File RecalTablePost = "${SampleName}.recal_data.table.post"
-      File RecalCSV = "${SampleName}.recal.csv"
-      File RecalPlots = "${SampleName}.recal_plots.pdf"
 
    }
 

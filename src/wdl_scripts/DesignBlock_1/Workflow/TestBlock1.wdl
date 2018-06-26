@@ -8,18 +8,24 @@ import "src/wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP
 
 workflow CallBlock1Tasks {
    
-   call CUTADAPTTRIM.trimsequencesTask 
+   call CUTADAPTTRIM.trimsequencesTask as trimseq
     
-   call ALIGNMENT.alignmentTask {
+   call ALIGNMENT.alignmentTask as align {
       input:
-         InputRead1 = trimsequencesTask.TrimmedInputRead1,
-         InputRead2 = trimsequencesTask.TrimmedInputRead2
+         InputRead1 = trimseq.TrimmedInputRead1,
+         InputRead2 = trimseq.TrimmedInputRead2
    }
    
-   call DEDUP.dedupTask {
+   call DEDUP.dedupTask as dedup {
       input:
-         InputAlignedSortedBam  = alignmentTask.AlignedSortedBam,
-         InputAlignedSortedBamIdx = alignmentTask.AlignedSortedBamIdx
+         InputAlignedSortedBam  = align.AlignedSortedBam,
+         InputAlignedSortedBamIdx = align.AlignedSortedBamIdx
+   }
+    
+   output {
+     
+      File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDeduppedBam
+      File GlobalAlignedSortedDedupedBamIdx = dedup.AlignedSortedDeduppedBamIdx
    }    
 
 }

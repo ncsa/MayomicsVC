@@ -24,7 +24,7 @@ task trimsequencesTask {
    String Threads                  # Specifies the number of thread required per run
 
    Boolean PairedEnd               # Variable to check if single ended or not
-   Boolean DebugMode               # Variable to check if Debud Mode is on or not
+   String DebugMode               # Variable to check if Debud Mode is on or not
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
 
