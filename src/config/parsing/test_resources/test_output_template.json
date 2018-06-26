@@ -4,5 +4,7 @@
   "major.minor.test_integer": "Integer",
   "major.minor.test_decimal": "Float",
   "major.minor.REF": "String",
-  "major.minor.DBSNP": "String"
+  "major.minor.DBSNP": "String",
+  "major.minor1.LICENSE": "String",
+  "major.minor2.LICENSE": "String"
 }
