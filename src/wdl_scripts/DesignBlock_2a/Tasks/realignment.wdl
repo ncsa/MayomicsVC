@@ -30,7 +30,7 @@ task realignmentTask {
    String SentieonLicense                              # Sentieon License Information
    String Sentieon                                     # Path to Sentieon
 
-   Boolean DebugMode                                   # Enable or Disable Debug Mode
+   String DebugMode                                   # Enable or Disable Debug Mode
    
    File RealignmentScript                              # Path to bash script called within WDL script
  

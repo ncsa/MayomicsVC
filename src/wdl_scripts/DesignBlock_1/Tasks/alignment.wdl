@@ -27,7 +27,7 @@ task alignmentTask {
    File RefAnn                     
    File RefBwt                     # These are reference files that are provided as implicit inputs
    File RefPac                     # to the WDL Tool to help perform the alignment
-   File RefSaf              
+   File RefSa              
 
    String SentieonLicense          # Sentieon License server
    String Sentieon                 # Path to Sentieon

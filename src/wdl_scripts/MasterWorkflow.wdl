@@ -7,9 +7,9 @@ import "src/wdl_scripts/DesignBlock_2a/Workflow/TestBlock2a.wdl" as WF2
 
 workflow MasterWF {
 
-   call WF1.CallBlock1Tasks as CALLWF1
+   call WF1.CallBlock1Tasks as DB1
 
-   call WF2.CallBlock2aTasks {
+   call WF2.CallBlock2aTasks as DB2a {
       input:
          GlobalAlignedSortedDedupedBam = CALLWF1.GlobalAlignedSortedDedupedBam,
          GlobalAlignedSortedDedupedBamIdx = CALLWF1.GlobalAlignedSortedDedupedBamIdx

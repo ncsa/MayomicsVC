@@ -34,13 +34,13 @@ task bqsrTask {
    String Threads                                        # No of Threads for the Tool
    String SentieonLicense                                # Sentieon License Information
    String Sentieon                                       # Path to Sentieon
-   Boolean DebugMode                                     # Enable or Disable Debug Mode
+   String DebugMode                                     # Enable or Disable Debug Mode
 
-   File bqsrScript                                       # Path to bash script called within WDL script
+   File BqsrScript                                       # Path to bash script called within WDL script
 
    command {
 
-      /bin/bash ${bqsrScript} -s ${SampleName} -S ${Sentieon} -G ${RefFasta} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
+      /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${RefFasta} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
 
    }
 
