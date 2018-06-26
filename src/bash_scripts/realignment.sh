@@ -13,8 +13,7 @@ command line input: ${@}
 *****************************************************************************
 
 MANIFEST
-echo ""
-echo "${MANIFEST}"
+echo -e "\n${MANIFEST}"
 
 
 
@@ -261,7 +260,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is empty or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 if [[ -z ${LICENSE+x} ]]
 then

@@ -209,6 +209,11 @@ truncate -s 0 "${ERRLOG}"
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
+if [[ -z ${ERRLOG+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Log file was not created."
+fi
 if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1
@@ -260,7 +265,7 @@ fi
 if [[ ! -d ${CUTADAPT} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} is empty or does not exist."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} is not a directory or does not exist."
 fi
 if [[ -z ${THR+x} ]]
 then
