@@ -8,10 +8,10 @@ import "src/wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
 
 workflow CallBlock2aTasks {
 
-############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
-
    File GlobalAlignedSortedDedupedBam
    File GlobalAlignedSortedDedupedBamIdx
+
+############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
 
    String SampleName                                   
 
