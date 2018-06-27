@@ -15,7 +15,7 @@ workflow CallBlock2aTasks {
 
    String SampleName                                   
 
-   File RefFasta                            
+   File Ref                            
    File RefFai                                         
 
    File KnownSites                                     
@@ -40,7 +40,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
          InputAlignedSortedDedupedBamIdx = GlobalAlignedSortedDedupedBamIdx,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          RefFai = RefFai,
          KnownSites = KnownSites,
          KnownSitesIdx = KnownSitesIdx,
@@ -56,7 +56,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
          InputAlignedSortedDedupedRealignedBamIdx = realign.AlignedSortedDedupedRealignedBamIdx,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          RefFai = RefFai,
          KnownSites = KnownSites,
          KnownSitesIdx = KnownSitesIdx,
@@ -75,7 +75,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBamIdx,
          RecalTable = bqsr.RecalTable,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          Threads = Threads,

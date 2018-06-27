@@ -19,7 +19,7 @@ task variantCallingTask {
    File InputAlignedSortedDedupedRealignedBam              # Input Sorted Deduped Bam
    File InputAlignedSortedDedupedRealignedBamIdx           # Input Sorted Deduped Bam Index
 
-   File RefFasta                                           # Reference Genome
+   File Ref                                                # Reference Genome
 
    String SampleName                                       # Name of the Sample
 
@@ -37,7 +37,7 @@ task variantCallingTask {
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${RefFasta} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
 
    }
 
