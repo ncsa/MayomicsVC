@@ -17,23 +17,6 @@ class TestValidator(unittest.TestCase):
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
     validator.project_logger.logger.disabled = True
 
-    def test_read_json_file(self):
-        expected_key_types_dict = {"test_string": "String", "test_integer": "Integer", "test_decimal": "Decimal"}
-
-        try:
-            json_dict = self.validator.read_json_file(package_full_path + "/test_resources/test_key_types.json")
-            self.assertEqual(json_dict, expected_key_types_dict)
-        # This catch safely handles the function failing and prevents python itself from exiting (The function will
-        #   fail if the input json cannot be found or if the file is improperly formatted)
-        except SystemExit:
-            self.fail(msg="'read_json_file' tried to exit. The unit test 'test_read_json_file' must fail")
-
-    '''
-    This method tries to find a file that does not exist; it is supposed to fail
-    '''
-    def test_read_json_file_path_failure(self):
-        with self.assertRaises(SystemExit):
-            self.validator.read_json_file("/this/path/does/not/exist.json")
 
     def test_trim_config_file_keys(self):
         full_config = {"major.minor.KeyName1": 1, "major.minor.KeyName2": 2}

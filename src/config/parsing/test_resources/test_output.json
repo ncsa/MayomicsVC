@@ -5,6 +5,8 @@
     "major.minor.test_decimal": "3.14159",
     "major.minor.REF": "ref.fa",
     "major.minor.DBSNP": "dbsnp.vcf",
+    "major.minor1.LICENSE": "License.lic",
+    "major.minor2.LICENSE": "License.lic",
     "major.minor.REF_AMB": "ref.fa.amb",
     "major.minor.REF_ANN": "ref.fa.ann",
     "major.minor.REF_BWT": "ref.fa.bwt",

@@ -13,7 +13,6 @@
 import json
 import argparse
 import sys
-import string
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
 
