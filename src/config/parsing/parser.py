@@ -197,16 +197,16 @@ class Parser:
             }
         """
         def add_index_key_value(key_suffix, value_suffix):
-            json_key = full_dict_key + "_" + key_suffix
+            json_key = full_dict_key + key_suffix
             json_value = trimmed_value + "." + value_suffix
             output_dictionary[json_key] = json_value
 
-        if config_key == "REF":
-            add_index_key_value("AMB", "amb")
-            add_index_key_value("ANN", "ann")
-            add_index_key_value("BWT", "bwt")
-            add_index_key_value("PAC", "pac")
-            add_index_key_value("SA", "sa")
+        if config_key == "Ref":
+            add_index_key_value("Amb", "amb")
+            add_index_key_value("Ann", "ann")
+            add_index_key_value("Bwt", "bwt")
+            add_index_key_value("Pac", "pac")
+            add_index_key_value("Sa", "sa")
 
             # dict files replace the '.fasta'/'.fa' extension with '.dict'
             # 'find' returns the index of the first char in the string searched for (or -1 if the string was not found)
@@ -220,10 +220,10 @@ class Parser:
                 sys.exit(1)
             else:
                 base_name = trimmed_value[:extension_start_index]
-                output_dictionary[full_dict_key + "_DICT"] = base_name + ".dict"
+                output_dictionary[full_dict_key + "Dict"] = base_name + ".dict"
 
         elif config_key == "DBSNP":
-            output_dictionary[str(full_dict_key) + "_IDX"] = str(trimmed_value) + ".idx"
+            output_dictionary[str(full_dict_key) + "Idx"] = str(trimmed_value) + ".idx"
 
 
     def insert_values_into_dict(self, starting_dict, key_value_tuple, file_path):
