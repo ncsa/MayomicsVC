@@ -1,0 +1,48 @@
+# Scripts required to run for every Task
+
+TrimSeqScript=""
+AlignmentScript=""
+DedupScript=""
+RealignmentScript=""
+BqsrScript=""
+HaplotyperScript=""
+
+
+# Path to Tool and Licenses
+
+CutAdapt=""
+Sentieon=""
+SentieonLicense=""
+
+
+# Input Reference and Index Files
+
+Adapters=""
+RefFasta=""
+InputRead1=""
+InputRead2=""
+RefAnn=""
+RefPac=""
+RefFai=""
+RefSa=""
+RefBwt=""
+RefAmb=""
+DBSNP=""
+DBSNPIdx=""
+KnownSites=""
+KnownSitesIdx=""
+
+
+# Misc Settings
+
+SampleName=""
+Threads=""
+PairedEnd=""
+Group=""
+Platform=""
+DebugMode=""
+
+
+
+
+

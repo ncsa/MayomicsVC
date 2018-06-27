@@ -32,6 +32,7 @@ workflow CallBlock1Tasks {
    String Sentieon 
 
    File TrimSeqScript
+   File AlignmentScript
    File DedupScript
 
 #####################################################################################          

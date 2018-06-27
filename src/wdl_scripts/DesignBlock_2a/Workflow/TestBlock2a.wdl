@@ -24,8 +24,6 @@ workflow CallBlock2aTasks {
    File DBSNP
    File DBSNPIdx
    
-   File RecalTable
-
    String Threads                                      
    String SentieonLicense                              
    String Sentieon                                     

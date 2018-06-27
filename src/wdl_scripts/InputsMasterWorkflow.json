@@ -5,6 +5,7 @@
   "MasterWF.DB1.InputRead2": "String",
   "MasterWF.DB1.RefAnn": "File",
   "MasterWF.DB2a.KnownSitesIdx": "File",
+  "MasterWF.DB1.AlignmentScript": "File",
   "MasterWF.DB2a.DebugMode": "Boolean",
   "MasterWF.DB1.RefPac": "File",
   "MasterWF.DB1.RefFasta": "File",
