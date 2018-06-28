@@ -24,37 +24,15 @@ The 'key_types.json' file contains only one kind of entry: key-value pairs.
 
 ### Valid Types
 
-#### OutputDirectory
-
-For types listed as OutputDirectory, we confirm that
-
-    1. The directory exists
-    2. It has readable, writeable, and executable permissions
-       for the current user
-       
-This type should be used for directories that the workflow will write into.
-
-#### ReadOnlyDirectory
-
-For types listed as ReadOnlyDirectory, we confirm that
-
-    1. The directory exists
-    2. It has readable and executable permissions
-       for the current user
-       
-Readable means that the user can read the files inside of the directory, and
-executable means that the user can move into the directory.
-       
-This type should only be used for directories that only need to be read.
-
-
 #### ExecFile
+
 For ExecFile types, we confirm that
     
     1. The value is a file that exists
     2. The caller has permission to execute the file
 
 #### File
+
 For File types we confirm that the value is a file that exists
 
 #### Boolean
@@ -87,6 +65,37 @@ Integer types are validated by seeing if python can convert them to an int.
 
 Decimal types are validated by seeing if python can convert them to a floats
     
+#### Directory
+
+For this basic Directory type, we confirm that the directory exists
+  and do not check any permissions.
+  
+If one wants read/write/executable permissions checks, use a more
+  specific directory type below.
+    
+#### OutputDirectory
+
+For types listed as OutputDirectory, we confirm that
+
+    1. The directory exists
+    2. It has readable, writeable, and executable permissions
+       for the current user
+       
+This type should be used for directories that the workflow will write into.
+
+#### ReadOnlyDirectory
+
+For types listed as ReadOnlyDirectory, we confirm that
+
+    1. The directory exists
+    2. It has readable and executable permissions
+       for the current user
+       
+Readable means that the user can read the files inside of the directory, and
+executable means that the user can move into the directory.
+       
+This type should only be used for directories that only need to be read.
+
 
 # IMPORTANT NOTE!
 

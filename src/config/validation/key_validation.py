@@ -173,6 +173,15 @@ class Validator:
         def make_message(message):
             return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
 
+        # Directory ###
+        if lowered_key_type in ("directory", "dir"):
+            # Checks if the directory exists, and does not check permissions
+            if not self.__directory_exists(key_value):
+                self.project_logger.log_error("E.val.Dir.1", "The directory: '" + key_value + "' could not be found.")
+                return False
+            else:
+                return True
+
         # Output Directory ###
         if lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
             # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
@@ -205,7 +214,7 @@ class Validator:
 
         # Read-only Directory ###
         elif lowered_key_type in (
-                "directory", "read-only-directory", "read_only_directory", "read-only_directory", "read-only",
+                "read-only-directory", "read_only_directory", "read-only_directory", "read-only",
                 "readonly", "readonlydirectory", "readonlydir", "read-only-dir", "read_only_dir", "read only",
                 "read only dir", "read only directory"
         ):

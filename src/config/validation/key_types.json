@@ -1,7 +1,7 @@
 {
   "CallBlock1Tasks.Platform": "String",
   "CallBlock1Tasks.SentieonLicense": "String",
-  "CallBlock1Tasks.Threads": "String",
+  "CallBlock1Tasks.Threads": "Integer",
   "CallBlock1Tasks.RefPac": "File",
   "CallBlock1Tasks.RefBwt": "File",
   "CallBlock1Tasks.Group": "String",
@@ -14,7 +14,7 @@
   "CallBlock1Tasks.DebugMode": "String",
   "CallBlock1Tasks.RefAmb": "File",
   "CallBlock1Tasks.PairedEnd": "Boolean",
-  "CallBlock1Tasks.Sentieon": "String",
+  "CallBlock1Tasks.Sentieon": "Directory",
   "CallBlock1Tasks.Ref": "File",
   "CallBlock1Tasks.SampleName": "String",
   "CallBlock1Tasks.InputRead2": "String",
