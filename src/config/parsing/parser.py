@@ -135,6 +135,7 @@ class Parser:
             2. Verifies that the Value is enclosed in double quotes
             3. Verifies that no special characters are present in the Values
             4. Verifies that no Key is present more than once
+            5. Verifies that no value is whitespace only
         """
         # List comprehensions to create complete list of keys
         keys_list = [k for k, v in key_value_pairs]
