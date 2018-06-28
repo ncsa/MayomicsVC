@@ -25,6 +25,16 @@ Error Code List
 E.val.JSN.1 = An input JSON file could not be found
 E.val.JSN.2 = An input JSON file was not formatted properly
 
+E.val.OuD.1 = A output directory that is supposed to be readable, writeable, and executable could not be found
+E.val.OuD.2 = A output directory does not have read permissions for the current user
+E.val.OuD.3 = A output directory does not have write permissions for the current user
+E.val.OuD.4 = A output directory does not have executable permissions for the current user
+
+E.val.ROD.1 = A directory that is supposed to be readable and executable could not be found
+E.val.ROD.2 = A read-only directory does not have read permissions for the current user
+E.val.ROD.3 = A read-only directory does not have executable permissions for the current user
+
+
 E.val.ExF.1 = A file expected to be executable could not be found
 E.val.ExF.2 = A file expected to be executable was not executable by the current user
 
@@ -122,6 +132,15 @@ class Validator:
             return "FileNotFound"
 
     @staticmethod
+    def __directory_exists(directory_path):
+        """
+        Determines whether a given directory exists
+
+        Returns a boolean
+        """
+        return os.path.isdir(directory_path)
+
+    @staticmethod
     def __is_integer(input_string):
         """
         Will return true for integer strings like "9", "2", etc. but false for strings like "3.14" or "NotAString"
@@ -154,8 +173,65 @@ class Validator:
         def make_message(message):
             return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
 
+        # Output Directory ###
+        if lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
+            # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
+            #   and write (permission to create contents in) permissions
+            if not self.__directory_exists(key_value):
+                self.project_logger.log_error("E.val.OuD.1", "The directory: '" + key_value + "' could not be found.")
+                return False
+            else:
+                readable = os.access(key_value, os.R_OK)
+                writeable = os.access(key_value, os.W_OK)
+                executable = os.access(key_value, os.X_OK)
+                if not readable:
+                    self.project_logger.log_error("E.val.OuD.2", "The output directory: '" + key_value +
+                                                  "' does not have read permissions for the current user."
+                                                  )
+                    return False
+                elif not writeable:
+                    self.project_logger.log_error("E.val.OuD.3", "The output directory: '" + key_value +
+                                                  "' does not have write permissions for the current user."
+                                                  )
+                    return False
+                elif not executable:
+                    self.project_logger.log_error("E.val.OuD.4", "The output directory: '" + key_value +
+                                                  "' does not have executable permissions for the current user."
+                                                  )
+                    return False
+                else:
+                    # The directory was found and has the necessary permissions
+                    return True
+
+        # Read-only Directory ###
+        elif lowered_key_type in (
+                "directory", "read-only-directory", "read_only_directory", "read-only_directory", "read-only",
+                "readonly", "readonlydirectory", "readonlydir", "read-only-dir", "read_only_dir", "read only",
+                "read only dir", "read only directory"
+        ):
+            # Checks if the directory exists, and has executable (ability to traverse into) and read (read contents).
+            if not self.__directory_exists(key_value):
+                self.project_logger.log_error("E.val.ROD.1", "The directory: '" + key_value + "' could not be found.")
+                return False
+            else:
+                readable = os.access(key_value, os.R_OK)
+                executable = os.access(key_value, os.X_OK)
+                if not readable:
+                    self.project_logger.log_error("E.val.ROD.2", "The directory: '" + key_value +
+                                                  "' does not have read permissions for the current user."
+                                                  )
+                    return False
+                elif not executable:
+                    self.project_logger.log_error("E.val.ROD.3", "The directory: '" + key_value +
+                                                  "' does not have executable permissions for the current user."
+                                                  )
+                    return False
+                else:
+                    # The directory was found and is readable and executable
+                    return True
+
         # ExecFile ###
-        if lowered_key_type in ("execfile", "exec_file", "executable"):
+        elif lowered_key_type in ("execfile", "exec_file", "executable"):
             # exec_status can only be one of three strings: Success, FileNotFound, or FileNotExecutable
             exec_status = self.__file_is_executable(key_value)
             if exec_status == "Success":
@@ -220,7 +296,7 @@ class Validator:
         else:
             self.project_logger.log_error(
                 'E.val.UNK.1',
-                'Input variable "' + key_name + '" has the type "' + key_value +
+                'Input variable "' + key_name + '" has the type "' + key_type +
                 '" in the key types file, which is not a recognized type ' +
                 '(see src/config/validation/README.md for a list of valid types)'
             )

@@ -23,7 +23,31 @@ The 'key_types.json' file contains only one kind of entry: key-value pairs.
   and the value represents the keys type
 
 ### Valid Types
-    
+
+#### OutputDirectory
+
+For types listed as OutputDirectory, we confirm that
+
+    1. The directory exists
+    2. It has readable, writeable, and executable permissions
+       for the current user
+       
+This type should be used for directories that the workflow will write into.
+
+#### ReadOnlyDirectory
+
+For types listed as ReadOnlyDirectory, we confirm that
+
+    1. The directory exists
+    2. It has readable and executable permissions
+       for the current user
+       
+Readable means that the user can read the files inside of the directory, and
+executable means that the user can move into the directory.
+       
+This type should only be used for directories that only need to be read.
+
+
 #### ExecFile
 For ExecFile types, we confirm that
     
