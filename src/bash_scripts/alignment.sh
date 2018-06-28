@@ -224,6 +224,7 @@ fi
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.alignment.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.alignment.log
 
 if [[ ! -z ${ERRLOG+x} ]]
 then

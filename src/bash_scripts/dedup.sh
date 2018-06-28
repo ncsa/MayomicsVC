@@ -204,6 +204,7 @@ fi
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.dedup.log
 
 if [[ -z ${ERRLOG+x} ]]
 then

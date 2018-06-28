@@ -52,7 +52,7 @@ DOCS
 
 set -o errexit
 set -o pipefail
-#set -o nounset
+set -o nounset
 
 SCRIPT_NAME=Haplotyper.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
@@ -128,7 +128,7 @@ function logInfo()
 #--------------------------------------------------------------------------------------------------------------------------------
 ## GETOPS ARGUMENT PARSER
 #--------------------------------------------------------------------------------------------------------------------------------
-while getopts ":hs:O:S:L:G:t:b:D:r:e:d" OPT
+while getopts ":hs:S:L:G:t:b:D:r:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -142,9 +142,6 @@ do
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			;;
-		O ) # Output directory. String variable invoked with -O
-			OUTDIR=${OPTARG}
 			;;
 		S ) # Full path to Sentieon executable. String variable invoked with -S
 			SENTIEON=${OPTARG}
@@ -167,11 +164,9 @@ do
 		r ) #Full path to the recal_data.table created in the BQSR step
 			RECAL=${OPTARG}
 			;;
-		e ) # Full path to error log file. String variable invoked with -e
-			ERRLOG=${OPTARG}
-			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
-			DEBUG=${OPTARG}
+			echo -e "\nDebug mode is ON.\n"
+			set -x
 			;;
 	esac
 done

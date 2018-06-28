@@ -201,21 +201,14 @@ then
 	exit 1
 fi
 
-## Create log for JOB_ID/script
+## Create log for JOB_ID/script and tool
 ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.cutadapt.log
 
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Check if input files, directories, and variables are non-zero
-if [[ -z ${ERRLOG+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Log file was not created."
-else
-	truncate -s 0 "${ERRLOG}"
-	echo "${MANIFEST}" >> "${ERRLOG}"
-fi
 if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1
