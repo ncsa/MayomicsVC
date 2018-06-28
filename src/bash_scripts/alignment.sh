@@ -224,13 +224,7 @@ fi
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.alignment.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.alignment.log
-
-if [[ ! -z ${ERRLOG+x} ]]
-then
-        echo -e "\nLog file ${ERRLOG} does not exist.\n"
-        exit 1
-fi
+truncate -s 0 ${SAMPLE}.align_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -369,7 +363,7 @@ logInfo "[SENTIEON] Converting SAM to BAM..."
 
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.alignment.log 2>&1
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.align_sentieon.log 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 

@@ -202,16 +202,9 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup.log
-
-if [[ -z ${ERRLOG+x} ]]
-then
-        echo -e "\nLog file ${ERRLOG} does not exist.\n"
-        exit 1
-fi
-
+truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -286,7 +279,7 @@ logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 ## Locus Collector command
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -299,7 +292,7 @@ logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

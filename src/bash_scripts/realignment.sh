@@ -210,13 +210,9 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
-
-if [[ -z ${ERRLOG+x} ]]
-then
-        echo -e "\nLog file ${ERRLOG} does not exist.\n"
-        exit 1
-fi
+ERRLOG=${SAMPLE}.realignment.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.realign_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -306,7 +302,7 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon Realignment error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realignment.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

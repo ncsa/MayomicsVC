@@ -37,11 +37,11 @@ read -r -d '' DOCS << DOCS
 	 -b 	</path/to/Sorted_deDuped.bam>
 	 -D 	</path/to/dbsnp.vcf>
 	 -k 	</path/to/known_indels.vcf>
-	 -d 	debug_mode [false]
+	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -k known_indels.vcf 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -k known_indels.vcf -d 
 
 ############################################################################################################################
 
@@ -221,13 +221,11 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.bqsr.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
 
-
-
 ## Create log for the specific tool in this script, bqsr. 
-TOOL_LOG=${SAMPLE}.bqsr.log
+TOOL_LOG=${SAMPLE}.bqsr_sentieon.log
 truncate -s 0 "${TOOL_LOG}"
 
 

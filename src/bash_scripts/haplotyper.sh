@@ -194,9 +194,10 @@ then
 fi
 
 ## Send Manifest to log
-ERRLOG="${SAMPLE}.haplotyper.${SGE_JOB_ID}.log"
+ERRLOG=${SAMPLE}.haplotyper.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.haplotyper.log
+truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
+
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if the Sentieon executable is present.
@@ -263,7 +264,7 @@ export SENTIEON_LICENSE=${LICENSE}
 
 #Execute sentieon with the Haplotyper algorithm
 trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotyper.log 2>&1
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
