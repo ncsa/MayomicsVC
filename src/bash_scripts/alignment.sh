@@ -328,8 +328,6 @@ SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 logInfo "[BWA-MEM] START."
 
 ## BWA-MEM command, run for each read against a reference genome.
-## Allocates all available threads to the process.
-######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
