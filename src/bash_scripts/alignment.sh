@@ -222,11 +222,13 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.alignment.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.alignment.log
 
-if [[ ! -f ${ERRLOG} ]]
+if [[ ! -z ${ERRLOG+x} ]]
 then
-        echo -e "\nLog file ${ERRLOG} is not a file.\n"
+        echo -e "\nLog file ${ERRLOG} does not exist.\n"
         exit 1
 fi
 
@@ -326,13 +328,11 @@ SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 logInfo "[BWA-MEM] START."
 
 ## BWA-MEM command, run for each read against a reference genome.
-## Allocates all available threads to the process.
-######## ASK ABOUT INTERLEAVED OPTION. NOTE: CAN ADD LANE TO RG OR REMOVE STRING
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -343,7 +343,7 @@ then
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 100000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 

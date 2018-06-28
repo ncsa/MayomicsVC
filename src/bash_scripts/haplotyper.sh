@@ -10,7 +10,12 @@ read -r -d '' MANIFEST << MANIFEST
 command line input: ${@}
 *******************************************
 MANIFEST
-echo "${MANIFEST}"
+echo -e "\n${MANIFEST}"
+
+
+
+
+
 
 read -r -d '' DOCS << DOCS
 
@@ -25,7 +30,6 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  Haplotyper.sh     -s 	<sample_name>
- 		   -O	</path/to/output_dir>
 		   -S	</path/to/sentieon>
 		   -L	<sentieon_license>
 		   -G	</path/to/ref.fa>
@@ -33,12 +37,11 @@ read -r -d '' DOCS << DOCS
 		   -b	</path/to/Sorted_deDuped.bam>
 		   -D	</path/to/dbsnp.vcf>
 		   -r	</path/to/recal_data.table>
-		   -e	</path/to/error_log>
-		   -d   debug_mode [false]
+		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -O output_dir -S sention -L sentieon_license -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -e error.log
+ Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 
@@ -47,7 +50,7 @@ DOCS
 
 set -o errexit
 set -o pipefail
-#set -o nounset
+set -o nounset
 
 SCRIPT_NAME=Haplotyper.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
@@ -71,7 +74,7 @@ function getDate()
 function _logMsg () {
     echo -e "${1}"
 
-    if [[ -n ${LOG_FILE-x} ]]; then
+    if [[ -n ${ERRLOG-x} ]]; then
         echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
     fi
 }
@@ -123,23 +126,23 @@ function logInfo()
 #--------------------------------------------------------------------------------------------------------------------------------
 ## GETOPS ARGUMENT PARSER
 #--------------------------------------------------------------------------------------------------------------------------------
-while getopts ":hs:O:S:L:G:t:b:D:r:e:d" OPT
+
+## Check if no arguments were passed
+if (($# == 0))
+then
+        echo -e "\nNo arguments passed.\n\n${DOCS}\n"
+        exit 1
+fi
+
+while getopts ":hs:S:L:G:t:b:D:r:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
-			echo " "
-			echo "Usage:"
-			echo " "
-			echo "	bash Haplotyper.sh -h       Display this help message."
-			echo "	bash Haplotyper.sh  [-s <sample_name>] [-O </path/to/output_dir>] [-S </path/to/sentieon>] [-L <sentieon_license>]   [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/Sorted_deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-r </path/to/recal_data.table>] [-e </path/to/error_log>] [-d debug_mode [false]]"
-			echo " "
+			echo -e "\n${DOCS}\n "
 			exit 0;
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			;;
-		O ) # Output directory. String variable invoked with -O
-			OUTDIR=${OPTARG}
 			;;
 		S ) # Full path to Sentieon executable. String variable invoked with -S
 			SENTIEON=${OPTARG}
@@ -162,12 +165,18 @@ do
 		r ) #Full path to the recal_data.table created in the BQSR step
 			RECAL=${OPTARG}
 			;;
-		e ) # Full path to error log file. String variable invoked with -e
-			ERRLOG=${OPTARG}
-			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
-			DEBUG=${OPTARG}
+			echo -e "\nDebug mode is ON.\n"
+			set -x
 			;;
+		\? )  # Check for unsupported flag, print usage and exit.
+                        echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+                        exit 1
+                        ;;
+                : )  # Check for missing arguments, print usage and exit.
+                        echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
+                        exit 1
+                        ;;
 	esac
 done
 #---------------------------------------------------------------------------------------------------------------------------
@@ -177,39 +186,18 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
+## Check if sample name is set
+if [[ -z ${SAMPLE+x} ]]
+then
+	echo -e "$0 stopped at line $LINENO. \nREASON=Missing sample name option: -s"
+	exit 1
+fi
+
 ## Send Manifest to log
+ERRLOG="${SAMPLE}.haplotyper.${SGE_JOB_ID}.log"
+truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.haplotyper.log
 echo "${MANIFEST}" >> "${ERRLOG}"
-
-
-## Turn on Debug Mode to print all code
-if [[ ${DEBUG} == true ]]
-then
-        logInfo "Debug mode is ON."
-        set -x
-fi
-
-
-## Check if error log file is present.
-if [[ ! -f ${ERRLOG} ]]
-then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Error log file ${ERRLOG} does not exist."
-        exit 1
-fi
-
-## Check if sample name is present.
-if [[ -z ${SAMPLE} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
-fi
-
-## Check if the output directory exists.
-if [[ ! -d ${OUTDIR} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output directory ${OUTDIR} does not exist."
-fi
-
 
 ## Check if the Sentieon executable is present.
 if [[ ! -f ${SENTIEON} ]]
@@ -219,7 +207,7 @@ then
 fi
 
 #Check if the number of threads is present.
-if [[ -z ${NTHREADS} ]]
+if [[ -z ${NTHREADS+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Number of threads is not specified."
@@ -254,7 +242,7 @@ then
 fi
 
 ## Check if Sentieon license string is present.
-if [[ -z ${LICENSE} ]]
+if [[ -z ${LICENSE+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon license ${LICENSE} is not present or does not exist."
@@ -274,8 +262,11 @@ logInfo "[Haplotyper] START."
 export SENTIEON_LICENSE=${LICENSE}
 
 #Execute sentieon with the Haplotyper algorithm
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${OUTDIR}/${SAMPLE}.vcf
+trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotyper.log 2>&1
 EXITCODE=$?
+trap - INT TERM EXIT
+
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in Sentieon Haplotyper."
@@ -285,10 +276,10 @@ fi
 
 
 ## Open read permissions to the user group
-chmod g+r -R ${OUTDIR}
+chmod g+r ${SAMPLE}.vcf
 
 
-logInfo "[Haplotyper] Finished running successfully. Output for ${SAMPLE} can be found in ${OUTDIR}/"
+logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #-------------------------------------------------------------------------------------------------------------------------------
 
 

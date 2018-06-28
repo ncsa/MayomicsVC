@@ -11,8 +11,7 @@ read -r -d '' MANIFEST << MANIFEST
 command line input: ${@}
 *******************************************
 MANIFEST
-echo ""
-echo "${MANIFEST}"
+echo -e "\n${MANIFEST}"
 
 
 
@@ -150,12 +149,7 @@ while getopts ":hs:S:L:G:t:b:D:k:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
-			echo " "
-			echo "Usage:"
-			echo " "
-			echo "  bash bqsr.sh -h       Display this help message." 
-			echo "  bash bqsr.sh [-s <sample_name>] [-S </path/to/sentieon>] [-L <sentieon_license>] [-G </path/to/ref.fa>] [-t <threads>] [-b </path/to/Sorted_deDuped.bam>] [-D </path/to/dbsnp.vcf>] [-k </path/to/known_indels.vcf>] [-d debug_mode [false]]"
-			echo " "
+			echo -e "\n${DOCS}\n "
 			exit 0; 
 			;;
 		s ) # Sample name. String variable invoked with -s
