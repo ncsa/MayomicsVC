@@ -1,9 +1,0 @@
-{
-  "CallPrintReads.InputSamplesFile": "File",
-  "CallPrintReads.PrintReads.Exit_Code": "String",
-  "CallPrintReads.PrintReads.Failure_Logs": "String",
-  "CallPrintReads.PrintReads.RefFasta": "File",
-  "CallPrintReads.PrintReads.Recal_Report": "File",
-  "CallPrintReads.PrintReads.JAVA": "String",
-  "CallPrintReads.PrintReads.GATK": "String"
-}

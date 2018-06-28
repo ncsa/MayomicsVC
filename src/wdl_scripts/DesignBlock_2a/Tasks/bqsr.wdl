@@ -40,7 +40,7 @@ task bqsrTask {
 
    command {
 
-      /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
+      /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
 
    }
 

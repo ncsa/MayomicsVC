@@ -1,9 +1,0 @@
-{
-  "CallBaseRecalibration.BaseRecalibration.GATK": "String",
-  "CallBaseRecalibration.BaseRecalibration.Millsand1000GIndels": "File",
-  "CallBaseRecalibration.BaseRecalibration.Failure_Logs": "String",
-  "CallBaseRecalibration.InputSamplesFile": "File",
-  "CallBaseRecalibration.BaseRecalibration.JAVA": "String",
-  "CallBaseRecalibration.BaseRecalibration.RefFasta": "File",
-  "CallBaseRecalibration.BaseRecalibration.Exit_Code": "String"
-}
