@@ -10,7 +10,12 @@ read -r -d '' MANIFEST << MANIFEST
 command line input: ${@}
 *******************************************
 MANIFEST
-echo "${MANIFEST}"
+echo -e "\n${MANIFEST}"
+
+
+
+
+
 
 read -r -d '' DOCS << DOCS
 

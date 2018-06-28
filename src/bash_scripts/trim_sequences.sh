@@ -202,8 +202,7 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
-truncate -s 0 "${ERRLOG}"
+ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
 
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -213,6 +212,9 @@ if [[ -z ${ERRLOG+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Log file was not created."
+else
+	truncate -s 0 "${ERRLOG}"
+	echo "${MANIFEST}" >> "${ERRLOG}"
 fi
 if [[ -z ${ADAPTERS+x} ]]
 then

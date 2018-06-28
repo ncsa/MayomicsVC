@@ -203,10 +203,11 @@ fi
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
 
-if [[ ! -f ${ERRLOG} ]]
+if [[ -z ${ERRLOG+x} ]]
 then
-        echo -e "\nLog file ${ERRLOG} is not a file.\n"
+        echo -e "\nLog file ${ERRLOG} does not exist.\n"
         exit 1
 fi
 
