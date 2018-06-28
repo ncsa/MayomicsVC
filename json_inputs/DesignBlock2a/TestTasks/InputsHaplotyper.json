@@ -1,0 +1,14 @@
+{
+  "CallvariantCallingTask.variantCallingTask.DebugMode": "String",
+  "CallvariantCallingTask.variantCallingTask.DBSNPIdx": "File",
+  "CallvariantCallingTask.variantCallingTask.RecalTable": "File",
+  "CallvariantCallingTask.variantCallingTask.InputAlignedSortedDedupedRealignedBam": "File",
+  "CallvariantCallingTask.variantCallingTask.DBSNP": "File",
+  "CallvariantCallingTask.variantCallingTask.Threads": "String",
+  "CallvariantCallingTask.variantCallingTask.InputAlignedSortedDedupedRealignedBamIdx": "File",
+  "CallvariantCallingTask.variantCallingTask.Sentieon": "String",
+  "CallvariantCallingTask.variantCallingTask.HaplotyperScript": "File",
+  "CallvariantCallingTask.variantCallingTask.SampleName": "String",
+  "CallvariantCallingTask.variantCallingTask.SentieonLicense": "String",
+  "CallvariantCallingTask.variantCallingTask.Ref": "File"
+}

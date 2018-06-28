@@ -8,11 +8,7 @@ import "src/wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP
 
 workflow CallBlock1Tasks {
    
-   call CUTADAPTTRIM.trimsequencesTask as trimseq {
-      input:
-         InputRead1 = InputRead1,
-         InputRead2 = InputRead2
-   }
+   call CUTADAPTTRIM.trimsequencesTask as trimseq 
     
    call ALIGNMENT.alignmentTask as align {
       input:

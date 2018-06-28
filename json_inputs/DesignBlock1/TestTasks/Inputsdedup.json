@@ -1,0 +1,10 @@
+{
+  "CalldedupTask.dedupTask.SampleName": "String",
+  "CalldedupTask.dedupTask.Sentieon": "String",
+  "CalldedupTask.dedupTask.DedupScript": "File",
+  "CalldedupTask.dedupTask.SentieonLicense": "String",
+  "CalldedupTask.dedupTask.InputAlignedSortedBamIdx": "File",
+  "CalldedupTask.dedupTask.Threads": "String",
+  "CalldedupTask.dedupTask.InputAlignedSortedBam": "File",
+  "CalldedupTask.dedupTask.DebugMode": "String"
+}
