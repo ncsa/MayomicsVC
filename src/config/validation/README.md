@@ -99,4 +99,7 @@ This type should only be used for directories that only need to be read.
 
 # IMPORTANT NOTE!
 
- If any new variables are added to the Cromwell/WDL code, their types must be added to this list
+ If any new variables are added to the Cromwell/WDL code, 
+ their types must be added to the types list, located at:
+ 
+ ```src/config/validation/key_types.json```
