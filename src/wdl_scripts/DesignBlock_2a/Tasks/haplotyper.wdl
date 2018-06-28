@@ -31,7 +31,7 @@ task variantCallingTask {
    String Threads                                          # No of Threads for the Tool
    String SentieonLicense                                  # Sentieon License Information
    String Sentieon                                         # Path to Sentieon
-   Boolean DebugMode                                       # Enable or Disable Debug Mode
+   String DebugMode                                        # Enable or Disable Debug Mode
 
    File HaplotyperScript                                   # Path to bash script called within WDL script
 

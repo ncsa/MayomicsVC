@@ -2,9 +2,9 @@
 ####              This WDL script is used to run the  steps as individual modules              ##
 ##########################################################################################################
 
-import "src/wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
-import "src/wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGNMENT
+import "wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
+import "wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
 
 workflow CallBlock2aTasks {
 
@@ -27,7 +27,7 @@ workflow CallBlock2aTasks {
    String Threads                                      
    String SentieonLicense                              
    String Sentieon                                     
-   Boolean DebugMode                                   
+   String DebugMode                                   
 
    File RealignmentScript                              
    File BqsrScript

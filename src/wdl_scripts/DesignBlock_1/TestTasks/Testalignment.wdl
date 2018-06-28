@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "src/wdl_scripts/DesignBlock_1/Tasks/alignment.wdl" as ALIGN
+import "wdl_scripts/DesignBlock_1/Tasks/alignment.wdl" as ALIGN
 
 workflow CallalignmentTask {
 

@@ -4,7 +4,7 @@
 
 #########################################################################
 
-import "src/wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP
+import "wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP
 
 workflow CalldedupTask {
 

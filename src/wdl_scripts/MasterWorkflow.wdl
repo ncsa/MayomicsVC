@@ -2,8 +2,8 @@
 ####              This WDL script is used to run Design Block 1 and 2a together              ##
 ###############################################################################################
 
-import "src/wdl_scripts/DesignBlock_1/Workflow/TestBlock1.wdl" as WF1
-import "src/wdl_scripts/DesignBlock_2a/Workflow/TestBlock2a.wdl" as WF2
+import "wdl_scripts/DesignBlock_1/Workflow/TestBlock1.wdl" as WF1
+import "wdl_scripts/DesignBlock_2a/Workflow/TestBlock2a.wdl" as WF2
 
 workflow MasterWF {
 
@@ -11,8 +11,8 @@ workflow MasterWF {
 
    call WF2.CallBlock2aTasks as DB2a {
       input:
-         GlobalAlignedSortedDedupedBam = CALLWF1.GlobalAlignedSortedDedupedBam,
-         GlobalAlignedSortedDedupedBamIdx = CALLWF1.GlobalAlignedSortedDedupedBamIdx
+         GlobalAlignedSortedDedupedBam = DB1.GlobalAlignedSortedDedupedBam,
+         GlobalAlignedSortedDedupedBamIdx = DB1.GlobalAlignedSortedDedupedBamIdx
    }
 
 }
