@@ -13,7 +13,6 @@
 import json
 import argparse
 import sys
-import string
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
 
@@ -58,7 +57,10 @@ def parse_args():
                                 help="The input configuration files (Multiple entries of this flag are allowed)"
                                 )
     required_group.add_argument("--jsonTemplate", required=True, metavar='',
-                                help='The json template file to be filled in with data from the input files'
+                                help='The json template file that is filled in with data from the input files'
+                                )
+    required_group.add_argument("-o", required=True, metavar='',
+                                help='The location of the output file'
                                 )
     # Truly optional argument
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
@@ -197,16 +199,16 @@ class Parser:
             }
         """
         def add_index_key_value(key_suffix, value_suffix):
-            json_key = full_dict_key + "_" + key_suffix
+            json_key = full_dict_key + key_suffix
             json_value = trimmed_value + "." + value_suffix
             output_dictionary[json_key] = json_value
 
-        if config_key == "REF":
-            add_index_key_value("AMB", "amb")
-            add_index_key_value("ANN", "ann")
-            add_index_key_value("BWT", "bwt")
-            add_index_key_value("PAC", "pac")
-            add_index_key_value("SA", "sa")
+        if config_key == "Ref":
+            add_index_key_value("Amb", "amb")
+            add_index_key_value("Ann", "ann")
+            add_index_key_value("Bwt", "bwt")
+            add_index_key_value("Pac", "pac")
+            add_index_key_value("Sa", "sa")
 
             # dict files replace the '.fasta'/'.fa' extension with '.dict'
             # 'find' returns the index of the first char in the string searched for (or -1 if the string was not found)
@@ -220,10 +222,10 @@ class Parser:
                 sys.exit(1)
             else:
                 base_name = trimmed_value[:extension_start_index]
-                output_dictionary[full_dict_key + "_DICT"] = base_name + ".dict"
+                output_dictionary[full_dict_key + "Dict"] = base_name + ".dict"
 
         elif config_key == "DBSNP":
-            output_dictionary[str(full_dict_key) + "_IDX"] = str(trimmed_value) + ".idx"
+            output_dictionary[str(full_dict_key) + "Idx"] = str(trimmed_value) + ".idx"
 
 
     def insert_values_into_dict(self, starting_dict, key_value_tuple, file_path):
@@ -260,12 +262,12 @@ class Parser:
 
         return output_dict
 
-    def fill_in_json_template(self, input_file_list, json_template_file):
+    def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
          Takes in a list of input files and the location of the json file template, and writes an output file
            that contains the template's keys filled in with values from the input files
 
-         The original template file will be replaced with the filled-in version
+         The original template files contents will be copied, filled-in, and saved in the new output file
         """
         # Read in the information from the json template file as a Python Dictionary
         #   The values of the template dictionary are filled in as input files are processed
@@ -287,8 +289,8 @@ class Parser:
             # Update the values in the template dictionary
             template_dict = self.insert_values_into_dict(template_dict, key_value_tuples, file_path=input_file)
 
-        # Write the python dictionary out as a JSON file in the same location as the original template
-        with open(json_template_file, "r+") as updated_json:
+        # Write the python dictionary out as a JSON file in the output file location
+        with open(output_file, "w") as updated_json:
             json.dump(template_dict, updated_json, indent=4)
 
         # Write a success message to the log
@@ -311,7 +313,7 @@ def main():
         k_v_parser = Parser(args.jobID)
 
     # Fill in the json template file with values from the Key="Value" formatted input files
-    k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate)
+    k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate, args.o)
 
 
 if __name__ == '__main__':

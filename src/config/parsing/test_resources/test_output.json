@@ -5,11 +5,7 @@
     "major.minor.test_decimal": "3.14159",
     "major.minor.REF": "ref.fa",
     "major.minor.DBSNP": "dbsnp.vcf",
-    "major.minor.REF_AMB": "ref.fa.amb",
-    "major.minor.REF_ANN": "ref.fa.ann",
-    "major.minor.REF_BWT": "ref.fa.bwt",
-    "major.minor.REF_PAC": "ref.fa.pac",
-    "major.minor.REF_SA": "ref.fa.sa",
-    "major.minor.REF_DICT": "ref.dict",
-    "major.minor.DBSNP_IDX": "dbsnp.vcf.idx"
+    "major.minor1.LICENSE": "License.lic",
+    "major.minor2.LICENSE": "License.lic",
+    "major.minor.DBSNPIdx": "dbsnp.vcf.idx"
 }

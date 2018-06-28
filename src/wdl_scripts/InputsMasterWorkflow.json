@@ -5,17 +5,17 @@
   "MasterWF.DB1.InputRead2": "String",
   "MasterWF.DB1.RefAnn": "File",
   "MasterWF.DB2a.KnownSitesIdx": "File",
+  "MasterWF.DB1.AlignmentScript": "File",
   "MasterWF.DB2a.DebugMode": "Boolean",
   "MasterWF.DB1.RefPac": "File",
-  "MasterWF.DB1.RefFasta": "File",
   "MasterWF.DB1.Adapters": "File",
   "MasterWF.DB2a.HaplotyperScript": "File",
   "MasterWF.DB1.DedupScript": "File",
   "MasterWF.DB2a.RefFai": "File",
-  "MasterWF.DB2a.RefFasta": "File",
   "MasterWF.DB1.DebugMode": "String",
   "MasterWF.DB2a.RealignmentScript": "File",
   "MasterWF.DB2a.Sentieon": "String",
+  "MasterWF.DB1.Ref": "File",
   "MasterWF.DB1.SentieonLicense": "String",
   "MasterWF.DB2a.DBSNPIdx": "File",
   "MasterWF.DB2a.Threads": "String",
@@ -32,6 +32,6 @@
   "MasterWF.DB1.RefBwt": "File",
   "MasterWF.DB2a.KnownSites": "File",
   "MasterWF.DB1.Group": "String",
-  "MasterWF.DB2a.RecalTable": "File",
-  "MasterWF.DB1.RefAmb": "File"
+  "MasterWF.DB1.RefAmb": "File",
+  "MasterWF.DB2a.Ref": "File"
 }

@@ -18,7 +18,7 @@ task realignmentTask {
    File InputAlignedSortedDedupedBam                   # Input Sorted Deduped Bam
    File InputAlignedSortedDedupedBamIdx                # Input Sorted Deduped Bam Index
 
-   File RefFasta                                       # Reference Genome
+   File Ref                                            # Reference Genome
    File RefFai                                         # Reference Index File
                                    
    String SampleName                                   # Name of the Sample
@@ -36,7 +36,7 @@ task realignmentTask {
  
    command {
 
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${RefFasta} -k ${KnownSites} -S ${Sentieon} -t ${Threads} ${DebugMode}
+      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${KnownSites} -S ${Sentieon} -t ${Threads} ${DebugMode}
 
    }
 

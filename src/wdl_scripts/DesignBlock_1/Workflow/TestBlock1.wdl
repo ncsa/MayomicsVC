@@ -19,7 +19,7 @@ workflow CallBlock1Tasks {
    String DebugMode
    String SampleName
 
-   File RefFasta
+   File Ref
    File RefAmb
    File RefAnn
    File RefBwt
@@ -32,6 +32,7 @@ workflow CallBlock1Tasks {
    String Sentieon 
 
    File TrimSeqScript
+   File AlignmentScript
    File DedupScript
 
 #####################################################################################          
@@ -53,7 +54,7 @@ workflow CallBlock1Tasks {
       input:
          InputRead1 = trimseq.TrimmedInputRead1,
          InputRead2 = trimseq.TrimmedInputRead2,
-         RefFasta = RefFasta,
+         Ref = Ref,
          SampleName = SampleName,
          RefAmb = RefAmb,
          RefAnn = RefAnn,

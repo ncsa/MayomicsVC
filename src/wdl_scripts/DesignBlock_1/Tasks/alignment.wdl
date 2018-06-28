@@ -18,7 +18,7 @@
 
 task alignmentTask {
 
-   File RefFasta                   # Reference Input Fasta File
+   File Ref                        # Reference Genome
    File InputRead1                 # Input Read File           
    String InputRead2               # Input Read File           
    String SampleName               # Name of the Sample
@@ -43,7 +43,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${RefFasta} -S ${Sentieon} -t ${Threads} ${DebugMode}
+      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -S ${Sentieon} -t ${Threads} ${DebugMode}
 
    }
 

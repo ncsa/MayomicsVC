@@ -18,7 +18,7 @@ task bqsrTask {
 
    File InputAlignedSortedDedupedRealignedBam            # Input Sorted Deduped Bam
    File InputAlignedSortedDedupedRealignedBamIdx         # Input Sorted Deduped Bam Index
-   File RefFasta                                         # Reference Genome
+   File Ref                                              # Reference Genome
 
    File RefFai                                           # Reference files that are provided as implicit inputs
                                                          # to the WDL Tool to help perform the realignment
@@ -40,7 +40,7 @@ task bqsrTask {
 
    command {
 
-      /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${RefFasta} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
+      /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
 
    }
 

@@ -8,14 +8,14 @@ import "src/wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
 
 workflow CallBlock2aTasks {
 
-############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
-
    File GlobalAlignedSortedDedupedBam
    File GlobalAlignedSortedDedupedBamIdx
 
+############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
+
    String SampleName                                   
 
-   File RefFasta                            
+   File Ref                            
    File RefFai                                         
 
    File KnownSites                                     
@@ -24,8 +24,6 @@ workflow CallBlock2aTasks {
    File DBSNP
    File DBSNPIdx
    
-   File RecalTable
-
    String Threads                                      
    String SentieonLicense                              
    String Sentieon                                     
@@ -42,7 +40,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
          InputAlignedSortedDedupedBamIdx = GlobalAlignedSortedDedupedBamIdx,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          RefFai = RefFai,
          KnownSites = KnownSites,
          KnownSitesIdx = KnownSitesIdx,
@@ -58,7 +56,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
          InputAlignedSortedDedupedRealignedBamIdx = realign.AlignedSortedDedupedRealignedBamIdx,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          RefFai = RefFai,
          KnownSites = KnownSites,
          KnownSitesIdx = KnownSitesIdx,
@@ -77,7 +75,7 @@ workflow CallBlock2aTasks {
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBamIdx,
          RecalTable = bqsr.RecalTable,
          SampleName = SampleName,
-         RefFasta = RefFasta,
+         Ref = Ref,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          Threads = Threads,
