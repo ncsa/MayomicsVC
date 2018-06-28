@@ -4,7 +4,7 @@
 
 ##############################################################
 
-import "wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
+import "src/wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
 
 workflow CallbqsrTask {
 

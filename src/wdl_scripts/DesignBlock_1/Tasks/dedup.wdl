@@ -37,8 +37,8 @@ task dedupTask {
 
    output {
 
-      File AlignedSortedDeduppedBam = "${SampleName}.sorted.deduped.bam"
-      File AlignedSortedDeduppedBamIdx = "${SampleName}.sorted.deduped.bam.bai"
+      File AlignedSortedDeduppedBam = "${SampleName}.aligned.sorted.deduped.bam"
+      File AlignedSortedDeduppedBamIdx = "${SampleName}.aligned.sorted.deduped.bam.bai"
 
    }
 }

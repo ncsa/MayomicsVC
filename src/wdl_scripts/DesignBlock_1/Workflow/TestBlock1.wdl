@@ -2,9 +2,9 @@
 ####              This WDL script is used to run the Alignment steps as individual modules              ##
 ##########################################################################################################
 
-import "wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as CUTADAPTTRIM
-import "wdl_scripts/DesignBlock_1/Tasks/alignment.wdl" as ALIGNMENT
-import "wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP 
+import "src/wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as CUTADAPTTRIM
+import "src/wdl_scripts/DesignBlock_1/Tasks/alignment.wdl" as ALIGNMENT
+import "src/wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP 
 
 workflow CallBlock1Tasks {
 

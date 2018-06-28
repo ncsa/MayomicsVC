@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGN
+import "src/wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGN
 
 workflow CallRealignmentTask {
 
