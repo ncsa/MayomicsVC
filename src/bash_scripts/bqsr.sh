@@ -77,7 +77,7 @@ function getDate()
 function _logMsg () {
     echo -e "${1}"
   
-    if [[ -n ${ERRLOG-x} ]]; then
+    if [[ -n ${ERRLOG+x} ]]; then
         echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
     fi
 }
