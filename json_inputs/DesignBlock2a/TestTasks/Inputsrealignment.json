@@ -1,0 +1,14 @@
+{
+  "CallRealignmentTask.realignmentTask.DebugMode": "String",
+  "CallRealignmentTask.realignmentTask.InputAlignedSortedDedupedBamIdx": "File",
+  "CallRealignmentTask.realignmentTask.RefFai": "File",
+  "CallRealignmentTask.realignmentTask.InputAlignedSortedDedupedBam": "File",
+  "CallRealignmentTask.realignmentTask.KnownSites": "File",
+  "CallRealignmentTask.realignmentTask.RealignmentScript": "File",
+  "CallRealignmentTask.realignmentTask.SentieonLicense": "String",
+  "CallRealignmentTask.realignmentTask.Threads": "String",
+  "CallRealignmentTask.realignmentTask.Sentieon": "String",
+  "CallRealignmentTask.realignmentTask.KnownSitesIdx": "File",
+  "CallRealignmentTask.realignmentTask.Ref": "File",
+  "CallRealignmentTask.realignmentTask.SampleName": "String"
+}

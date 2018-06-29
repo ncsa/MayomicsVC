@@ -1,0 +1,11 @@
+{
+  "RunTrimInputSequencesTask.trimsequencesTask.InputRead2": "String",
+  "RunTrimInputSequencesTask.trimsequencesTask.TrimSeqScript": "File",
+  "RunTrimInputSequencesTask.trimsequencesTask.DebugMode": "String",
+  "RunTrimInputSequencesTask.trimsequencesTask.Threads": "String",
+  "RunTrimInputSequencesTask.trimsequencesTask.Adapters": "File",
+  "RunTrimInputSequencesTask.trimsequencesTask.SampleName": "String",
+  "RunTrimInputSequencesTask.trimsequencesTask.CutAdapt": "String",
+  "RunTrimInputSequencesTask.trimsequencesTask.InputRead1": "File",
+  "RunTrimInputSequencesTask.trimsequencesTask.PairedEnd": "Boolean"
+}

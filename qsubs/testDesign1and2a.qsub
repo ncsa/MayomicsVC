@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#PBS -A bany
+#PBS -N TestDesign
+#PBS -l walltime=2:30:00
+#PBS -l nodes=1:ppn=40
+#PBS -o /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/align_test.o
+#PBS -e /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/align_test.e
+#PBS -q skylake
+#PBS -m be
+
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/align_test.o
+
+truncate --size 0 /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes//projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/align_test.e
+
+module load  cromwell/cromwell-29
+
+cd /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC
+
+java -jar $CROMWELL run /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/src/wdl_scripts/MasterWorkflow.wdl -i /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/src/wdl_scripts/InputsMasterWorkflow.json -p /projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/MayomicsVC/MayomicsVC.zip

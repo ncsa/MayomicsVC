@@ -1,0 +1,6 @@
+{
+  "test_string": "String",
+  "test_integer": "Integer",
+  "test_decimal": "Decimal",
+  "test_boolean": "Boolean"
+}

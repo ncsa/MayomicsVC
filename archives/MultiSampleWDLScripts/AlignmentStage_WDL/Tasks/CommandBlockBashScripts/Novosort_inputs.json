@@ -1,0 +1,7 @@
+{
+  "CallNovosortTask.NovosortTask.SORT": "/projects/bioinformatics/builds/novocraftV3.04.06.Linux2.6/novosort",
+  "CallNovosortTask.NovosortTask.Failure_Logs": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/Failure_Logs.txt",
+  "CallNovosortTask.NovosortTask.Exit_Code": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/Exit_Code.txt",
+  "CallNovosortTask.NovosortTask.BashScriptPath": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/Novosort.sh",
+  "CallNovosortTask.InputSamplesFile": "/projects/mgc/Project_1/ram/CromwellWDL_WorkFlow_Development/WorkflowCodes/Genomics_MGC_GenomeGPS_CromwelWDL/src/AlignmentStage_WDL/Tasks/CommandBlockBashScripts/inputTSV.txt"
+}

@@ -1,0 +1,3 @@
+WGS_chr1_5X_E0.005_copy1 ran BWA MEM and samtools view for 24 seconds
+WGS_chr1_5X_E0.005_copy2 ran BWA MEM and samtools view for 29 seconds
+WGS_chr1_5X_E0.005_copy3 ran BWA MEM and samtools view for 90 seconds
