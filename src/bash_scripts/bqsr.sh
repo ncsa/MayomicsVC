@@ -7,7 +7,8 @@
 
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *******************************************
 MANIFEST
