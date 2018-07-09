@@ -1,12 +1,13 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------------------------------
-## Haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
+## haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
 #------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *******************************************
 MANIFEST
@@ -22,8 +23,8 @@ read -r -d '' DOCS << DOCS
 
 #######################################################################################################################################################
 #
-# Perform Sentieon's Haplotyper variant caller on the bam produced in the Deduplication stage of the Mayomics workflow
-# BQSR must be run before to this stage to calculate the required modification of the quality scores.
+# Perform Sentieon's Haplotyper variant caller on the bam produced in the Deduplication stage of the Mayomics workflow.
+# bqsr.sh must be run before to this stage to calculate the required modification of the quality scores.
 # Step 2/3 in Single Sample Variant Calling.
 #
 ########################################################################################################################################################

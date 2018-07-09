@@ -243,7 +243,7 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
-if [[ -z ${KNOWN} ]]
+if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"

@@ -244,7 +244,7 @@ fi
 if [[ ! -s ${SENTIEON} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
 fi
 
 #Check if the number of threads is present.
