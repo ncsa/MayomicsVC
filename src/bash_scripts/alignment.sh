@@ -273,6 +273,16 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
+if [[ -z ${GROUP+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -g"
+fi
+if [[ -z ${PLATFORM+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
+fi
 if [[ -z ${SENTIEON+x} ]]
 then
         EXITCODE=1
