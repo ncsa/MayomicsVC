@@ -124,6 +124,14 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError near ${OPTARG} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -150,24 +158,31 @@ do
 			;;
 		l )  # Full path to input read 1. String variable invoked with -l
 			INPUT1=${OPTARG}
+			checkArg
 			;;
 		r )  # Full path to input read 2. String variable invoked with -r
 			INPUT2=${OPTARG}
+			checkArg
 			;;
 		A )  # Full path to adapters fasta file. String variable invoked with -A
 			ADAPTERS=${OPTARG}
+			checkArg
 			;;
 		C )  # Full path to cutadapt installation directory. String variable invoked with -C
 			CUTADAPT=${OPTARG}
+			checkArg
 			;;
 		t )  # Number of threads available. Integer invoked with -t
 			THR=${OPTARG}
+			checkArg
 			;;
 		P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
 			IS_PAIRED_END=${OPTARG}
+			checkArg
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
+			checkArg
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
 			echo -e "\nDebug mode is ON.\n"
@@ -195,7 +210,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
 	exit 1
@@ -251,6 +266,18 @@ then
 		EXITCODE=1
                 logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
         fi
+	if [[ "${INPUT2}" == null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
+	fi
+fi
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	if [[  "${INPUT2}" != null ]]
+	then
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
+	fi
 fi
 if [[ -z ${CUTADAPT+x} ]]
 then

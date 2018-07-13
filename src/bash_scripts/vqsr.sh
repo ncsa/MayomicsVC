@@ -136,6 +136,14 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError near ${OPTARG} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -164,33 +172,43 @@ do
 			;;
 		s ) # Sample name. Invoked with -s.
 			SAMPLE=${OPTARG}
+			checkArg
 			;;
 		S ) #Sentieon executable. Invoked with -S.
 			SENTIEON=${OPTARG}
+			checkArg
 			;;
 		L ) #Sentieon license. Invoked with -L.
 			LICENSE=${OPTARG}
+			checkArg
 			;;
 		G ) #Reference genome. Invoked with -G.
 			REF=${OPTARG}
+			checkArg
 			;;
 		V ) #Sample VCF file output from Haplotyper. Invoked with -V.
 			SAMPLEVCF=${OPTARG}
+			checkArg
 			;;
 		H ) #Hapmap VCF file as a known site. Invoked with -H
 			HAPMAP=${OPTARG}
+			checkArg
 			;;
 		O ) #Omni VCF file as a known site. Invoked with -O.
 			OMNI=${OPTARG}
+			checkArg
 			;;
 		T ) #1000 genomes VCF file as a known site. Invoked with -T.
 			THOUSANDG=${OPTARG}
+			checkArg
 			;;
 		D ) #dbSNP VCF file as a known site. Invoked with -D.
 			DBSNP=${OPTARG}
+			checkArg
 			;;
 		m ) #Mills VCF file as a known site. Invoked with -m.
 			MILLS=${OPTARG}
+			checkArg
 			;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text.
 			echo -e "\nDebug mode is ON.\n"
@@ -223,7 +241,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 ## Check if sample name is present.
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
