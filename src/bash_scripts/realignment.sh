@@ -134,7 +134,7 @@ function logInfo()
 function checkArg()
 {
     if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError near ${OPTARG} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
         exit 1;
     fi
 }
