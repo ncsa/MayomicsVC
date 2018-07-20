@@ -8,10 +8,12 @@
     --jsonTemplate      "json Input file to which path information is written into"      (Required)
 
     --jobID             "The job ID (defaults to 'NA')"                                  (Optional)
+    -d                  "Enables debug mode"                                             (Optional)
 """
 
 import json
 import argparse
+import logging
 import sys
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
@@ -64,13 +66,18 @@ def parse_args():
                                 )
     # Truly optional argument
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
+    # Debug mode is on when the flag is present and is false by default
+    parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
     return parser.parse_args()
 
 
 class Parser:
-    def __init__(self, job_id="NA"):
+    def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger
-        self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser")
+        if debug_mode:
+            self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser", logging.DEBUG)
+        else:
+            self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser")
         self.job_id = job_id
 
     def read_input_file(self, file_path):
@@ -180,6 +187,8 @@ class Parser:
                     "E.par.Key.1", "Key '" + key + "' is present more than once in input file '" + file_path + "'"
                 )
                 sys.exit(1)
+            else:
+                self.project_logger.log_debug("The key-value pair '" + key + "=" + value + "' is a valid pair")
 
     def handle_special_keys(self, config_key, full_dict_key, output_dictionary, trimmed_value, file_path):
         """
@@ -309,9 +318,9 @@ def main():
 
     # Instantiation of the Parser class
     if args.jobID is None:
-        k_v_parser = Parser()
+        k_v_parser = Parser(debug_mode=args.d)
     else:
-        k_v_parser = Parser(args.jobID)
+        k_v_parser = Parser(args.jobID, debug_mode=args.d)
 
     # Fill in the json template file with values from the Key="Value" formatted input files
     k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate, args.o)
