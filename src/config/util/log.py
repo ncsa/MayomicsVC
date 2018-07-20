@@ -22,9 +22,8 @@ The JOBID/NA and ERRORCODE terms cannot be easily added to the default logging f
   that automatically format the JOBID and ERRORCODE terms
 '''
 class ProjectLogger:
-    def __init__(self, job_id, name):
-        # setup logging threshold and format
-        logging.basicConfig(level=logging.INFO,
+    def __init__(self, job_id, name, log_level=logging.INFO):
+        logging.basicConfig(level=log_level,
                             format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
                             datefmt="%Y-%m-%dT%H:%M:%S%z"
                             )
