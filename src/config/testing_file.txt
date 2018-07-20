@@ -1,5 +1,0 @@
-#Paths to Input Files
-
-RefFasta="/usr/local/Fasta"
-
-Ref_Ann_File="/usr/local/RefAnnFile"

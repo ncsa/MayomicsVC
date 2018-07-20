@@ -1,0 +1,19 @@
+{
+  "CallalignmentTask.alignmentTask.Ref": "File",
+  "CallalignmentTask.alignmentTask.Threads": "String",
+  "CallalignmentTask.alignmentTask.InputRead1": "File",
+  "CallalignmentTask.alignmentTask.RefSa": "File",
+  "CallalignmentTask.alignmentTask.RefPac": "File",
+  "CallalignmentTask.alignmentTask.DebugMode": "String",
+  "CallalignmentTask.alignmentTask.PairedEnd": "Boolean",
+  "CallalignmentTask.alignmentTask.InputRead2": "String",
+  "CallalignmentTask.alignmentTask.AlignmentScript": "File",
+  "CallalignmentTask.alignmentTask.RefAnn": "File",
+  "CallalignmentTask.alignmentTask.Sentieon": "String",
+  "CallalignmentTask.alignmentTask.RefAmb": "File",
+  "CallalignmentTask.alignmentTask.SentieonLicense": "String",
+  "CallalignmentTask.alignmentTask.Group": "String",
+  "CallalignmentTask.alignmentTask.SampleName": "String",
+  "CallalignmentTask.alignmentTask.Platform": "String",
+  "CallalignmentTask.alignmentTask.RefBwt": "File"
+}

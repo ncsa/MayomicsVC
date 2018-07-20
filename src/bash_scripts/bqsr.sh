@@ -7,7 +7,8 @@
 
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *******************************************
 MANIFEST
@@ -76,7 +77,7 @@ function getDate()
 function _logMsg () {
     echo -e "${1}"
   
-    if [[ -n ${ERRLOG+x} ]]; then
+    if [[ -n ${ERRLOG-x} ]]; then
         echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
     fi
 }
@@ -130,6 +131,15 @@ function logInfo()
   
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
+
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #--------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -154,35 +164,35 @@ do
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			#echo ${SAMPLE}
+			checkArg
 			;;
 		S ) # Full path to Sentieon executable. String variable invoked with -S
 			SENTIEON=${OPTARG}
-			#echo ${SENTIEON}
+			checkArg
 			;;
 		L ) # Sentieon license number. Invoked with -L 
 			LICENSE=${OPTARG}
-			#echo ${LICENSE}
+			checkArg
 			;;
 		G ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
-			#echo ${REF}
+			checkArg
 			;;
 		t ) # Number of threads available. Integer invoked with -t
 			NTHREADS=${OPTARG}
-			#echo ${NTHREADS}
+			checkArg
 			;;
 		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
 			INPUTBAM=${OPTARG}
-			#echo ${INPUTBAM}
+			checkArg
 			;;
 		D ) # Full path to DBSNP file. String variable invoked with -D.
 			DBSNP=${OPTARG}
-			#echo ${DBSNP}
+			checkArg
 			;;
 		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k #MIGHT TAKE IN MULTILPE FILES
 			KNOWN=${OPTARG}
-			#echo ${KNOWN}
+			checkArg
 			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
 			echo -e "\nDebug mode is ON.\n"
@@ -214,7 +224,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 ## Check if sample name is present.
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
@@ -243,7 +253,7 @@ fi
 if [[ ! -s ${SENTIEON} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
 fi
 
 #Check if the number of threads is present.

@@ -1,0 +1,16 @@
+{
+  "CallbqsrTask.bqsrTask.RefFai": "File",
+  "CallbqsrTask.bqsrTask.Ref": "File",
+  "CallbqsrTask.bqsrTask.SampleName": "String",
+  "CallbqsrTask.bqsrTask.BqsrScript": "File",
+  "CallbqsrTask.bqsrTask.Sentieon": "String",
+  "CallbqsrTask.bqsrTask.Threads": "String",
+  "CallbqsrTask.bqsrTask.DebugMode": "String",
+  "CallbqsrTask.bqsrTask.SentieonLicense": "String",
+  "CallbqsrTask.bqsrTask.KnownSites": "File",
+  "CallbqsrTask.bqsrTask.InputAlignedSortedDedupedRealignedBamIdx": "File",
+  "CallbqsrTask.bqsrTask.InputAlignedSortedDedupedRealignedBam": "File",
+  "CallbqsrTask.bqsrTask.KnownSitesIdx": "File",
+  "CallbqsrTask.bqsrTask.DBSNPIdx": "File",
+  "CallbqsrTask.bqsrTask.DBSNP": "File"
+}
