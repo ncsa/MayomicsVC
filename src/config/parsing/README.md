@@ -76,3 +76,6 @@ Basic checks:
     3. Are any keys present multiple times?
     4. Are any values completely whitespace characters surrounded by quote marks?
     5. Do any values have special characters? (Any of these: !#$%&()*;<>?@[]^`{|}~ )
+    
+For values found in the 'NULLABLE_KEYS' list in 'src/config/util/nullable_keys.py', these values are
+  allowed to be empty. If they are, these basic checks are not done 
