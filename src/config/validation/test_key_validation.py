@@ -88,6 +88,11 @@ class TestValidator(unittest.TestCase):
         result = self.validator.check_key("key_of_unknown_type", "KeyValue", key_type="UnacceptableType")
         self.assertFalse(result)
 
+    def test_check_key_nullable_type_with_empty_value(self):
+        # InputRead2 is listed as a nullable (or optional) key in src/config/util/nullable_keys.py, so it can be empty
+        result = self.validator.check_key("InputRead2", "", key_type="File")
+        self.assertTrue(result)
+
 
 if __name__ == "__main__":
     unittest.main()
