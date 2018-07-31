@@ -36,11 +36,12 @@ read -r -d '' DOCS << DOCS
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
+                   -p		</path/to/python_env_var> (optional; use if python installs are dynamically linked)
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -p /path/to/python_env_var -d
 
 #############################################################################
 
@@ -149,7 +150,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:d" OPT
+while getopts ":hl:r:A:C:t:P:s:p:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -182,6 +183,10 @@ do
 			;;
 		s )  # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
+			checkArg
+			;;
+		p )  # Path to python-specific environmental variables. Invoked with -p
+			PY_ENV=${OPTARG}
 			checkArg
 			;;
 		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
@@ -224,6 +229,13 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## If provided, source the python environmental variables
+if [[ ! -z ${PY_ENV} ]]
+then
+	source ${PY_ENV}
+fi
+
+## Check existence and var type of inputs
 if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1

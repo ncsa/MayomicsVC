@@ -278,21 +278,21 @@ then
 	if [[ ! -s ${INPUT2} ]]
 	then
 		EXITCODE=1
-        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+		logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
 	fi
 	if [[ "${INPUT2}" == null ]]
-        then
-                EXITCODE=1
-                logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
-        fi
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
+	fi
 fi
 if [[ "${IS_PAIRED_END}" == false ]]
 then
-        if [[  "${INPUT2}" != null ]]
-        then
+	if [[  "${INPUT2}" != null ]]
+	then
 		EXITCODE=1
-                logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
-        fi
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
+	fi
 fi
 if [[ -z ${REFGEN+x} ]]
 then
@@ -404,7 +404,7 @@ logInfo "[SENTIEON] Converting SAM to BAM..."
 
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.align_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} - >> ${SAMPLE}.align_sentieon.log 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
@@ -442,7 +442,7 @@ chmod g+r ${SORTBAMIDX}
 
 logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."
 
-rm ${OUT}
+#rm ${OUT}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
