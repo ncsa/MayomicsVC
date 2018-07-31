@@ -11,6 +11,7 @@ import logging
 import pathlib
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
+from src.config.util.nullable_keys import NULLABLE_KEYS
 
 """
 Exit code Rules:
@@ -176,11 +177,20 @@ class Validator:
         For a given key, confirm that its value is of the type that is expected; returns True if the key is
             valid and False if it is not
 
-        If a value is validated, print an INFO message stating that X key was validated; return true
+        If a value is validated, print a DEBUG message stating that X key was validated; return true
         If a value is of a type that has no validation defined (such as String), print an INFO message; return true
         If a faulty value is found, print an ERROR message; return false
         """
         lowered_key_type = key_type.lower()
+
+        # If the key has an empty value, and it is in the NULLABLE_KEYS list (see src/config/util/nullable_keys.py)
+        #   then it is allowed to be blank, it counts as a valid entry
+        if key_value == "" and key_name in NULLABLE_KEYS:
+            self.project_logger.log_debug(
+                "The key '" + key_name + "' has an empty value; because it is an optional key, this is still valid"
+            )
+            # Stop the function here; do not try to validate this key
+            return True
 
         def make_message(message):
             return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message

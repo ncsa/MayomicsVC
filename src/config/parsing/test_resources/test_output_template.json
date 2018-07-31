@@ -7,5 +7,5 @@
   "major.minor.DBSNP": "String",
   "major.minor1.LICENSE": "String",
   "major.minor2.LICENSE": "String",
-  "major.minor.InputRead2": "String"
+  "major.minor.DebugMode": "String"
 }
