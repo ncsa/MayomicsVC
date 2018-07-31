@@ -332,6 +332,16 @@ class Validator:
             else:
                 self.project_logger.log_error('E.val.Dec.1', make_message('is not a valid number'))
                 return False
+        # DebugMode (special case where the only acceptable value is '-d')
+        elif lowered_key_type == "debugmode":
+            if key_value == "-d":
+                self.project_logger.log_debug(make_message('is the correct debug flag'))
+                return True
+            else:
+                self.project_logger.log_error(
+                    'E.val.Bug.1', make_message("is not valid: DebugMode must be blank or '-d'")
+                )
+                return False
         # Other ###
         # (kill the program if an unknown type is provided in the type file)
         else:
