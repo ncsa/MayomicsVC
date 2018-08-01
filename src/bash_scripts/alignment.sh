@@ -133,6 +133,14 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -160,33 +168,43 @@ do
 			;;
                 g )  # Read group ID. String variable invoked with -g
                         GROUP=${OPTARG}
+			checkArg
                         ;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
+			checkArg
                         ;;
                 p )  # Sequencing platform. String variable invoked with -p
                         PLATFORM=${OPTARG}
+			checkArg
                         ;;
                 l )  # Full path to input read 1. String variable invoked with -l
                         INPUT1=${OPTARG}
+			checkArg
                         ;;
                 r )  # Full path to input read 2. String variable invoked with -r
                         INPUT2=${OPTARG}
+			checkArg
                         ;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
+			checkArg
                         ;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
+			checkArg
                         ;;
 		L )  # Sentieon license. Invoked with -L
 			LICENSE=${OPTARG}
+			checkArg
 			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
+			checkArg
                         ;;
                 P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
                         IS_PAIRED_END=${OPTARG}
+			checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text
 			echo -e "\nDebug mode is ON.\n"
@@ -215,7 +233,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
         exit 1
@@ -260,7 +278,20 @@ then
 	if [[ ! -s ${INPUT2} ]]
 	then
 		EXITCODE=1
-        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+		logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+	fi
+	if [[ "${INPUT2}" == null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
+	fi
+fi
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	if [[  "${INPUT2}" != null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
 	fi
 fi
 if [[ -z ${REFGEN+x} ]]
@@ -272,6 +303,16 @@ if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+fi
+if [[ -z ${GROUP+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -g"
+fi
+if [[ -z ${PLATFORM+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
 fi
 if [[ -z ${SENTIEON+x} ]]
 then
@@ -307,6 +348,8 @@ fi
 OUT=${SAMPLE}.sam
 SORTBAM=${SAMPLE}.aligned.sorted.bam
 SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
+TOOL_LOG=${SAMPLE}.align_sentieon.log
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -321,12 +364,12 @@ SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 ## Record start time
 logInfo "[BWA-MEM] START."
 
-## BWA-MEM command, run for each read against a reference genome.
+## BWA-MEM command, run for each read against a reference genome. NOTE: We hard-code -K 10000000 as per the Sentieon manual recommendation.
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -337,7 +380,7 @@ then
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -363,7 +406,7 @@ logInfo "[SENTIEON] Converting SAM to BAM..."
 
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.align_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 

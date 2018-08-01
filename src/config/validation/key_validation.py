@@ -7,9 +7,11 @@ if sys.version_info[0] != 3 or sys.version_info[1] < 6:
 
 import os
 import argparse
+import logging
 import pathlib
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
+from src.config.util.nullable_keys import NULLABLE_KEYS
 
 """
 Exit code Rules:
@@ -45,6 +47,8 @@ E.val.Boo.1 = A value expected to be a boolean type was not
 E.val.Int.1 = A value expected to be an integer was not
 E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
 E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
+
+E.val.Bug.1 = The DebugMode key had a non-empty value that was not '-d'
 """
 
 
@@ -59,19 +63,30 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Validate values in Cromwell/WDL input file')
 
     required_group = parser.add_argument_group('required arguments')
-    required_group.add_argument('-i', type=str, help='JSON configuration file to validate', required=True)
-    required_group.add_argument('--KeyTypeFile', type=str, help='JSON file with typing info for keys', required=True)
+    required_group.add_argument('-i', metavar="", type=str, help='JSON configuration file to validate', required=True)
+    required_group.add_argument('--KeyTypeFile',
+                                type=str,
+                                metavar="",
+                                help='JSON file with typing info for keys',
+                                required=True
+                                )
 
     # Truly optional argument
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
+    # Debug mode is on when the flag is present and is false by default
+    parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
     return parser.parse_args()
 
 
 class Validator:
-    def __init__(self, job_id="NA"):
-        # Initialize the project logger
-        self.project_logger = ProjectLogger(job_id, "validation.key_validation.Validator")
+    def __init__(self, job_id="NA", debug_mode=False):
+        # Initialize the project logger (with the level at INFO by default and DEBUG if in debug mode)
+        if debug_mode:
+            self.project_logger = ProjectLogger(job_id, "validation.key_validation.Validator", logging.DEBUG)
+        else:
+            self.project_logger = ProjectLogger(job_id, "validation.key_validation.Validator")
         self.job_id = job_id
+        self.debug_mode = debug_mode
 
     @staticmethod
     def trim_config_file_keys(long_key_dict):
@@ -164,24 +179,23 @@ class Validator:
         For a given key, confirm that its value is of the type that is expected; returns True if the key is
             valid and False if it is not
 
-        If a value is validated, print an INFO message stating that X key was validated; return true
+        If a value is validated, print a DEBUG message stating that X key was validated; return true
         If a value is of a type that has no validation defined (such as String), print an INFO message; return true
         If a faulty value is found, print an ERROR message; return false
         """
         lowered_key_type = key_type.lower()
 
-        def make_message(message):
-            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
-
-        # For all variables, if the value is set to NULL, give an info message and stop the validation for that key
-        #   This is necessary because some variables are optional, and NULL is a way to signal to Cromwell/WDL that
-        #   nothing was entered
-        if key_value.lower() == 'null':
-            self.project_logger.log_info("The key '" + key_name + "' was set to '" + key_value +
-                                         "'; its type will not be validated "
-                                         )
+        # If the key has an empty value, and it is in the NULLABLE_KEYS list (see src/config/util/nullable_keys.py)
+        #   then it is allowed to be blank, it counts as a valid entry
+        if key_value == "" and key_name in NULLABLE_KEYS:
+            self.project_logger.log_debug(
+                "The key '" + key_name + "' has an empty value; because it is an optional key, this is still valid"
+            )
             # Stop the function here; do not try to validate this key
             return True
+
+        def make_message(message):
+            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
 
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
@@ -193,7 +207,7 @@ class Validator:
                 return True
 
         # Output Directory ###
-        if lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
+        elif lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
             # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
             #   and write (permission to create contents in) permissions
             if not self.__directory_exists(key_value):
@@ -254,7 +268,7 @@ class Validator:
             # exec_status can only be one of three strings: Success, FileNotFound, or FileNotExecutable
             exec_status = self.__file_is_executable(key_value)
             if exec_status == "Success":
-                self.project_logger.log_info(make_message('was found and is executable'))
+                self.project_logger.log_debug(make_message('was found and is executable'))
                 return True
             elif exec_status == "FileNotFound":
                 self.project_logger.log_error("E.val.ExF.1", make_message('could not be found'))
@@ -268,7 +282,7 @@ class Validator:
             # readable_status can only be one of three strings: Success, FileNotFound, or FileNotReadable
             readable_status = self.__file_is_readable(key_value)
             if readable_status == "Success":
-                self.project_logger.log_info(make_message('was found and is readable'))
+                self.project_logger.log_debug(make_message('was found and is readable'))
                 return True
             elif readable_status == "FileNotFound":
                 self.project_logger.log_error("E.val.Fil.1", make_message('could not be found'))
@@ -280,7 +294,7 @@ class Validator:
         # Boolean ###
         elif lowered_key_type in ("boolean", "bool"):
             if key_value.lower() in ("true", "false", "t", "f", "1", "0", "y", "n"):
-                self.project_logger.log_info(make_message('is a valid boolean value'))
+                self.project_logger.log_debug(make_message('is a valid boolean value'))
                 return True
             else:
                 self.project_logger.log_error("E.val.Boo.1", make_message('is not a valid boolean value'))
@@ -288,7 +302,7 @@ class Validator:
 
         # String ###
         elif lowered_key_type in ("string", "str"):
-            self.project_logger.log_warning(
+            self.project_logger.log_debug(
                 'Input variable "' + key_name + '" is a String type; no pre-workflow validation can take place'
             )
             return True
@@ -296,7 +310,7 @@ class Validator:
         # Integer ###
         elif lowered_key_type in ("integer", "int"):
             if self.__is_integer(key_value):
-                self.project_logger.log_info(make_message('is a valid integer'))
+                self.project_logger.log_debug(make_message('is a valid integer'))
                 return True
             else:
                 self.project_logger.log_error('E.val.Int.1', make_message('is not a valid integer'))
@@ -305,10 +319,20 @@ class Validator:
         # Decimal ###
         elif lowered_key_type == "decimal":
             if self.__is_float(key_value):
-                self.project_logger.log_info(make_message('is a valid number'))
+                self.project_logger.log_debug(make_message('is a valid number'))
                 return True
             else:
                 self.project_logger.log_error('E.val.Dec.1', make_message('is not a valid number'))
+                return False
+        # DebugMode (special case where the only acceptable value is '-d')
+        elif lowered_key_type == "debugmode":
+            if key_value == "-d":
+                self.project_logger.log_debug(make_message('is the correct debug flag'))
+                return True
+            else:
+                self.project_logger.log_error(
+                    'E.val.Bug.1', make_message("is not valid: DebugMode must be blank or '-d'")
+                )
                 return False
         # Other ###
         # (kill the program if an unknown type is provided in the type file)
@@ -359,7 +383,7 @@ def main():
     if args.jobID is None:
         validator = Validator()
     else:
-        validator = Validator(args.jobID)
+        validator = Validator(args.jobID, args.d)
 
     json_input_file = read_json_file(args.i, validator.project_logger,
                                      json_not_found_error_code="E.val.JSN.1",
