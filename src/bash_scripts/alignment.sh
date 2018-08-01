@@ -348,6 +348,8 @@ fi
 OUT=${SAMPLE}.sam
 SORTBAM=${SAMPLE}.aligned.sorted.bam
 SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
+TOOL_LOG=${SAMPLE}.align_sentieon.log
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -367,7 +369,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} >> ${SAMPLE}.align_sentieon.log 2>&1
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -378,7 +380,7 @@ then
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} >> ${SAMPLE}.align_sentieon.log 2>&1
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -404,7 +406,7 @@ logInfo "[SENTIEON] Converting SAM to BAM..."
 
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} - >> ${SAMPLE}.align_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
