@@ -36,13 +36,12 @@ read -r -d '' DOCS << DOCS
 	 -G 	</path/to/ref.fa>
 	 -t 	<threads>
 	 -b 	</path/to/Sorted_deDuped.bam>
-	 -D 	</path/to/dbsnp.vcf>
-	 -k 	</path/to/known_indels.vcf>
+	 -k 	<known_sites>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -k known_indels.vcf -d 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -k dbSNP.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
 
 ############################################################################################################################
 
@@ -384,6 +383,23 @@ fi
 #------------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #------------------------------------------------------------------------------------------------------------------------------------
+
+# Check for the creation of the recal_data.table necessary for input to Haplotyper. Open read permissions for the group.
+# The other files created in BQSR are not necessary for the workflow to run, so I am not performing checks on them.
+
+if [[ ! -s ${SAMPLE}.recal_data.table ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Recal data table ${SAMPLE}.recal_data.table is empty."
+fi
+
+chmod g+r ${SAMPLE}.recal_data.table
+
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 
 logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
