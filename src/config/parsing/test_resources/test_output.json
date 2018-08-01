@@ -7,5 +7,7 @@
     "major.minor.DBSNP": "dbsnp.vcf",
     "major.minor1.LICENSE": "License.lic",
     "major.minor2.LICENSE": "License.lic",
+    "major.minor.DebugMode": "",
+    "major.minor.InputRead2": "",
     "major.minor.DBSNPIdx": "dbsnp.vcf.idx"
 }
