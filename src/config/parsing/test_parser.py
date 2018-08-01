@@ -51,6 +51,12 @@ class TestParsingTools(unittest.TestCase):
         nullable_key_empty_value = [("InputRead2", "")]
         self.parser.validate_key_value_pairs(nullable_key_empty_value, file_path="dummy_file_path")
 
+    def test_validate_key_value_pairs_fail_empty_non_nullable_key(self):
+        # InputRead1 is a key that is not allowed to be empty (it must have a value)
+        key_empty_value = [("InputRead1", "")]
+        with self.assertRaises(SystemExit):
+            self.parser.validate_key_value_pairs(key_empty_value, file_path="dummy_file_path")
+
     def test_validate_key_value_pairs_fail_no_quotes(self):
         no_value_tuple = [("keyA", 'Value without quotes')]
         with self.assertRaises(SystemExit):
