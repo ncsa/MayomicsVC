@@ -151,7 +151,7 @@ class Parser:
         keys_list = [k for k, v in key_value_pairs]
 
         for key, value in key_value_pairs:
-            if key in NULLABLE_KEYS and value == "":
+            if key in NULLABLE_KEYS and (value == "" or value == '""'):
                 # These keys are allowed to have empty values, do not perform checking (simply write a debug message)
                 self.project_logger.log_debug(
                     "The key '" + key + "' had an empty value; since its value is optional, no error was thrown"
