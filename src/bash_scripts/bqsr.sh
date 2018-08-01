@@ -181,7 +181,7 @@ do
 			DBSNP=${OPTARG}
 			#echo ${DBSNP}
 			;;
-		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k #MIGHT TAKE IN MULTILPE FILES
+		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k
 			KNOWN=${OPTARG}
 			#echo ${KNOWN}
 			;;
