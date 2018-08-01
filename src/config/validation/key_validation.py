@@ -11,6 +11,7 @@ import logging
 import pathlib
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
+from src.config.util.nullable_keys import NULLABLE_KEYS
 
 """
 Exit code Rules:
@@ -46,6 +47,8 @@ E.val.Boo.1 = A value expected to be a boolean type was not
 E.val.Int.1 = A value expected to be an integer was not
 E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
 E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
+
+E.val.Bug.1 = The DebugMode key had a non-empty value that was not '-d'
 """
 
 
@@ -176,24 +179,23 @@ class Validator:
         For a given key, confirm that its value is of the type that is expected; returns True if the key is
             valid and False if it is not
 
-        If a value is validated, print an INFO message stating that X key was validated; return true
+        If a value is validated, print a DEBUG message stating that X key was validated; return true
         If a value is of a type that has no validation defined (such as String), print an INFO message; return true
         If a faulty value is found, print an ERROR message; return false
         """
         lowered_key_type = key_type.lower()
 
-        def make_message(message):
-            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
-
-        # For all variables, if the value is set to NULL, give an info message and stop the validation for that key
-        #   This is necessary because some variables are optional, and NULL is a way to signal to Cromwell/WDL that
-        #   nothing was entered
-        if key_value.lower() == 'null':
-            self.project_logger.log_debug("The key '" + key_name + "' was set to '" + key_value +
-                                          "'; its type will not be validated "
-                                          )
+        # If the key has an empty value, and it is in the NULLABLE_KEYS list (see src/config/util/nullable_keys.py)
+        #   then it is allowed to be blank, it counts as a valid entry
+        if key_value == "" and key_name in NULLABLE_KEYS:
+            self.project_logger.log_debug(
+                "The key '" + key_name + "' has an empty value; because it is an optional key, this is still valid"
+            )
             # Stop the function here; do not try to validate this key
             return True
+
+        def make_message(message):
+            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
 
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
@@ -205,7 +207,7 @@ class Validator:
                 return True
 
         # Output Directory ###
-        if lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
+        elif lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
             # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
             #   and write (permission to create contents in) permissions
             if not self.__directory_exists(key_value):
@@ -321,6 +323,16 @@ class Validator:
                 return True
             else:
                 self.project_logger.log_error('E.val.Dec.1', make_message('is not a valid number'))
+                return False
+        # DebugMode (special case where the only acceptable value is '-d')
+        elif lowered_key_type == "debugmode":
+            if key_value == "-d":
+                self.project_logger.log_debug(make_message('is the correct debug flag'))
+                return True
+            else:
+                self.project_logger.log_error(
+                    'E.val.Bug.1', make_message("is not valid: DebugMode must be blank or '-d'")
+                )
                 return False
         # Other ###
         # (kill the program if an unknown type is provided in the type file)

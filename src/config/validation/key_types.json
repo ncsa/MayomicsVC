@@ -27,6 +27,6 @@
   "Adapters": "File",
   "RefAmb": "File",
   "SampleName": "String",
-  "DebugMode": "String",
+  "DebugMode": "DebugMode",
   "SentieonLicense": "String"
 }

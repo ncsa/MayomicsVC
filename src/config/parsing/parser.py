@@ -17,6 +17,7 @@ import logging
 import sys
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
+from src.config.util.nullable_keys import NULLABLE_KEYS
 
 """
 Exit code Rules:
@@ -137,6 +138,8 @@ class Parser:
         """
          Takes in a list of (Key, Value) tuples, and confirms that they are valid (or throws an error)
 
+        Keys that are allowed to be empty are not checked (see src/config/util/nullable_keys.py)
+
          Checks performed:
             1. Verifies that all Keys have an associated Value
             2. Verifies that the Value is enclosed in double quotes
@@ -148,47 +151,53 @@ class Parser:
         keys_list = [k for k, v in key_value_pairs]
 
         for key, value in key_value_pairs:
-            # Check that the value is not empty
-            if value == '':
-                self.project_logger.log_error(
-                    "E.par.NVa.1",
-                    "No value present for key '" + key + "' in input file '" + file_path + "'"
+            if key in NULLABLE_KEYS and (value == "" or value == '""'):
+                # These keys are allowed to have empty values, do not perform checking (simply write a debug message)
+                self.project_logger.log_debug(
+                    "The key '" + key + "' had an empty value; since its value is optional, no error was thrown"
                 )
-                sys.exit(1)
-            # Check that the value is enclosed in double quotes
-            elif value[0] != '"' or value[-1] != '"':
-                self.project_logger.log_error(
-                    "E.par.NQt.1",
-                    "No quotes around the value for key '" + key + "' in input file '" + file_path + "'"
-                )
-                sys.exit(1)
-            # Check to see that non-whitespace are present between the quote marks
-            #   value[1:-1] trims off the first and last chars and strip removes all whitespace characters from the ends
-            elif value[1:-1].strip() == '':
-                self.project_logger.log_error(
-                    "E.par.WhS.1",
-                    "Only whitespace found in value '" + value + "' of key '" + key + "' in input file '" +
-                    file_path + "'"
-                )
-                sys.exit(1)
-            # Check if any special characters are present
-            special_chars = "!#$%&()*;<>?@[]^`{|}~"
-            for special_char in special_chars:
-                if special_char in value:
+            else:
+                # Check that the value is not empty
+                if value == '':
                     self.project_logger.log_error(
-                        "E.par.SpC.1",
-                        "Invalid special character '" + special_char + "' found in value '" + value +
-                        "' of key '" + key + "' in input file '" + file_path + "'"
+                        "E.par.NVa.1",
+                        "No value present for key '" + key + "' in input file '" + file_path + "'"
                     )
                     sys.exit(1)
-            # Check whether any key is present multiple times
-            if keys_list.count(key) > 1:
-                self.project_logger.log_error(
-                    "E.par.Key.1", "Key '" + key + "' is present more than once in input file '" + file_path + "'"
-                )
-                sys.exit(1)
-            else:
-                self.project_logger.log_debug("The key-value pair '" + key + "=" + value + "' is a valid pair")
+                # Check that the value is enclosed in double quotes
+                elif value[0] != '"' or value[-1] != '"':
+                    self.project_logger.log_error(
+                        "E.par.NQt.1",
+                        "No quotes around the value for key '" + key + "' in input file '" + file_path + "'"
+                    )
+                    sys.exit(1)
+                # Check to see that non-whitespace are present between the quote marks
+                #   value[1:-1] trims off the first and last chars and strip removes all whitespace chars from the ends
+                elif value[1:-1].strip() == '':
+                    self.project_logger.log_error(
+                        "E.par.WhS.1",
+                        "Only whitespace found in value '" + value + "' of key '" + key + "' in input file '" +
+                        file_path + "'"
+                    )
+                    sys.exit(1)
+                # Check if any special characters are present
+                special_chars = "!#$%&()*;<>?@[]^`{|}~"
+                for special_char in special_chars:
+                    if special_char in value:
+                        self.project_logger.log_error(
+                            "E.par.SpC.1",
+                            "Invalid special character '" + special_char + "' found in value '" + value +
+                            "' of key '" + key + "' in input file '" + file_path + "'"
+                        )
+                        sys.exit(1)
+                # Check whether any key is present multiple times
+                if keys_list.count(key) > 1:
+                    self.project_logger.log_error(
+                        "E.par.Key.1", "Key '" + key + "' is present more than once in input file '" + file_path + "'"
+                    )
+                    sys.exit(1)
+                else:
+                    self.project_logger.log_debug("The key-value pair '" + key + "=" + value + "' is a valid pair")
 
     def handle_special_keys(self, config_key, full_dict_key, output_dictionary, trimmed_value, file_path):
         """
@@ -237,7 +246,6 @@ class Parser:
         elif config_key == "DBSNP":
             output_dictionary[str(full_dict_key) + "Idx"] = str(trimmed_value) + ".idx"
 
-
     def insert_values_into_dict(self, starting_dict, key_value_tuple, file_path):
         """
          Takes an initial dictionary and a list of (Key, Value) tuples.
@@ -269,7 +277,6 @@ class Parser:
                     "Key '" + config_key + "' in config file '" + file_path +
                     "' had no corresponding key in the JSON template; this key-value pair was ignored"
                 )
-
         return output_dict
 
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):

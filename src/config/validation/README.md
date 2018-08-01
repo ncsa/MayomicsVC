@@ -96,6 +96,11 @@ executable means that the user can move into the directory.
        
 This type should only be used for directories that only need to be read.
 
+#### DebugMode
+
+This is a special case. The variable 'DebugMode' has only one acceptable value: '-d'.
+  This value is passed directly to the bash scripts, and passing any other value (other
+  than an empty value) will kill the script.
 
 # IMPORTANT NOTE!
 
