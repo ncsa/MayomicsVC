@@ -47,6 +47,8 @@ E.val.Boo.1 = A value expected to be a boolean type was not
 E.val.Int.1 = A value expected to be an integer was not
 E.val.Dec.1 = A value expected to be a Decimal (float or double) was not
 E.val.UNK.1 = A type listed in the key-types file was not recognized as a valid type
+
+E.val.Bug.1 = The DebugMode key had a non-empty value that was not '-d'
 """
 
 
