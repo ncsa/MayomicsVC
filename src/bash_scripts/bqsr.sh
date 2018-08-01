@@ -155,7 +155,7 @@ then
 fi
 
 
-while getopts ":hs:S:L:G:t:b:D:k:d" OPT
+while getopts ":hs:S:L:G:t:b:k:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -186,11 +186,7 @@ do
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
-		D ) # Full path to DBSNP file. String variable invoked with -D.
-			DBSNP=${OPTARG}
-			checkArg
-			;;
-		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k
+		k ) # Full path to known site indel file (known indels VCF), separated by a comma no space. String variable invoked with -k
 			KNOWN=${OPTARG}
 			checkArg
 			;;
@@ -291,32 +287,11 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
 fi
 
-## Check if dbSNP input file option was passed in
-if [[ -z ${DBSNP+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing dbSNP required option: -D"
-fi
-
-## Check if dbSNP file is present.
-if [[ ! -f ${DBSNP} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is not present or does not exist."
-fi
-
 ## Check if the known indels file is present.
 if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known indels file required option: -k"
-fi
-
-## Check if the known indels file is present.
-if [[ ! -f ${KNOWN} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Known indels file ${KNOWN} is not present or does not exist."
 fi
 
 ## Check if Sentieon license string is present.
@@ -326,6 +301,21 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon liscence required option: -L"
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+## FILENAME AND OPTION PARSING
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Parse known sites list of multiple files. Create multiple -k flags for sentieon
+SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -343,7 +333,7 @@ export SENTIEON_LICENSE=${LICENSE}
 #Calculate required modification of the quality scores in the BAM
 
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -355,7 +345,7 @@ fi
 
 #Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${DBSNP} -k ${KNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
+${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
