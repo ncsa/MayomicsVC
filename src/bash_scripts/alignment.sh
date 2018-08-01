@@ -444,7 +444,7 @@ chmod g+r ${SORTBAMIDX}
 
 logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."
 
-#rm ${OUT}
+rm ${OUT}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
