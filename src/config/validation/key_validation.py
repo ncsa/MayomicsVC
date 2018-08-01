@@ -197,16 +197,6 @@ class Validator:
         def make_message(message):
             return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
 
-        # For all variables, if the value is set to NULL, give an info message and stop the validation for that key
-        #   This is necessary because some variables are optional, and NULL is a way to signal to Cromwell/WDL that
-        #   nothing was entered
-        if key_value.lower() == 'null':
-            self.project_logger.log_debug("The key '" + key_name + "' was set to '" + key_value +
-                                          "'; its type will not be validated "
-                                          )
-            # Stop the function here; do not try to validate this key
-            return True
-
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
             # Checks if the directory exists, and does not check permissions
@@ -217,7 +207,7 @@ class Validator:
                 return True
 
         # Output Directory ###
-        if lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
+        elif lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
             # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
             #   and write (permission to create contents in) permissions
             if not self.__directory_exists(key_value):
