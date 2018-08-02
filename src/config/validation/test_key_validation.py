@@ -89,8 +89,8 @@ class TestValidator(unittest.TestCase):
         self.assertFalse(result)
 
     def test_check_key_nullable_type_with_empty_value(self):
-        # InputRead2 is listed as a nullable (or optional) key in src/config/util/nullable_keys.py, so it can be empty
-        result = self.validator.check_key("InputRead2", "", key_type="File")
+        # DebugMode is listed as a nullable (or optional) key in src/config/util/nullable_keys.py, so it can be empty
+        result = self.validator.check_key("DebugMode", "", key_type="DebugMode")
         self.assertTrue(result)
 
 
