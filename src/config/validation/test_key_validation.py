@@ -17,7 +17,6 @@ class TestValidator(unittest.TestCase):
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
     validator.project_logger.logger.disabled = True
 
-
     def test_trim_config_file_keys(self):
         full_config = {"major.minor.KeyName1": 1, "major.minor.KeyName2": 2}
         expected_trimmed_config = {"KeyName1": 1, "KeyName2": 2}
@@ -57,7 +56,7 @@ class TestValidator(unittest.TestCase):
                 msg=value + " was considered a valid " + key_type + " even though it should not be"
             )
         else:
-            self.assertTrue(result, msg=value + " is not considered a valid " + key_type)
+            self.assertTrue(result, msg=value + " is not considered a valid " + key_type + " type")
 
     def test_check_key_int(self):
         self.__check_key_tester(value="8", key_type="Integer")
@@ -88,10 +87,22 @@ class TestValidator(unittest.TestCase):
         result = self.validator.check_key("key_of_unknown_type", "KeyValue", key_type="UnacceptableType")
         self.assertFalse(result)
 
-    def test_check_key_nullable_type_with_empty_value(self):
-        # DebugMode is listed as a nullable (or optional) key in src/config/util/nullable_keys.py, so it can be empty
+    def test_check_key_optional_type_with_empty_value(self):
+        # DebugMode is listed as an optional key in src/config/util/special_keys.py, so it can be empty
         result = self.validator.check_key("DebugMode", "", key_type="DebugMode")
         self.assertTrue(result)
+
+    def test_check_key_nullable_type_with_null_value(self):
+        # InputRead2 is listed as a nullable key in src/config/util/special_keys.py, and can be set to "null"
+        result = self.validator.check_key("InputRead2", "null", key_type="File")
+        self.assertTrue(result)
+
+    def test_check_key_nullable_type_with_empty_value_failure(self):
+        # InputRead2 is listed as a nullable key in src/config/util/special_keys.py, so it can NOT be empty
+        result = self.validator.check_key("InputRead2", "", key_type="File")
+        self.assertFalse(result)
+
+    # def test_check_key_nullable_type_
 
 
 if __name__ == "__main__":

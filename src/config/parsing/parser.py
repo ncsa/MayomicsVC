@@ -17,7 +17,7 @@ import logging
 import sys
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
-from src.config.util.nullable_keys import NULLABLE_KEYS
+from src.config.util.special_keys import OPTIONAL_KEYS
 
 """
 Exit code Rules:
@@ -138,7 +138,7 @@ class Parser:
         """
          Takes in a list of (Key, Value) tuples, and confirms that they are valid (or throws an error)
 
-        Keys that are allowed to be empty are not checked (see src/config/util/nullable_keys.py)
+        Keys that are allowed to be empty are not checked (see src/config/util/special_keys.py)
 
          Checks performed:
             1. Verifies that all Keys have an associated Value
@@ -151,7 +151,7 @@ class Parser:
         keys_list = [k for k, v in key_value_pairs]
 
         for key, value in key_value_pairs:
-            if key in NULLABLE_KEYS and (value == "" or value == '""'):
+            if key.lower() in OPTIONAL_KEYS and (value == "" or value == '""'):
                 # These keys are allowed to have empty values, do not perform checking (simply write a debug message)
                 self.project_logger.log_debug(
                     "The key '" + key + "' had an empty value; since its value is optional, no error was thrown"
