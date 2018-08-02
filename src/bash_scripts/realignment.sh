@@ -41,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k dbSNP.vcf,indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
 
 #############################################################################
 
