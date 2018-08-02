@@ -32,7 +32,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  vqsr.sh -s <sample_name>
- 	 -S </path/to/Sentieon>
+ 	 -S </path/to/sentieon>
 	 -L <Sentieon_license>
 	 -G </path/to/ref.fa>
 	 -V </path/to/sample-hc.vcf>
@@ -174,7 +174,7 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) #Sentieon executable. Invoked with -S.
+		S ) #Full path to Sentieon. Invoked with -S.
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
@@ -266,7 +266,7 @@ then
 fi
 
 ## Check if the Sentieon executable is present.
-if [[ ! -s ${SENTIEON} ]]
+if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
@@ -413,7 +413,7 @@ RESOURCE_TEXT="${RESOURCE_TEXT} --resource ${HAPMAP} --resource_param hapmap,kno
 
 ## Run the VQSR for SNPs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR VarCal for SNPs. " ' INT TERM EXIT 
-${SENTIEON} driver -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
+${SENTIEON}/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -425,7 +425,7 @@ fi
 
 ## Apply VQSR for SNPs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR ApplyVarCal for SNPs. " ' INT TERM EXIT
-${SENTIEON} driver -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf
+${SENTIEON}/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -437,7 +437,7 @@ fi
 
 ## Plot the report for SNP VQSR
 trap 'logError " $0 stopped at line ${LINENO} Error in plot VQSR for SNPs. " ' INT TERM EXIT
-${SENTIEON} plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
+${SENTIEON}/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -459,7 +459,7 @@ RESOURCE_TEXT="${RESOURCE_TEXT} --resource ${DBSNP} --resource_param dbsnp,known
 
 ## Run the VQSR for INDELs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR VarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON} driver -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
+${SENTIEON}/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -471,7 +471,7 @@ fi
 
 ## Apply VQSR for INDELs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR ApplyVarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON} driver -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf
+${SENTIEON}/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -483,7 +483,7 @@ fi
 
 ## Plot the report for INDEL VQSR
 trap 'logError " $0 stopped at line ${LINENO} Error in plot VQSR for INDELs. " ' INT TERM EXIT
-${SENTIEON} plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
+${SENTIEON}/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]

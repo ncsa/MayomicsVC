@@ -155,7 +155,7 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to Sentieon executable. String variable invoked with -S
+		S ) # Full path to Sentieon. String variable invoked with -S
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
@@ -219,7 +219,7 @@ truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if the Sentieon executable is present.
-if [[ ! -f ${SENTIEON} ]]
+if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
@@ -282,7 +282,7 @@ export SENTIEON_LICENSE=${LICENSE}
 
 #Execute sentieon with the Haplotyper algorithm
 trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+${SENTIEON}/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

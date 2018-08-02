@@ -41,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -k dbSNP.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -k dbSNP1.vcf,dbSNP2.vcf,dbSNP3.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
 
 ############################################################################################################################
 
@@ -165,7 +165,7 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to Sentieon executable. String variable invoked with -S
+		S ) # Full path to Sentieon. String variable invoked with -S
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
@@ -245,7 +245,7 @@ then
 fi
 
 ## Check if the Sentieon executable is present.
-if [[ ! -s ${SENTIEON} ]]
+if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
@@ -332,7 +332,7 @@ export SENTIEON_LICENSE=${LICENSE}
 #Calculate required modification of the quality scores in the BAM
 
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+${SENTIEON}/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -344,7 +344,7 @@ fi
 
 #Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
+${SENTIEON}/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -356,7 +356,7 @@ fi
 
 #Create data for plotting
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step3: Create data for plotting. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
+${SENTIEON}/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -368,7 +368,7 @@ fi
 
 #Plot the calibration data tables, both pre and post, into graphs in a pdf
 trap 'logError "$0 stopped at line ${LINENO}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf. " ' INT TERM EXIT
-${SENTIEON} plot bqsr -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
+${SENTIEON}/sentieon plot bqsr -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
