@@ -33,16 +33,16 @@ read -r -d '' DOCS << DOCS
  Haplotyper.sh     -s 	<sample_name>
 		   -S	</path/to/sentieon>
 		   -L	<sentieon_license>
-		   -G	</path/to/ref.fa>
+		   -G	<reference_genome>
 		   -t	<threads>
-		   -b	</path/to/Sorted_deDuped.bam>
-		   -D	</path/to/dbsnp.vcf>
-		   -r	</path/to/recal_data.table>
+		   -b	<sorted.deduped.realigned.bam>
+		   -D	<dbsnp.vcf>
+		   -r	<recal_data.table>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sorted.deduped.realigned.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 

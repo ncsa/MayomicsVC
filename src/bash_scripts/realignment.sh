@@ -31,7 +31,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  realignment.sh    -s           <sample_name> 
-                   -b           <deduped.bam>
+                   -b           <sorted.deduped.bam>
                    -G		<reference_genome>
                    -k		<known_sites>
                    -S           </path/to/sentieon> 
@@ -169,7 +169,7 @@ do
 			checkArg
                         ;;
 		b )  # Full path to the input deduped BAM. String variable invoked with -b
-			DEDUPEDBAM=${OPTARG}
+			INPUTBAM=${OPTARG}
 			checkArg
 			;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
@@ -233,20 +233,20 @@ truncate -s 0 ${SAMPLE}.realign_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${DEDUPEDBAM+x} ]]
+if [[ -z ${INPUTBAM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing input deduplicated BAM option: -b"
 fi
-if [[ ! -s ${DEDUPEDBAM} ]]
+if [[ ! -s ${INPUTBAM} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${DEDUPEDBAM} is empty or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${INPUTBAM} is empty or does not exist."
 fi
-if [[ ! -s ${DEDUPEDBAM}.bai ]]
+if [[ ! -s ${INPUTBAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${DEDUPEDBAM} is empty or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${INPUTBAM} is empty or does not exist."
 fi
 if [[ -z ${REFGEN+x} ]]
 then
@@ -317,7 +317,7 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon Realignment error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

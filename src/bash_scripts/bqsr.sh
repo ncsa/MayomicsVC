@@ -33,15 +33,15 @@ read -r -d '' DOCS << DOCS
  bqsr.sh -s 	<sample_name>
 	 -S 	</path/to/sentieon> 
 	 -L	<sentieon_license>
-	 -G 	</path/to/ref.fa>
+	 -G 	<reference_genome>
 	 -t 	<threads>
-	 -b 	</path/to/Sorted_deDuped.bam>
+	 -b 	<sorted.deduped.realigned.bam>
 	 -k 	<known_sites>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -k dbSNP1.vcf,dbSNP2.vcf,dbSNP3.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sorted.deduped.realigned.bam -k dbSNP1.vcf,dbSNP2.vcf,dbSNP3.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
 
 ############################################################################################################################
 

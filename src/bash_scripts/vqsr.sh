@@ -34,18 +34,18 @@ read -r -d '' DOCS << DOCS
  vqsr.sh -s <sample_name>
  	 -S </path/to/sentieon>
 	 -L <Sentieon_license>
-	 -G </path/to/ref.fa>
-	 -V </path/to/sample-hc.vcf>
-	 -H </path/to/hapmap.vcf>
-	 -O </path/to/omni.vcf>
-	 -T </path/to/1000genomes.vcf>
-	 -D </path/to/dbsnp.vcf>
-	 -m </path/to/mills.vcf>
+	 -G <reference_genome>
+	 -V <sample.vcf>
+	 -H <hapmap.vcf>
+	 -O <omni.vcf>
+	 -T <1000genomes.vcf>
+	 -D <dbsnp.vcf>
+	 -m <mills.vcf>
 	 -d turn on debug mode
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S sentieon -L sentieon_license -G ref.fa -V sample.vcf -H hapmap.vcf -O omni.vcf -T THOUSANDG.vcf -D dbsnp.vcf -m mills.vcf -d
+ vqsr.sh -s sample -S sentieon -L sentieon_license -G ref.fa -V sample.vcf -H hapmap.vcf -O omni.vcf -T thousandg.vcf -D dbsnp.vcf -m mills.vcf -d
 
 ##################################################################################################################################
 
