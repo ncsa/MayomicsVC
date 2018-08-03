@@ -413,7 +413,7 @@ RESOURCE_TEXT="${RESOURCE_TEXT} --resource ${HAPMAP} --resource_param hapmap,kno
 
 ## Run the VQSR for SNPs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR VarCal for SNPs. " ' INT TERM EXIT 
-${SENTIEON}/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
+${SENTIEON}/bin/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -425,7 +425,7 @@ fi
 
 ## Apply VQSR for SNPs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR ApplyVarCal for SNPs. " ' INT TERM EXIT
-${SENTIEON}/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf
+${SENTIEON}/bin/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -437,7 +437,7 @@ fi
 
 ## Plot the report for SNP VQSR
 trap 'logError " $0 stopped at line ${LINENO} Error in plot VQSR for SNPs. " ' INT TERM EXIT
-${SENTIEON}/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
+${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -459,7 +459,7 @@ RESOURCE_TEXT="${RESOURCE_TEXT} --resource ${DBSNP} --resource_param dbsnp,known
 
 ## Run the VQSR for INDELs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR VarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON}/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
+${SENTIEON}/bin/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_TEXT} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -471,7 +471,7 @@ fi
 
 ## Apply VQSR for INDELs
 trap 'logError " $0 stopped at line ${LINENO} Error in VQSR ApplyVarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON}/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf
+${SENTIEON}/bin/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -483,7 +483,7 @@ fi
 
 ## Plot the report for INDEL VQSR
 trap 'logError " $0 stopped at line ${LINENO} Error in plot VQSR for INDELs. " ' INT TERM EXIT
-${SENTIEON}/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
+${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
