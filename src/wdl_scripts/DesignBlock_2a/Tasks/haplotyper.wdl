@@ -44,6 +44,7 @@ task variantCallingTask {
   output {
    
       File VCF = "${SampleName}.vcf"
+      File VcfIdx = "${SampleName}.vcf.idx"
     
    }
 
