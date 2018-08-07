@@ -45,7 +45,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S sentieon -L sentieon_license -G ref.fa -V sample.vcf -H hapmap.vcf -O omni.vcf -T thousandg.vcf -D dbsnp.vcf -m mills.vcf -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -V sample.vcf -H hapmap.vcf -O omni.vcf -T thousandg.vcf -D dbsnp.vcf -m mills.vcf -d
 
 ##################################################################################################################################
 
@@ -175,39 +175,39 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) #Full path to Sentieon. Invoked with -S.
+		S ) # Full path to sentieon directory. Invoked with -S
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
-		L ) #Sentieon license. Invoked with -L.
+		L ) # Sentieon license. Invoked with -L.
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-		G ) #Reference genome. Invoked with -G.
+		G ) # Reference genome. Invoked with -G.
 			REF=${OPTARG}
 			checkArg
 			;;
-		V ) #Sample VCF file output from Haplotyper. Invoked with -V.
+		V ) # Sample VCF file output from Haplotyper. Invoked with -V.
 			SAMPLEVCF=${OPTARG}
 			checkArg
 			;;
-		H ) #Hapmap VCF file as a known site. Invoked with -H
+		H ) # Hapmap VCF file as a known site. Invoked with -H
 			HAPMAP=${OPTARG}
 			checkArg
 			;;
-		O ) #Omni VCF file as a known site. Invoked with -O.
+		O ) # Omni VCF file as a known site. Invoked with -O.
 			OMNI=${OPTARG}
 			checkArg
 			;;
-		T ) #1000 genomes VCF file as a known site. Invoked with -T.
+		T ) # 1000 genomes VCF file as a known site. Invoked with -T.
 			THOUSANDG=${OPTARG}
 			checkArg
 			;;
-		D ) #dbSNP VCF file as a known site. Invoked with -D.
+		D ) # dbSNP VCF file as a known site. Invoked with -D.
 			DBSNP=${OPTARG}
 			checkArg
 			;;
-		m ) #Mills VCF file as a known site. Invoked with -m.
+		m ) # Mills VCF file as a known site. Invoked with -m.
 			MILLS=${OPTARG}
 			checkArg
 			;;
@@ -267,7 +267,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 
 ## Check if the Sentieon license option was passed in.
@@ -288,7 +288,7 @@ fi
 if [[ ! -s ${REF} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${REF} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is not present or does not exist."
 fi
 
 ## Check if the sample VCF input file option was passed in.
@@ -417,7 +417,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 
 
@@ -429,7 +428,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 
 
@@ -441,7 +439,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 
 
@@ -463,7 +460,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 
 
@@ -475,7 +471,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
 
 
@@ -487,26 +482,42 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        exit ${EXITCODE};
 fi
+
+logInfo "[vqsr] Finished running successfully for ${SAMPLE}"
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-#------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
-#------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Check for the creation of final recalibrated VCF with the VQSR applied to SNPs and INDELs.
+if [[ ! -s ${SAMPLE}.${TYPE}.SNP.recaled.vcf ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Output recalibrated SNP/INDEL VCF is empty."
+fi
+
+chmod g+r ${SAMPLE}.${TYPE}.SNP.recaled.vcf
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}"
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------
 ## END
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------
 exit 0;
 

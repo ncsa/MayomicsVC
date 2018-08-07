@@ -36,12 +36,12 @@ read -r -d '' DOCS << DOCS
 	 -G 	<reference_genome>
 	 -t 	<threads>
 	 -b 	<sorted.deduped.realigned.bam>
-	 -k 	<known_sites>
+	 -k 	<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sorted.deduped.realigned.bam -k indels1.vcf,indels2.vcf,indels3.vcf -d 
+ bqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -d 
 
 ############################################################################################################################
 

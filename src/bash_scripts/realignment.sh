@@ -33,7 +33,7 @@ read -r -d '' DOCS << DOCS
  realignment.sh    -s           <sample_name> 
                    -b           <sorted.deduped.bam>
                    -G		<reference_genome>
-                   -k		<known_sites>
+                   -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
@@ -41,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k dbSNP.vcf,indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
 
 #############################################################################
 

@@ -42,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G ref.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 
