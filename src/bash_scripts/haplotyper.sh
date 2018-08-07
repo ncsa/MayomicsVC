@@ -42,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G ref.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 
@@ -157,31 +157,31 @@ do
 			echo -e "\n${DOCS}\n "
 			exit 0;
 			;;
-		s ) # Sample name. String variable invoked with -s
+		s ) # Sample name
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to sentieon directory. Invoked with -S
+		S ) # Full path to sentieon directory
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
-		L ) # Sentieon license number. Invoked with -L 
+		L ) # Sentieon license number
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-		G ) # Full path to referance genome fasta file. String variable invoked with -G
+		G ) # Full path to referance genome fasta file
 			REF=${OPTARG}
 			checkArg
 			;;
-		t ) # Number of threads available. Integer invoked with -t
+		t ) # Number of threads available
 			NTHREADS=${OPTARG}
 			checkArg
 			;;
-		b ) # Full path to BAM used as input. String variable invoked with -b
+		b ) # Full path to BAM used as input
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
-		D ) # Full path to DBSNP file. String variable invoked with -D.
+		D ) # Full path to DBSNP file
 			DBSNP=${OPTARG}
 			checkArg
 			;;
@@ -189,7 +189,7 @@ do
 			RECAL=${OPTARG}
 			checkArg
 			;;
-		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
+		d ) # Turn on debug mode. Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;

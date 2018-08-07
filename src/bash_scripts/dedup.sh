@@ -163,27 +163,27 @@ do
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-		s )  # Sample name. String variable invoked with -s
+		s )  # Sample name
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-                b )  # Full path to the input BAM file. String variable invoked with -b
+                b )  # Full path to the input BAM file
                         INPUTBAM=${OPTARG}
 			checkArg
                         ;;
-                S )  # Full path to sentieon directory. String variable invoked with -S
+                S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license number. Invoked with -L
+		L )  # Sentieon license number
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-                t )  # Number of threads available. Integer invoked with -t
+                t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
 			set -x
                         ;;

@@ -165,35 +165,35 @@ do
                         echo -e "\n${DOCS}\n"
                         exit 0
 			;;
-                s )  # Sample name. String variable invoked with -s
+                s )  # Sample name
                         SAMPLE=${OPTARG}
 			checkArg
                         ;;
-		b )  # Full path to the input deduped BAM. String variable invoked with -b
+		b )  # Full path to the input deduped BAM
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
-                G )  # Full path to referance genome fasta file. String variable invoked with -G
+                G )  # Full path to reference genome fasta file
                         REFGEN=${OPTARG}
 			checkArg
                         ;;
-		k )  # Full path to known sites files. String variable invoked with -k
+		k )  # Full path to known sites files
 			KNOWN=${OPTARG}
 			checkArg
 			;;
-                S )  # Full path to sentieon directory. Invoked with -S
+                S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license number. Invoked with -L
+		L )  # Sentieon license number
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-                t )  # Number of threads available. Integer invoked with -t
+                t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
                         ;;

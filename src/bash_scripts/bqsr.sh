@@ -162,35 +162,35 @@ do
 			echo -e "\n${DOCS}\n "
 			exit 0; 
 			;;
-		s ) # Sample name. String variable invoked with -s
+		s ) # Sample name
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to Sentieon. String variable invoked with -S
+		S ) # Full path to Sentieon
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
-		L ) # Sentieon license number. Invoked with -L 
+		L ) # Sentieon license number
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-		G ) # Full path to reference fasta. String variable invoked with -G
+		G ) # Full path to reference fasta
 			REF=${OPTARG}
 			checkArg
 			;;
-		t ) # Number of threads available. Integer invoked with -t
+		t ) # Number of threads available
 			NTHREADS=${OPTARG}
 			checkArg
 			;;
-		b ) # Full path to DeDuped BAM used as input. String variable invoked with -b
+		b ) # Full path to DeDuped BAM used as input
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
-		k ) # Full path to known sites files. String variable invoked with -k
+		k ) # Full path to known sites files
 			KNOWN=${OPTARG}
 			checkArg
 			;;
-		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
+		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;
@@ -274,7 +274,7 @@ fi
 if [[ -z ${INPUTBAM+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing input BAM required option: -b"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing input BAM option: -b"
 fi
 
 ## Check if the BAM input file is present.
@@ -302,7 +302,7 @@ fi
 if [[ -z ${LICENSE+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon liscence required option: -L"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon license option: -L"
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 

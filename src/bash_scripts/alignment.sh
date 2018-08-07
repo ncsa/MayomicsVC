@@ -167,47 +167,47 @@ do
                         echo -e "\n${DOCS}\n"
                         exit 0
 			;;
-                g )  # Read group ID. String variable invoked with -g
+                g )  # Read group ID
                         GROUP=${OPTARG}
 			checkArg
                         ;;
-                s )  # Sample name. String variable invoked with -s
+                s )  # Sample name
                         SAMPLE=${OPTARG}
 			checkArg
                         ;;
-                p )  # Sequencing platform. String variable invoked with -p
+                p )  # Sequencing platform
                         PLATFORM=${OPTARG}
 			checkArg
                         ;;
-                l )  # Full path to input read 1. String variable invoked with -l
+                l )  # Full path to input read 1
                         INPUT1=${OPTARG}
 			checkArg
                         ;;
-                r )  # Full path to input read 2. String variable invoked with -r
+                r )  # Full path to input read 2
                         INPUT2=${OPTARG}
 			checkArg
                         ;;
-                G )  # Full path to referance genome fasta file. String variable invoked with -G
+                G )  # Full path to referance genome fasta file
                         REFGEN=${OPTARG}
 			checkArg
                         ;;
-                S )  # Full path to sentieon directory. Invoked with -S
+                S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license. Invoked with -L
+		L )  # Sentieon license
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-                t )  # Number of threads available. Integer invoked with -t
+                t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
                         ;;
-                P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+                P )  # Is this a paired-end process? [true/false] Invoked with -P
                         IS_PAIRED_END=${OPTARG}
 			checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
                         set -x
                         ;;
