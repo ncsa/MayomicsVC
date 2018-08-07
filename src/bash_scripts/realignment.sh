@@ -177,7 +177,7 @@ do
                         REFGEN=${OPTARG}
 			checkArg
                         ;;
-		k )  # Full path to known sites file. String variable invoked with -k
+		k )  # Full path to known sites files. String variable invoked with -k
 			KNOWN=${OPTARG}
 			checkArg
 			;;

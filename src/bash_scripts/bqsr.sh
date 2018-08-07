@@ -41,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sorted.deduped.realigned.bam -k dbSNP1.vcf,dbSNP2.vcf,dbSNP3.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sorted.deduped.realigned.bam -k indels1.vcf,indels2.vcf,indels3.vcf -d 
 
 ############################################################################################################################
 
@@ -174,7 +174,7 @@ do
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-		G ) # Full path to reference fasta. String variable invoked with -r
+		G ) # Full path to reference fasta. String variable invoked with -G
 			REF=${OPTARG}
 			checkArg
 			;;
@@ -182,11 +182,11 @@ do
 			NTHREADS=${OPTARG}
 			checkArg
 			;;
-		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
+		b ) # Full path to DeDuped BAM used as input. String variable invoked with -b
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
-		k ) # Full path to known site indel file (known indels VCF), separated by a comma no space. String variable invoked with -k
+		k ) # Full path to known sites files. String variable invoked with -k
 			KNOWN=${OPTARG}
 			checkArg
 			;;
@@ -239,35 +239,35 @@ echo "${MANIFEST}" >> "${ERRLOG}"
 if [[ -z ${SENTIEON+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon executable required option: -S"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon path option: -S"
 fi
 
 ## Check if the Sentieon executable is present.
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 
 #Check if the number of threads is present.
 if [[ -z ${NTHREADS+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Number of threads is not specified."
+	logError "$0 stopped at line $LINENO. \nREASON=Missing threads option: -t"
 fi
 
 ## Check if the reference option was passed in
 if [[ -z ${REF+x} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing reference fasta file required option: -G"
+        logError "$0 stopped at line $LINENO. \nREASON=Missing reference genome option: -G"
 fi
 
 ## Check if the reference fasta file is present.
 if [[ ! -s ${REF} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${REF} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
 fi
 
 ## Check if the BAM input file option was passed in
@@ -281,14 +281,21 @@ fi
 if [[ ! -s ${INPUTBAM} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is empty or does not exist."
 fi
 
-## Check if the known indels file is present.
+if [[ ! -s ${INPUTBAM}.bai ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=Input BAM index ${INPUTBAM} is empty or does not exist."
+fi
+
+
+## Check if the known sites file option is present.
 if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing known indels file required option: -k"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
 fi
 
 ## Check if Sentieon license string is present.
@@ -374,6 +381,8 @@ then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
 	exit ${EXITCODE};
 fi	
+
+logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
 #------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -396,12 +405,6 @@ chmod g+r ${SAMPLE}.recal_data.table
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
