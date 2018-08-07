@@ -15,7 +15,7 @@ class TestUtil(unittest.TestCase):
 
     # Turn the project logger off during UnitTesting, so the end user is not confused by error messages
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
-    project_logger.disabled = True
+    project_logger.logger.disabled = True
 
     def test_read_json_file(self):
         expected_key_types_dict = {"key_1": "Value_1", "key_2": "Value_2", "key_3": "Value_3"}

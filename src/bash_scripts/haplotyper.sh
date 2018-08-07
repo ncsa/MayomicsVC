@@ -1,12 +1,13 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------------------------------
-## Haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
+## haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
 #------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *******************************************
 MANIFEST
@@ -22,8 +23,8 @@ read -r -d '' DOCS << DOCS
 
 #######################################################################################################################################################
 #
-# Perform Sentieon's Haplotyper variant caller on the bam produced in the Deduplication stage of the Mayomics workflow
-# BQSR must be run before to this stage to calculate the required modification of the quality scores.
+# Perform Sentieon's Haplotyper variant caller on the bam produced in the Deduplication stage of the Mayomics workflow.
+# bqsr.sh must be run before to this stage to calculate the required modification of the quality scores.
 # Step 2/3 in Single Sample Variant Calling.
 #
 ########################################################################################################################################################
@@ -32,16 +33,16 @@ read -r -d '' DOCS << DOCS
  Haplotyper.sh     -s 	<sample_name>
 		   -S	</path/to/sentieon>
 		   -L	<sentieon_license>
-		   -G	</path/to/ref.fa>
+		   -G	<reference_genome>
 		   -t	<threads>
-		   -b	</path/to/Sorted_deDuped.bam>
-		   -D	</path/to/dbsnp.vcf>
-		   -r	</path/to/recal_data.table>
+		   -b	<sorted.deduped.realigned.bam>
+		   -D	<dbsnp.vcf>
+		   -r	<recal_data.table>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sorted.deduped.realigned.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 
@@ -120,6 +121,15 @@ function logInfo()
 
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
+
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #--------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -143,27 +153,35 @@ do
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
+			checkArg
 			;;
-		S ) # Full path to Sentieon executable. String variable invoked with -S
+		S ) # Full path to Sentieon. String variable invoked with -S
 			SENTIEON=${OPTARG}
+			checkArg
 			;;
 		L ) # Sentieon license number. Invoked with -L 
 			LICENSE=${OPTARG}
+			checkArg
 			;;
 		G ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
+			checkArg
 			;;
 		t ) # Number of threads available. Integer invoked with -t
 			NTHREADS=${OPTARG}
+			checkArg
 			;;
 		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
 			INPUTBAM=${OPTARG}
+			checkArg
 			;;
 		D ) # Full path to DBSNP file. String variable invoked with -D.
 			DBSNP=${OPTARG}
+			checkArg
 			;;
 		r ) #Full path to the recal_data.table created in the BQSR step
 			RECAL=${OPTARG}
+			checkArg
 			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
 			echo -e "\nDebug mode is ON.\n"
@@ -187,7 +205,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 ## Check if sample name is set
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
 	echo -e "$0 stopped at line $LINENO. \nREASON=Missing sample name option: -s"
 	exit 1
@@ -201,7 +219,7 @@ truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if the Sentieon executable is present.
-if [[ ! -f ${SENTIEON} ]]
+if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
@@ -264,7 +282,7 @@ export SENTIEON_LICENSE=${LICENSE}
 
 #Execute sentieon with the Haplotyper algorithm
 trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

@@ -84,5 +84,30 @@ workflow CallBlock2aTasks {
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript
    }
+
+   call VQSR.vqsrTask as vqsr {
+      input:
+         InputVCF = haplotype.VCF,
+         InputVCFIdx = haplotype.VcfIdx,
+         SampleName = SampleName,
+         Ref = Ref,
+         RefFai = RefFai,
+         HapMapVCF = HapMapVCF,
+         HapMapVCFIdx = HapMapVCFIdx,
+         OmniVCF = OmniVCF,
+         OmniVCFIdx = OmniVCFIdx,
+         ThousandGVCF = ThousandGVCF,
+         ThousandGVCFIdx = ThousandGVCFIdx,
+         MillsVCF = MillsVCF,
+         MillsVCFIdx = MillsVCFIdx,
+         DBSNP = DBSNP,
+         DBSNPIdx = DBSNPIdx,
+         Threads = Threads,
+         SentieonLicense = SentieonLicense,
+         Sentieon = Sentieon,
+         DebugMode = DebugMode,
+         VqsrScript = VqsrScript
+   }
+
    
 }

@@ -7,7 +7,8 @@
 
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
-`readlink -m $0` was called by: `whoami` on `date`
+`readlink -m $0`
+called by: `whoami` on `date`
 command line input: ${@}
 *******************************************
 MANIFEST
@@ -32,16 +33,15 @@ read -r -d '' DOCS << DOCS
  bqsr.sh -s 	<sample_name>
 	 -S 	</path/to/sentieon> 
 	 -L	<sentieon_license>
-	 -G 	</path/to/ref.fa>
+	 -G 	<reference_genome>
 	 -t 	<threads>
-	 -b 	</path/to/Sorted_deDuped.bam>
-	 -D 	</path/to/dbsnp.vcf>
-	 -k 	</path/to/known_indels.vcf>
+	 -b 	<sorted.deduped.realigned.bam>
+	 -k 	<known_sites>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sample.bam -D dbsnp.vcf -k known_indels.vcf -d 
+ bqsr.sh -s sample -S sentieon -L sentieon_License -G ref.fa -t 12 -b sorted.deduped.realigned.bam -k dbSNP1.vcf,dbSNP2.vcf,dbSNP3.vcf,indels1.vcf,indels2.vcf,indels3.vcf -d 
 
 ############################################################################################################################
 
@@ -76,7 +76,7 @@ function getDate()
 function _logMsg () {
     echo -e "${1}"
   
-    if [[ -n ${ERRLOG+x} ]]; then
+    if [[ -n ${ERRLOG-x} ]]; then
         echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
     fi
 }
@@ -130,6 +130,15 @@ function logInfo()
   
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
+
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #--------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -145,7 +154,7 @@ then
 fi
 
 
-while getopts ":hs:S:L:G:t:b:D:k:d" OPT
+while getopts ":hs:S:L:G:t:b:k:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -154,35 +163,31 @@ do
 			;;
 		s ) # Sample name. String variable invoked with -s
 			SAMPLE=${OPTARG}
-			#echo ${SAMPLE}
+			checkArg
 			;;
-		S ) # Full path to Sentieon executable. String variable invoked with -S
+		S ) # Full path to Sentieon. String variable invoked with -S
 			SENTIEON=${OPTARG}
-			#echo ${SENTIEON}
+			checkArg
 			;;
 		L ) # Sentieon license number. Invoked with -L 
 			LICENSE=${OPTARG}
-			#echo ${LICENSE}
+			checkArg
 			;;
 		G ) # Full path to reference fasta. String variable invoked with -r
 			REF=${OPTARG}
-			#echo ${REF}
+			checkArg
 			;;
 		t ) # Number of threads available. Integer invoked with -t
 			NTHREADS=${OPTARG}
-			#echo ${NTHREADS}
+			checkArg
 			;;
 		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
 			INPUTBAM=${OPTARG}
-			#echo ${INPUTBAM}
+			checkArg
 			;;
-		D ) # Full path to DBSNP file. String variable invoked with -D.
-			DBSNP=${OPTARG}
-			#echo ${DBSNP}
-			;;
-		k ) # Full path to known site indel file (dbSNP and known indels VCF), separated by a comma no space. String variable invoked with -k #MIGHT TAKE IN MULTILPE FILES
+		k ) # Full path to known site indel file (known indels VCF), separated by a comma no space. String variable invoked with -k
 			KNOWN=${OPTARG}
-			#echo ${KNOWN}
+			checkArg
 			;;
 		d ) # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text.
 			echo -e "\nDebug mode is ON.\n"
@@ -214,7 +219,7 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 ## Check if sample name is present.
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
@@ -240,10 +245,10 @@ then
 fi
 
 ## Check if the Sentieon executable is present.
-if [[ ! -s ${SENTIEON} ]]
+if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${SENTIEON} is not present or does not exist."
 fi
 
 #Check if the number of threads is present.
@@ -281,32 +286,11 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
 fi
 
-## Check if dbSNP input file option was passed in
-if [[ -z ${DBSNP+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing dbSNP required option: -D"
-fi
-
-## Check if dbSNP file is present.
-if [[ ! -f ${DBSNP} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is not present or does not exist."
-fi
-
 ## Check if the known indels file is present.
 if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known indels file required option: -k"
-fi
-
-## Check if the known indels file is present.
-if [[ ! -f ${KNOWN} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Known indels file ${KNOWN} is not present or does not exist."
 fi
 
 ## Check if Sentieon license string is present.
@@ -316,6 +300,21 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon liscence required option: -L"
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+## FILENAME AND OPTION PARSING
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Parse known sites list of multiple files. Create multiple -k flags for sentieon
+SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -333,7 +332,7 @@ export SENTIEON_LICENSE=${LICENSE}
 #Calculate required modification of the quality scores in the BAM
 
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${DBSNP} -k ${KNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -345,7 +344,7 @@ fi
 
 #Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${DBSNP} -k ${KNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -357,7 +356,7 @@ fi
 
 #Create data for plotting
 trap 'logError " $0 stopped at line ${LINENO}. Error in bqsr Step3: Create data for plotting. " ' INT TERM EXIT
-${SENTIEON} driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -369,7 +368,7 @@ fi
 
 #Plot the calibration data tables, both pre and post, into graphs in a pdf
 trap 'logError "$0 stopped at line ${LINENO}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf. " ' INT TERM EXIT
-${SENTIEON} plot bqsr -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
+${SENTIEON}/bin/sentieon plot bqsr -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -384,6 +383,23 @@ fi
 #------------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #------------------------------------------------------------------------------------------------------------------------------------
+
+# Check for the creation of the recal_data.table necessary for input to Haplotyper. Open read permissions for the group.
+# The other files created in BQSR are not necessary for the workflow to run, so I am not performing checks on them.
+
+if [[ ! -s ${SAMPLE}.recal_data.table ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Recal data table ${SAMPLE}.recal_data.table is empty."
+fi
+
+chmod g+r ${SAMPLE}.recal_data.table
+
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 
 logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 

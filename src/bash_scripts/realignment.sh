@@ -31,7 +31,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  realignment.sh    -s           <sample_name> 
-                   -b           <deduped.bam>
+                   -b           <sorted.deduped.bam>
                    -G		<reference_genome>
                    -k		<known_sites>
                    -S           </path/to/sentieon> 
@@ -41,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k dbSNP.vcf,indels.vcf,indels2.vcf,indels3.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
 
 #############################################################################
 
@@ -131,6 +131,14 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -158,24 +166,31 @@ do
 			;;
                 s )  # Sample name. String variable invoked with -s
                         SAMPLE=${OPTARG}
+			checkArg
                         ;;
 		b )  # Full path to the input deduped BAM. String variable invoked with -b
-			DEDUPEDBAM=${OPTARG}
+			INPUTBAM=${OPTARG}
+			checkArg
 			;;
                 G )  # Full path to referance genome fasta file. String variable invoked with -G
                         REFGEN=${OPTARG}
+			checkArg
                         ;;
 		k )  # Full path to known sites file. String variable invoked with -k
 			KNOWN=${OPTARG}
+			checkArg
 			;;
                 S )  # Full path to sentieon directory. Invoked with -S
                         SENTIEON=${OPTARG}
+			checkArg
                         ;;
 		L )  # Sentieon license number. Invoked with -L
 			LICENSE=${OPTARG}
+			checkArg
 			;;
                 t )  # Number of threads available. Integer invoked with -t
                         THR=${OPTARG}
+			checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text
 			echo -e "\nDebug mode is ON.\n"
@@ -203,7 +218,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
         exit 1
@@ -218,20 +233,20 @@ truncate -s 0 ${SAMPLE}.realign_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${DEDUPEDBAM+x} ]]
+if [[ -z ${INPUTBAM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing input deduplicated BAM option: -b"
 fi
-if [[ ! -s ${DEDUPEDBAM} ]]
+if [[ ! -s ${INPUTBAM} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${DEDUPEDBAM} is empty or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${INPUTBAM} is empty or does not exist."
 fi
-if [[ ! -s ${DEDUPEDBAM}.bai ]]
+if [[ ! -s ${INPUTBAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${DEDUPEDBAM} is empty or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${INPUTBAM} is empty or does not exist."
 fi
 if [[ -z ${REFGEN+x} ]]
 then
@@ -243,7 +258,7 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
-if [[ -z ${KNOWN} ]]
+if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
@@ -302,7 +317,7 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon Realignment error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${DEDUPEDBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
