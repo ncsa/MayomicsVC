@@ -244,8 +244,8 @@ done
 ## Check if sample name is present.
 if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=String for sample name is not present."
+	echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+	exit 1
 fi
 
 ## Create log for JOB_ID/script
