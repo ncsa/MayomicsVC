@@ -137,6 +137,7 @@ function checkArg()
 {
     if [[ "${OPTARG}" == -* ]]; then
         echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
         exit 1;
     fi
 }
