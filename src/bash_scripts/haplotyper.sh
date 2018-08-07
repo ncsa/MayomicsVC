@@ -42,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sorted.deduped.realigned.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S sention -L sentieon_license -G ref.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
 
 ##########################################################################################################################################################
 
@@ -92,6 +92,11 @@ function logError()
     fi
 
     >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+
+    if [[ -z ${EXITCODE+x} ]]; then
+        EXITCODE=1
+    fi
+
     exit ${EXITCODE};
 }
 
@@ -156,7 +161,7 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to Sentieon. String variable invoked with -S
+		S ) # Full path to sentieon directory. Invoked with -S
 			SENTIEON=${OPTARG}
 			checkArg
 			;;
@@ -164,7 +169,7 @@ do
 			LICENSE=${OPTARG}
 			checkArg
 			;;
-		G ) # Full path to reference fasta. String variable invoked with -r
+		G ) # Full path to referance genome fasta file. String variable invoked with -G
 			REF=${OPTARG}
 			checkArg
 			;;
@@ -172,7 +177,7 @@ do
 			NTHREADS=${OPTARG}
 			checkArg
 			;;
-		b ) # Full path to DeDuped BAM used as input. String variable invoked with -i
+		b ) # Full path to BAM used as input. String variable invoked with -b
 			INPUTBAM=${OPTARG}
 			checkArg
 			;;
@@ -219,43 +224,86 @@ truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## Check if Sentieon path is present
+if [[ -z ${SENTIEON+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
+fi
+
 ## Check if the Sentieon executable is present.
 if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon executable ${REF} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 
 #Check if the number of threads is present.
 if [[ -z ${NTHREADS+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Number of threads is not specified."
+        logError "$0 stopped at line $LINENO. \nREASON=Missing threads option: -t"
 fi
 
-## Check if the reference fasta file is present.
-if [[ ! -f ${REF} ]]
+## Check if the reference option was passed in.
+if [[ -z ${REF+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${REF} is not present or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
+fi
+
+## Check if the reference file exits
+if [[ ! -s ${REF} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
+fi
+
+## Check if the input BAM option was passed in.
+if [[ -z ${INPUTBAM+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
 fi
 
 ## Check if the BAM input file is present.
-if [[ ! -f ${INPUTBAM} ]]
+if [[ ! -s ${INPUTBAM} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
 fi
 
-## Check if dbSNP file is present.
-if [[ ! -f ${DBSNP} ]]
+## Check if the input BAM index file is present
+if [[ ! -s ${INPUTBAM}.bai ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Input BAM index ${INPUTBAM} is empty or does not exist."
+fi
+
+## Check if the dbSNP option was passed in.
+if [[ ! -z ${DBSNP+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=Missing dbSNP option: -D"
+fi
+
+
+## Check if dbSNP file is present.
+if [[ ! -s ${DBSNP} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is empty or does not exist."
+fi
+
+## Check if recal data table is option was passed in
+if [[ ! -z ${RECAL+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=Missing RECAL_DATA.TABLE option: -r"
 fi
 
 ## Check if the Recal_data.table file produced in BQSR is present
-if [[ ! -f ${RECAL} ]]
+if [[ ! -s ${RECAL} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is not present or does not exist."
@@ -281,8 +329,8 @@ logInfo "[Haplotyper] START."
 
 export SENTIEON_LICENSE=${LICENSE}
 
-#Execute sentieon with the Haplotyper algorithm
-trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
+#Execute Sentieon with the Haplotyper algorithm
+trap 'logError " $0 stopped at line ${LINENO}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
@@ -290,17 +338,32 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in Sentieon Haplotyper."
-        exit ${EXITCODE};
 fi
+
+logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## POST-PROCESSING
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Check for the creation of the output VCF file
+if [[ ! -s ${SAMPLE}.vcf ]] 
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Output VCF is empty."
+fi
 
 ## Open read permissions to the user group
 chmod g+r ${SAMPLE}.vcf
 
 
-logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 

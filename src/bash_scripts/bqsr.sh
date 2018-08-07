@@ -343,7 +343,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	exit ${EXITCODE};
 fi
 
 
@@ -355,7 +354,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	exit ${EXITCODE};
 fi	
 
 
@@ -367,7 +365,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in bqsr Step3: Create data for plotting"
-	exit ${EXITCODE};
 fi	
 
 
@@ -379,7 +376,6 @@ trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
-	exit ${EXITCODE};
 fi	
 
 logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
