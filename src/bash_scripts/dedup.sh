@@ -304,7 +304,6 @@ fi
 logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon Deduplication error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?

@@ -405,7 +405,6 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SENTIEON] Converting SAM to BAM..."
 
-export SENTIEON_LICENSE=${LICENSE}
 trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
