@@ -36,7 +36,8 @@ read -r -d '' DOCS << DOCS
                    -p		<platform>
                    -l           <read1.fq> 
                    -r           <read2.fq>
-                   -G		<reference_genome> 
+                   -G		<reference_genome>
+                   -K		<chunk_size_in_bases> 
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
@@ -45,7 +46,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
 
 #############################################################################
 
@@ -160,7 +161,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:S:L:t:P:d" OPT
+while getopts ":hg:s:p:l:r:G:K:S:L:t:P:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -191,6 +192,10 @@ do
                         REFGEN=${OPTARG}
 			checkArg
                         ;;
+		K )  # Chunk size in bases (10000000 to prevent different results based on thread count)
+			CHUNK_SIZE=${OPTARG}
+			checkArg
+			;;
                 S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
@@ -305,6 +310,15 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
+if [[ -z ${CHUNK_SIZE} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count."
+fi
+if [[ ${CHUNK_SIZE} != 10000000 ]]
+then
+	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
+fi
 if [[ -z ${GROUP+x} ]]
 then
         EXITCODE=1
@@ -370,7 +384,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -381,7 +395,7 @@ then
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
 	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
