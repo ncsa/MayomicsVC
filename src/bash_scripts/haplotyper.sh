@@ -270,7 +270,7 @@ fi
 if [[ ! -s ${INPUTBAM} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is empty or does not exist."
 fi
 
 ## Check if the input BAM index file is present
@@ -306,14 +306,14 @@ fi
 if [[ ! -s ${RECAL} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is not present or does not exist."
+	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist."
 fi
 
 ## Check if Sentieon license string is present.
 if [[ -z ${LICENSE+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon license ${LICENSE} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Sentieon license option: -L"
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 

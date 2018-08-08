@@ -273,7 +273,7 @@ fi
 if [[ ! -s ${REF} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
 fi
 
 ## Check if the sample VCF input file option was passed in
@@ -287,7 +287,7 @@ fi
 if [[ ! -s ${SAMPLEVCF} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input sample vcf ${SAMPLEVCF} is not present or does not exist."
+        logError "$0 stopped at line $LINENO. \nREASON=Input sample vcf ${SAMPLEVCF} is empty or does not exist."
 fi
 
 ## Check if the resource string for SNPs was passed in
