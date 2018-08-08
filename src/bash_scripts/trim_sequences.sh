@@ -129,6 +129,7 @@ function checkArg()
 {
     if [[ "${OPTARG}" == -* ]]; then
         echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
         exit 1;
     fi
 }
@@ -157,39 +158,39 @@ do
 			echo -e "\n${DOCS}\n"
 			exit 0
 			;;
-		l )  # Full path to input read 1. String variable invoked with -l
+		l )  # Full path to input read 1
 			INPUT1=${OPTARG}
 			checkArg
 			;;
-		r )  # Full path to input read 2. String variable invoked with -r
+		r )  # Full path to input read 2
 			INPUT2=${OPTARG}
 			checkArg
 			;;
-		A )  # Full path to adapters fasta file. String variable invoked with -A
+		A )  # Full path to adapters fasta file
 			ADAPTERS=${OPTARG}
 			checkArg
 			;;
-		C )  # Full path to cutadapt installation directory. String variable invoked with -C
+		C )  # Full path to cutadapt installation directory
 			CUTADAPT=${OPTARG}
 			checkArg
 			;;
-		t )  # Number of threads available. Integer invoked with -t
+		t )  # Number of threads available
 			THR=${OPTARG}
 			checkArg
 			;;
-		P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+		P )  # Is this a paired-end process? [true/false] invoked with -P.
 			IS_PAIRED_END=${OPTARG}
 			checkArg
 			;;
-		s )  # Sample name. String variable invoked with -s
+		s )  # Sample name
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		p )  # Path to python-specific environmental variables. Invoked with -p
+		p )  # Path to python-specific environmental variables
 			PY_ENV=${OPTARG}
 			checkArg
 			;;
-		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
+		d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;
