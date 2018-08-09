@@ -308,7 +308,7 @@ class Parser:
 
         # Write the python dictionary out as a JSON file in the output file location
         with open(output_file, "w") as updated_json:
-            json.dump(template_dict, updated_json, indent=4)
+            json.dump(template_dict, updated_json, indent=4, sort_keys=True)
 
         # Write a success message to the log
         self.project_logger.log_info(
