@@ -204,7 +204,6 @@ class Validator:
         #   This is necessary because some variables are optional, but Cromwell/WDL and the Bash scripts still need
         #   something in place of a value
         if key_value.lower() == 'null' and key_name.lower() in NULLABLE_KEYS:
-            print("po")
             self.project_logger.log_info("The key '" + key_name + "' was set to '" + key_value +
                                          "'; its type will not be validated "
                                          )
