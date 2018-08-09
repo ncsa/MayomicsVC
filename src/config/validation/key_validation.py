@@ -11,7 +11,7 @@ import logging
 import pathlib
 from src.config.util.util import read_json_file
 from src.config.util.log import ProjectLogger
-from src.config.util.nullable_keys import NULLABLE_KEYS
+from src.config.util.special_keys import NULLABLE_KEYS, OPTIONAL_KEYS
 
 """
 Exit code Rules:
@@ -180,22 +180,35 @@ class Validator:
             valid and False if it is not
 
         If a value is validated, print a DEBUG message stating that X key was validated; return true
-        If a value is of a type that has no validation defined (such as String), print an INFO message; return true
+        If a value is of a type that has no validation defined (such as String), print a DEBUG message; return true
         If a faulty value is found, print an ERROR message; return false
         """
         lowered_key_type = key_type.lower()
 
-        # If the key has an empty value, and it is in the NULLABLE_KEYS list (see src/config/util/nullable_keys.py)
+        def make_message(message):
+            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
+
+        # OPTIONAL_KEYS ###
+        # If the key has an empty value, and it is in the OPTIONAL_KEYS list (see src/config/util/special_keys.py)
         #   then it is allowed to be blank, it counts as a valid entry
-        if key_value == "" and key_name in NULLABLE_KEYS:
+        if key_value == "" and key_name.lower() in OPTIONAL_KEYS:
             self.project_logger.log_debug(
                 "The key '" + key_name + "' has an empty value; because it is an optional key, this is still valid"
             )
             # Stop the function here; do not try to validate this key
             return True
 
-        def make_message(message):
-            return 'Input variable "' + key_name + '" points to "' + key_value + '", which ' + message
+        # NULLABLE_KEYS ###
+        # For variables in the NULLABLE_KEYS list (src/config/util/special_keys.py), if the value is set to "null",
+        #   give an info message and stop the validation for that key
+        #   This is necessary because some variables are optional, but Cromwell/WDL and the Bash scripts still need
+        #   something in place of a value
+        if key_value.lower() == 'null' and key_name.lower() in NULLABLE_KEYS:
+            self.project_logger.log_info("The key '" + key_name + "' was set to '" + key_value +
+                                         "'; its type will not be validated "
+                                         )
+            # Stop the function here; do not try to validate this key
+            return True
 
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
