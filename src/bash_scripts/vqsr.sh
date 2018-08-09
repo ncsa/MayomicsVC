@@ -301,7 +301,7 @@ fi
 if [[ -z ${RESOURCE_INDELS+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -r"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -R"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
