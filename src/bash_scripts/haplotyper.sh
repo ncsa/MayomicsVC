@@ -207,6 +207,9 @@ done
 
 
 
+
+
+
 #---------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -281,7 +284,7 @@ then
 fi
 
 ## Check if the dbSNP option was passed in.
-if [[ ! -z ${DBSNP+x} ]]
+if [[ -z ${DBSNP+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Missing dbSNP option: -D"
@@ -296,7 +299,7 @@ then
 fi
 
 ## Check if recal data table is option was passed in
-if [[ ! -z ${RECAL+x} ]]
+if [[  -z ${RECAL+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Missing RECAL_DATA.TABLE option: -r"

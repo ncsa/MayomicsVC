@@ -161,7 +161,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:L:G:V:H:O:T:D:m:d" OPT
+while getopts ":hs:S:L:G:V:r:R:d" OPT
 do
 	case ${OPT} in
 		h ) # Flag to display usage
@@ -301,7 +301,7 @@ fi
 if [[ -z ${RESOURCE_INDELS+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -r"
+	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -R"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
