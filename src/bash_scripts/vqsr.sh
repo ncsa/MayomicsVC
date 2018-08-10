@@ -42,8 +42,10 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -V sample.vcf -r "--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0" -R "--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0" -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -d
 
+
+NOTE: In order for getops to read in a string arguments for -r (resource_string_for_SNPs) and -R (resource_string_for_INDELs), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ##################################################################################################################################
 
 DOCS
