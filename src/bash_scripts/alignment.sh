@@ -48,6 +48,8 @@ read -r -d '' DOCS << DOCS
  alignment.sh -h
  alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
 
+ NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+
 #############################################################################
 
 DOCS
@@ -311,7 +313,7 @@ then
 	EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
-if [[ -z ${CHUNK_SIZE} ]]
+if [[ -z ${CHUNK_SIZE+x} ]]
 then
 	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count."
@@ -380,7 +382,7 @@ TOOL_LOG=${SAMPLE}.align_sentieon.log
 ## Record start time
 logInfo "[BWA-MEM] START."
 
-## BWA-MEM command, run for each read against a reference genome. NOTE: We hard-code -K 10000000 as per the Sentieon manual recommendation.
+## BWA-MEM command, run for each read against a reference genome. 
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
@@ -405,6 +407,14 @@ else # Paired-end reads aligned
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 	fi
 fi
+
+if [[ ! -s ${OUT} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Output SAM ${OUT} is empty."
+fi
+
+
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 #-------------------------------------------------------------------------------------------------------------------------------
