@@ -37,19 +37,9 @@ For File types we confirm that the value is a file that exists
 
 #### Boolean
 
-For Boolean types we confirm that the value (when converted to all lower case characters) matches 
-  one of the following
+For Boolean types we confirm that the value EXACTLY matches either 'true' or 'false'
 
-```
-true
-false
-t
-f
-1
-0
-y
-n
-```
+This was made case sensitive due to how the BASH scripts were written
 
 #### String
 

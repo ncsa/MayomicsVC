@@ -306,11 +306,15 @@ class Validator:
 
         # Boolean ###
         elif lowered_key_type in ("boolean", "bool"):
-            if key_value.lower() in ("true", "false", "t", "f", "1", "0", "y", "n"):
+            # The key_value was not .lowered() because this value is case sensitive
+            if key_value in ("true", "false"):
                 self.project_logger.log_debug(make_message('is a valid boolean value'))
                 return True
             else:
-                self.project_logger.log_error("E.val.Boo.1", make_message('is not a valid boolean value'))
+                self.project_logger.log_error(
+                    "E.val.Boo.1",
+                    make_message('is not a valid boolean value; enter either "true" or "false" (case sensitive)')
+                )
                 return False
 
         # String ###

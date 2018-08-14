@@ -65,15 +65,11 @@ class TestValidator(unittest.TestCase):
         self.__check_key_tester(value="NotAnInteger", key_type="Integer", expected_to_fail=True)
 
     def test_check_key_bool(self):
-        self.__check_key_tester(value="True", key_type="Boolean")
-        self.__check_key_tester(value="False", key_type="Boolean")
-        self.__check_key_tester(value="Y", key_type="Boolean")
-        self.__check_key_tester(value="N", key_type="Boolean")
-        self.__check_key_tester(value="1", key_type="Boolean")
-        self.__check_key_tester(value="0", key_type="Boolean")
+        self.__check_key_tester(value="true", key_type="Boolean")
+        self.__check_key_tester(value="false", key_type="Boolean")
 
     def test_check_key_bool_failure(self):
-        self.__check_key_tester(value="NotABoolean", key_type="Boolean", expected_to_fail=True)
+        self.__check_key_tester(value="True", key_type="Boolean", expected_to_fail=True)
 
     def test_check_key_decimal(self):
         self.__check_key_tester(value="3.14159", key_type="Decimal")
