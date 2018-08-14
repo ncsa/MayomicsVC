@@ -277,6 +277,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
 fi
 if [[ "${IS_PAIRED_END}" == true ]]

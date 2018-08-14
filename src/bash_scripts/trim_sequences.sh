@@ -231,7 +231,7 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## If provided, source the python environmental variables
-if [[ ! -z ${PY_ENV} ]]
+if [[ ! -z ${PY_ENV+x} ]]
 then
 	source ${PY_ENV}
 fi
