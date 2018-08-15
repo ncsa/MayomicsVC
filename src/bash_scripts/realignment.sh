@@ -242,12 +242,12 @@ fi
 if [[ ! -s ${INPUTBAM} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM ${INPUTBAM} is empty or does not exist."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Deduped BAM ${INPUTBAM} is empty or does not exist."
 fi
 if [[ ! -s ${INPUTBAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Deduped BAM index ${INPUTBAM} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Deduped BAM index ${INPUTBAM}.bai is empty or does not exist."
 fi
 if [[ -z ${REFGEN+x} ]]
 then
@@ -257,12 +257,12 @@ fi
 if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
 if [[ -z ${KNOWN+x} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing known sites option ${KNOWN}: -k"
 fi
 if [[ -z ${SENTIEON+x} ]]
 then
@@ -272,7 +272,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 if [[ -z ${LICENSE+x} ]]
 then
@@ -317,7 +317,8 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}
-trap 'logError " $0 stopped at line ${LINENO}. Sentieon Realignment error. " ' INT TERM EXIT
+TRAP_LINE=${LINENO}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
@@ -342,15 +343,15 @@ logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned
 if [[ ! -s ${OUT} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Realigned BAM ${OUT} is empty."
 fi
 if [[ ! -s ${OUT}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Realigned BAM ${OUT}.bai is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Realigned BAM ${OUT}.bai is empty."
 fi
 chmod g+r ${OUT}
-
+chmod g+r ${OUT}.bai
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
