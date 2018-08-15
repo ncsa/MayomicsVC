@@ -366,8 +366,16 @@ fi
 ## Open read permissions to the user group
 chmod g+r ${SAMPLE}.vcf
 
+## Check for the creation of the output VCF index file 
+if [[ ! -s ${SAMPLE}.vcf.idx ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Output VCF index is empty."
+fi
 
 
+## Open read permissions to the user group
+chmod g+r ${SAMPLE}.vcf.idx
 
 
 #-------------------------------------------------------------------------------------------------------------------------------

@@ -428,6 +428,15 @@ fi
 
 chmod g+r ${SAMPLE}.${TYPE}.SNP.recaled.vcf
 
+## Check for the creation of the final recalibrated VCF index file.
+if [[ ! -s ${SAMPLE}.${TYPE}.SNP.recaled.vcf.idx ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Output recalibrated SNP/INDEL VCF index is empty."
+fi
+
+chmod g+r ${SAMPLE}.${TYPE}.SNP.recaled.vcf.idx
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
