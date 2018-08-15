@@ -265,7 +265,7 @@ fi
 if [[ ! -s ${INPUT1} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
 fi
 if [[ -z ${INPUT2+x} ]]
 then
@@ -287,7 +287,7 @@ then
 	if [[ ! -s ${INPUT2} ]]
 	then
 		EXITCODE=1
-		logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+		logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
 	fi
 	if [[ "${INPUT2}" == null ]]
 	then
@@ -311,7 +311,7 @@ fi
 if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
 fi
 if [[ -z ${CHUNK_SIZE+x} ]]
 then
@@ -340,7 +340,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
 fi
 if [[ -z ${LICENSE+x} ]]
 then
@@ -386,7 +386,8 @@ logInfo "[BWA-MEM] START."
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	export SENTIEON_LICENSE=${LICENSE}
-	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
+	TRAP_LINE=${LINENO}
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
@@ -397,7 +398,8 @@ then
         fi
 else # Paired-end reads aligned
 	export SENTIEON_LICENSE=${LICENSE}
-	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
+	TRAP_LINE=${LINENO}
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
@@ -411,7 +413,7 @@ fi
 if [[ ! -s ${OUT} ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Output SAM ${OUT} is empty."
+	logError "$0 stopped at line ${LINENO}. \nREASON=Output SAM ${OUT} is empty."
 fi
 
 
@@ -430,7 +432,8 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SENTIEON] Converting SAM to BAM..."
 
-trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
+TRAP_LINE=${LINENO}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
@@ -455,12 +458,12 @@ logInfo "[SENTIEON] Converted output to BAM format and sorted."
 if [[ ! -s ${SORTBAM} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM ${SORTBAM} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM ${SORTBAM} is empty."
 fi
 if [[ ! -s ${SORTBAMIDX} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
 fi
 
 chmod g+r ${OUT}
