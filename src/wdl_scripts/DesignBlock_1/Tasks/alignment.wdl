@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs alignment using BWA Mem                ##
+##              This WDL script performs alignment using BWA Mem                         ##
 
 ##                              Script Options
 #       -t        "Number of Threads"                         (Optional)
