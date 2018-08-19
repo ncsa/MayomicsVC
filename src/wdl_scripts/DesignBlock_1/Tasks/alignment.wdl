@@ -39,7 +39,7 @@ task alignmentTask {
 
    Boolean PairedEnd               # Variable to check if single ended or not
 
-   File AlignmentScript            # Bash script which is called inside the WDL script
+   File AlignmentScript            # Bash script which is called inside the WDL scrip
 
    command {
 
