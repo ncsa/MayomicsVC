@@ -21,10 +21,10 @@ task trimsequencesTask {
    File Adapters                   # Adapter FastA File         
  
    String CutAdapt                 # Path to CutAdapt Tool
-   String Threads                  # Specifies the number of thread required per run
+   String CutAdaptThreads          # Number of threads for cutadapt to use
 
    Boolean PairedEnd               # Variable to check if single ended or not
-   String DebugMode               # Variable to check if Debud Mode is on or not
+   String DebugMode                # Variable to check if Debud Mode is on or not
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
 
@@ -32,7 +32,7 @@ task trimsequencesTask {
 
    command {
 
-      /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${Threads} ${DebugMode}
+      /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} ${DebugMode}
 
    }
 

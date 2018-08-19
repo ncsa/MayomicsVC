@@ -14,7 +14,7 @@ workflow CallBlock1Tasks {
    String InputRead2
    File Adapters  
    String CutAdapt 
-   String Threads    
+   String CutAdaptThreads    
    Boolean PairedEnd               
    String DebugMode
    String SampleName
@@ -43,7 +43,7 @@ workflow CallBlock1Tasks {
          InputRead2 = InputRead2,
          Adapters = Adapters,
          CutAdapt = CutAdapt,
-         Threads = Threads,
+         CutAdaptThreads = CutAdaptThreads,
          PairedEnd = PairedEnd,
          DebugMode = DebugMode,
          TrimSeqScript = TrimSeqScript,
