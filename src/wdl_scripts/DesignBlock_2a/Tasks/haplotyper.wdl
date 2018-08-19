@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs Variant Calling  using Sentieon                ##
+##              This WDL script performs Variant Calling  using Sentieon                 ##
 
 ##                                Script Options
 #               -t        "Number of Threads"                                     (Optional)
@@ -28,16 +28,17 @@ task variantCallingTask {
   
    File RecalTable                                         # Recal Table after BQSR step
    
-   String Threads                                          # No of Threads for the Tool
    String SentieonLicense                                  # Sentieon License Information
    String Sentieon                                         # Path to Sentieon
+   String SentieonThreads                                  # No of Threads for the Tool
+
    String DebugMode                                        # Enable or Disable Debug Mode
 
    File HaplotyperScript                                   # Path to bash script called within WDL script
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
 
    }
 

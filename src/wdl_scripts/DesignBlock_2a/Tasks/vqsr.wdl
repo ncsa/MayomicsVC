@@ -48,24 +48,23 @@ task vqsrTask {
    File DBSNP                                            # DBSNP file
    File DBSNPIdx                                         # Index file for the DBSNP   
 
-   String Threads                                        # No of Threads for the Tool
+   String SentieonThreads                                # No of Threads for the Tool
    String SentieonLicense                                # Sentieon License Information
    String Sentieon                                       # Path to Sentieon
    String DebugMode                                      # Enable or Disable Debug Mode
 
    File VqsrScript                                       # Path to bash script called within WDL script
 
+
    command {
 
-      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${Threads} -V ${InputVCF} -H ${HapMapVCF} -O ${OmniVCF} -T ${ThousandGVCF} -D ${DBSNP} -m ${MillsVCF} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -H ${HapMapVCF} -O ${OmniVCF} -T ${ThousandGVCF} -D ${DBSNP} -m ${MillsVCF} ${DebugMode}
 
    }
 
    
    output {
-
       File RecalibratedVCF = "${SampleName}.recalibrated.vcf"
-
    }
 
 }

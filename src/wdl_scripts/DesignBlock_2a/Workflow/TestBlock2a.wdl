@@ -24,9 +24,10 @@ workflow CallBlock2aTasks {
    File DBSNP
    File DBSNPIdx
    
-   String Threads                                      
    String SentieonLicense                              
    String Sentieon                                     
+   String SentieonThreads                                      
+
    String DebugMode                                   
 
    File RealignmentScript                              
@@ -44,7 +45,7 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          KnownSites = KnownSites,
          KnownSitesIdx = KnownSitesIdx,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -62,7 +63,7 @@ workflow CallBlock2aTasks {
          KnownSitesIdx = KnownSitesIdx,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -78,7 +79,7 @@ workflow CallBlock2aTasks {
          Ref = Ref,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -102,7 +103,7 @@ workflow CallBlock2aTasks {
          MillsVCFIdx = MillsVCFIdx,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
