@@ -24,14 +24,14 @@ task dedupTask {
    String Sentieon                              # Variable path to Sentieon 
    String SentieonLicense                       # License Server Information
 
-   String Threads                               # Specifies the number of thread required per run
-   String DebugMode                            # Variable to check if Debud Mode is on or not
+   String SentieonThreads                       # Specifies the number of thread required per run
+   String DebugMode                             # Variable to check whether Debud Mode is on
 
-   File DedupScript                             # Bash script which is called inside the WDL script
+   File DedupScript                             # Bash script that is called inside the WDL script
 
    command {
 
-      /bin/bash ${DedupScript} -L ${SentieonLicense} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${Threads} ${DebugMode}
+      /bin/bash ${DedupScript} -L ${SentieonLicense} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
 
    }
 

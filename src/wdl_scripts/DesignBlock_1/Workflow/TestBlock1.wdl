@@ -30,6 +30,7 @@ workflow CallBlock1Tasks {
 
    String SentieonLicense 
    String Sentieon 
+   String SentieonThreads    
 
    File TrimSeqScript
    File AlignmentScript
@@ -66,7 +67,7 @@ workflow CallBlock1Tasks {
          Group = Group,
          Platform = Platform,
          DebugMode = DebugMode,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          PairedEnd = PairedEnd,
          AlignmentScript = AlignmentScript
    }
@@ -78,7 +79,7 @@ workflow CallBlock1Tasks {
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SampleName = SampleName,
          DedupScript = DedupScript
    }

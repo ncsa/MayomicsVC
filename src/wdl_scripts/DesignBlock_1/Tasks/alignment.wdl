@@ -35,7 +35,7 @@ task alignmentTask {
    String Group
    String Platform
    String DebugMode                # Flag to enable Debug Mode
-   String Threads                  # Specifies the number of thread required per run
+   String SentieonThreads          # Specifies the number of thread required per run
 
    Boolean PairedEnd               # Variable to check if single ended or not
 
@@ -43,7 +43,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -S ${Sentieon} -t ${Threads} ${DebugMode}
+      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
 
    }
 
