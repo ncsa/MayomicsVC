@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs alignment using BWA Mem                ##
+##              This WDL script performs alignment using BWA Mem                         ##
 
 ##                              Script Options
 #       -t        "Number of Threads"                         (Optional)
@@ -39,7 +39,7 @@ task alignmentTask {
 
    Boolean PairedEnd               # Variable to check if single ended or not
 
-   File AlignmentScript            # Bash script which is called inside the WDL scrip
+   File AlignmentScript            # Bash script which is called inside the WDL script
 
    command {
 
