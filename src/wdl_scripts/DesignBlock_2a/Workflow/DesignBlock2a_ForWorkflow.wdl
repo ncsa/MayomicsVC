@@ -21,11 +21,13 @@ workflow CallBlock2aTasks {
 
    String RealignmentKnownSites                                     
    String BQSRKnownSites                                     
-#   File KnownSitesIdx                                  
-  
+   File MillsVCF
+   File MillsVCFIdx
    File DBSNP
    File DBSNPIdx
-   
+
+#   File KnownSitesIdx                                  
+  
    String SentieonLicense                              
    String Sentieon                                     
    String SentieonThreads                                      
@@ -64,8 +66,6 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          BQSRKnownSites = BQSRKnownSites,
  #        KnownSitesIdx = KnownSitesIdx,
-         DBSNP = DBSNP,
-         DBSNPIdx = DBSNPIdx,
          SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,

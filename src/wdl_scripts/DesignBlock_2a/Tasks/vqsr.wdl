@@ -44,7 +44,6 @@ task vqsrTask {
    File MillsVCF                                         # Omni known sites
    File MillsVCFIdx                                      # Index file for Omni
 
-
    File DBSNP                                            # DBSNP file
    File DBSNPIdx                                         # Index file for the DBSNP   
 
