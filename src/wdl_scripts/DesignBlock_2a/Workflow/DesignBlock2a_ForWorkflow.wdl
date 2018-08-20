@@ -21,12 +21,11 @@ workflow CallBlock2aTasks {
 
    String RealignmentKnownSites                                     
    String BQSRKnownSites                                     
-   File MillsVCF
-   File MillsVCFIdx
    File DBSNP
    File DBSNPIdx
 
-#   File KnownSitesIdx                                  
+   String VqsrSnpResourceString
+   String VqsrIndelResourceString
   
    String SentieonLicense                              
    String Sentieon                                     
@@ -49,7 +48,6 @@ workflow CallBlock2aTasks {
          Ref = Ref,
          RefFai = RefFai,
          RealignmentKnownSites = RealignmentKnownSites,
-#         KnownSitesIdx = KnownSitesIdx,
          SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
@@ -65,7 +63,6 @@ workflow CallBlock2aTasks {
          Ref = Ref,
          RefFai = RefFai,
          BQSRKnownSites = BQSRKnownSites,
- #        KnownSitesIdx = KnownSitesIdx,
          SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
@@ -98,16 +95,8 @@ workflow CallBlock2aTasks {
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         HapMapVCF = HapMapVCF,
-         HapMapVCFIdx = HapMapVCFIdx,
-         OmniVCF = OmniVCF,
-         OmniVCFIdx = OmniVCFIdx,
-         ThousandGVCF = ThousandGVCF,
-         ThousandGVCFIdx = ThousandGVCFIdx,
-         MillsVCF = MillsVCF,
-         MillsVCFIdx = MillsVCFIdx,
-         DBSNP = DBSNP,
-         DBSNPIdx = DBSNPIdx,
+         VqsrSnpResourceString=VqsrSnpResourceString,
+         VqsrIndelResourceString=VqsrIndelResourceString,
          SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
