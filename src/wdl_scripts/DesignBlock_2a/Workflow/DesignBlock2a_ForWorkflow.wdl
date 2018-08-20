@@ -81,6 +81,7 @@ workflow CallBlock2aTasks {
          RecalTable = bqsr.RecalTable,
          SampleName = SampleName,
          Ref = Ref,
+         RefFai = RefFai,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          SentieonThreads = SentieonThreads,

@@ -21,6 +21,7 @@ task variantCallingTask {
    File RecalTable                                         # Input Recal Table after BQSR step
 
    File Ref                                                # Reference Genome
+   File RefFai                                             # Reference Genome index
 
    String SampleName                                       # Name of the Sample
 
