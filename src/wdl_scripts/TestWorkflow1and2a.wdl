@@ -12,7 +12,7 @@ workflow MasterWF {
    call WF2.CallBlock2aTasks as DB2a {
       input:
          GlobalAlignedSortedDedupedBam = DB1.GlobalAlignedSortedDedupedBam,
-         GlobalAlignedSortedDedupedBamIdx = DB1.GlobalAlignedSortedDedupedBamIdx
+         GlobalAlignedSortedDedupedBamBai = DB1.GlobalAlignedSortedDedupedBamBai
    }
 
 }

@@ -14,13 +14,13 @@ workflow CallBlock2aTasks {
    call BQSR.bqsrTask as bqsr {
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamIdx = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
    }
 
    call HAPLOTYPER.variantCallingTask as haplotype { 
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
    }
 
    call VQSR.vqsrTask as vqsr {

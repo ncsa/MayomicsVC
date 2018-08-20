@@ -10,7 +10,7 @@ import "src/wdl_scripts/DesignBlock_2a/Tasks/vqsr.wdl" as VQSR
 workflow CallBlock2aTasks {
 
    File GlobalAlignedSortedDedupedBam
-   File GlobalAlignedSortedDedupedBamIdx
+   File GlobalAlignedSortedDedupedBamBai
 
 ############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
 
@@ -44,7 +44,7 @@ workflow CallBlock2aTasks {
    call REALIGNMENT.realignmentTask  as realign {
       input:
          InputAlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
-         InputAlignedSortedDedupedBamIdx = GlobalAlignedSortedDedupedBamIdx,
+         InputAlignedSortedDedupedBamBai = GlobalAlignedSortedDedupedBamBai,
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
@@ -60,7 +60,7 @@ workflow CallBlock2aTasks {
    call BQSR.bqsrTask as bqsr {
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamIdx = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
@@ -73,10 +73,11 @@ workflow CallBlock2aTasks {
          BqsrScript = BqsrScript
    }
 
+
    call HAPLOTYPER.variantCallingTask as haplotype { 
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
          RecalTable = bqsr.RecalTable,
          SampleName = SampleName,
          Ref = Ref,

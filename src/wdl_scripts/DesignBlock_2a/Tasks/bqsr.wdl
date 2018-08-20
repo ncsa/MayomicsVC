@@ -17,7 +17,7 @@
 task bqsrTask {
 
    File InputAlignedSortedDedupedRealignedBam           # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedRealignedBamIdx        # Input Sorted Deduped Bam Index
+   File InputAlignedSortedDedupedRealignedBamBai        # Input Sorted Deduped Bam Index
    File Ref                                             # Reference Genome
 
    File RefFai                                          # Reference files that are provided as implicit inputs
@@ -26,7 +26,7 @@ task bqsrTask {
    String SampleName                                    # Name of the Sample
 
    String BQSRKnownSites                                    # List of known sites, including dbSNP
-#   File KnownSitesIdx                                   # Index file for the known sites
+#   File KnownSitesBai                                   # Index file for the known sites
 
    String SentieonLicense                               # Sentieon License Information
    String Sentieon                                      # Path to Sentieon
@@ -36,17 +36,14 @@ task bqsrTask {
 
    File BqsrScript                                      # Path to bash script called within WDL script
 
+
    command {
-
       /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -k ${BQSRKnownSites} ${DebugMode}
-
    }
 
    
    output {
-
       File RecalTable = "${SampleName}.recal_data.table"
-
    }
 
 }

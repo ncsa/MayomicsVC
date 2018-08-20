@@ -17,7 +17,8 @@
 task variantCallingTask {
 
    File InputAlignedSortedDedupedRealignedBam              # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedRealignedBamIdx           # Input Sorted Deduped Bam Index
+   File InputAlignedSortedDedupedRealignedBamBai           # Input Sorted Deduped Bam Index
+   File RecalTable                                         # Input Recal Table after BQSR step
 
    File Ref                                                # Reference Genome
 
@@ -26,7 +27,6 @@ task variantCallingTask {
    File DBSNP                                              # DBSNP file
    File DBSNPIdx                                           # Index file for the DBSNPs   
   
-   File RecalTable                                         # Recal Table after BQSR step
    
    String SentieonLicense                                  # Sentieon License Information
    String Sentieon                                         # Path to Sentieon

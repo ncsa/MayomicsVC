@@ -17,7 +17,7 @@
 task dedupTask {
 
    File InputAlignedSortedBam                   # Input Sorted BAM File
-   File InputAlignedSortedBamIdx                # Input Sorted Bam Index File
+   File InputAlignedSortedBamBai                # Input Sorted Bam Index File
 
    String SampleName                            # Name of the Sample
 
@@ -38,7 +38,7 @@ task dedupTask {
    output {
 
       File AlignedSortedDeduppedBam = "${SampleName}.aligned.sorted.deduped.bam"
-      File AlignedSortedDeduppedBamIdx = "${SampleName}.aligned.sorted.deduped.bam.bai"
+      File AlignedSortedDeduppedBamBai = "${SampleName}.aligned.sorted.deduped.bam.bai"
 
    }
 }

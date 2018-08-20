@@ -16,7 +16,7 @@
 task realignmentTask {
 
    File InputAlignedSortedDedupedBam                  # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedBamIdx               # Input Sorted Deduped Bam Index
+   File InputAlignedSortedDedupedBamBai               # Input Sorted Deduped Bam Index
 
    File Ref                                           # Reference Genome
    File RefFai                                        # Reference Index File
@@ -24,7 +24,7 @@ task realignmentTask {
    String SampleName                                  # Name of the Sample
 
    String RealignmentKnownSites                                    # List of known sites
-#   File KnownSitesIdx                                 # Index file for the known sites
+#   File KnownSitesBai                                 # Index file for the known sites
 
    String SentieonLicense                             # Sentieon License Information
    String Sentieon                                    # Path to Sentieon
@@ -34,17 +34,14 @@ task realignmentTask {
    
    File RealignmentScript                             # Path to bash script called within WDL script
  
+
    command {
-
       /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
-
    }
 
    output {
-  
       File AlignedSortedDedupedRealignedBam = "${SampleName}.aligned.sorted.deduped.realigned.bam"
-      File AlignedSortedDedupedRealignedBamIdx = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
-       
+      File AlignedSortedDedupedRealignedBamBai = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
    }  
    
 } 

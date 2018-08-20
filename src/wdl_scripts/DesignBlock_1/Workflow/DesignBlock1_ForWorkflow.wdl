@@ -77,7 +77,7 @@ workflow CallBlock1Tasks {
    call DEDUP.dedupTask as dedup {
       input:
          InputAlignedSortedBam  = align.AlignedSortedBam,
-         InputAlignedSortedBamIdx = align.AlignedSortedBamIdx,
+         InputAlignedSortedBamBai = align.AlignedSortedBamBai,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -89,7 +89,7 @@ workflow CallBlock1Tasks {
    output {
      
       File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDeduppedBam
-      File GlobalAlignedSortedDedupedBamIdx = dedup.AlignedSortedDeduppedBamIdx
+      File GlobalAlignedSortedDedupedBamBai = dedup.AlignedSortedDeduppedBamBai
    }    
 
 }
