@@ -25,8 +25,8 @@ task bqsrTask {
 
    String SampleName                                    # Name of the Sample
 
-   File KnownSites                                      # List of known sites
-   File KnownSitesIdx                                   # Index file for the known sites
+   String BQSRKnownSites                                    # List of known sites
+#   File KnownSitesIdx                                   # Index file for the known sites
 
    File DBSNP                                           # DBSNP file
    File DBSNPIdx                                        # Index file for the DBSNPs   
@@ -41,7 +41,7 @@ task bqsrTask {
 
    command {
 
-      /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${KnownSites} ${DebugMode}
+      /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -k ${BQSRKnownSites} ${DebugMode}
 
    }
 

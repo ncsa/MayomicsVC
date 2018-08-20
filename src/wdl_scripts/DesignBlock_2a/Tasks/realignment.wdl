@@ -23,8 +23,8 @@ task realignmentTask {
                                   
    String SampleName                                  # Name of the Sample
 
-   File KnownSites                                    # List of known sites
-   File KnownSitesIdx                                 # Index file for the known sites
+   String RealignmentKnownSites                                    # List of known sites
+#   File KnownSitesIdx                                 # Index file for the known sites
 
    String SentieonLicense                             # Sentieon License Information
    String Sentieon                                    # Path to Sentieon
@@ -36,7 +36,7 @@ task realignmentTask {
  
    command {
 
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${KnownSites} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
+      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
 
    }
 

@@ -313,7 +313,7 @@ OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN}."
+logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
 
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}

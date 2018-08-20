@@ -19,8 +19,9 @@ workflow CallBlock2aTasks {
    File Ref                            
    File RefFai                                         
 
-   File KnownSites                                     
-   File KnownSitesIdx                                  
+   String RealignmentKnownSites                                     
+   String BQSRKnownSites                                     
+#   File KnownSitesIdx                                  
   
    File DBSNP
    File DBSNPIdx
@@ -34,6 +35,7 @@ workflow CallBlock2aTasks {
    File RealignmentScript                              
    File BqsrScript
    File HaplotyperScript
+   File VqsrScript
 
 ######################################################################################
    
@@ -44,8 +46,8 @@ workflow CallBlock2aTasks {
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         KnownSites = KnownSites,
-         KnownSitesIdx = KnownSitesIdx,
+         RealignmentKnownSites = RealignmentKnownSites,
+#         KnownSitesIdx = KnownSitesIdx,
          SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
@@ -60,8 +62,8 @@ workflow CallBlock2aTasks {
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         KnownSites = KnownSites,
-         KnownSitesIdx = KnownSitesIdx,
+         BQSRKnownSites = BQSRKnownSites,
+ #        KnownSitesIdx = KnownSitesIdx,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          SentieonThreads = SentieonThreads,
