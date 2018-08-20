@@ -18,32 +18,33 @@
 
 task alignmentTask {
 
-   File Ref                        # Reference Genome
    File InputRead1                 # Input Read File           
    String InputRead2               # Input Read File           
    String SampleName               # Name of the Sample
+   String Group                    # starting read group string
+   String Platform                 # sequencing platform for read group
+   Boolean PairedEnd               # Variable to check if single ended or not
 
-   File RefAmb                     
-   File RefAnn                     
-   File RefBwt                     # These are reference files that are provided as implicit inputs
-   File RefPac                     # to the WDL Tool to help perform the alignment
-   File RefSa              
+   File Ref                        # Reference Genome
+   File RefAmb                     # reference file index
+   File RefAnn                     # reference file index
+   File RefBwt                     # reference file index
+   File RefPac                     # reference file index
+   File RefSa                      # reference file index
 
    String SentieonLicense          # Sentieon License server
    String Sentieon                 # Path to Sentieon
-
-   String Group
-   String Platform
-   String DebugMode                # Flag to enable Debug Mode
    String SentieonThreads          # Specifies the number of thread required per run
 
-   Boolean PairedEnd               # Variable to check if single ended or not
-
    File AlignmentScript            # Bash script which is called inside the WDL script
+   String ChunkSizeInBases         # The -K option for BWA MEM
+
+
+   String DebugMode                # Flag to enable Debug Mode
 
    command {
 
-      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
+      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
 
    }
 

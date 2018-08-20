@@ -30,17 +30,15 @@ task trimsequencesTask {
 
    String SampleName               # Name of the Sample
 
+
    command {
-
       /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} ${DebugMode}
-
    }
 
-   output {
 
+   output {
       File TrimmedInputRead1 = "${SampleName}.read1.trimmed.fq.gz"
       File TrimmedInputRead2 = "${SampleName}.read2.trimmed.fq.gz"
-      
    }
 
 }
