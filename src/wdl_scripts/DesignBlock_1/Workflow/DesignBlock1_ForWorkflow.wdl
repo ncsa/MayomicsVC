@@ -31,6 +31,7 @@ workflow CallBlock1Tasks {
    String SentieonLicense 
    String Sentieon 
    String SentieonThreads    
+   String ChunkSizeInBases
 
    File TrimSeqScript
    File AlignmentScript
@@ -64,6 +65,7 @@ workflow CallBlock1Tasks {
          RefSa = RefSa,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
+         ChunkSizeInBases = ChunkSizeInBases,
          Group = Group,
          Platform = Platform,
          DebugMode = DebugMode,
