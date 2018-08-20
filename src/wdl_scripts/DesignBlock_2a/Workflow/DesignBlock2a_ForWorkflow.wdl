@@ -5,6 +5,7 @@
 import "src/wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGNMENT
 import "src/wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
 import "src/wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "src/wdl_scripts/DesignBlock_2a/Tasks/vqsr.wdl" as VQSR
 
 workflow CallBlock2aTasks {
 
