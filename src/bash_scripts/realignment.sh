@@ -317,7 +317,7 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 
 ## Sentieon Realigner command.
 export SENTIEON_LICENSE=${LICENSE}
-TRAP_LINE=${LINENO}
+TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
