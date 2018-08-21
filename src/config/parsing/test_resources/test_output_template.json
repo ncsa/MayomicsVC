@@ -8,5 +8,6 @@
   "major.minor1.LICENSE": "String",
   "major.minor2.LICENSE": "String",
   "major.minor.DebugMode": "String",
-  "major.minor.InputRead2": "String"
+  "major.minor.InputRead2": "String",
+  "major.minor.ValueWithQuotes": "String"
 }
