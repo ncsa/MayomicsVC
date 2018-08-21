@@ -264,8 +264,11 @@ class Parser:
                 #    keys are structured Major.Minor.KeyName, and we are matching against the KeyName
                 if config_key == dict_key.split('.')[-1]:
                     config_key_was_present = True
-                    # Trim quote marks off of original value
-                    trimmed_value = config_value.replace('"', '')
+
+                    # Remove quote marks from the ends of the original value; assumes that the value was wrapped in
+                    #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
+                    trimmed_value = config_value[1:-1]
+
                     output_dict[dict_key] = trimmed_value
 
                     # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
