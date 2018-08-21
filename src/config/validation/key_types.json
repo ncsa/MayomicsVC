@@ -2,6 +2,7 @@
     "Adapters": "File",
     "AlignmentScript": "File",
     "CutAdapt": "Directory",
+    "CutAdaptThreads": "Integer",
     "DebugMode": "DebugMode",
     "DedupScript": "File",
     "Group": "String",
