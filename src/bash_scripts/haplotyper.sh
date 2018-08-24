@@ -333,7 +333,8 @@ logInfo "[Haplotyper] START."
 export SENTIEON_LICENSE=${LICENSE}
 
 #Execute Sentieon with the Haplotyper algorithm
-trap 'logError " $0 stopped at line ${LINENO}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
