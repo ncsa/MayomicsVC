@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs Variant Calling  using Sentieon                ##
+##              This WDL script performs Variant Calling  using Sentieon                 ##
 
 ##                                Script Options
 #               -t        "Number of Threads"                                     (Optional)
@@ -17,27 +17,29 @@
 task variantCallingTask {
 
    File InputAlignedSortedDedupedRealignedBam              # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedRealignedBamIdx           # Input Sorted Deduped Bam Index
+   File InputAlignedSortedDedupedRealignedBamBai           # Input Sorted Deduped Bam Index
+   File RecalTable                                         # Input Recal Table after BQSR step
 
    File Ref                                                # Reference Genome
+   File RefFai                                             # Reference Genome index
 
    String SampleName                                       # Name of the Sample
 
    File DBSNP                                              # DBSNP file
    File DBSNPIdx                                           # Index file for the DBSNPs   
   
-   File RecalTable                                         # Recal Table after BQSR step
    
-   String Threads                                          # No of Threads for the Tool
    String SentieonLicense                                  # Sentieon License Information
    String Sentieon                                         # Path to Sentieon
+   String SentieonThreads                                  # No of Threads for the Tool
+
    String DebugMode                                        # Enable or Disable Debug Mode
 
    File HaplotyperScript                                   # Path to bash script called within WDL script
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${Threads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
 
    }
 

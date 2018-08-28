@@ -5,11 +5,12 @@
 import "src/wdl_scripts/DesignBlock_2a/Tasks/realignment.wdl" as REALIGNMENT
 import "src/wdl_scripts/DesignBlock_2a/Tasks/bqsr.wdl" as BQSR
 import "src/wdl_scripts/DesignBlock_2a/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "src/wdl_scripts/DesignBlock_2a/Tasks/vqsr.wdl" as VQSR
 
 workflow CallBlock2aTasks {
 
    File GlobalAlignedSortedDedupedBam
-   File GlobalAlignedSortedDedupedBamIdx
+   File GlobalAlignedSortedDedupedBamBai
 
 ############## BOILERPLATE FOR DESIGN BLOCK 2a ########################################
 
@@ -18,33 +19,36 @@ workflow CallBlock2aTasks {
    File Ref                            
    File RefFai                                         
 
-   File KnownSites                                     
-   File KnownSitesIdx                                  
-  
+   String RealignmentKnownSites                                     
+   String BQSRKnownSites                                     
    File DBSNP
    File DBSNPIdx
-   
-   String Threads                                      
+
+   String VqsrSnpResourceString
+   String VqsrIndelResourceString
+  
    String SentieonLicense                              
    String Sentieon                                     
+   String SentieonThreads                                      
+
    String DebugMode                                   
 
    File RealignmentScript                              
    File BqsrScript
    File HaplotyperScript
+   File VqsrScript
 
 ######################################################################################
    
    call REALIGNMENT.realignmentTask  as realign {
       input:
          InputAlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
-         InputAlignedSortedDedupedBamIdx = GlobalAlignedSortedDedupedBamIdx,
+         InputAlignedSortedDedupedBamBai = GlobalAlignedSortedDedupedBamBai,
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         KnownSites = KnownSites,
-         KnownSitesIdx = KnownSitesIdx,
-         Threads = Threads,
+         RealignmentKnownSites = RealignmentKnownSites,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -54,31 +58,30 @@ workflow CallBlock2aTasks {
    call BQSR.bqsrTask as bqsr {
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamIdx = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         KnownSites = KnownSites,
-         KnownSitesIdx = KnownSitesIdx,
-         DBSNP = DBSNP,
-         DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         BQSRKnownSites = BQSRKnownSites,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          BqsrScript = BqsrScript
    }
 
+
    call HAPLOTYPER.variantCallingTask as haplotype { 
       input:
          InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBamIdx,
+         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
          RecalTable = bqsr.RecalTable,
          SampleName = SampleName,
          Ref = Ref,
+         RefFai = RefFai,
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
@@ -92,22 +95,20 @@ workflow CallBlock2aTasks {
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         HapMapVCF = HapMapVCF,
-         HapMapVCFIdx = HapMapVCFIdx,
-         OmniVCF = OmniVCF,
-         OmniVCFIdx = OmniVCFIdx,
-         ThousandGVCF = ThousandGVCF,
-         ThousandGVCFIdx = ThousandGVCFIdx,
-         MillsVCF = MillsVCF,
-         MillsVCFIdx = MillsVCFIdx,
-         DBSNP = DBSNP,
-         DBSNPIdx = DBSNPIdx,
-         Threads = Threads,
+         VqsrSnpResourceString=VqsrSnpResourceString,
+         VqsrIndelResourceString=VqsrIndelResourceString,
+         SentieonThreads = SentieonThreads,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          VqsrScript = VqsrScript
    }
 
-   
+   output {
+      File GlobalRecalibratedSnpVcf = vqsr.RecalibratedSnpVcf
+      File GlobalRecalibratedSnpVcfIdx = vqsr.RecalibratedSnpVcfIdx
+      File GlobalRecalibratedIndelVcf = vqsr.RecalibratedIndelVcf
+      File GlobalRecalibratedIndelVcfIdx = vqsr.RecalibratedIndelVcfIdx
+   }
+
 }

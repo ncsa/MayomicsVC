@@ -14,7 +14,7 @@ workflow CallBlock1Tasks {
    String InputRead2
    File Adapters  
    String CutAdapt 
-   String Threads    
+   String CutAdaptThreads    
    Boolean PairedEnd               
    String DebugMode
    String SampleName
@@ -30,6 +30,8 @@ workflow CallBlock1Tasks {
 
    String SentieonLicense 
    String Sentieon 
+   String SentieonThreads    
+   String ChunkSizeInBases
 
    File TrimSeqScript
    File AlignmentScript
@@ -43,7 +45,7 @@ workflow CallBlock1Tasks {
          InputRead2 = InputRead2,
          Adapters = Adapters,
          CutAdapt = CutAdapt,
-         Threads = Threads,
+         CutAdaptThreads = CutAdaptThreads,
          PairedEnd = PairedEnd,
          DebugMode = DebugMode,
          TrimSeqScript = TrimSeqScript,
@@ -63,10 +65,11 @@ workflow CallBlock1Tasks {
          RefSa = RefSa,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
+         ChunkSizeInBases = ChunkSizeInBases,
          Group = Group,
          Platform = Platform,
          DebugMode = DebugMode,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          PairedEnd = PairedEnd,
          AlignmentScript = AlignmentScript
    }
@@ -74,11 +77,11 @@ workflow CallBlock1Tasks {
    call DEDUP.dedupTask as dedup {
       input:
          InputAlignedSortedBam  = align.AlignedSortedBam,
-         InputAlignedSortedBamIdx = align.AlignedSortedBamIdx,
+         InputAlignedSortedBamBai = align.AlignedSortedBamBai,
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         Threads = Threads,
+         SentieonThreads = SentieonThreads,
          SampleName = SampleName,
          DedupScript = DedupScript
    }
@@ -86,7 +89,7 @@ workflow CallBlock1Tasks {
    output {
      
       File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDeduppedBam
-      File GlobalAlignedSortedDedupedBamIdx = dedup.AlignedSortedDeduppedBamIdx
+      File GlobalAlignedSortedDedupedBamBai = dedup.AlignedSortedDeduppedBamBai
    }    
 
 }

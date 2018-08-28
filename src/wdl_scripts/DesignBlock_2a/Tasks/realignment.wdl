@@ -15,36 +15,33 @@
 
 task realignmentTask {
 
-   File InputAlignedSortedDedupedBam                   # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedBamIdx                # Input Sorted Deduped Bam Index
+   File InputAlignedSortedDedupedBam                  # Input Sorted Deduped Bam
+   File InputAlignedSortedDedupedBamBai               # Input Sorted Deduped Bam Index
 
-   File Ref                                            # Reference Genome
-   File RefFai                                         # Reference Index File
-                                   
-   String SampleName                                   # Name of the Sample
+   File Ref                                           # Reference Genome
+   File RefFai                                        # Reference Index File
+                                  
+   String SampleName                                  # Name of the Sample
 
-   File KnownSites                                     # List of known sites
-   File KnownSitesIdx                                  # Index file for the known sites
+   String RealignmentKnownSites                                    # List of known sites
+#   File KnownSitesBai                                 # Index file for the known sites
 
-   String Threads                                      # No of Threads for the Tool
-   String SentieonLicense                              # Sentieon License Information
-   String Sentieon                                     # Path to Sentieon
+   String SentieonLicense                             # Sentieon License Information
+   String Sentieon                                    # Path to Sentieon
+   String SentieonThreads                             # No of Threads for the Tool
 
    String DebugMode                                   # Enable or Disable Debug Mode
    
-   File RealignmentScript                              # Path to bash script called within WDL script
+   File RealignmentScript                             # Path to bash script called within WDL script
  
+
    command {
-
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${KnownSites} -S ${Sentieon} -t ${Threads} ${DebugMode}
-
+      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
    }
 
    output {
-  
       File AlignedSortedDedupedRealignedBam = "${SampleName}.aligned.sorted.deduped.realigned.bam"
-      File AlignedSortedDedupedRealignedBamIdx = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
-       
+      File AlignedSortedDedupedRealignedBamBai = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
    }  
    
 } 
