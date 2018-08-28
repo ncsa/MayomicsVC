@@ -4,6 +4,7 @@
     "major.minor.DebugMode": "",
     "major.minor.InputRead2": "null",
     "major.minor.REF": "ref.fa",
+    "major.minor.ValueWithQuotes": "\"'InBetweenQuotes'\"",
     "major.minor.test_boolean": "true",
     "major.minor.test_decimal": "3.14159",
     "major.minor.test_integer": "7",
