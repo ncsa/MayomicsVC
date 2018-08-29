@@ -41,8 +41,7 @@ task vqsrTask {
 
 
    command {
-#      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} ${DebugMode}
-      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} ${DebugMode}
    }
 
    
