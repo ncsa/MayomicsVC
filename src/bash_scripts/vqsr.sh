@@ -34,7 +34,7 @@ read -r -d '' DOCS << DOCS
  vqsr.sh -s <sample_name>
  	 -S </path/to/sentieon>
 	 -L <Sentieon_license>
-         -t <threads>
+	 -t <threads>
 	 -G <reference_genome>
 	 -V <sample.vcf>
 	 -r <resource_string_for_SNPs>
