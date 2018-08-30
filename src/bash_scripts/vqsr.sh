@@ -34,6 +34,7 @@ read -r -d '' DOCS << DOCS
  vqsr.sh -s <sample_name>
  	 -S </path/to/sentieon>
 	 -L <Sentieon_license>
+         -t <threads>
 	 -G <reference_genome>
 	 -V <sample.vcf>
 	 -r <resource_string_for_SNPs>
@@ -42,7 +43,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0'" -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -d
 
 
 NOTE: In order for getops to read in a string arguments for -r (resource_string_for_SNPs) and -R (resource_string_for_INDELs), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
@@ -163,7 +164,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:L:G:V:r:R:d" OPT
+while getopts ":hs:S:L:t:G:V:r:R:d" OPT
 do
 	case ${OPT} in
 		h ) # Flag to display usage
@@ -176,6 +177,10 @@ do
 			;;
 		S ) # Full path to sentieon directory
 			SENTIEON=${OPTARG}
+			checkArg
+			;;
+		t ) # Number of threads to use
+			THR=${OPTARG}
 			checkArg
 			;;
 		L ) # Sentieon license
@@ -264,6 +269,13 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon license option: -S"
 fi
 
+## Check if the number of threads was specified
+if [[ -z ${THR+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+fi
+
 ## Check if the reference option was passed in
 if [[ -z ${REF+x} ]]
 then
@@ -336,7 +348,7 @@ TYPE="SNP"
 ## Run the VQSR for SNPs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for SNPs. " ' INT TERM EXIT 
-${SENTIEON}/bin/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_SNPS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1 
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_SNPS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -348,7 +360,7 @@ fi
 ## Apply VQSR for SNPs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR ApplyVarCal for SNPs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -378,7 +390,7 @@ TYPE="INDEL"
 ## Run the VQSR for INDELs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_INDELS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_INDELS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -390,7 +402,7 @@ fi
 ## Apply VQSR for INDELs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR ApplyVarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
