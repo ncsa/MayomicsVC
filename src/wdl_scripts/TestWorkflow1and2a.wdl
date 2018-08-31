@@ -26,6 +26,6 @@ workflow MasterWF {
    call DWF2a.CallDeliveryBlock2aTask as DDB2a {
       input:
          GlobalRecalibratedVcf = DB2a.GlobalRecalibratedVcf,
-         GlobalRecalibratedVcfIdx = DB2a.GlobalRecalibratedVcfIdx,
+         GlobalRecalibratedVcfIdx = DB2a.GlobalRecalibratedVcfIdx
    }
 }
