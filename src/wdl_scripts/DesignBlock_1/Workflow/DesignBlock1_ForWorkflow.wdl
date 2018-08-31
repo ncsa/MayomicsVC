@@ -36,6 +36,8 @@ workflow CallBlock1Tasks {
    File TrimSeqScript
    File AlignmentScript
    File DedupScript
+   File EnvProfile
+
 
 #####################################################################################          
    
@@ -49,6 +51,7 @@ workflow CallBlock1Tasks {
          PairedEnd = PairedEnd,
          DebugMode = DebugMode,
          TrimSeqScript = TrimSeqScript,
+         EnvProfile = EnvProfile,
          SampleName = SampleName
    }
     
@@ -71,7 +74,8 @@ workflow CallBlock1Tasks {
          DebugMode = DebugMode,
          SentieonThreads = SentieonThreads,
          PairedEnd = PairedEnd,
-         AlignmentScript = AlignmentScript
+         AlignmentScript = AlignmentScript,
+         EnvProfile = EnvProfile
    }
    
    call DEDUP.dedupTask as dedup {
@@ -83,7 +87,8 @@ workflow CallBlock1Tasks {
          DebugMode = DebugMode,
          SentieonThreads = SentieonThreads,
          SampleName = SampleName,
-         DedupScript = DedupScript
+         DedupScript = DedupScript,
+         EnvProfile = EnvProfile
    }
     
    output {
