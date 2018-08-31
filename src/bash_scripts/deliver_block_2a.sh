@@ -55,7 +55,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=dedup.sh
+SCRIPT_NAME=deliver_block_2a.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -211,9 +211,9 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_block_2a.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup_sentieon.log
+truncate -s 0 ${SAMPLE}.deliver_block_2a.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
