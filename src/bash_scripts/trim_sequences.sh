@@ -36,12 +36,12 @@ read -r -d '' DOCS << DOCS
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
-                   -p		</path/to/python_env_var> (optional; use if python installs are dynamically linked)
+                   -e		</path/to/env_profile_file>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -p /path/to/python_env_var -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -151,7 +151,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:p:d" OPT
+while getopts ":hl:r:A:C:t:P:s:e:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -186,8 +186,8 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		p )  # Path to python-specific environmental variables
-			PY_ENV=${OPTARG}
+		e )  # Path to file with environmental profile variables
+			ENV_PROFILE=${OPTARG}
 			checkArg
 			;;
 		d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
@@ -230,10 +230,13 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## If provided, source the python environmental variables
-if [[ ! -z ${PY_ENV+x} ]]
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
 then
-	source ${PY_ENV}
+	source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
 fi
 
 ## Check existence and var type of inputs
