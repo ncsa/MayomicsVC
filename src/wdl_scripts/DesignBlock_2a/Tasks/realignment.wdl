@@ -1,15 +1,17 @@
 ###########################################################################################
 
-##              This WDL script performs realignment using Sentieon                ##
+##              This WDL script performs realignment using Sentieon                      ##
 
 ##                                Script Options
-#       -t        "Number of Threads"                                     (Optional)
-#       -G        "Reference Genome"                                      (Required)
-#       -b        "Input Deduped Bam"                                     (Required)
-#       -k        "List of Known Sites"                                   (Required)
-#       -s        "Name of the sample"                                    (Optional)
-#       -S        "Path to the Sentieon Tool"                             (Required)
-#       -L        "Sentieon License File"                                 (Required)
+#       -t        "Number of Threads"                              (Optional)
+#       -G        "Reference Genome"                               (Required)
+#       -b        "Input Deduped Bam"                              (Required)
+#       -k        "List of Known Sites"                            (Required)
+#       -s        "Name of the sample"                             (Optional)
+#       -S        "Path to the Sentieon Tool"                      (Required)
+#       -L        "Sentieon License File"                          (Required)
+#       -e        "Path to the environmental profile               (Required)
+#       -d        "debug mode on/off                               (Optional: can be empty)
 
 ###########################################################################################
 
@@ -33,10 +35,12 @@ task realignmentTask {
    String DebugMode                                   # Enable or Disable Debug Mode
    
    File RealignmentScript                             # Path to bash script called within WDL script
+   File EnvProfile                 # File containing the environmental profile variables
+
  
 
    command {
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
+      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
    }
 
    output {
