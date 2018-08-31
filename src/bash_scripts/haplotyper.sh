@@ -345,7 +345,7 @@ fi
 ## Record start time
 logInfo "[Haplotyper] START."
 
-export SENTIEON_LICENSE=${LICENSE}
+#export SENTIEON_LICENSE=${LICENSE}
 
 #Execute Sentieon with the Haplotyper algorithm
 TRAP_LINE=$(($LINENO + 1))

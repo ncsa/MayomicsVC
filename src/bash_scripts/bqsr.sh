@@ -346,7 +346,7 @@ SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 ## Record start time
 logInfo "[bqsr] START. Performing bqsr on the input BAM to produce bqsr table."
 
-export SENTIEON_LICENSE=${LICENSE}
+#export SENTIEON_LICENSE=${LICENSE}
 
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))

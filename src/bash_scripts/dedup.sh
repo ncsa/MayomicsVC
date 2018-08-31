@@ -305,7 +305,7 @@ DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
-export SENTIEON_LICENSE=${LICENSE}
+#export SENTIEON_LICENSE=${LICENSE}
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
