@@ -25,9 +25,7 @@ workflow MasterWF {
 
    call DWF2a.CallDeliveryBlock2aTask as DDB2a {
       input:
-         GlobalRecalibratedSnpVcf = DB2a.GlobalRecalibratedSnpVcf,
-         GlobalRecalibratedSnpVcfIdx = DB2a.GlobalRecalibratedSnpVcfIdx,
-         GlobalRecalibratedIndelVcf = DB2a.GlobalRecalibratedIndelVcf,
-         GlobalRecalibratedIndelVcfIdx = DB2a.GlobalRecalibratedIndelVcfIdx,
+         GlobalRecalibratedVcf = DB2a.GlobalRecalibratedVcf,
+         GlobalRecalibratedVcfIdx = DB2a.GlobalRecalibratedVcfIdx,
    }
 }

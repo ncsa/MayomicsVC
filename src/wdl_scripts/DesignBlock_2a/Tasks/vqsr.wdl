@@ -48,10 +48,8 @@ task vqsrTask {
 
    
    output {
-      File RecalibratedSnpVcf = "${SampleName}.SNP.recaled.vcf"
-      File RecalibratedSnpVcfIdx = "${SampleName}.SNP.recaled.vcf.idx"
-      File RecalibratedIndelVcf = "${SampleName}.INDEL.SNP.recaled.vcf"
-      File RecalibratedIndelVcfIdx = "${SampleName}.INDEL.SNP.recaled.vcf.idx"
+      File RecalibratedVcf = "${SampleName}.INDEL.SNP.recaled.vcf"
+      File RecalibratedVcfIdx = "${SampleName}.INDEL.SNP.recaled.vcf.idx"
    }
 
 }

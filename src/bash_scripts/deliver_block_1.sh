@@ -154,12 +154,16 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hb:f:d" OPT
+while getopts ":hs:b:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
+                        ;;
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
+                        checkArg
                         ;;
                 b )  # Full path to the input BAM file
                         BAM=${OPTARG}
@@ -193,6 +197,13 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+
+## Check if Sample Name variable exists
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
+then
+        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+        exit 1
+fi
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log

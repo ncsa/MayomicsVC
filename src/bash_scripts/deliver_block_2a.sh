@@ -31,15 +31,14 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- deliver_block_2a.sh      -s           RecalibratedSnpVcf 
-                          -i           RecalibratedIndelVcf
+ deliver_block_2a.sh      -r           RecalibratedVcf 
                           -j           WorkflowJSONfile
                           -f           </path/to/delivery_folder>
                           -d           turn on debug mode
 
  EXAMPLES:
  deliver_block_2a.sh -h
- deliver_block_2a.sh -s RecalibratedSnp.vcf -i RecalibratedIndel.vcf -j Workflow.json -f /path/to/delivery_folder -d
+ deliver_block_2a.sh -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -156,19 +155,19 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:i:j:f:d" OPT
+while getopts ":hs:r:j:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-                s )  # Full path to the input SNP VCF file
-                        SNPVCF=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
 			checkArg
                         ;;
-                i )  # Full path to the input INDEL VCF file
-                        INDELVCF=${OPTARG}
+                r )  # Full path to the recalibrated VCF file
+                        VCF=${OPTARG}
                         checkArg
                         ;;
                 j )  # Full path to the workflow JSON file
@@ -204,6 +203,13 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Check if Sample Name variable exists
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
+then
+        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
+        exit 1
+fi
+
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
@@ -213,35 +219,20 @@ truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${SNPVCF+x} ]]
+if [[ -z ${VCF+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing SNP VCF option: -s"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing VCF option: -r"
 fi
-if [[ ! -s ${SNPVCF} ]]
+if [[ ! -s ${VCF} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input SNP VCF file ${SNPVCF} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF file ${VCF} is empty or does not exist."
 fi
-if [[ ! -s ${SNPVCF}.idx ]]
+if [[ ! -s ${VCF}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input SNP VCF index file ${SNPVCF}.idx is empty or does not exist."
-fi
-if [[ -z ${INDELVCF+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing INDEL VCF option: -i"
-fi
-if [[ ! -s ${INDELVCF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input INDEL VCF file ${INDELVCF} is empty or does not exist."
-fi
-if [[ ! -s ${INDELVCF}.idx ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input INDEL VCF index file ${INDELVCF}.idx is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF index file ${VCF}.idx is empty or does not exist."
 fi
 if [[ -z ${JSON+x} ]]
 then
@@ -310,8 +301,8 @@ logInfo "[DELIVERY] Copying Design Block 2a outputs into Delivery folder."
 
 ## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying SNPVCF into delivery folder. " ' INT TERM EXIT
-cp ${SNPVCF} ${DELIVERY_FOLDER}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -319,12 +310,12 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Recalibrated SNP VCF delivered."
+logInfo "[DELIVERY] Recalibrated VCF delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying SNPVCF.IDX into delivery folder. " ' INT TERM EXIT
-cp ${SNPVCF}.idx ${DELIVERY_FOLDER}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.idx ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -332,34 +323,7 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Recalibrated SNPVCF.IDX delivered."
-
-
-## Copy the indel files over
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying INDELVCF into delivery folder. " ' INT TERM EXIT
-cp ${INDELVCF} ${DELIVERY_FOLDER}
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[DELIVERY] Recalibrated INDEL VCF delivered."
-
-
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying INDELVCF.IDX into delivery folder. " ' INT TERM EXIT
-cp ${INDELVCF}.idx ${DELIVERY_FOLDER}
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[DELIVERY] Recalibrated INDELVCF.IDX delivered."
+logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
 
 
 ## Copy the JSON over
@@ -385,26 +349,16 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output VCFs and indices, and JSON. Open read permissions to the user group
-if [[ ! -s ${DELIVERY_FOLDER}/${SNPVCF} ]]
+## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated SNPVCF file ${DELIVERY_FOLDER}/${SNPVCF} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${VCF} is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${SNPVCF}.idx ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated SNPVCF index file ${DELIVERY_FOLDER}/${SNPVCF}.idx is empty."
-fi
-if [[ ! -s ${DELIVERY_FOLDER}/${INDELVCF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated INDELVCF file ${DELIVERY_FOLDER}/${INDELVCF} is empty."
-fi
-if [[ ! -s ${DELIVERY_FOLDER}/${INDELVCF}.idx ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated INDELVCF index file ${DELIVERY_FOLDER}/${INDELVCF}.idx is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${VCF}.idx is empty."
 fi
 if [[ ! -s ${DELIVERY_FOLDER}/${JSON} ]]
 then
@@ -413,10 +367,8 @@ then
 fi
 
 
-chmod g+r ${DELIVERY_FOLDER}/${SNPVCF}
-chmod g+r ${DELIVERY_FOLDER}/${SNPVCF}.idx
-chmod g+r ${DELIVERY_FOLDER}/${INDELVCF}
-chmod g+r ${DELIVERY_FOLDER}/${INDELVCF}.idx
+chmod g+r ${DELIVERY_FOLDER}/${VCF}
+chmod g+r ${DELIVERY_FOLDER}/${VCF}.idx
 chmod g+r ${DELIVERY_FOLDER}/${JSON}
 
 

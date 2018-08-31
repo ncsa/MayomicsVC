@@ -111,10 +111,8 @@ workflow CallBlock2aTasks {
    }
 
    output {
-      File GlobalRecalibratedSnpVcf = vqsr.RecalibratedSnpVcf
-      File GlobalRecalibratedSnpVcfIdx = vqsr.RecalibratedSnpVcfIdx
-      File GlobalRecalibratedIndelVcf = vqsr.RecalibratedIndelVcf
-      File GlobalRecalibratedIndelVcfIdx = vqsr.RecalibratedIndelVcfIdx
+      File GlobalRecalibratedVcf = vqsr.RecalibratedVcf
+      File GlobalRecalibratedVcfIdx = vqsr.RecalibratedVcfIdx
    }
 
 }

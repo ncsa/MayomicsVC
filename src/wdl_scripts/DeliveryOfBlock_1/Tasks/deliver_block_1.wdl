@@ -21,7 +21,7 @@ task deliverBlock1Task {
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
-      /bin/bash ${DeliveryBlock_1_Script} -b ${AlignedSortedDedupedBam} -f ${DeliveryFolder_Block_1} ${DebugMode}
+      /bin/bash ${DeliveryBlock_1_Script} -s ${SampleName} -b ${AlignedSortedDedupedBam} -f ${DeliveryFolder_Block_1} ${DebugMode}
    }
 
 }

@@ -6,15 +6,14 @@ import "src/wdl_scripts/DeliveryOfBlock_2a/Tasks/deliver_block_2a.wdl" as DELIVE
 
 workflow CallDeliveryBlock2aTask {
 
-   File GlobalRecalibratedSnpVcf
-   File GlobalRecalibratedSnpVcfIdx
-   File GlobalRecalibratedIndelVcf
-   File GlobalRecalibratedIndelVcfIdx
+   File GlobalRecalibratedVcf
+   File GlobalRecalibratedVcfIdx
 
 
 ############## BOILERPLATE FOR DELIVERY of DESIGN BLOCK 2a #######################################
 
    String DebugMode
+   String SampleName
 
    File DeliveryBlock_2a_Script
    String DeliveryFolder_Block_2a
@@ -25,10 +24,9 @@ workflow CallDeliveryBlock2aTask {
    
    call DELIVER_2a.deliverBlock2aTask as deliver2a {
       input:
-         RecalibratedSnpVcf = GlobalRecalibratedSnpVcf,
-         RecalibratedSnpVcfIdx = GlobalRecalibratedSnpVcfIdx,
-         RecalibratedIndelVcf = GlobalRecalibratedIndelVcf,
-         RecalibratedIndelVcfIdx = GlobalRecalibratedIndelVcfIdx,
+         SampleName = SampleName
+         RecalibratedVcf = GlobalRecalibratedVcf,
+         RecalibratedVcfIdx = GlobalRecalibratedVcfIdx,
          WorkflowJson = WorkflowJson,
          DeliveryBlock_2a_Script = DeliveryBlock_2a_Script,
          DeliveryFolder_Block_2a = DeliveryFolder_Block_2a,

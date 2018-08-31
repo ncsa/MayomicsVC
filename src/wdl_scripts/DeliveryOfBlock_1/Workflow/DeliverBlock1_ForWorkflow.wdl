@@ -12,6 +12,7 @@ workflow CallDeliveryBlock1Task {
 ############## BOILERPLATE FOR DELIVERY of DESIGN BLOCK 1 #######################################
 
    String DebugMode
+   String SampleName
 
    File DeliveryBlock_1_Script
    String DeliveryFolder_Block_1
@@ -21,6 +22,7 @@ workflow CallDeliveryBlock1Task {
    
    call DELIVER_1.deliverBlock1Task as deliver1 {
       input:
+         SampleName = SampleName
          AlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
          AlignedSortedDedupedBamBai = GlobalAlignedSortedDedupedBamBai,
          DeliveryBlock_1_Script = DeliveryBlock_1_Script,
