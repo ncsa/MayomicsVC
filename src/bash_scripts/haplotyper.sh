@@ -38,11 +38,12 @@ read -r -d '' DOCS << DOCS
 		   -b	<sorted.deduped.realigned.bam>
 		   -D	<dbsnp.vcf>
 		   -r	<recal_data.table>
+                   -e   </path/to/env_profile_file>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -e /path/to/env_profile_file -d 
 
 ##########################################################################################################################################################
 
@@ -150,7 +151,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:L:G:t:b:D:r:d" OPT
+while getopts ":hs:S:L:G:t:b:D:r:e:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -189,6 +190,10 @@ do
 			RECAL=${OPTARG}
 			checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		d ) # Turn on debug mode. Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -226,6 +231,16 @@ truncate -s 0 "${ERRLOG}"
 truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
 
 ## Check if Sentieon path is present
 if [[ -z ${SENTIEON+x} ]]
