@@ -20,18 +20,19 @@ task trimsequencesTask {
    File InputRead1                 # Input Read File             
    String InputRead2               # Input Read File             
 
+   String SampleName               # Name of the Sample
+
    File Adapters                   # Adapter FastA File         
  
    String CutAdapt                 # Path to CutAdapt Tool
    String CutAdaptThreads          # Number of threads for cutadapt to use
 
    Boolean PairedEnd               # Variable to check if single ended or not
-   String DebugMode                # Variable to check if Debud Mode is on or not
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
    File EnvProfile                 # File containing the environmental profile variables
 
-   String SampleName               # Name of the Sample
+   String DebugMode                # Variable to check if Debug Mode is on or not
 
 
    command {
