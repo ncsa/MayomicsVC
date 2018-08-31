@@ -3,6 +3,7 @@
 ###############################################################################################
 
 import "src/wdl_scripts/DesignBlock_1/Workflow/DesignBlock1_ForWorkflow.wdl" as WF1
+import "src/wdl_scripts/DesignBlock_1/Workflow/DesignBlock1_ForWorkflow.wdl" as WF1
 import "src/wdl_scripts/DesignBlock_2a/Workflow/DesignBlock2a_ForWorkflow.wdl" as WF2
 
 workflow MasterWF {
