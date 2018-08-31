@@ -14,7 +14,7 @@ workflow CallDeliveryBlock1Task {
    String DebugMode
 
    File DeliveryBlock_1_Script
-   File DeliveryFolder_Block_1
+   String DeliveryFolder_Block_1
 
 
 #####################################################################################          

@@ -3,7 +3,7 @@
 ##              This WDL script delivers output of Design Block 1                              ##
 
 #                              Script Options
-#      -b        "Input BAM File"                            (Required)      
+#      -b        "BAM File"                            (Required)      
 #      -f        "Path to the delivery folder "              (Required)
 #      -d        "Debug Mode Toggle"                         (Optional)
 
@@ -11,11 +11,11 @@
 
 task deliverBlock1Task {
 
-   File AlignedSortedDedupedBam           # Input aligned sorted dedupped BAM file
-   File AlignedSortedDedupedBamBai        # Input aligned sorted dedupped BAM.BAI file
+   File AlignedSortedDedupedBam           # aligned sorted dedupped BAM file
+   File AlignedSortedDedupedBamBai        # aligned sorted dedupped BAM.BAI file
 
    File DeliveryBlock_1_Script            # Bash script that performs the delivery
-   File DeliveryFolder_Block_1            # Input delivery folder
+   String DeliveryFolder_Block_1          # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {

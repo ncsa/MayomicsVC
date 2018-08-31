@@ -162,7 +162,7 @@ do
 			exit 0
                         ;;
                 b )  # Full path to the input BAM file
-                        INPUTBAM=${OPTARG}
+                        BAM=${OPTARG}
 			checkArg
                         ;;
                 e )  # Path to delivery folder
@@ -203,34 +203,61 @@ truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUTBAM+x} ]]
+if [[ -z ${BAM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
 fi
-if [[ ! -s ${INPUTBAM} ]]
+if [[ ! -s ${BAM} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${BAM} is empty or does not exist."
 fi
-if [[ ! -s ${INPUTBAM}.bai ]]
+if [[ ! -s ${BAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${BAM}.bai is empty or does not exist."
 fi
 if [[ -z ${DELIVERY_FOLDER+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
 fi
-if [[ ! -d ${DELIVERY_FOLDER} ]]
+if [[ -d ${DELIVERY_FOLDER} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is not a directory or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
+elif [[ -f ${DELIVERY_FOLDER} ]]
+then 
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## MAKE DELIVERY FOLDER
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Creating the Delivery folder."
+
+## Copy the files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating Design Block 1 delivery folder. " ' INT TERM EXIT
+mkdir -p ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
 
 
 
@@ -243,12 +270,12 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
+logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
 
 ## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${INPUTBAM} ${DELIVERY_FOLDER}
+cp ${BAM} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -261,7 +288,7 @@ logInfo "[DELIVERY] Aligned sorted dedupped BAM delivered."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${INPUTBAM}.bai ${DELIVERY_FOLDER}
+cp ${BAM}.bai ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -282,19 +309,19 @@ logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index. Open read permissions to the user group
-if [[ ! -s ${DELIVERY_FOLDER}/${INPUTBAM} ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${BAM} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${INPUTBAM} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${BAM} is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${INPUTBAM}.bai ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${BAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${INPUTBAM}.bai is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${BAM}.bai is empty."
 fi
 
-chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}
-chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}.bai
+chmod g+r ${DELIVERY_FOLDER}/${BAM}
+chmod g+r ${DELIVERY_FOLDER}/${BAM}.bai
 
 logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
 

@@ -233,13 +233,40 @@ then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
 fi
-if [[ ! -d ${DELIVERY_FOLDER} ]]
+if [[ -d ${DELIVERY_FOLDER} ]]
 then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is not a directory or does not exist."
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
+elif [[ -f ${DELIVERY_FOLDER} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
 fi
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
+## MAKE DELIVERY FOLDER
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Creating the Delivery folder."
+
+## Copy the files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating Design Block 2a delivery folder. " ' INT TERM EXIT
+mkdir -p ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Created the Design Block 2a delivery folder."
 
 
 
@@ -253,7 +280,8 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
+logInfo "[DELIVERY] Copying Design Block 2a outputs into Delivery folder."
+
 
 ## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
@@ -306,7 +334,7 @@ fi
 chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}
 chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}.bai
 
-logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
+logInfo "[DELIVERY] Design Block 2a delivered. Have a nice day."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
