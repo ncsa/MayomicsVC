@@ -9,6 +9,7 @@
 #       -s        "Name of the sample"                                    (Optional)
 #       -S        "Path to the Sentieon Tool"                             (Required)
 #       -L        "Sentieon License File"                                 (Required)
+#       -e        "Path to the environmental profile                      (Required)
 #       -d        "debug mode"                                            (Optional)
 
 
@@ -35,13 +36,15 @@ task vqsrTask {
    String SentieonThreads               # No of Threads for the Tool
    String SentieonLicense               # Sentieon License Information
    String Sentieon                      # Path to Sentieon
-   String DebugMode                     # Enable or Disable Debug Mode
 
    File VqsrScript                      # Path to bash script called within WDL script
+   File EnvProfile                      # File containing the environmental profile variables
+
+   String DebugMode                     # Enable or Disable Debug Mode
 
 
    command {
-      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -e ${EnvProfile} ${DebugMode}
    }
 
    
