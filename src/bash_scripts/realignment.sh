@@ -37,11 +37,12 @@ read -r -d '' DOCS << DOCS
                    -S           </path/to/sentieon> 
                    -L		<sentieon_license>
                    -t           <threads> 
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -158,7 +159,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:S:L:t:d" OPT
+while getopts ":hs:b:G:k:S:L:t:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -192,6 +193,10 @@ do
                 t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
+                        ;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
@@ -232,6 +237,15 @@ truncate -s 0 ${SAMPLE}.realign_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
 
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUTBAM+x} ]]
@@ -316,7 +330,7 @@ OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
 logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
 
 ## Sentieon Realigner command.
-export SENTIEON_LICENSE=${LICENSE}
+#export SENTIEON_LICENSE=${LICENSE}
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1

@@ -11,6 +11,9 @@
 #               -r        "Recal Data Table"                                      (Required)
 #               -S        "Path to the Sentieon Tool"                             (Required)
 #               -L        "Sentieon License File"                                 (Required)
+#               -e        "Path to the environmental profile                      (Required)
+#               -d        "debug mode on/off                        (Optional: can be empty)
+#
 
 ############################################################################################
 
@@ -33,13 +36,15 @@ task variantCallingTask {
    String Sentieon                                         # Path to Sentieon
    String SentieonThreads                                  # No of Threads for the Tool
 
+   File HaplotyperScript                                   # Path to bash script called within WDL script
+   File EnvProfile                                      # File containing the environmental profile variables
+
    String DebugMode                                        # Enable or Disable Debug Mode
 
-   File HaplotyperScript                                   # Path to bash script called within WDL script
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} -e ${EnvProfile} ${DebugMode}
 
    }
 

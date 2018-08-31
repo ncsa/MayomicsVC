@@ -13,6 +13,8 @@
 #       -L        "Sentieon License File"                     (Required)
 #       -g        "Group"                                     (Required)
 #       -p        "Platform"                                  (Required)
+#       -e        "Path to the environmental profile          (Required)
+#       -d        "debug mode on/off                          (Optional: can be empty)
 
 ###########################################################################################
 
@@ -37,6 +39,7 @@ task alignmentTask {
    String SentieonThreads          # Specifies the number of thread required per run
 
    File AlignmentScript            # Bash script which is called inside the WDL script
+   File EnvProfile                 # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
 
 
@@ -44,7 +47,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} ${DebugMode}
+      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
 
    }
 

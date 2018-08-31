@@ -39,11 +39,12 @@ read -r -d '' DOCS << DOCS
 	 -V <sample.vcf>
 	 -r <resource_string_for_SNPs>
 	 -R <resource_string_for_INDELS>
+         -e </path/to/env_profile_file>
 	 -d turn on debug mode
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -e /path/to/env_profile_file -d
 
 
 NOTE: In order for getops to read in a string arguments for -r (resource_string_for_SNPs) and -R (resource_string_for_INDELs), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
@@ -164,7 +165,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:L:t:G:V:r:R:d" OPT
+while getopts ":hs:S:L:t:G:V:r:R:e:d" OPT
 do
 	case ${OPT} in
 		h ) # Flag to display usage
@@ -203,6 +204,10 @@ do
 			RESOURCE_INDELS=${OPTARG}
 			checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -247,6 +252,16 @@ truncate -s 0 ${SAMPLE}.vqsr_sentieon.log
 
 ## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
 
 ## Check if the Sentieon executable option was passed in
 if [[ -z ${SENTIEON+x} ]]
@@ -335,7 +350,7 @@ RESOURCE_INDELS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_INDELS}`
 ## Record start time
 logInfo "[VQSR] START. Performing VQSR on VCF output from Haplotyper."
 
-export SENTIEON_LICENSE=${LICENSE}
+#export SENTIEON_LICENSE=${LICENSE}
 
 
 ## Create the ANNOTATION argument
