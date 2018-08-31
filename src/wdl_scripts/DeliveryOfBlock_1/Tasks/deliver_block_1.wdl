@@ -12,6 +12,7 @@
 task deliverBlock1Task {
 
    File AlignedSortedDedupedBam           # Input aligned sorted dedupped BAM file
+   File AlignedSortedDedupedBamBai        # Input aligned sorted dedupped BAM.BAI file
 
    File DeliveryBlock_1_Script            # Bash script that performs the delivery
    File DeliveryFolder_Block_1            # Input delivery folder
