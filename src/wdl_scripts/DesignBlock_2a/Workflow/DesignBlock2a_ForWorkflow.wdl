@@ -37,6 +37,7 @@ workflow CallBlock2aTasks {
    File BqsrScript
    File HaplotyperScript
    File VqsrScript
+   File EnvProfile
 
 ######################################################################################
    
@@ -52,7 +53,8 @@ workflow CallBlock2aTasks {
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         RealignmentScript = RealignmentScript
+         RealignmentScript = RealignmentScript,
+         EnvProfile = EnvProfile
    }
    
    call BQSR.bqsrTask as bqsr {
@@ -67,7 +69,8 @@ workflow CallBlock2aTasks {
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         BqsrScript = BqsrScript
+         BqsrScript = BqsrScript,
+         EnvProfile = EnvProfile
    }
 
 
@@ -85,7 +88,8 @@ workflow CallBlock2aTasks {
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         HaplotyperScript = HaplotyperScript
+         HaplotyperScript = HaplotyperScript,
+         EnvProfile = EnvProfile
    }
 
    call VQSR.vqsrTask as vqsr {
@@ -101,7 +105,8 @@ workflow CallBlock2aTasks {
          SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
-         VqsrScript = VqsrScript
+         VqsrScript = VqsrScript,
+         EnvProfile = EnvProfile
    }
 
    output {
