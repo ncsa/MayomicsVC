@@ -27,7 +27,6 @@ workflow CallBlock2aTasks {
    String VqsrSnpResourceString
    String VqsrIndelResourceString
   
-   String SentieonLicense                              
    String Sentieon                                     
    String SentieonThreads                                      
 
@@ -56,7 +55,6 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          RealignmentKnownSites = RealignmentKnownSites,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          RealignmentScript = RealignmentScript,
@@ -72,7 +70,6 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          BQSRKnownSites = BQSRKnownSites,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          BqsrScript = BqsrScript,
@@ -91,7 +88,6 @@ workflow CallBlock2aTasks {
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript,
@@ -108,7 +104,6 @@ workflow CallBlock2aTasks {
          VqsrSnpResourceString=VqsrSnpResourceString,
          VqsrIndelResourceString=VqsrIndelResourceString,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          VqsrScript = VqsrScript,

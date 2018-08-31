@@ -8,7 +8,6 @@
 #       -V        "Input VCF"                                             (Required)
 #       -s        "Name of the sample"                                    (Optional)
 #       -S        "Path to the Sentieon Tool"                             (Required)
-#       -L        "Sentieon License File"                                 (Required)
 #       -e        "Path to the environmental profile                      (Required)
 #       -d        "debug mode"                                            (Optional)
 
@@ -32,9 +31,9 @@ task vqsrTask {
                                         # 1000G, omni, dbSNP, hapmap VCFs and associated parameter values
    String VqsrIndelResourceString       # Sentieon resource string that contains paths to 
                                         # dbSNP, Mills VCFs and associated parameter values
+   String AnnotateText                  # Annotation text string for vqr 
 
    String SentieonThreads               # No of Threads for the Tool
-   String SentieonLicense               # Sentieon License Information
    String Sentieon                      # Path to Sentieon
 
    File VqsrScript                      # Path to bash script called within WDL script
@@ -44,7 +43,7 @@ task vqsrTask {
 
 
    command {
-      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -e ${VqsrEnvProfile} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} ${DebugMode}
    }
 
    

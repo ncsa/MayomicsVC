@@ -39,7 +39,6 @@ read -r -d '' DOCS << DOCS
                    -G		<reference_genome>
                    -K		<chunk_size_in_bases> 
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
                    -P		paired-end reads (true/false)
                    -e           </path/to/env_profile_file>
@@ -47,7 +46,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -e /path/to/env_profile_file -d
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
 
  NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
 
@@ -164,7 +163,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:K:S:L:t:P:e:d" OPT
+while getopts ":hg:s:p:l:r:G:K:S:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -203,10 +202,6 @@ do
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license
-			LICENSE=${OPTARG}
-			checkArg
-			;;
                 t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
@@ -355,11 +350,6 @@ if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${LICENSE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
 fi
 if [[ -z ${THR+x} ]]
 then

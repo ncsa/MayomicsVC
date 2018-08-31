@@ -28,7 +28,6 @@ workflow CallBlock1Tasks {
    String Group
    String Platform
 
-   String SentieonLicense 
    String Sentieon 
    String SentieonThreads    
    String ChunkSizeInBases
@@ -70,7 +69,6 @@ workflow CallBlock1Tasks {
          RefBwt = RefBwt,
          RefPac = RefPac,
          RefSa = RefSa,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          ChunkSizeInBases = ChunkSizeInBases,
          Group = Group,
@@ -86,7 +84,6 @@ workflow CallBlock1Tasks {
       input:
          InputAlignedSortedBam  = align.AlignedSortedBam,
          InputAlignedSortedBamBai = align.AlignedSortedBamBai,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          SentieonThreads = SentieonThreads,

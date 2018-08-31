@@ -10,7 +10,6 @@
 #               -s        "Name of the sample"                                    (Optional)
 #               -r        "Recal Data Table"                                      (Required)
 #               -S        "Path to the Sentieon Tool"                             (Required)
-#               -L        "Sentieon License File"                                 (Required)
 #               -e        "Path to the environmental profile                      (Required)
 #               -d        "debug mode on/off                        (Optional: can be empty)
 #
@@ -32,7 +31,6 @@ task variantCallingTask {
    File DBSNPIdx                                           # Index file for the DBSNPs   
   
    
-   String SentieonLicense                                  # Sentieon License Information
    String Sentieon                                         # Path to Sentieon
    String SentieonThreads                                  # No of Threads for the Tool
 
@@ -44,7 +42,7 @@ task variantCallingTask {
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} -e ${HaplotyperEnvProfile} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -e ${HaplotyperEnvProfile} ${DebugMode}
 
    }
 

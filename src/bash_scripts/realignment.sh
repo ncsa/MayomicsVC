@@ -35,14 +35,13 @@ read -r -d '' DOCS << DOCS
                    -G		<reference_genome>
                    -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
                    -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -e /path/to/env_profile_file -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -159,7 +158,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:S:L:t:e:d" OPT
+while getopts ":hs:b:G:k:S:t:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -186,10 +185,6 @@ do
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license number
-			LICENSE=${OPTARG}
-			checkArg
-			;;
                 t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
@@ -287,11 +282,6 @@ if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
 fi
 if [[ -z ${THR+x} ]]
 then

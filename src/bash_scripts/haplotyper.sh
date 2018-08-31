@@ -32,7 +32,6 @@ read -r -d '' DOCS << DOCS
  USAGE:
  Haplotyper.sh     -s 	<sample_name>
 		   -S	</path/to/sentieon>
-		   -L	<sentieon_license>
 		   -G	<reference_genome>
 		   -t	<threads>
 		   -b	<sorted.deduped.realigned.bam>
@@ -43,7 +42,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -e /path/to/env_profile_file -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -e /path/to/env_profile_file -d 
 
 ##########################################################################################################################################################
 
@@ -151,7 +150,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:L:G:t:b:D:r:e:d" OPT
+while getopts ":hs:S:G:t:b:D:r:e:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -164,10 +163,6 @@ do
 			;;
 		S ) # Full path to sentieon directory
 			SENTIEON=${OPTARG}
-			checkArg
-			;;
-		L ) # Sentieon license number
-			LICENSE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to referance genome fasta file
@@ -327,12 +322,6 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist."
 fi
 
-## Check if Sentieon license string is present.
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon license option: -L"
-fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 

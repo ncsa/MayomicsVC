@@ -33,18 +33,18 @@ read -r -d '' DOCS << DOCS
  USAGE:
  vqsr.sh -s <sample_name>
  	 -S </path/to/sentieon>
-	 -L <Sentieon_license>
 	 -t <threads>
 	 -G <reference_genome>
 	 -V <sample.vcf>
 	 -r <resource_string_for_SNPs>
 	 -R <resource_string_for_INDELS>
+	 -a <annotate_text_string>
          -e </path/to/env_profile_file>
 	 -d turn on debug mode
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -e /path/to/env_profile_file -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -a "'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ --annotation MQRankSum --annotation ReadPosRankSum'"  -e /path/to/env_profile_file -d
 
 
 NOTE: In order for getops to read in a string arguments for -r (resource_string_for_SNPs) and -R (resource_string_for_INDELs), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
@@ -165,7 +165,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:L:t:G:V:r:R:e:d" OPT
+while getopts ":hs:S:t:G:V:r:R:a:e:d" OPT
 do
 	case ${OPT} in
 		h ) # Flag to display usage
@@ -184,10 +184,6 @@ do
 			THR=${OPTARG}
 			checkArg
 			;;
-		L ) # Sentieon license
-			LICENSE=${OPTARG}
-			checkArg
-			;;
 		G ) # Reference genome
 			REF=${OPTARG}
 			checkArg
@@ -204,6 +200,10 @@ do
 			RESOURCE_INDELS=${OPTARG}
 			checkArg
 			;;
+                R ) # Annotation text 
+                        ANNOTATE_TEXT=${OPTARG}
+                        checkArg
+                        ;;
                 e )  # Path to file with environmental profile variables
                         ENV_PROFILE=${OPTARG}
                         checkArg
@@ -275,13 +275,6 @@ if [[ ! -d ${SENTIEON} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
-
-## Check if the Sentieon license option was passed in
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon license option: -S"
 fi
 
 ## Check if the number of threads was specified

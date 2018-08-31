@@ -14,6 +14,8 @@ task deliverBlock1Task {
    File AlignedSortedDedupedBam           # aligned sorted dedupped BAM file
    File AlignedSortedDedupedBamBai        # aligned sorted dedupped BAM.BAI file
 
+   String SampleName                      # Name of the Sample
+
    File DeliveryBlock_1_Script            # Bash script that performs the delivery
    String DeliveryFolder_Block_1          # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on

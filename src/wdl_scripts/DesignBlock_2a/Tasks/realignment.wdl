@@ -9,7 +9,6 @@
 #       -k        "List of Known Sites"                            (Required)
 #       -s        "Name of the sample"                             (Optional)
 #       -S        "Path to the Sentieon Tool"                      (Required)
-#       -L        "Sentieon License File"                          (Required)
 #       -e        "Path to the environmental profile               (Required)
 #       -d        "debug mode on/off                               (Optional: can be empty)
 
@@ -25,10 +24,8 @@ task realignmentTask {
                                   
    String SampleName                                  # Name of the Sample
 
-   String RealignmentKnownSites                                    # List of known sites
-#   File KnownSitesBai                                 # Index file for the known sites
+   String RealignmentKnownSites                       # List of known sites
 
-   String SentieonLicense                             # Sentieon License Information
    String Sentieon                                    # Path to Sentieon
    String SentieonThreads                             # No of Threads for the Tool
 
@@ -40,7 +37,7 @@ task realignmentTask {
  
 
    command {
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
+      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
    }
 
    output {
