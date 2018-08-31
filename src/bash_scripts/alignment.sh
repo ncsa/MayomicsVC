@@ -42,11 +42,12 @@ read -r -d '' DOCS << DOCS
                    -L		<sentieon_license>
                    -t           <threads> 
                    -P		paired-end reads (true/false)
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -e /path/to/env_profile_file -d
 
  NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
 
@@ -163,7 +164,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:K:S:L:t:P:d" OPT
+while getopts ":hg:s:p:l:r:G:K:S:L:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -214,6 +215,10 @@ do
                         IS_PAIRED_END=${OPTARG}
 			checkArg
                         ;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
                         set -x
@@ -255,6 +260,15 @@ truncate -s 0 ${SAMPLE}.align_sentieon.log
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
 
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUT1+x} ]]
