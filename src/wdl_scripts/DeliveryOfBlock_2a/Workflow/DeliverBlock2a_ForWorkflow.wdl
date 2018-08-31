@@ -24,7 +24,7 @@ workflow CallDeliveryBlock2aTask {
    
    call DELIVER_2a.deliverBlock2aTask as deliver2a {
       input:
-         SampleName = SampleName
+         SampleName = SampleName,
          RecalibratedVcf = GlobalRecalibratedVcf,
          RecalibratedVcfIdx = GlobalRecalibratedVcfIdx,
          WorkflowJson = WorkflowJson,
