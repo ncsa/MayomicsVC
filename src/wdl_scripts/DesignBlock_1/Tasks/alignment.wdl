@@ -39,7 +39,7 @@ task alignmentTask {
    String SentieonThreads          # Specifies the number of thread required per run
 
    File AlignmentScript            # Bash script which is called inside the WDL script
-   File EnvProfile                 # File containing the environmental profile variables
+   File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
 
 
@@ -47,7 +47,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -L ${SentieonLicense} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
    }
 

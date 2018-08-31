@@ -34,10 +34,16 @@ workflow CallBlock2aTasks {
    String DebugMode                                   
 
    File RealignmentScript                              
+   File RealignEnvProfile
+
    File BqsrScript
+   File BqsrEnvProfile
+
    File HaplotyperScript
+   File HaplotyperEnvProfile
+
    File VqsrScript
-   File EnvProfile
+   File VqsrEnvProfile
 
 ######################################################################################
    
@@ -54,7 +60,7 @@ workflow CallBlock2aTasks {
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          RealignmentScript = RealignmentScript,
-         EnvProfile = EnvProfile
+         RealignEnvProfile = RealignEnvProfile
    }
    
    call BQSR.bqsrTask as bqsr {
@@ -70,7 +76,7 @@ workflow CallBlock2aTasks {
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          BqsrScript = BqsrScript,
-         EnvProfile = EnvProfile
+         BqsrEnvProfile = BqsrEnvProfile
    }
 
 
@@ -89,7 +95,7 @@ workflow CallBlock2aTasks {
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript,
-         EnvProfile = EnvProfile
+         HaplotyperEnvProfile = HaplotyperEnvProfile
    }
 
    call VQSR.vqsrTask as vqsr {
@@ -106,7 +112,7 @@ workflow CallBlock2aTasks {
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          VqsrScript = VqsrScript,
-         EnvProfile = EnvProfile
+         VqsrEnvProfile = VqsrEnvProfile
    }
 
    output {

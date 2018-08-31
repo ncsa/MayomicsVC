@@ -35,12 +35,12 @@ task realignmentTask {
    String DebugMode                                   # Enable or Disable Debug Mode
    
    File RealignmentScript                             # Path to bash script called within WDL script
-   File EnvProfile                 # File containing the environmental profile variables
+   File RealignEnvProfile                             # File containing the environmental profile variables
 
  
 
    command {
-      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${RealignmentScript} -L ${SentieonLicense} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
    }
 
    output {

@@ -37,14 +37,14 @@ task variantCallingTask {
    String SentieonThreads                                  # No of Threads for the Tool
 
    File HaplotyperScript                                   # Path to bash script called within WDL script
-   File EnvProfile                                      # File containing the environmental profile variables
+   File HaplotyperEnvProfile                               # File containing the environmental profile variables
 
    String DebugMode                                        # Enable or Disable Debug Mode
 
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -L ${SentieonLicense} -e ${HaplotyperEnvProfile} ${DebugMode}
 
    }
 

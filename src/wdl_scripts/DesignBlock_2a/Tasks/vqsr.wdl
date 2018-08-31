@@ -38,13 +38,13 @@ task vqsrTask {
    String Sentieon                      # Path to Sentieon
 
    File VqsrScript                      # Path to bash script called within WDL script
-   File EnvProfile                      # File containing the environmental profile variables
+   File VqsrEnvProfile                  # File containing the environmental profile variables
 
    String DebugMode                     # Enable or Disable Debug Mode
 
 
    command {
-      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -e ${VqsrEnvProfile} ${DebugMode}
    }
 
    

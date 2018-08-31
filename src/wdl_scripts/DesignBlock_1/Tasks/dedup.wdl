@@ -28,11 +28,11 @@ task dedupTask {
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    File DedupScript                       # Bash script that is called inside the WDL script
-   File EnvProfile                        # File containing the environmental profile variables
+   File DedupEnvProfile                   # File containing the environmental profile variables
 
    command {
 
-      /bin/bash ${DedupScript} -L ${SentieonLicense} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${DedupScript} -L ${SentieonLicense} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
 
    }
 

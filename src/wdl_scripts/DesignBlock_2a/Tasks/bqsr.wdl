@@ -35,13 +35,13 @@ task bqsrTask {
    String SentieonThreads                               # No of Threads for the Tool
 
    File BqsrScript                                      # Path to bash script called within WDL script
-   File EnvProfile                                      # File containing the environmental profile variables
+   File BqsrEnvProfile                                  # File containing the environmental profile variables
 
    String DebugMode                                     # Enable or Disable Debug Mode
 
 
    command {
-      /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -k ${BQSRKnownSites} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${BqsrScript} -s ${SampleName}  -L ${SentieonLicense} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -k ${BQSRKnownSites} -e ${BqsrEnvProfile} ${DebugMode}
    }
 
    
