@@ -164,15 +164,15 @@ do
 			exit 0
                         ;;
                 s )  # Full path to the input SNP VCF file
-                        INPUTSNPVCF=${OPTARG}
+                        SNPVCF=${OPTARG}
 			checkArg
                         ;;
                 i )  # Full path to the input INDEL VCF file
-                        INPUTINDELVCF=${OPTARG}
+                        INDELVCF=${OPTARG}
                         checkArg
                         ;;
                 j )  # Full path to the workflow JSON file
-                        INPUTJSON=${OPTARG}
+                        JSON=${OPTARG}
                         checkArg
                         ;;
                 f)   # Path to delivery folder
@@ -213,20 +213,45 @@ truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUTBAM+x} ]]
+if [[ -z ${SNPVCF+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing SNP VCF option: -s"
 fi
-if [[ ! -s ${INPUTBAM} ]]
+if [[ ! -s ${SNPVCF} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input SNP VCF file ${SNPVCF} is empty or does not exist."
 fi
-if [[ ! -s ${INPUTBAM}.bai ]]
+if [[ ! -s ${SNPVCF}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input SNP VCF index file ${SNPVCF}.idx is empty or does not exist."
+fi
+if [[ -z ${INDELVCF+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing INDEL VCF option: -i"
+fi
+if [[ ! -s ${INDELVCF} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input INDEL VCF file ${INDELVCF} is empty or does not exist."
+fi
+if [[ ! -s ${INDELVCF}.idx ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input INDEL VCF index file ${INDELVCF}.idx is empty or does not exist."
+fi
+if [[ -z ${JSON+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
+fi
+if [[ ! -s ${JSON} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
 fi
 if [[ -z ${DELIVERY_FOLDER+x} ]]
 then
@@ -283,10 +308,10 @@ logInfo "[DELIVERY] Created the Design Block 2a delivery folder."
 logInfo "[DELIVERY] Copying Design Block 2a outputs into Delivery folder."
 
 
-## Copy the files over
+## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${INPUTBAM} ${DELIVERY_FOLDER}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying SNPVCF into delivery folder. " ' INT TERM EXIT
+cp ${SNPVCF} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -294,12 +319,12 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM delivered."
+logInfo "[DELIVERY] Recalibrated SNP VCF delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${INPUTBAM}.bai ${DELIVERY_FOLDER}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying SNPVCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${SNPVCF}.idx ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -307,7 +332,48 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
+logInfo "[DELIVERY] Recalibrated SNPVCF.IDX delivered."
+
+
+## Copy the indel files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying INDELVCF into delivery folder. " ' INT TERM EXIT
+cp ${INDELVCF} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated INDEL VCF delivered."
+
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying INDELVCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${INDELVCF}.idx ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated INDELVCF.IDX delivered."
+
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -319,20 +385,41 @@ logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index. Open read permissions to the user group
-if [[ ! -s ${DELIVERY_FOLDER}/${INPUTBAM} ]]
+## Check for creation of output VCFs and indices, and JSON. Open read permissions to the user group
+if [[ ! -s ${DELIVERY_FOLDER}/${SNPVCF} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${INPUTBAM} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated SNPVCF file ${DELIVERY_FOLDER}/${SNPVCF} is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${INPUTBAM}.bai ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${SNPVCF}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${INPUTBAM}.bai is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated SNPVCF index file ${DELIVERY_FOLDER}/${SNPVCF}.idx is empty."
+fi
+if [[ ! -s ${DELIVERY_FOLDER}/${INDELVCF} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated INDELVCF file ${DELIVERY_FOLDER}/${INDELVCF} is empty."
+fi
+if [[ ! -s ${DELIVERY_FOLDER}/${INDELVCF}.idx ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated INDELVCF index file ${DELIVERY_FOLDER}/${INDELVCF}.idx is empty."
+fi
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON} is empty."
 fi
 
-chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}
-chmod g+r ${DELIVERY_FOLDER}/${INPUTBAM}.bai
+
+chmod g+r ${DELIVERY_FOLDER}/${SNPVCF}
+chmod g+r ${DELIVERY_FOLDER}/${SNPVCF}.idx
+chmod g+r ${DELIVERY_FOLDER}/${INDELVCF}
+chmod g+r ${DELIVERY_FOLDER}/${INDELVCF}.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON}
+
+
 
 logInfo "[DELIVERY] Design Block 2a delivered. Have a nice day."
 

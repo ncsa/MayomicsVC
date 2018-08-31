@@ -4,11 +4,11 @@
 
 #########################################################################
 
-import "src/wdl_scripts/DeliveryOfBlock_1/Workflow/DeliverBlock1_ForWorkflow.wdl" as DWF1
+import "src/wdl_scripts/DeliveryOfBlock_1/Tasks/deliver_block_1.wdl" as DELIVER1
 
 workflow CallDeliverBlock1Task {
 
-   call DWF1.DeliveryBlock1Task as DDB1
+   call DELIVER1.deliverBlock1Task as DDB1
 
 }
 

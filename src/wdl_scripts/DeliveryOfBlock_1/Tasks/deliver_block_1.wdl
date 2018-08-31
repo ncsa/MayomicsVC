@@ -3,7 +3,7 @@
 ##              This WDL script delivers output of Design Block 1                              ##
 
 #                              Script Options
-#      -b        "BAM File"                            (Required)      
+#      -b        "BAM File"                                  (Required)      
 #      -f        "Path to the delivery folder "              (Required)
 #      -d        "Debug Mode Toggle"                         (Optional)
 

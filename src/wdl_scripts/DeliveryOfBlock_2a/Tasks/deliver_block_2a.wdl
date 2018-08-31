@@ -18,14 +18,14 @@ task deliverBlock2aTask {
    File RecalibratedIndelVcf              # Indel VCF File
    File RecalibratedIndelVcfIdx           # Indel VCF.IDX File
 
-   File InputJson                         # JSON file for the workflow
+   File WorkflowJson                         # JSON file for the workflow
 
    File DeliveryBlock_2a_Script           # Bash script that performs the delivery
    String DeliveryFolder_Block_2a         # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
-      /bin/bash ${DeliveryBlock_2a_Script} -s ${RecalibratedSnpVcf} -i ${RecalibratedIndelVcf} -j ${InputJson} -f ${DeliveryFolder_Block_2a} ${DebugMode}
+      /bin/bash ${DeliveryBlock_2a_Script} -s ${RecalibratedSnpVcf} -i ${RecalibratedIndelVcf} -j ${WorkflowJson} -f ${DeliveryFolder_Block_2a} ${DebugMode}
    }
 
 }
