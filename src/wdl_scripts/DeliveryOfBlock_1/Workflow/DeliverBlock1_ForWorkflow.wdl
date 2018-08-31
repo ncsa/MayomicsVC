@@ -22,12 +22,12 @@ workflow CallDeliveryBlock1Task {
    
    call DELIVER_1.deliverBlock1Task as deliver1 {
       input:
-         SampleName = SampleName
+         SampleName = SampleName,
          AlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
          AlignedSortedDedupedBamBai = GlobalAlignedSortedDedupedBamBai,
          DeliveryBlock_1_Script = DeliveryBlock_1_Script,
          DeliveryFolder_Block_1 = DeliveryFolder_Block_1,
-         DebugMode = DebugMode,
+         DebugMode = DebugMode
    }
     
 }
