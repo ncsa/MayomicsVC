@@ -11,6 +11,7 @@
 #         -A        "Adapter File for CutAdapt"                 (Required)
 #         -C        "Path to CutAdapt Tool"                     (Required)
 #         -e        "Path to the environmental profile          (Required)
+#         -d        "debug mode on/off                          (Optional: can be empty)
 
 ###########################################################################################         
 
