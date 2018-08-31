@@ -1,6 +1,6 @@
 #################################################################################################
 
-##              This WDL script marks the duplicates on input sorted BAMs                ##
+##              This WDL script delivers output of Design Block 1                              ##
 
 #                              Script Options
 #      -b        "Input BAM File"                            (Required)      

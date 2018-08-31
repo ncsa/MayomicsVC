@@ -350,7 +350,6 @@ RESOURCE_INDELS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_INDELS}`
 ## Record start time
 logInfo "[VQSR] START. Performing VQSR on VCF output from Haplotyper."
 
-#export SENTIEON_LICENSE=${LICENSE}
 
 
 ## Create the ANNOTATION argument

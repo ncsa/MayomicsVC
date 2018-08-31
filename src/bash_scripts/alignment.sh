@@ -399,7 +399,6 @@ logInfo "[BWA-MEM] START."
 ## BWA-MEM command, run for each read against a reference genome. 
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
-	# export SENTIEON_LICENSE=${LICENSE}
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
@@ -411,7 +410,6 @@ then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
 else # Paired-end reads aligned
-	# export SENTIEON_LICENSE=${LICENSE}
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
