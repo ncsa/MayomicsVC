@@ -320,19 +320,19 @@ logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index. Open read permissions to the user group
-if [[ ! -s ${DELIVERY_FOLDER}/${BAM} ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${SampleName}.aligned.sorted.deduped.bam ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${BAM} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file in ${DELIVERY_FOLDER} is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${BAM}.bai ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${SampleName}.aligned.sorted.deduped.bam.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${BAM}.bai is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file in ${DELIVERY_FOLDER} is empty."
 fi
 
-chmod g+r ${DELIVERY_FOLDER}/${BAM}
-chmod g+r ${DELIVERY_FOLDER}/${BAM}.bai
+chmod g+r ${DELIVERY_FOLDER}/*
+
 
 logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
 
