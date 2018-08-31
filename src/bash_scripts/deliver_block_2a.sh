@@ -350,26 +350,27 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
-if [[ ! -s ${DELIVERY_FOLDER}/${VCF} ]]
+VCF_NAME=`basename ${VCF}`
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${VCF} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${VCF_NAME} is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${VCF}.idx ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${VCF}.idx is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${VCF_NAME}.idx is empty."
 fi
-if [[ ! -s ${DELIVERY_FOLDER}/${JSON} ]]
+
+JSON_FILENAME=`basename ${JSON}` 
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
 then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON} is empty."
+       EXITCODE=1
+       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
 fi
 
 
-chmod g+r ${DELIVERY_FOLDER}/${VCF}
-chmod g+r ${DELIVERY_FOLDER}/${VCF}.idx
-chmod g+r ${DELIVERY_FOLDER}/${JSON}
+chmod g+r ${DELIVERY_FOLDER}/*
 
 
 
