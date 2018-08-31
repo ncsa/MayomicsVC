@@ -200,7 +200,7 @@ do
 			RESOURCE_INDELS=${OPTARG}
 			checkArg
 			;;
-                R ) # Annotation text 
+                a ) # Annotation text 
                         ANNOTATE_TEXT=${OPTARG}
                         checkArg
                         ;;
@@ -325,6 +325,14 @@ then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -R"
 fi
+## Check if the annotation  string was passed in
+if [[ -z ${ANNOTATE_TEXT+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line $LINENO. \nREASON=Missing annotation text string option: -a"
+fi
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 RESOURCE_SNPS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_SNPS}`
@@ -344,9 +352,6 @@ RESOURCE_INDELS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_INDELS}`
 logInfo "[VQSR] START. Performing VQSR on VCF output from Haplotyper."
 
 
-
-## Create the ANNOTATION argument
-ANNOTATE_TEXT="--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ --annotation MQRankSum --annotation ReadPosRankSum"
 
 ## Recalibrate the SNP variant quallity scores first
 TYPE="SNP"

@@ -26,6 +26,7 @@ workflow CallBlock2aTasks {
 
    String VqsrSnpResourceString
    String VqsrIndelResourceString
+   String AnnotateText
   
    String Sentieon                                     
    String SentieonThreads                                      
@@ -105,6 +106,7 @@ workflow CallBlock2aTasks {
          VqsrIndelResourceString=VqsrIndelResourceString,
          SentieonThreads = SentieonThreads,
          Sentieon = Sentieon,
+         AnnotateText = AnnotateText,
          DebugMode = DebugMode,
          VqsrScript = VqsrScript,
          VqsrEnvProfile = VqsrEnvProfile
