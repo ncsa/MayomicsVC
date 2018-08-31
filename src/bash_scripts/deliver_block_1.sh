@@ -169,7 +169,7 @@ do
                         BAM=${OPTARG}
 			checkArg
                         ;;
-                e )  # Path to delivery folder
+                f )  # Path to delivery folder
                         DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
