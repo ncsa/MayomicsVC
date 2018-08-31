@@ -370,7 +370,9 @@ then
 fi
 
 
-chmod g+r ${DELIVERY_FOLDER}/*
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
 
 
