@@ -337,6 +337,7 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 RESOURCE_SNPS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_SNPS}`
 RESOURCE_INDELS_PARSED=`sed -e "s/'//g" <<< ${RESOURCE_INDELS}`
+ANNOTATE_TEXT_PARSED=`sed -e "s/'//g" <<< ${ANNOTATE_TEXT}`
 
 
 
@@ -360,7 +361,7 @@ TYPE="SNP"
 ## Run the VQSR for SNPs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for SNPs. " ' INT TERM EXIT 
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_SNPS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1 
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_SNPS_PARSED} ${ANNOTATE_TEXT_PARSED} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
@@ -402,7 +403,7 @@ TYPE="INDEL"
 ## Run the VQSR for INDELs
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for INDELs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_INDELS_PARSED} ${ANNOTATE_TEXT} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_INDELS_PARSED} ${ANNOTATE_TEXT_PARSED} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 if [[ ${EXITCODE} -ne 0 ]]
