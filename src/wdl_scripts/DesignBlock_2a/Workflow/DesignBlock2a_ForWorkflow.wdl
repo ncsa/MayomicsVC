@@ -26,18 +26,24 @@ workflow CallBlock2aTasks {
 
    String VqsrSnpResourceString
    String VqsrIndelResourceString
+   String AnnotateText
   
-   String SentieonLicense                              
    String Sentieon                                     
    String SentieonThreads                                      
 
    String DebugMode                                   
 
    File RealignmentScript                              
+   File RealignEnvProfile
+
    File BqsrScript
+   File BqsrEnvProfile
+
    File HaplotyperScript
+   File HaplotyperEnvProfile
+
    File VqsrScript
-   File EnvProfile
+   File VqsrEnvProfile
 
 ######################################################################################
    
@@ -50,11 +56,10 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          RealignmentKnownSites = RealignmentKnownSites,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          RealignmentScript = RealignmentScript,
-         EnvProfile = EnvProfile
+         RealignEnvProfile = RealignEnvProfile
    }
    
    call BQSR.bqsrTask as bqsr {
@@ -66,11 +71,10 @@ workflow CallBlock2aTasks {
          RefFai = RefFai,
          BQSRKnownSites = BQSRKnownSites,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          BqsrScript = BqsrScript,
-         EnvProfile = EnvProfile
+         BqsrEnvProfile = BqsrEnvProfile
    }
 
 
@@ -85,11 +89,10 @@ workflow CallBlock2aTasks {
          DBSNP = DBSNP,
          DBSNPIdx = DBSNPIdx,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript,
-         EnvProfile = EnvProfile
+         HaplotyperEnvProfile = HaplotyperEnvProfile
    }
 
    call VQSR.vqsrTask as vqsr {
@@ -102,18 +105,16 @@ workflow CallBlock2aTasks {
          VqsrSnpResourceString=VqsrSnpResourceString,
          VqsrIndelResourceString=VqsrIndelResourceString,
          SentieonThreads = SentieonThreads,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
+         AnnotateText = AnnotateText,
          DebugMode = DebugMode,
          VqsrScript = VqsrScript,
-         EnvProfile = EnvProfile
+         VqsrEnvProfile = VqsrEnvProfile
    }
 
    output {
-      File GlobalRecalibratedSnpVcf = vqsr.RecalibratedSnpVcf
-      File GlobalRecalibratedSnpVcfIdx = vqsr.RecalibratedSnpVcfIdx
-      File GlobalRecalibratedIndelVcf = vqsr.RecalibratedIndelVcf
-      File GlobalRecalibratedIndelVcfIdx = vqsr.RecalibratedIndelVcfIdx
+      File GlobalRecalibratedVcf = vqsr.RecalibratedVcf
+      File GlobalRecalibratedVcfIdx = vqsr.RecalibratedVcfIdx
    }
 
 }

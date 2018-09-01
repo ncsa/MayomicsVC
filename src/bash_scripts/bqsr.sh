@@ -32,7 +32,6 @@ read -r -d '' DOCS << DOCS
  USAGE:
  bqsr.sh -s 	<sample_name>
 	 -S 	</path/to/sentieon> 
-	 -L	<sentieon_license>
 	 -G 	<reference_genome>
 	 -t 	<threads>
 	 -b 	<sorted.deduped.realigned.bam>
@@ -42,7 +41,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -d 
+ bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -d 
 
 ############################################################################################################################
 
@@ -156,7 +155,7 @@ then
 fi
 
 
-while getopts ":hs:S:L:G:t:b:k:e:d" OPT
+while getopts ":hs:S:G:t:b:k:e:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -169,10 +168,6 @@ do
 			;;
 		S ) # Full path to Sentieon
 			SENTIEON=${OPTARG}
-			checkArg
-			;;
-		L ) # Sentieon license number
-			LICENSE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to reference fasta
@@ -311,13 +306,6 @@ then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
 fi
-
-## Check if Sentieon license string is present.
-if [[ -z ${LICENSE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon license option: -L"
-fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -346,7 +334,6 @@ SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 ## Record start time
 logInfo "[bqsr] START. Performing bqsr on the input BAM to produce bqsr table."
 
-#export SENTIEON_LICENSE=${LICENSE}
 
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))

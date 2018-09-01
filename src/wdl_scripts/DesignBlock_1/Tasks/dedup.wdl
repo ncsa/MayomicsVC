@@ -8,7 +8,6 @@
 #      -t        "Number of Threads"                         (Optional)
 #      -S        "Path to the Sentieon Tool"                 (Required)
 #      -O        "Directory for the Output"                  (Required)
-#      -L        "Sentieon License File"                     (Required)
 #      -e        "Path to the environmental profile          (Required)
 #      -d        "Debug Mode Toggle"                         (Optional)
 
@@ -22,17 +21,16 @@ task dedupTask {
    String SampleName                      # Name of the Sample
 
    String Sentieon                        # Variable path to Sentieon 
-   String SentieonLicense                 # License Server Information
 
    String SentieonThreads                 # Specifies the number of thread required per run
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    File DedupScript                       # Bash script that is called inside the WDL script
-   File EnvProfile                        # File containing the environmental profile variables
+   File DedupEnvProfile                   # File containing the environmental profile variables
 
    command {
 
-      /bin/bash ${DedupScript} -L ${SentieonLicense} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${EnvProfile} ${DebugMode}
+      /bin/bash ${DedupScript} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
 
    }
 

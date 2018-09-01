@@ -28,15 +28,18 @@ workflow CallBlock1Tasks {
    String Group
    String Platform
 
-   String SentieonLicense 
    String Sentieon 
    String SentieonThreads    
    String ChunkSizeInBases
 
    File TrimSeqScript
+   File TrimEnvProfile
+
    File AlignmentScript
+   File AlignEnvProfile
+
    File DedupScript
-   File EnvProfile
+   File DedupEnvProfile
 
 
 #####################################################################################          
@@ -51,7 +54,7 @@ workflow CallBlock1Tasks {
          PairedEnd = PairedEnd,
          DebugMode = DebugMode,
          TrimSeqScript = TrimSeqScript,
-         EnvProfile = EnvProfile,
+         TrimEnvProfile = TrimEnvProfile,
          SampleName = SampleName
    }
     
@@ -66,7 +69,6 @@ workflow CallBlock1Tasks {
          RefBwt = RefBwt,
          RefPac = RefPac,
          RefSa = RefSa,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          ChunkSizeInBases = ChunkSizeInBases,
          Group = Group,
@@ -75,20 +77,19 @@ workflow CallBlock1Tasks {
          SentieonThreads = SentieonThreads,
          PairedEnd = PairedEnd,
          AlignmentScript = AlignmentScript,
-         EnvProfile = EnvProfile
+         AlignEnvProfile = AlignEnvProfile
    }
    
    call DEDUP.dedupTask as dedup {
       input:
          InputAlignedSortedBam  = align.AlignedSortedBam,
          InputAlignedSortedBamBai = align.AlignedSortedBamBai,
-         SentieonLicense = SentieonLicense,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          SentieonThreads = SentieonThreads,
          SampleName = SampleName,
          DedupScript = DedupScript,
-         EnvProfile = EnvProfile
+         DedupEnvProfile = DedupEnvProfile
    }
     
    output {
