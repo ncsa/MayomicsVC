@@ -18,7 +18,6 @@
     "RefSa": "File",
     "SampleName": "String",
     "Sentieon": "String",
-    "SentieonLicense": "String",
     "Threads": "Integer",
     "TrimSeqScript": "File"
 }
