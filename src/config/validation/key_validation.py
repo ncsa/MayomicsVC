@@ -27,10 +27,7 @@ Error Code List
 E.val.JSN.1 = An input JSON file could not be found
 E.val.JSN.2 = An input JSON file was not formatted properly
 
-E.val.OuD.1 = A output directory that is supposed to be readable, writeable, and executable could not be found
-E.val.OuD.2 = A output directory does not have read permissions for the current user
-E.val.OuD.3 = A output directory does not have write permissions for the current user
-E.val.OuD.4 = A output directory does not have executable permissions for the current user
+E.val.OuD.1 = An output directory already exists
 
 E.val.ROD.1 = A directory that is supposed to be readable and executable could not be found
 E.val.ROD.2 = A read-only directory does not have read permissions for the current user
@@ -221,33 +218,12 @@ class Validator:
 
         # Output Directory ###
         elif lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
-            # Checks if the directory exists, and has executable (ability to traverse into), read (read contents),
-            #   and write (permission to create contents in) permissions
-            if not self.__directory_exists(key_value):
-                self.project_logger.log_error("E.val.OuD.1", "The directory: '" + key_value + "' could not be found.")
+            # Only verifies that the directory does not already exist
+            if self.__directory_exists(key_value):
+                self.project_logger.log_error("E.val.OuD.1", "The output directory '" + key_value + "' already exists.")
                 return False
             else:
-                readable = os.access(key_value, os.R_OK)
-                writeable = os.access(key_value, os.W_OK)
-                executable = os.access(key_value, os.X_OK)
-                if not readable:
-                    self.project_logger.log_error("E.val.OuD.2", "The output directory: '" + key_value +
-                                                  "' does not have read permissions for the current user."
-                                                  )
-                    return False
-                elif not writeable:
-                    self.project_logger.log_error("E.val.OuD.3", "The output directory: '" + key_value +
-                                                  "' does not have write permissions for the current user."
-                                                  )
-                    return False
-                elif not executable:
-                    self.project_logger.log_error("E.val.OuD.4", "The output directory: '" + key_value +
-                                                  "' does not have executable permissions for the current user."
-                                                  )
-                    return False
-                else:
-                    # The directory was found and has the necessary permissions
-                    return True
+                return True
 
         # Read-only Directory ###
         elif lowered_key_type in (
