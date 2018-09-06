@@ -67,9 +67,8 @@ If one wants read/write/executable permissions checks, use a more
 
 For types listed as OutputDirectory, we confirm that
 
-    1. The directory exists
-    2. It has readable, writeable, and executable permissions
-       for the current user
+    1. The directory does not already exist
+
        
 This type should be used for directories that the workflow will write into.
 
