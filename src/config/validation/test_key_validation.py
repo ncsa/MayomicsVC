@@ -3,7 +3,7 @@
 import unittest
 import os
 import sys
-import src.config.validation.key_validation as v
+from ..validation import key_validation as v
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))

@@ -9,9 +9,9 @@ import os
 import argparse
 import logging
 import pathlib
-from src.config.util.util import read_json_file
-from src.config.util.log import ProjectLogger
-from src.config.util.special_keys import NULLABLE_KEYS, OPTIONAL_KEYS
+from ..util.util import read_json_file
+from ..util.log import ProjectLogger
+from ..util.special_keys import NULLABLE_KEYS, OPTIONAL_KEYS
 
 """
 Exit code Rules:

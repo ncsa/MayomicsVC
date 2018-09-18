@@ -15,9 +15,10 @@ import json
 import argparse
 import logging
 import sys
-from src.config.util.util import read_json_file
-from src.config.util.log import ProjectLogger
-from src.config.util.special_keys import OPTIONAL_KEYS
+
+from ..util.util import read_json_file
+from ..util.log import ProjectLogger
+from ..util.special_keys import OPTIONAL_KEYS
 
 """
 Exit code Rules:

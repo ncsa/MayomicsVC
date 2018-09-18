@@ -2,8 +2,9 @@
 
 import unittest
 import os
-import src.config.util.log as log
-import src.config.util.util as util
+from ..util import log
+from ..util import util
+
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))

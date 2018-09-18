@@ -1,4 +1,4 @@
-import src.config.parsing.parser as parse
+import parser as parse
 import unittest
 
 
