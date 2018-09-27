@@ -4,6 +4,8 @@
 ## haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
 #------------------------------------------------------------------------------------------------------------------------------
 
+
+
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
 `readlink -m $0`
@@ -37,13 +39,15 @@ read -r -d '' DOCS << DOCS
 		   -b	<sorted.deduped.realigned.bam>
 		   -D	<dbsnp.vcf>
 		   -r	<recal_data.table>
+		   -o	<extra_haplotyper_options>
                    -e   </path/to/env_profile_file>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -e /path/to/env_profile_file -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/env_profile_file -d 
 
+NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ##########################################################################################################################################################
 
 
@@ -150,7 +154,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:r:e:d" OPT
+while getopts ":hs:S:G:t:b:D:r:o:e:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -183,6 +187,10 @@ do
 			;;
 		r ) #Full path to the recal_data.table created in the BQSR step
 			RECAL=${OPTARG}
+			checkArg
+			;;
+		o ) #Extra options and arguments to haplotyper, input as a long string, can be empty if desired
+			HAPLOTYPER_OPTIONS=${OPTARG}
 			checkArg
 			;;
                 e )  # Path to file with environmental profile variables
@@ -315,6 +323,12 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=Missing RECAL_DATA.TABLE option: -r"
 fi
 
+if [[ -z ${HAPLOTYPER_OPTIONS+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Missing extra haplotyper options option: -o"
+fi
+
 ## Check if the Recal_data.table file produced in BQSR is present
 if [[ ! -s ${RECAL} ]]
 then
@@ -323,6 +337,14 @@ then
 fi
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
+
+
+
+
+
+
+
 
 
 
@@ -338,7 +360,7 @@ logInfo "[Haplotyper] START."
 #Execute Sentieon with the Haplotyper algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

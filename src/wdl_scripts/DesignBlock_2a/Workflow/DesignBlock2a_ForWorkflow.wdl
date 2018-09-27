@@ -42,6 +42,8 @@ workflow CallBlock2aTasks {
    File HaplotyperScript
    File HaplotyperEnvProfile
 
+   String HaplotyperExtraOptions
+
    File VqsrScript
    File VqsrEnvProfile
 
@@ -92,7 +94,8 @@ workflow CallBlock2aTasks {
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript,
-         HaplotyperEnvProfile = HaplotyperEnvProfile
+         HaplotyperEnvProfile = HaplotyperEnvProfile,
+	 HaplotyperExtraOptions = HaplotyperExtraOptions
    }
 
    call VQSR.vqsrTask as vqsr {
