@@ -9,6 +9,7 @@
 #               -D        "DBSNP File"                                            (Required)
 #               -s        "Name of the sample"                                    (Optional)
 #               -r        "Recal Data Table"                                      (Required)
+#               -o        "Haplotyper Extra Options"                              (Required)
 #               -S        "Path to the Sentieon Tool"                             (Required)
 #               -e        "Path to the environmental profile                      (Required)
 #               -d        "debug mode on/off                        (Optional: can be empty)
@@ -27,6 +28,8 @@ task variantCallingTask {
 
    String SampleName                                       # Name of the Sample
 
+   String HaplotyperExtraOptions                         # String of extra options for haplotyper, this can be an empty string
+
    File DBSNP                                              # DBSNP file
    File DBSNPIdx                                           # Index file for the DBSNPs   
   
@@ -42,7 +45,7 @@ task variantCallingTask {
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -e ${HaplotyperEnvProfile} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptions} -e ${HaplotyperEnvProfile} ${DebugMode}
 
    }
 
