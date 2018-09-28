@@ -9,9 +9,7 @@ import os
 import argparse
 import logging
 import pathlib
-
 from util.util import read_json_file
-
 from util.log import ProjectLogger
 from util.special_keys import NULLABLE_KEYS, OPTIONAL_KEYS
 

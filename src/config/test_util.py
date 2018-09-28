@@ -2,7 +2,6 @@
 
 import unittest
 import os
-
 from util.log import ProjectLogger
 from util.util import read_json_file
 

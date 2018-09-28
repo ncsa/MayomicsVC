@@ -3,7 +3,6 @@
 import os
 import sys
 import unittest
-
 import key_validation as v
 
 # This is the full path to the validation package
