@@ -16,12 +16,13 @@ workflow RunTrimInputSequencesTask {
    File Adapters                   # Adapter FastA File         
  
    String CutAdapt                 # Path to CutAdapt Tool
-   String Threads                  # Specifies the number of thread required per run
+   String CutAdaptThreads          # Specifies the number of thread required per run
 
    Boolean PairedEnd               # Variable to check if single ended or not
    String DebugMode                # Variable to check if Debud Mode is on or not
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
+   File TrimEnvProfile             # File containing the environmental profile variables
 
    String SampleName               # Name of the Sample
 
@@ -35,10 +36,11 @@ workflow RunTrimInputSequencesTask {
             InputRead2=lane[1],
             Adapters=Adapters,
             CutAdapt=CutAdapt,
-            Threads=Threads,
+            CutAdaptThreads=CutAdaptThreads,
             PairedEnd=PairedEnd,
             DebugMode=DebugMode,
-            TrimSeqScript=TrimSeqScript
+            TrimSeqScript=TrimSeqScript,
+            TrimEnvProfile=TrimEnvProfile
       }
       }
       if(!PairedEnd) {
@@ -49,10 +51,11 @@ workflow RunTrimInputSequencesTask {
             InputRead2="null",
             Adapters=Adapters,
             CutAdapt=CutAdapt,
-            Threads=Threads,
+            CutAdaptThreads=CutAdaptThreads,
             PairedEnd=PairedEnd,
             DebugMode=DebugMode,
-            TrimSeqScript=TrimSeqScript
+            TrimSeqScript=TrimSeqScript,
+            TrimEnvProfile=TrimEnvProfile
       }
       }
    }
