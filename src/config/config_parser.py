@@ -11,20 +11,20 @@
     -d                  "Enables debug mode"                                             (Optional)
 """
 
+from util.util import read_json_file
+from util.log import ProjectLogger
+from util.special_keys import OPTIONAL_KEYS
 import json
 import argparse
 import logging
 import sys
 
-from ..util.util import read_json_file
-from ..util.log import ProjectLogger
-from ..util.special_keys import OPTIONAL_KEYS
 
 """
 Exit code Rules:
 
 1. Exit codes in this module are only given when an error has occurred, so they will all start with 'E.'
-2. The letters 'par.' because they are coming from the parser component of the code
+2. The letters 'par.' because they are coming from the parser_inst component of the code
 3. A three letter code that hints at what the problem was
 4. A number that can help to differentiate similar error codes
 
@@ -77,9 +77,9 @@ class Parser:
     def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger
         if debug_mode:
-            self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser", logging.DEBUG)
+            self.project_logger = ProjectLogger(job_id, "parsing.parser_inst.Parser", logging.DEBUG)
         else:
-            self.project_logger = ProjectLogger(job_id, "parsing.parser.Parser")
+            self.project_logger = ProjectLogger(job_id, "parsing.parser_inst.Parser")
         self.job_id = job_id
 
     def read_input_file(self, file_path):

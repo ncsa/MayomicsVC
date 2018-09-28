@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import unittest
 import os
 import sys
-from ..validation import key_validation as v
+import unittest
+
+import key_validation as v
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))
@@ -97,8 +98,6 @@ class TestValidator(unittest.TestCase):
         # InputRead2 is listed as a nullable key in src/config/util/special_keys.py, so it can NOT be empty
         result = self.validator.check_key("InputRead2", "", key_type="File")
         self.assertFalse(result)
-
-    # def test_check_key_nullable_type_
 
 
 if __name__ == "__main__":
