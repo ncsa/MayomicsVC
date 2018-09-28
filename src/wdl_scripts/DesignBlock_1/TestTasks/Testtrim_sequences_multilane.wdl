@@ -8,8 +8,8 @@ import "src/wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as TRIMSEQ
 
 workflow RunTrimInputSequencesTask {
 
-   # tab-separated values
-   # SampleName, InputRead1, InputRead2
+   # tab-separated values, one lane per line
+   # InputRead1, InputRead2
    File InputReadsList
    Array[Array[String]] InputReads = read_tsv(InputReadsList)
 
@@ -23,19 +23,37 @@ workflow RunTrimInputSequencesTask {
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
 
-   scatter (sample in InputReads) {
+   String SampleName               # Name of the Sample
+
+   scatter (lane in InputReads) {
       # TODO: If PairedEnd=False, set InputRead2=NULL; otherwise verify InputRead2 is valid
-      call TRIMSEQ.trimsequencesTask {
+      if(PairedEnd) {
+      call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
          input:
-            SampleName=sample[0],
-            InputRead1=sample[1],
-            InputRead2=sample[2],
+            SampleName=SampleName,
+            InputRead1=lane[0],
+            InputRead2=lane[1],
             Adapters=Adapters,
             CutAdapt=CutAdapt,
             Threads=Threads,
             PairedEnd=PairedEnd,
             DebugMode=DebugMode,
             TrimSeqScript=TrimSeqScript
+      }
+      }
+      if(!PairedEnd) {
+      call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
+         input:
+            SampleName=SampleName,
+            InputRead1=lane[0],
+            InputRead2="null",
+            Adapters=Adapters,
+            CutAdapt=CutAdapt,
+            Threads=Threads,
+            PairedEnd=PairedEnd,
+            DebugMode=DebugMode,
+            TrimSeqScript=TrimSeqScript
+      }
       }
    }
 
