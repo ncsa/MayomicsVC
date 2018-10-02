@@ -96,4 +96,4 @@ This is a special case. The variable 'DebugMode' has only one acceptable value: 
  If any new variables are added to the Cromwell/WDL code, 
  their types must be added to the types list, located at:
  
- ```src/config/validation/key_types.json```
+ ```src/config/key_types.json```
