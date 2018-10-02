@@ -36,16 +36,19 @@ read -r -d '' DOCS << DOCS
                    -p		<platform>
                    -l           <read1.fq> 
                    -r           <read2.fq>
-                   -G		<reference_genome> 
+                   -G		<reference_genome>
+                   -K		<chunk_size_in_bases> 
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
                    -P		paired-end reads (true/false)
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
+
+ NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
 
 #############################################################################
 
@@ -133,6 +136,15 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -151,44 +163,58 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:S:L:t:P:d" OPT
+while getopts ":hg:s:p:l:r:G:K:S:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
                         echo -e "\n${DOCS}\n"
                         exit 0
 			;;
-                g )  # Read group ID. String variable invoked with -g
+                g )  # Read group ID
                         GROUP=${OPTARG}
+			checkArg
                         ;;
-                s )  # Sample name. String variable invoked with -s
+                s )  # Sample name
                         SAMPLE=${OPTARG}
+			checkArg
                         ;;
-                p )  # Sequencing platform. String variable invoked with -p
+                p )  # Sequencing platform
                         PLATFORM=${OPTARG}
+			checkArg
                         ;;
-                l )  # Full path to input read 1. String variable invoked with -l
+                l )  # Full path to input read 1
                         INPUT1=${OPTARG}
+			checkArg
                         ;;
-                r )  # Full path to input read 2. String variable invoked with -r
+                r )  # Full path to input read 2
                         INPUT2=${OPTARG}
+			checkArg
                         ;;
-                G )  # Full path to referance genome fasta file. String variable invoked with -G
+                G )  # Full path to referance genome fasta file
                         REFGEN=${OPTARG}
+			checkArg
                         ;;
-                S )  # Full path to sentieon directory. Invoked with -S
-                        SENTIEON=${OPTARG}
-                        ;;
-		L )  # Sentieon license. Invoked with -L
-			LICENSE=${OPTARG}
+		K )  # Chunk size in bases (10000000 to prevent different results based on thread count)
+			CHUNK_SIZE=${OPTARG}
+			checkArg
 			;;
-                t )  # Number of threads available. Integer invoked with -t
+                S )  # Full path to sentieon directory
+                        SENTIEON=${OPTARG}
+			checkArg
+                        ;;
+                t )  # Number of threads available
                         THR=${OPTARG}
+			checkArg
                         ;;
-                P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+                P )  # Is this a paired-end process? [true/false] Invoked with -P
                         IS_PAIRED_END=${OPTARG}
+			checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
                         set -x
                         ;;
@@ -215,7 +241,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
         exit 1
@@ -230,6 +256,15 @@ truncate -s 0 ${SAMPLE}.align_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUT1+x} ]]
 then
@@ -239,7 +274,7 @@ fi
 if [[ ! -s ${INPUT1} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
 fi
 if [[ -z ${INPUT2+x} ]]
 then
@@ -253,6 +288,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
+	EXITCODE=1
 	logError "$0 stopped at line ${LINENO}. \nREASON=Incorrect argument for paired-end option -P. Must be set to true or false."
 fi
 if [[ "${IS_PAIRED_END}" == true ]]
@@ -260,7 +296,20 @@ then
 	if [[ ! -s ${INPUT2} ]]
 	then
 		EXITCODE=1
-        	logError "$0 stopped at line $LINENO. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+		logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
+	fi
+	if [[ "${INPUT2}" == null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
+	fi
+fi
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	if [[  "${INPUT2}" != null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
 	fi
 fi
 if [[ -z ${REFGEN+x} ]]
@@ -271,7 +320,26 @@ fi
 if [[ ! -s ${REFGEN} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+fi
+if [[ -z ${CHUNK_SIZE+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count."
+fi
+if [[ ${CHUNK_SIZE} != 10000000 ]]
+then
+	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
+fi
+if [[ -z ${GROUP+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -g"
+fi
+if [[ -z ${PLATFORM+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
 fi
 if [[ -z ${SENTIEON+x} ]]
 then
@@ -281,12 +349,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${LICENSE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
+        logError "$0 stopped at line ${LINENO}. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
 fi
 if [[ -z ${THR+x} ]]
 then
@@ -307,6 +370,8 @@ fi
 OUT=${SAMPLE}.sam
 SORTBAM=${SAMPLE}.aligned.sorted.bam
 SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
+TOOL_LOG=${SAMPLE}.align_sentieon.log
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -321,12 +386,12 @@ SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 ## Record start time
 logInfo "[BWA-MEM] START."
 
-## BWA-MEM command, run for each read against a reference genome.
+## BWA-MEM command, run for each read against a reference genome. 
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
-	export SENTIEON_LICENSE=${LICENSE}
-	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} > ${OUT}
+	TRAP_LINE=$(($LINENO + 1))
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -335,9 +400,9 @@ then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
 else # Paired-end reads aligned
-	export SENTIEON_LICENSE=${LICENSE}
-	trap 'logError " $0 stopped at line ${LINENO}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K 10000000 -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT}
+	TRAP_LINE=$(($LINENO + 1))
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
+	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -346,6 +411,14 @@ else # Paired-end reads aligned
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 	fi
 fi
+
+if [[ ! -s ${OUT} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Output SAM ${OUT} is empty."
+fi
+
+
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -361,9 +434,9 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 ## Convert SAM to BAM and sort
 logInfo "[SENTIEON] Converting SAM to BAM..."
 
-export SENTIEON_LICENSE=${LICENSE}
-trap 'logError " $0 stopped at line ${LINENO}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${SAMPLE}.align_sentieon.log 2>&1
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
+${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
@@ -387,12 +460,12 @@ logInfo "[SENTIEON] Converted output to BAM format and sorted."
 if [[ ! -s ${SORTBAM} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM ${SORTBAM} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM ${SORTBAM} is empty."
 fi
 if [[ ! -s ${SORTBAMIDX} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
 fi
 
 chmod g+r ${OUT}

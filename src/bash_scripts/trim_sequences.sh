@@ -36,11 +36,12 @@ read -r -d '' DOCS << DOCS
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
+                   -e		</path/to/env_profile_file>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -124,6 +125,15 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -141,35 +151,46 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:d" OPT
+while getopts ":hl:r:A:C:t:P:s:e:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
 			echo -e "\n${DOCS}\n"
 			exit 0
 			;;
-		l )  # Full path to input read 1. String variable invoked with -l
+		l )  # Full path to input read 1
 			INPUT1=${OPTARG}
+			checkArg
 			;;
-		r )  # Full path to input read 2. String variable invoked with -r
+		r )  # Full path to input read 2
 			INPUT2=${OPTARG}
+			checkArg
 			;;
-		A )  # Full path to adapters fasta file. String variable invoked with -A
+		A )  # Full path to adapters fasta file
 			ADAPTERS=${OPTARG}
+			checkArg
 			;;
-		C )  # Full path to cutadapt installation directory. String variable invoked with -C
+		C )  # Full path to cutadapt installation directory
 			CUTADAPT=${OPTARG}
+			checkArg
 			;;
-		t )  # Number of threads available. Integer invoked with -t
+		t )  # Number of threads available
 			THR=${OPTARG}
+			checkArg
 			;;
-		P )  # Is this a paired-end process? Boolean variable [true/false] invoked with -P
+		P )  # Is this a paired-end process? [true/false] invoked with -P.
 			IS_PAIRED_END=${OPTARG}
+			checkArg
 			;;
-		s )  # Sample name. String variable invoked with -s
+		s )  # Sample name
 			SAMPLE=${OPTARG}
+			checkArg
 			;;
-		d )  # Turn on debug mode. Boolean variable [true/false] which initiates 'set -x' to print all text
+		e )  # Path to file with environmental profile variables
+			ENV_PROFILE=${OPTARG}
+			checkArg
+			;;
+		d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;
@@ -195,7 +216,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
 	exit 1
@@ -209,6 +230,16 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+	source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
+## Check existence and var type of inputs
 if [[ -z ${ADAPTERS+x} ]]
 then
 	EXITCODE=1
@@ -251,6 +282,18 @@ then
 		EXITCODE=1
                 logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
         fi
+	if [[ "${INPUT2}" == null ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Paired End option -P, but set read 2 option -r to null."
+	fi
+fi
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	if [[  "${INPUT2}" != null ]]
+	then
+		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
+	fi
 fi
 if [[ -z ${CUTADAPT+x} ]]
 then
@@ -304,8 +347,8 @@ logInfo "[CUTADAPT] START."
 if [[ "${IS_PAIRED_END}" == false ]]  # if single-end reads file
 then
 	# Trim single-end reads
-
-	trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 failure. " ' INT TERM EXIT
+	TRAP_LINE=$(($LINENO + 1))
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Cutadapt Read 1 failure. " ' INT TERM EXIT
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} --cores=${THR} -o ${OUT1} ${INPUT1} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
@@ -317,8 +360,8 @@ then
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
-	
-	trap 'logError " $0 stopped at line ${LINENO}. Cutadapt Read 1 and 2 failure. " ' INT TERM EXIT
+	TRAP_LINE=$(($LINENO + 1))
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. Cutadapt Read 1 and 2 failure. " ' INT TERM EXIT
 	${CUTADAPT}/cutadapt -a file:${ADAPTERS} -A file:${ADAPTERS} --cores=${THR} -p ${OUT2} -o ${OUT1} ${INPUT1} ${INPUT2} >> ${SAMPLE}.cutadapt.log 2>&1
 	EXITCODE=$?
 	trap - INT TERM EXIT

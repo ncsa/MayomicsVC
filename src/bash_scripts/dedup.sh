@@ -33,13 +33,13 @@ read -r -d '' DOCS << DOCS
  dedup.sh          -s           <sample_name> 
                    -b		<aligned.sorted.bam>
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -129,6 +129,15 @@ function logInfo()
     _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
 }
 
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -147,29 +156,34 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:L:t:d" OPT
+while getopts ":hs:b:S:t:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-		s )  # Sample name. String variable invoked with -s
+		s )  # Sample name
 			SAMPLE=${OPTARG}
+			checkArg
 			;;
-                b )  # Full path to the input BAM file. String variable invoked with -b
+                b )  # Full path to the input BAM file
                         INPUTBAM=${OPTARG}
+			checkArg
                         ;;
-                S )  # Full path to sentieon directory. String variable invoked with -S
+                S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
+			checkArg
                         ;;
-		L )  # Sentieon license number. Invoked with -L
-			LICENSE=${OPTARG}
-			;;
-                t )  # Number of threads available. Integer invoked with -t
+                t )  # Number of threads available
                         THR=${OPTARG}
+			checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
 			set -x
                         ;;
@@ -195,7 +209,7 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]]
+if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
 then
         echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
         exit 1
@@ -209,6 +223,15 @@ truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUTBAM+x} ]]
 then
@@ -218,12 +241,12 @@ fi
 if [[ ! -s ${INPUTBAM} ]]
 then 
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
 fi
 if [[ ! -s ${INPUTBAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
 fi
 if [[ -z ${SENTIEON+x} ]]
 then
@@ -233,12 +256,7 @@ fi
 if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
 if [[ -z ${THR+x} ]]
 then
@@ -277,8 +295,8 @@ DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 
 ## Locus Collector command
-export SENTIEON_LICENSE=${LICENSE}
-trap 'logError " $0 stopped at line ${LINENO}. Sentieon LocusCollector error. " ' INT TERM EXIT
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
@@ -290,8 +308,8 @@ fi
 logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-export SENTIEON_LICENSE=${LICENSE}
-trap 'logError " $0 stopped at line ${LINENO}. Sentieon Deduplication error. " ' INT TERM EXIT
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
@@ -316,17 +334,18 @@ logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 if [[ ! -s ${OUT} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM file ${OUT} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM file ${OUT} is empty."
 fi
 if [[ ! -s ${OUTBAMIDX} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
 fi
 
 chmod g+r ${OUT}
 chmod g+r ${OUTBAMIDX}
 chmod g+r ${DEDUPMETRICS}
+chmod g+r ${SCORETXT}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

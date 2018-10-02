@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## realignment.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_block_2a.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -13,7 +13,7 @@ command line input: ${@}
 *****************************************************************************
 
 MANIFEST
-echo -e "\n${MANIFEST}"
+echo -e "${MANIFEST}"
 
 
 
@@ -25,23 +25,20 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Realign reads using Sentieon Realigner. Part of the MayomicsVC Workflow.
+# Deliver results of Design Block 2a: vcf for snps and indels, their index files, and workflow JSON. 
+# Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- realignment.sh    -s           <sample_name> 
-                   -b           <sorted.deduped.bam>
-                   -G		<reference_genome>
-                   -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
-                   -d           turn on debug mode
+ deliver_block_2a.sh      -r           RecalibratedVcf 
+                          -j           WorkflowJSONfile
+                          -f           </path/to/delivery_folder>
+                          -d           turn on debug mode
 
  EXAMPLES:
- realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
+ deliver_block_2a.sh -h
+ deliver_block_2a.sh -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -54,12 +51,11 @@ DOCS
 
 
 
-
 set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=realignment.sh
+SCRIPT_NAME=deliver_block_2a.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -73,6 +69,7 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+## Logging functions
 # Get date and time information
 function getDate()
 {
@@ -158,50 +155,38 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:S:t:e:d" OPT
+while getopts ":hs:r:j:f:d" OPT
 do
         case ${OPT} in
-                h )  # Flag to display usage
+                h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
-                        exit 0
-			;;
+			exit 0
+                        ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
 			checkArg
                         ;;
-		b )  # Full path to the input deduped BAM
-			INPUTBAM=${OPTARG}
-			checkArg
-			;;
-                G )  # Full path to reference genome fasta file
-                        REFGEN=${OPTARG}
-			checkArg
+                r )  # Full path to the recalibrated VCF file
+                        VCF=${OPTARG}
+                        checkArg
                         ;;
-		k )  # Full path to known sites files
-			KNOWN=${OPTARG}
-			checkArg
-			;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
+                        checkArg
                         ;;
-                t )  # Number of threads available
-                        THR=${OPTARG}
-			checkArg
-                        ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                f)   # Path to delivery folder
+                        DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
-			echo -e "\nDebug mode is ON.\n"
+                        echo -e "\nDebug mode is ON.\n"
 			set -x
                         ;;
 		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
-		: )  # Check for missing arguments, print usage and exit.
+                : )  # Check for missing arguments, print usage and exit.
                         echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -226,69 +211,53 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.realignment.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_block_2a.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.realign_sentieon.log
+truncate -s 0 ${SAMPLE}.deliver_block_2a.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
-
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUTBAM+x} ]]
+if [[ -z ${VCF+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input deduplicated BAM option: -b"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing VCF option: -r"
 fi
-if [[ ! -s ${INPUTBAM} ]]
+if [[ ! -s ${VCF} ]]
+then 
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF file ${VCF} is empty or does not exist."
+fi
+if [[ ! -s ${VCF}.idx ]]
 then
 	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Deduped BAM ${INPUTBAM} is empty or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF index file ${VCF}.idx is empty or does not exist."
 fi
-if [[ ! -s ${INPUTBAM}.bai ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Deduped BAM index ${INPUTBAM}.bai is empty or does not exist."
-fi
-if [[ -z ${REFGEN+x} ]]
+if [[ -z ${JSON+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
 fi
-if [[ ! -s ${REFGEN} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
-fi
-if [[ -z ${KNOWN+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing known sites option ${KNOWN}: -k"
-fi
-if [[ -z ${SENTIEON+x} ]]
+if [[ ! -s ${JSON} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
 fi
-if [[ ! -d ${SENTIEON} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${THR+x} ]]
+if [[ -z ${DELIVERY_FOLDER+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
 fi
-
+if [[ -d ${DELIVERY_FOLDER} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
+elif [[ -f ${DELIVERY_FOLDER} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
+fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -296,33 +265,16 @@ fi
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME AND OPTION PARSING
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Parse known sites list of multiple files. Create multiple -k flags for sentieon
-SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
-echo ${SPLITKNOWN}
-
-## Parse filenames without full path
-OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
-
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## REALIGNMENT STAGE
+## MAKE DELIVERY FOLDER
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
+logInfo "[DELIVERY] Creating the Delivery folder."
 
-## Sentieon Realigner command.
+## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating Design Block 2a delivery folder. " ' INT TERM EXIT
+mkdir -p ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -330,7 +282,62 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned BAM located at ${OUT}."
+logInfo "[DELIVERY] Created the Design Block 2a delivery folder."
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DELIVERY
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Copying Design Block 2a outputs into Delivery folder."
+
+
+## Copy the snp files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated VCF delivered."
+
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.idx ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -342,19 +349,35 @@ logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of realigned BAM and index. Open read permissions to the user group
-if [[ ! -s ${OUT} ]]
+## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
+VCF_NAME=`basename ${VCF}`
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Realigned BAM ${OUT} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${VCF_NAME} is empty."
 fi
-if [[ ! -s ${OUT}.bai ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Realigned BAM ${OUT}.bai is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${VCF_NAME}.idx is empty."
 fi
-chmod g+r ${OUT}
-chmod g+r ${OUT}.bai
+
+JSON_FILENAME=`basename ${JSON}` 
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
+then
+       EXITCODE=1
+       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
+fi
+
+
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
+
+
+
+logInfo "[DELIVERY] Design Block 2a delivered. Have a nice day."
+
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
