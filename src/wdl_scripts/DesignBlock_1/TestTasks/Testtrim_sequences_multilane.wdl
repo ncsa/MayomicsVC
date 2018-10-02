@@ -10,8 +10,12 @@ workflow RunTrimInputSequencesTask {
 
    # tab-separated values, one lane per line
    # InputRead1, InputRead2
-   File InputReadsList
-   Array[Array[String]] InputReads = read_tsv(InputReadsList)
+   #File InputReadsList
+   #Array[Array[String]] InputReads = read_tsv(InputReadsList)
+   Array[String] InputRead1
+   Array[String] InputRead2
+
+   Array[Pair[String,String]] InputReads = zip(InputRead1, InputRead2)
 
    File Adapters                   # Adapter FastA File         
  
@@ -32,8 +36,8 @@ workflow RunTrimInputSequencesTask {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
          input:
             SampleName=SampleName,
-            InputRead1=lane[0],
-            InputRead2=lane[1],
+            InputRead1=lane.left,
+            InputRead2=lane.right,
             Adapters=Adapters,
             CutAdapt=CutAdapt,
             CutAdaptThreads=CutAdaptThreads,
@@ -47,7 +51,7 @@ workflow RunTrimInputSequencesTask {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
          input:
             SampleName=SampleName,
-            InputRead1=lane[0],
+            InputRead1=lane.left,
             InputRead2="null",
             Adapters=Adapters,
             CutAdapt=CutAdapt,
