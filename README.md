@@ -19,12 +19,14 @@
          * [Workflows of workflows](#workflows-of-workflows)
    * [Testing](#testing)
       * [Unit testing](#unit-testing)
+         * [Pre-flight QC](#pre-flight-qc)
+         * [Workflow](#workflow)
       * [Integration testing](#integration-testing)
    * [Dependencies](#dependencies)
    * [To-Dos](#to-dos)
    * [7 Output Folder Structure](#7-output-folder-structure)
    * [Email Notifications](#email-notifications)
-   * [Parsing](#Parsing json Input Files)
+   * [Input Parsing and Type Validation](#input-parsing-and-type-validation)
 
 
 
@@ -272,6 +274,16 @@ The example scripts and its json input file are in the folder `/WOWScripts`.
 
 ## Unit testing
 
+### Pre-flight QC
+
+To conduct unit tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
+```
+python3 -m unittest discover
+```
+This will automatically detect all unit testing files and run their tests, but only if you are in the config directory.
+
+### Workflow 
+
 Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
 
 1. Download `source.zip` and the workflow script of the task which is to be checked. The unit test scripts are located in `src/{Name}Stage_WDL/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "TestBWAMemSamtoolView.wdl." 
@@ -490,10 +502,14 @@ If notifications are sent for every sample, the analyst will be able to figure o
 A list of all the failed samples sent as one email will prevent flooding of the inbox. However, the analyst will have to wait for the end of the step to find out which samples have failed, which could take multiple hours (depending on the step of the workflow). These are some trade-offs which have to considered while designing the workflow.
 
 
-Parsing
+Input Parsing and Type Validation
 ============
 
-The paths to the executables cannot be entered manually every time a json input file is created. Hence all the paths to the executables are stored in a tools info text file. The paths to the executables are parsed from the text file into the json input file when required. This is done using a Tool Parser script. The script is written in Python3 and requries two mandatory flags to run. The "-i" flag is for the input Tools Info text file which has paths to the executables. The "-o" flag is for the output in this case the json file which requires the executable paths. The script for the parser and examples input and output files are located in the src/config folder.
+Although the workflow takes input in a JSON formatted file, it is more convenient to save input variables in a flat key="value" formatted file. The config_parser.py script (located in src/config) takes these flat configuration files and fills in a JSON file template provided by Cromwell/WDL.
+
+(The template JSON file for a workflow can be created with the command `java -jar wdltool.jar inputs myWorkflow.wdl > myWorkflow_inputs.json`)
+
+After parsing, the key_validation.py script (located in src/config) can be used to verify the types of the input arguments where possible. For example, the validator can verify that a key called "NumberOfThreads" was passed an integer as its value. The validator gets the type information for each key from a key types file (the workflow type information file is src/config/key_types.json) and confirms that the key's values match what is expected. However, for some types, such as strings, no pre-flight validation can be done.
 
 Single Sample Workflow
 ======================
