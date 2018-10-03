@@ -20,6 +20,7 @@
     "DeliveryFolder_Block_2a": "OutputDirectory",
     "Group": "String",
     "HaplotyperEnvProfile": "File",
+    "HaplotyperExtraOptions": "String",
     "HaplotyperScript": "File",
     "InputRead1": "File",
     "InputRead2": "File",
