@@ -15,7 +15,7 @@
 
 task dedupTask {
 
-   File InputAlignedSortedBam             # Input Sorted BAM File
+   Array[File] InputAlignedSortedBam      # Input Sorted BAM File
    File InputAlignedSortedBamBai          # Input Sorted Bam Index File
 
    String SampleName                      # Name of the Sample
@@ -30,14 +30,14 @@ task dedupTask {
 
    command {
 
-      /bin/bash ${DedupScript} -b ${InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+      /bin/bash ${DedupScript} -b ${sep=',' InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
 
    }
 
    output {
 
-      File AlignedSortedDeduppedBam = "${SampleName}.aligned.sorted.deduped.bam"
-      File AlignedSortedDeduppedBamBai = "${SampleName}.aligned.sorted.deduped.bam.bai"
+      File AlignedSortedDeduppedBam = "${SampleName}.aligned.sorted.merged.deduped.bam"
+      File AlignedSortedDeduppedBamBai = "${SampleName}.aligned.sorted.merged.deduped.bam.bai"
 
    }
 }
