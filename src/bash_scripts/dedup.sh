@@ -31,7 +31,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  dedup.sh          -s           <sample_name> 
-                   -b		<aligned.sorted.bam>
+                   -b		<lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
                    -S           </path/to/sentieon> 
                    -t           <threads> 
                    -e           </path/to/env_profile_file>
@@ -39,7 +39,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
+ dedup.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -167,7 +167,7 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-                b )  # Full path to the input BAM file
+                b )  # Full path to the input BAM or list of BAMS
                         INPUTBAM=${OPTARG}
 			checkArg
                         ;;
@@ -238,16 +238,19 @@ then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
 fi
-if [[ ! -s ${INPUTBAM} ]]
-then 
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${INPUTBAM} is empty or does not exist."
-fi
-if [[ ! -s ${INPUTBAM}.bai ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${INPUTBAM}.bai is empty or does not exist."
-fi
+for LANE in $(echo ${INPUTBAM} | sed "s/,/ /g")
+do
+	if [[ ! -s ${LANE} ]]
+	then 
+		EXITCODE=1
+        	logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${LANE} is empty or does not exist."
+	fi
+	if [[ ! -s ${LANE}.bai ]]
+	then
+		EXITCODE=1
+        	logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${LANE}.bai is empty or does not exist."
+	fi
+done
 if [[ -z ${SENTIEON+x} ]]
 then
         EXITCODE=1
@@ -277,9 +280,40 @@ fi
 ## Defining file names
 samplename=${SAMPLE}
 SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.aligned.sorted.deduped.bam
-OUTBAMIDX=${SAMPLE}.aligned.sorted.deduped.bam.bai
+OUT=${SAMPLE}.aligned.sorted.merged.deduped.bam
+OUTBAMIDX=${SAMPLE}.aligned.sorted.merged.deduped.bam.bai
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
+
+BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
+MERGED_BAM=${SAMPLE}.aligned.sorted.merged.bam
+
+#-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM Merging
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[SENTIEON] Merging BAMs if list was given."
+
+## Locus Collector command
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM merging error. " ' INT TERM EXIT
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${BAMS} --algo ReadWriter ${MERGED_BAM} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[SENTIEON] BAM merging finished; starting Locus Collector."
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -297,7 +331,7 @@ logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
 ## Locus Collector command
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -310,7 +344,7 @@ logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
 ## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -342,6 +376,7 @@ then
         logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
 fi
 
+chmod g+r ${MERGED_BAM}
 chmod g+r ${OUT}
 chmod g+r ${OUTBAMIDX}
 chmod g+r ${DEDUPMETRICS}

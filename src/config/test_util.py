@@ -2,8 +2,8 @@
 
 import unittest
 import os
-import src.config.util.log as log
-import src.config.util.util as util
+from util.log import ProjectLogger
+from util.util import read_json_file
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))
@@ -11,7 +11,7 @@ package_full_path = os.path.abspath(os.path.dirname(__file__))
 
 class TestUtil(unittest.TestCase):
     # Create a project logger just for these unit tests
-    project_logger = log.ProjectLogger(name="util-test", job_id="NA")
+    project_logger = ProjectLogger(name="util-test", job_id="NA")
 
     # Turn the project logger off during UnitTesting, so the end user is not confused by error messages
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
@@ -21,8 +21,8 @@ class TestUtil(unittest.TestCase):
         expected_key_types_dict = {"key_1": "Value_1", "key_2": "Value_2", "key_3": "Value_3"}
 
         try:
-            json_dict = util.read_json_file(
-                package_full_path + "/test_resources/test.json",
+            json_dict = read_json_file(
+                package_full_path + "/util/test_resources/test.json",
                 project_logger=self.project_logger,
                 json_bad_format_error_code="BadFormat",
                 json_not_found_error_code="NotFound"
@@ -38,9 +38,9 @@ class TestUtil(unittest.TestCase):
     '''
     def test_read_json_file_path_failure(self):
         with self.assertRaises(SystemExit):
-            util.read_json_file("/this/path/does/not/exist.json", project_logger=self.project_logger,
-                                json_bad_format_error_code="BadFormat", json_not_found_error_code="NotFound"
-                                )
+            read_json_file("/this/path/does/not/exist.json", project_logger=self.project_logger,
+                           json_bad_format_error_code="BadFormat", json_not_found_error_code="NotFound"
+                           )
 
 
 if __name__ == "__main__":

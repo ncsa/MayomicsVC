@@ -304,7 +304,7 @@ SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 echo ${SPLITKNOWN}
 
 ## Parse filenames without full path
-OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
+OUT=${SAMPLE}.aligned.sorted.merged.deduped.realigned.bam
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
