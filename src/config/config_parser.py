@@ -77,9 +77,9 @@ class Parser:
     def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger
         if debug_mode:
-            self.project_logger = ProjectLogger(job_id, "parsing.parser_inst.Parser", logging.DEBUG)
+            self.project_logger = ProjectLogger(job_id, "config_parser.Parser", logging.DEBUG)
         else:
-            self.project_logger = ProjectLogger(job_id, "parsing.parser_inst.Parser")
+            self.project_logger = ProjectLogger(job_id, "config_parser.Parser")
         self.job_id = job_id
 
     def read_input_file(self, file_path):
