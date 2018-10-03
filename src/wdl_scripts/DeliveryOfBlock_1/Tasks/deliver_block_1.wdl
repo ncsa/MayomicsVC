@@ -16,12 +16,14 @@ task deliverBlock1Task {
 
    String SampleName                      # Name of the Sample
 
+   File WorkflowJson                      # JSON file for the workflow
+
    File DeliveryBlock_1_Script            # Bash script that performs the delivery
    String DeliveryFolder_Block_1          # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
-      /bin/bash ${DeliveryBlock_1_Script} -s ${SampleName} -b ${AlignedSortedDedupedBam} -f ${DeliveryFolder_Block_1} ${DebugMode}
+      /bin/bash ${DeliveryBlock_1_Script} -s ${SampleName} -b ${AlignedSortedDedupedBam} -j ${WorkflowJson} -f ${DeliveryFolder_Block_1} ${DebugMode}
    }
 
 }

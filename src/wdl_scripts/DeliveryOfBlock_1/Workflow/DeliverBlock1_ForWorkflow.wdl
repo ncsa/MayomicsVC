@@ -17,6 +17,7 @@ workflow CallDeliveryBlock1Task {
    File DeliveryBlock_1_Script
    String DeliveryFolder_Block_1
 
+   File WorkflowJson
 
 #####################################################################################          
    
@@ -25,6 +26,7 @@ workflow CallDeliveryBlock1Task {
          SampleName = SampleName,
          AlignedSortedDedupedBam = GlobalAlignedSortedDedupedBam,
          AlignedSortedDedupedBamBai = GlobalAlignedSortedDedupedBamBai,
+         WorkflowJson = WorkflowJson,
          DeliveryBlock_1_Script = DeliveryBlock_1_Script,
          DeliveryFolder_Block_1 = DeliveryFolder_Block_1,
          DebugMode = DebugMode
