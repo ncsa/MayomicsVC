@@ -12,10 +12,10 @@ workflow RunTrimInputSequencesTask {
    # InputRead1, InputRead2
    #File InputReadsList
    #Array[Array[String]] InputReads = read_tsv(InputReadsList)
-   Array[String] InputRead1
-   Array[String] InputRead2
+   Array[String]+ InputRead1
+   Array[String]? InputRead2
 
-   Array[Pair[String,String]] InputReads = zip(InputRead1, InputRead2)
+   Int NumOfInputs = length(InputRead1)
 
    File Adapters                   # Adapter FastA File         
  
@@ -30,14 +30,14 @@ workflow RunTrimInputSequencesTask {
 
    String SampleName               # Name of the Sample
 
-   scatter (lane in InputReads) {
-      # TODO: If PairedEnd=False, set InputRead2=NULL; otherwise verify InputRead2 is valid
+   scatter (idx in range(NumOfInputs)) {
+      # If PairedEnd=False, set InputRead2="null"
       if(PairedEnd) {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
          input:
             SampleName=SampleName,
-            InputRead1=lane.left,
-            InputRead2=lane.right,
+            InputRead1=InputRead1[idx],
+            InputRead2=InputRead2[idx],
             Adapters=Adapters,
             CutAdapt=CutAdapt,
             CutAdaptThreads=CutAdaptThreads,
@@ -51,7 +51,7 @@ workflow RunTrimInputSequencesTask {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
          input:
             SampleName=SampleName,
-            InputRead1=lane.left,
+            InputRead1=InputRead1[idx],
             InputRead2="null",
             Adapters=Adapters,
             CutAdapt=CutAdapt,
