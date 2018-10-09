@@ -4,18 +4,12 @@
 
 ##############################################################
 
-import "src/wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as TRIMSEQ
+#import "src/wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as TRIMSEQ
+import "../Tasks/trim_sequences.wdl" as TRIMSEQ
 
 workflow RunTrimInputSequencesTask {
 
-   # tab-separated values, one lane per line
-   # InputRead1, InputRead2
-   #File InputReadsList
-   #Array[Array[String]] InputReads = read_tsv(InputReadsList)
-   Array[String]+ InputRead1
-   Array[String]? InputRead2
-
-   Int NumOfInputs = length(InputRead1)
+   Array[Array[String]] InputReads # One lane per subarray with one or two input reads
 
    File Adapters                   # Adapter FastA File         
  
@@ -30,14 +24,14 @@ workflow RunTrimInputSequencesTask {
 
    String SampleName               # Name of the Sample
 
-   scatter (idx in range(NumOfInputs)) {
+   scatter (lane in InputReads) {
       # If PairedEnd=False, set InputRead2="null"
       if(PairedEnd) {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
          input:
             SampleName=SampleName,
-            InputRead1=InputRead1[idx],
-            InputRead2=InputRead2[idx],
+            InputRead1=lane[0],
+            InputRead2=lane[1],
             Adapters=Adapters,
             CutAdapt=CutAdapt,
             CutAdaptThreads=CutAdaptThreads,
@@ -51,7 +45,7 @@ workflow RunTrimInputSequencesTask {
       call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
          input:
             SampleName=SampleName,
-            InputRead1=InputRead1[idx],
+            InputRead1=lane[0],
             InputRead2="null",
             Adapters=Adapters,
             CutAdapt=CutAdapt,
@@ -64,4 +58,7 @@ workflow RunTrimInputSequencesTask {
       }
    }
 
+   output {
+      Array[Array[File]] TrimmedInputReads = select_all(flatten([TRIMSEQ_paired.TrimmedInputReads,TRIMSEQ_single.TrimmedInputReads]))
+   }
 } 
