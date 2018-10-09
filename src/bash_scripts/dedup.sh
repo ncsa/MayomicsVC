@@ -280,12 +280,12 @@ fi
 ## Defining file names
 samplename=${SAMPLE}
 SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.aligned.sorted.merged.deduped.bam
-OUTBAMIDX=${SAMPLE}.aligned.sorted.merged.deduped.bam.bai
+OUT=${SAMPLE}.aligned.sorted.deduped.bam
+OUTBAMIDX=${SAMPLE}.aligned.sorted.deduped.bam.bai
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 
 BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
-MERGED_BAM=${SAMPLE}.aligned.sorted.merged.bam
+MERGED_BAM=${SAMPLE}.aligned.sorted.bam
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
