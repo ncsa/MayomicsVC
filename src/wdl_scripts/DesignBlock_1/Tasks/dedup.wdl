@@ -16,7 +16,7 @@
 task dedupTask {
 
    Array[File] InputAlignedSortedBam      # Input Sorted BAM File
-   File InputAlignedSortedBamBai          # Input Sorted Bam Index File
+   Array[File] InputAlignedSortedBamBai   # Input Sorted Bam Index File
 
    String SampleName                      # Name of the Sample
 
