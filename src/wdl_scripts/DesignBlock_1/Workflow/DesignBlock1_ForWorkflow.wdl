@@ -2,16 +2,15 @@
 ####              This WDL script is used to run the Alignment steps as individual modules              ##
 ##########################################################################################################
 
-import "src/wdl_scripts/DesignBlock_1/Tasks/trim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl_scripts/DesignBlock_1/Tasks/alignment.wdl" as ALIGNMENT
-import "src/wdl_scripts/DesignBlock_1/Tasks/dedup.wdl" as DEDUP 
+import "../TestTasks/Testtrim_sequences.wdl" as CUTADAPTTRIM
+import "../TestTasks/Testalignment.wdl" as ALIGNMENT
+import "../Tasks/dedup.wdl" as DEDUP 
 
 workflow CallBlock1Tasks {
 
 ############## BOILERPLATE FOR DESIGN BLOCK 1 #######################################
 
-   File InputRead1 
-   String InputRead2
+   Array[Array[String]] InputReads
    File Adapters  
    String CutAdapt 
    String CutAdaptThreads    
@@ -44,10 +43,9 @@ workflow CallBlock1Tasks {
 
 #####################################################################################          
    
-   call CUTADAPTTRIM.trimsequencesTask as trimseq {
+   call CUTADAPTTRIM.RunTrimInputSequencesTask as trimseq {
       input:
-         InputRead1 = InputRead1,
-         InputRead2 = InputRead2,
+         InputReads = InputReads,
          Adapters = Adapters,
          CutAdapt = CutAdapt,
          CutAdaptThreads = CutAdaptThreads,
@@ -58,10 +56,9 @@ workflow CallBlock1Tasks {
          SampleName = SampleName
    }
     
-   call ALIGNMENT.alignmentTask as align {
+   call ALIGNMENT.CallalignmentTask as align {
       input:
-         InputRead1 = trimseq.TrimmedInputRead1,
-         InputRead2 = trimseq.TrimmedInputRead2,
+         InputReads = trimseq.TrimmedInputReads,
          Ref = Ref,
          SampleName = SampleName,
          RefAmb = RefAmb,
@@ -82,8 +79,8 @@ workflow CallBlock1Tasks {
    
    call DEDUP.dedupTask as dedup {
       input:
-         InputAlignedSortedBam  = align.AlignedSortedBam,
-         InputAlignedSortedBamBai = align.AlignedSortedBamBai,
+         InputAlignedSortedBam  = align.AlignedSortedBams,
+         InputAlignedSortedBamBai = align.AlignedSortedBamBais,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
          SentieonThreads = SentieonThreads,
