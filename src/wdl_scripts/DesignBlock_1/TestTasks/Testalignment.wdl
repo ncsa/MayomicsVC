@@ -31,7 +31,9 @@ workflow CallalignmentTask {
 
    String DebugMode                # Flag to enable Debug Mode
    
+
    scatter (lane in InputReads) {
+
       if(PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_paired {
             input:
@@ -55,6 +57,7 @@ workflow CallalignmentTask {
                DebugMode=DebugMode
          }
       }
+
       if(!PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_single {
             input:
@@ -81,6 +84,7 @@ workflow CallalignmentTask {
    }
 
    output {
+      # Unify outputs from scatter and filter out null entries 
       Array[File] AlignedSortedBams = select_all(flatten([ALIGN_paired.AlignedSortedBam,ALIGN_single.AlignedSortedBam]))
       Array[File] AlignedSortedBamBais = select_all(flatten([ALIGN_paired.AlignedSortedBamBai,ALIGN_single.AlignedSortedBamBai]))
    }

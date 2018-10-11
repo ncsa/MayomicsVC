@@ -9,7 +9,7 @@ import "../Tasks/trim_sequences.wdl" as TRIMSEQ
 
 workflow RunTrimInputSequencesTask {
 
-   Array[Array[String]] InputReads # One lane per subarray with one or two input reads
+   Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
 
    File Adapters                   # Adapter FastA File         
  
@@ -24,41 +24,44 @@ workflow RunTrimInputSequencesTask {
 
    String SampleName               # Name of the Sample
 
+
    scatter (lane in InputReads) {
       # If PairedEnd=False, set InputRead2="null"
       if(PairedEnd) {
-      call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
-         input:
-            SampleName=SampleName,
-            InputRead1=lane[0],
-            InputRead2=lane[1],
-            Adapters=Adapters,
-            CutAdapt=CutAdapt,
-            CutAdaptThreads=CutAdaptThreads,
-            PairedEnd=PairedEnd,
-            DebugMode=DebugMode,
-            TrimSeqScript=TrimSeqScript,
-            TrimEnvProfile=TrimEnvProfile
+         call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
+            input:
+               SampleName=SampleName,
+               InputRead1=lane[0],
+               InputRead2=lane[1],
+               Adapters=Adapters,
+               CutAdapt=CutAdapt,
+               CutAdaptThreads=CutAdaptThreads,
+               PairedEnd=PairedEnd,
+               DebugMode=DebugMode,
+               TrimSeqScript=TrimSeqScript,
+               TrimEnvProfile=TrimEnvProfile
+         }
       }
-      }
+
       if(!PairedEnd) {
-      call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
-         input:
-            SampleName=SampleName,
-            InputRead1=lane[0],
-            InputRead2="null",
-            Adapters=Adapters,
-            CutAdapt=CutAdapt,
-            CutAdaptThreads=CutAdaptThreads,
-            PairedEnd=PairedEnd,
-            DebugMode=DebugMode,
-            TrimSeqScript=TrimSeqScript,
-            TrimEnvProfile=TrimEnvProfile
-      }
+         call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
+            input:
+               SampleName=SampleName,
+               InputRead1=lane[0],
+               InputRead2="null",
+               Adapters=Adapters,
+               CutAdapt=CutAdapt,
+               CutAdaptThreads=CutAdaptThreads,
+               PairedEnd=PairedEnd,
+               DebugMode=DebugMode,
+               TrimSeqScript=TrimSeqScript,
+               TrimEnvProfile=TrimEnvProfile
+         }
       }
    }
 
    output {
+      # Unify outputs from scatter and filter out null entries 
       Array[Array[File]] TrimmedInputReads = select_all(flatten([TRIMSEQ_paired.TrimmedInputReads,TRIMSEQ_single.TrimmedInputReads]))
    }
 } 
