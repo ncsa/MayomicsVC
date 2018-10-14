@@ -31,13 +31,14 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- deliver_block_1.sh       -b           <aligned.sorted.dedupped.bam>
+ deliver_block_1.sh       -b           <aligned.sorted.deduped.bam>
+                          -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
                           -d           turn on debug mode
 
  EXAMPLES:
- deliver_block_1.sh -h
- deliver_block_1.sh -b aligned.sorted.dedupped.bam -f /path/to/delivery_folder -d
+ deliver_block_1.sh -h     # get help message
+ deliver_block_1.sh -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -154,7 +155,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:f:d" OPT
+while getopts ":hs:b:j:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -168,6 +169,10 @@ do
                 b )  # Full path to the input BAM file
                         BAM=${OPTARG}
 			checkArg
+                        ;;
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
+                        checkArg
                         ;;
                 f )  # Path to delivery folder
                         DELIVERY_FOLDER=${OPTARG}
@@ -228,6 +233,16 @@ if [[ ! -s ${BAM}.bai ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${BAM}.bai is empty or does not exist."
+fi
+if [[ -z ${JSON+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
+fi
+if [[ ! -s ${JSON} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
 fi
 if [[ -z ${DELIVERY_FOLDER+x} ]]
 then
@@ -294,7 +309,7 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM delivered."
+logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
@@ -307,7 +322,20 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
+logInfo "[DELIVERY] Aligned sorted deduped BAM.BAI delivered."
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -319,7 +347,7 @@ logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index. Open read permissions to the user group
+## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
 BAM_NAME=`basename ${BAM}`
 if [[ ! -s ${DELIVERY_FOLDER}/${BAM_NAME} ]]
 then
@@ -331,9 +359,16 @@ then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${BAM_NAME}.bai is empty."
 fi
+JSON_FILENAME=`basename ${JSON}` 
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
+then
+       EXITCODE=1
+       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
+fi
 
 chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}
 chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}.bai
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
 
 logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
