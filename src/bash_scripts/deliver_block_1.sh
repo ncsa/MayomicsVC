@@ -31,14 +31,14 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- deliver_block_1.sh       -b           <aligned.sorted.dedupped.bam>
+ deliver_block_1.sh       -b           <aligned.sorted.deduped.bam>
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
                           -d           turn on debug mode
 
  EXAMPLES:
  deliver_block_1.sh -h     # get help message
- deliver_block_1.sh -b aligned.sorted.dedupped.bam -j Workflow.json -f /path/to/delivery_folder -d
+ deliver_block_1.sh -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -155,7 +155,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:f:d" OPT
+while getopts ":hs:b:j:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -309,7 +309,7 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
 	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM delivered."
+logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
@@ -322,7 +322,7 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[DELIVERY] Aligned sorted dedupped BAM.BAI delivered."
+logInfo "[DELIVERY] Aligned sorted deduped BAM.BAI delivered."
 
 ## Copy the JSON over
 TRAP_LINE=$(($LINENO + 1))

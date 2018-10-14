@@ -94,8 +94,8 @@ workflow CallBlock1Tasks {
     
    output {
      
-      File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDeduppedBam
-      File GlobalAlignedSortedDedupedBamBai = dedup.AlignedSortedDeduppedBamBai
+      File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam
+      File GlobalAlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
    }    
 
 }
