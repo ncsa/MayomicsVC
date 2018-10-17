@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## dedup.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_haplotyperVC.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -25,21 +25,20 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deduplicate BAMs with Sentieon. Part of the MayomicsVC Workflow.
+# Deliver results of HaplotyperVC block: vcf for snps and indels, their index files, and workflow JSON. 
+# Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- dedup.sh          -s           <sample_name> 
-                   -b		<lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
-                   -d           turn on debug mode
+ deliver_haplotyperVC.sh      -r           RecalibratedVcf 
+                          -j           WorkflowJSONfile
+                          -f           </path/to/delivery_folder>
+                          -d           turn on debug mode
 
  EXAMPLES:
- dedup.sh -h
- dedup.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
+ deliver_haplotyperVC.sh -h
+ deliver_haplotyperVC.sh -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -56,7 +55,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=dedup.sh
+SCRIPT_NAME=deliver_haplotyperVC.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -156,31 +155,27 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:t:e:d" OPT
+while getopts ":hs:r:j:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-		s )  # Sample name
-			SAMPLE=${OPTARG}
-			checkArg
-			;;
-                b )  # Full path to the input BAM or list of BAMS
-                        INPUTBAM=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
 			checkArg
                         ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
+                r )  # Full path to the recalibrated VCF file
+                        VCF=${OPTARG}
+                        checkArg
                         ;;
-                t )  # Number of threads available
-                        THR=${OPTARG}
-			checkArg
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
+                        checkArg
                         ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                f)   # Path to delivery folder
+                        DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
@@ -216,57 +211,53 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup_sentieon.log
+truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
-
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUTBAM+x} ]]
+if [[ -z ${VCF+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing VCF option: -r"
 fi
-for LANE in $(echo ${INPUTBAM} | sed "s/,/ /g")
-do
-	if [[ ! -s ${LANE} ]]
-	then 
-		EXITCODE=1
-        	logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${LANE} is empty or does not exist."
-	fi
-	if [[ ! -s ${LANE}.bai ]]
-	then
-		EXITCODE=1
-        	logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${LANE}.bai is empty or does not exist."
-	fi
-done
-if [[ -z ${SENTIEON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
+if [[ ! -s ${VCF} ]]
+then 
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF file ${VCF} is empty or does not exist."
 fi
-if [[ ! -d ${SENTIEON} ]]
+if [[ ! -s ${VCF}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input VCF index file ${VCF}.idx is empty or does not exist."
 fi
-if [[ -z ${THR+x} ]]
+if [[ -z ${JSON+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
 fi
-
+if [[ ! -s ${JSON} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
+fi
+if [[ -z ${DELIVERY_FOLDER+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
+fi
+if [[ -d ${DELIVERY_FOLDER} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
+elif [[ -f ${DELIVERY_FOLDER} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
+fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -274,77 +265,16 @@ fi
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Defining file names
-samplename=${SAMPLE}
-SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.aligned.sorted.deduped.bam
-OUTBAMIDX=${SAMPLE}.aligned.sorted.deduped.bam.bai
-DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
-
-BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
-MERGED_BAM=${SAMPLE}.aligned.sorted.bam
-
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## BAM Merging
+## MAKE DELIVERY FOLDER
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Merging BAMs if list was given."
+logInfo "[DELIVERY] Creating the Delivery folder."
 
-## Locus Collector command
+## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM merging error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${BAMS} --algo ReadWriter ${MERGED_BAM} >> ${SAMPLE}.dedup_sentieon.log 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[SENTIEON] BAM merging finished; starting Locus Collector."
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## DEDUPLICATION STAGE
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
-
-## Locus Collector command
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
-
-## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
+mkdir -p ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -352,7 +282,62 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
+logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DELIVERY
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
+
+
+## Copy the snp files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated VCF delivered."
+
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.idx ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -364,23 +349,34 @@ logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index. Open read permissions to the user group
-if [[ ! -s ${OUT} ]]
+## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
+VCF_NAME=`basename ${VCF}`
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM file ${OUT} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${VCF_NAME} is empty."
 fi
-if [[ ! -s ${OUTBAMIDX} ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${VCF_NAME}.idx ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${VCF_NAME}.idx is empty."
 fi
 
-chmod g+r ${MERGED_BAM}
-chmod g+r ${OUT}
-chmod g+r ${OUTBAMIDX}
-chmod g+r ${DEDUPMETRICS}
-chmod g+r ${SCORETXT}
+JSON_FILENAME=`basename ${JSON}` 
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
+then
+       EXITCODE=1
+       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
+fi
+
+
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}
+chmod g+r ${DELIVERY_FOLDER}/${VCF_NAME}.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
+
+
+
+logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
