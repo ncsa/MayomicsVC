@@ -43,6 +43,10 @@ E.par.JSN.1 = An input JSON file could not be found
 E.par.JSN.2 = An input JSON file was not formatted properly
 
 E.par.REF.1 = The config file REF key points to a value that does not have an '.fa' or '.fasta' extension
+
+E.par.InR.1 = Either the PairedEnd, InputRead1, or InputRead2 key was not present in the config file
+E.par.InR.2 = The InputRead1 and InputRead2 lists had different lengths
+E.par.InR.3 = PairedEnd was true but the InputRead2 lists was empty
 """
 
 
@@ -283,6 +287,69 @@ class Parser:
                 )
         return output_dict
 
+    def combine_input_read_arrays(self, input_dict):
+        """
+        InputReads1 & 2 are each provided in the config file as an array of files
+
+            InputRead1="L1,L2,L3, ..."
+            InputRead2="R1,R2,R3, ..."
+
+        In the JSON, these two lists will be combined into a single 2D-array variable called InputReads.
+
+        How they are combined depends on the value of the PairedEnd flag
+
+        If PairedEnd and data in both input variables
+            InputRead = [ [L1, R1], [L2, R2], [L3, R3] ]
+
+        If not PairedEnd and data in both input variables
+            InputRead = [ [L1], [L2], [L3], [R1], [R2], [R3] ]
+
+        If not PairedEnd and data only in InputRead1
+            InputRead = [ [L1], [L2], [L3] ]
+
+        Throw an error if:
+            1. PairedEnd, InputRead1, or InputRead2 are not defined in the input dictionary
+            1. PairedEnd is true and data only InputRead1 is set
+            2. PairedEnd is true and the number of entries between the input variables are different
+
+        :return: the input dictionary with the InputRead variables modified
+        """
+        try:
+            paired_end = True if input_dict["PairedEnd"] == "true" else False
+
+            input_read_1 = input_dict["InputRead1"]
+            input_read_2 = input_dict["InputRead2"]
+
+            # Split by comma (unless the string is empty, then return an empty list)
+            input_read_1_array = [] if input_read_1 == "" else input_read_1.split(",")
+            input_read_2_array = [] if input_read_2 == "" else input_read_2.split(",")
+
+        except KeyError:
+            self.project_logger.log_error(
+                "E.par.InR.1", "Either the PairedEnd, InputRead1, or InputRead2 key was not present in the config file"
+            )
+            sys.exit(1)
+        if paired_end:
+            if len(input_read_1_array) != len(input_read_2_array):
+                self.project_logger.log_error("E.par.InR.2", "The InputRead1 & InputRead2 lists had different lengths")
+                sys.exit(1)
+            elif len(input_read_2_array) == 0:
+                self.project_logger.log_error("E.par.InR.3", "PairedEnd was true but the InputRead2 lists was empty")
+                sys.exit(1)
+            # By default, zip returns tuples. The list comprehension turns them back into lists
+            input_reads_2D_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
+        else:
+            # Concatenate the two lists, then turn each entry into its own list
+            input_reads_2D_array = [[x] for x in input_read_1_array + input_read_2_array]
+
+        # Alter the input dictionary, removing the original InputRead1 & 2 keys and adding the InputRead key with the
+        #   2D-array value
+        del(input_dict["InputRead1"])
+        del(input_dict["InputRead2"])
+        input_dict["InputReads"] = input_reads_2D_array
+
+        return input_dict
+
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
          Takes in a list of input files and the location of the json file template, and writes an output file
@@ -310,9 +377,12 @@ class Parser:
             # Update the values in the template dictionary
             template_dict = self.insert_values_into_dict(template_dict, key_value_tuples, file_path=input_file)
 
+        # Combine the values of the InputRead keys based on the value of the PairedEnd key
+        dict_with_combined_reads = self.combine_input_read_arrays(template_dict)
+
         # Write the python dictionary out as a JSON file in the output file location
         with open(output_file, "w") as updated_json:
-            json.dump(template_dict, updated_json, indent=4, sort_keys=True)
+            json.dump(dict_with_combined_reads, updated_json, indent=4, sort_keys=True)
 
         # Write a success message to the log
         self.project_logger.log_info(
