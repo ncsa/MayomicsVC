@@ -93,59 +93,52 @@ class TestParsingTools(unittest.TestCase):
         self.assertEqual(expected_dict, substituted_dict)
 
     def test_combine_input_read_arrays_paired_end_both(self):
-        dict = {"PairedEnd": "true",
-                "InputRead1": "readL1.fq,readL2.fq,readL3.fq",
-                "InputRead2": "readR1.fq,readR2.fq,readR3.fq"
-                }
-        expected_dict = {"PairedEnd": "true",
-                         "InputReads": [["readL1.fq", "readR1.fq"],
-                                        ["readL2.fq", "readR2.fq"],
-                                        ["readL3.fq", "readR3.fq"]
-                                        ]
-                         }
-        actual_dict = self.parser_inst.combine_input_read_arrays(dict)
-        self.assertEqual(expected_dict, actual_dict)
+        key_value_tuples = [("PairedEnd", '"true"'),
+                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("InputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
+                            ]
+        expected_paired_end_value = [["readL1.fq", "readR1.fq"], ["readL2.fq", "readR2.fq"], ["readL3.fq", "readR3.fq"]]
+
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
     def test_combine_input_read_arrays_paired_end_one(self):
-        dict = {"PairedEnd": "true",
-                "InputRead1": "readL1.fq,readL2.fq,readL3.fq",
-                "InputRead2": ""
-                }
+        key_value_tuples = [("PairedEnd", '"true"'),
+                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("InputRead2", '""')
+                            ]
         with self.assertRaises(SystemExit):
             # Should fail, as paired end is true but only one read set is provided
-            self.parser_inst.combine_input_read_arrays(dict)
+            self.parser_inst.combine_input_read_arrays(key_value_tuples)
 
     def test_combine_input_read_arrays_paired_end_unequal_lists(self):
-        dict = {"PairedEnd": "true",
-                "InputRead1": "readL1.fq,readL2.fq,readL3.fq",
-                "InputRead2": "readR1.fq"
-                }
+        key_value_tuples = [("PairedEnd", '"true"'),
+                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("InputRead2", '"readR1.fq"')
+                            ]
         with self.assertRaises(SystemExit):
-            self.parser_inst.combine_input_read_arrays(dict)
+            # Should fail, as paired end is true but only one read set is provided
+            self.parser_inst.combine_input_read_arrays(key_value_tuples)
 
     def test_combine_input_read_arrays_single_end_both(self):
-        dict = {"PairedEnd": "false",
-                "InputRead1": "readL1.fq,readL2.fq,readL3.fq",
-                "InputRead2": "readR1.fq,readR2.fq,readR3.fq"
-                }
-        expected_dict = {"PairedEnd": "false",
-                         "InputReads": [["readL1.fq"], ["readL2.fq"], ["readL3.fq"],
-                                        ["readR1.fq"], ["readR2.fq"], ["readR3.fq"]
-                                        ]
-                         }
-        actual_dict = self.parser_inst.combine_input_read_arrays(dict)
-        self.assertEqual(expected_dict, actual_dict)
+        key_value_tuples = [("PairedEnd", '"false"'),
+                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("InputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
+                            ]
+        expected_paired_end_value = [["readL1.fq"], ["readL2.fq"], ["readL3.fq"],
+                                     ["readR1.fq"], ["readR2.fq"], ["readR3.fq"]]
+
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
     def test_combine_input_read_arrays_single_end_one(self):
-        dict = {"PairedEnd": "false",
-                "InputRead1": "readL1.fq,readL2.fq,readL3.fq",
-                "InputRead2": ""
-                }
-        expected_dict = {"PairedEnd": "false",
-                         "InputReads": [["readL1.fq"], ["readL2.fq"], ["readL3.fq"]]
-                         }
-        actual_dict = self.parser_inst.combine_input_read_arrays(dict)
-        self.assertEqual(expected_dict, actual_dict)
+        key_value_tuples = [("PairedEnd", '"false"'),
+                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("InputRead2", '""')
+                            ]
+        expected_paired_end_value = [["readL1.fq"], ["readL2.fq"], ["readL3.fq"]]
 
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 if __name__ == '__main__':
     unittest.main()
