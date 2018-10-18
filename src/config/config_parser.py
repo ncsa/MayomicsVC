@@ -204,7 +204,7 @@ class Parser:
                 else:
                     self.project_logger.log_debug("The key-value pair '" + key + "=" + value + "' is a valid pair")
 
-    def handle_special_keys(self, config_key, full_dict_key, output_dictionary, trimmed_value, file_path):
+    def handle_special_keys(self, config_key, full_dict_key, output_dictionary, trimmed_value):
         """
          Wrapper function designed to handle all special keys, i.e. configuration keys that need more than one
            corresponding value added to the JSON config file
@@ -240,8 +240,8 @@ class Parser:
             if extension_start_index == -1:
                 self.project_logger.log_error(
                     "E.par.REF.1",
-                    "REF key from input file '" + file_path +
-                    "' appears to not have a valid value: '" + trimmed_value + "has no '.fa' or '.fasta' extension"
+                    "REF key appears to not have a valid value: '" + trimmed_value +
+                    " has no '.fa' or '.fasta' extension"
                 )
                 sys.exit(1)
             else:
@@ -251,50 +251,14 @@ class Parser:
         elif config_key == "DBSNP":
             output_dictionary[str(full_dict_key) + "Idx"] = str(trimmed_value) + ".idx"
 
-    def insert_values_into_dict(self, starting_dict, key_value_tuple, file_path):
-        """
-         Takes an initial dictionary and a list of (Key, Value) tuples.
-           The Values in the tuple list are placed in the initial dictionary by Key.
-        """
-        output_dict = starting_dict.copy()
-
-        # For each key-value pair that will be substituted into the dictionary
-        for config_key, config_value in key_value_tuple:
-            # Switch signaling whether the key from the config file was found in the json template
-            config_key_was_present = False
-
-            # Loop through each key, and pattern match to see if the config_key is found in this starting_dict.key
-            for dict_key in starting_dict.keys():
-                #  config_key matches the last section of this starting_dict.key
-                #    keys are structured Major.Minor.KeyName, and we are matching against the KeyName
-                if config_key == dict_key.split('.')[-1]:
-                    config_key_was_present = True
-
-                    # Remove quote marks from the ends of the original value; assumes that the value was wrapped in
-                    #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
-                    trimmed_value = config_value[1:-1]
-
-                    output_dict[dict_key] = trimmed_value
-
-                    # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
-                    self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value, file_path)
-
-            # Log a warning message if a key was in the config file but not in the template
-            if not config_key_was_present:
-                self.project_logger.log_warning(
-                    "Key '" + config_key + "' in config file '" + file_path +
-                    "' had no corresponding key in the JSON template; this key-value pair was ignored"
-                )
-        return output_dict
-
-    def combine_input_read_arrays(self, input_dict):
+    def combine_input_read_arrays(self, key_value_tuples):
         """
         InputReads1 & 2 are each provided in the config file as an array of files
 
             InputRead1="L1,L2,L3, ..."
             InputRead2="R1,R2,R3, ..."
 
-        In the JSON, these two lists will be combined into a single 2D-array variable called InputReads.
+        These two lists will be combined into a single 2D-array variable called InputReads.
 
         How they are combined depends on the value of the PairedEnd flag
 
@@ -308,27 +272,33 @@ class Parser:
             InputRead = [ [L1], [L2], [L3] ]
 
         Throw an error if:
-            1. PairedEnd, InputRead1, or InputRead2 are not defined in the input dictionary
+            1. PairedEnd, InputRead1, or InputRead2 are not defined in the input tuple list
             1. PairedEnd is true and data only InputRead1 is set
             2. PairedEnd is true and the number of entries between the input variables are different
 
-        :return: the input dictionary with the InputRead variables modified
+        :return: The 2-D array holding the values that will be the value of the InputReads key in the JSON file
         """
         try:
-            paired_end = True if input_dict["PairedEnd"] == "true" else False
-
-            input_read_1 = input_dict["InputRead1"]
-            input_read_2 = input_dict["InputRead2"]
-
-            # Split by comma (unless the string is empty, then return an empty list)
-            input_read_1_array = [] if input_read_1 == "" else input_read_1.split(",")
-            input_read_2_array = [] if input_read_2 == "" else input_read_2.split(",")
-
-        except KeyError:
+            # next iterates through a collection until it finds an item that meets a criterion; here it is used to
+            #   find the tuples with the keys we want
+            paired_end_tuple =   next(pair for pair in key_value_tuples if pair[0] == "PairedEnd")
+            input_read_1_tuple = next(pair for pair in key_value_tuples if pair[0] == "InputRead1")
+            input_read_2_tuple = next(pair for pair in key_value_tuples if pair[0] == "InputRead2")
+        except StopIteration:
             self.project_logger.log_error(
                 "E.par.InR.1", "Either the PairedEnd, InputRead1, or InputRead2 key was not present in the config file"
             )
             sys.exit(1)
+
+        paired_end = True if paired_end_tuple[1].strip('"') == "true" else False
+
+        # Split by comma (unless the string is empty, then return an empty list)
+        input_read_1_value = input_read_1_tuple[1].strip('"')
+        input_read_2_value = input_read_2_tuple[1].strip('"')
+
+        input_read_1_array = [] if input_read_1_value == "" else input_read_1_value.split(",")
+        input_read_2_array = [] if input_read_2_value == "" else input_read_2_value.split(",")
+
         if paired_end:
             if len(input_read_1_array) != len(input_read_2_array):
                 self.project_logger.log_error("E.par.InR.2", "The InputRead1 & InputRead2 lists had different lengths")
@@ -337,18 +307,65 @@ class Parser:
                 self.project_logger.log_error("E.par.InR.3", "PairedEnd was true but the InputRead2 lists was empty")
                 sys.exit(1)
             # By default, zip returns tuples. The list comprehension turns them back into lists
-            input_reads_2D_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
+            input_reads_2d_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
         else:
             # Concatenate the two lists, then turn each entry into its own list
-            input_reads_2D_array = [[x] for x in input_read_1_array + input_read_2_array]
+            input_reads_2d_array = [[x] for x in input_read_1_array + input_read_2_array]
 
-        # Alter the input dictionary, removing the original InputRead1 & 2 keys and adding the InputRead key with the
-        #   2D-array value
-        del(input_dict["InputRead1"])
-        del(input_dict["InputRead2"])
-        input_dict["InputReads"] = input_reads_2D_array
+        return input_reads_2d_array
 
-        return input_dict
+
+    def insert_values_into_dict(self, starting_dict, key_value_tuple, input_reads_2d_array):
+        """
+         Takes an initial dictionary and a list of (Key, Value) tuples.
+           The Values in the tuple list are placed in the initial dictionary by Key.
+
+        :param starting_dict = The dictionary derived from the original JSON template
+        :param key_value_tuple = The complete list of keys and values (as tuples) that were in the config files
+        :param input_reads_2d_array = The 2D array that will be the value of the JSON "InputReads" key
+
+        :return The dictionary with all of the values inserted
+        """
+        output_dict = starting_dict.copy()
+
+        # Add the special key, InputReads, to the dictionary
+
+        # For each key-value pair that will be substituted into the dictionary
+        for config_key, config_value in key_value_tuple:
+            # Switch signaling whether the key from the config file was found in the json template
+            config_key_was_present = False
+
+            # Loop through each key, and pattern match to see if the config_key is found in this starting_dict.key
+            for dict_key in starting_dict.keys():
+                #  config_key matches the last section of this starting_dict.key
+                #    keys are structured Major.Minor.KeyName, and we are matching against the KeyName
+                dict_key_suffix = dict_key.split(".")[-1]
+
+                if config_key == dict_key_suffix:
+                    config_key_was_present = True
+
+                    # Remove quote marks from the ends of the original value; assumes that the value was wrapped in
+                    #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
+                    trimmed_value = config_value[1:-1]
+
+                    output_dict[dict_key] = trimmed_value
+
+                    # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
+                    self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value)
+
+                # Add the special key, InputReads, to the dictionary
+                elif dict_key_suffix == "InputReads":
+                    output_dict[dict_key] = input_reads_2d_array
+
+            # Log a warning message if a key was in the config file but not in the template
+            #   There are special keys, such as InputRead1 & 2, that are not expected to be in the template (they are
+            #     replaced by a variable called InputReads)
+            if not config_key_was_present and config_key not in ["InputRead1", "InputRead2"]:
+                self.project_logger.log_warning(
+                    "Key '" + config_key + "' had no corresponding key in the JSON template;" +
+                    " this key-value pair was ignored"
+                )
+        return output_dict
 
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
@@ -363,6 +380,10 @@ class Parser:
                                                json_not_found_error_code="E.par.JSN.1",
                                                json_bad_format_error_code="E.par.JSN.2"
                                                )
+
+        # Combine all of the input file key-value tuples into a single list
+        all_key_value_tuples = []
+
         # This loop iterates through all the input files and parses the path information
         for input_file in input_file_list:
             # Read in and clean the input file
@@ -374,15 +395,18 @@ class Parser:
             # Validate the key-value entries (Returns nothing; only possible outputs are error messages)
             self.validate_key_value_pairs(key_value_tuples, file_path=input_file)
 
-            # Update the values in the template dictionary
-            template_dict = self.insert_values_into_dict(template_dict, key_value_tuples, file_path=input_file)
+            # Add all of the pairs from this file into the overall list of pairs
+            [all_key_value_tuples.append(pair) for pair in key_value_tuples]
 
-        # Combine the values of the InputRead keys based on the value of the PairedEnd key
-        dict_with_combined_reads = self.combine_input_read_arrays(template_dict)
+        # Create the InputReads value from the info in the config files
+        input_reads_2d_array = self.combine_input_read_arrays(all_key_value_tuples)
+
+        # Update the values in the template dictionary
+        template_dict = self.insert_values_into_dict(template_dict, all_key_value_tuples, input_reads_2d_array)
 
         # Write the python dictionary out as a JSON file in the output file location
         with open(output_file, "w") as updated_json:
-            json.dump(dict_with_combined_reads, updated_json, indent=4, sort_keys=True)
+            json.dump(template_dict, updated_json, indent=4, sort_keys=True)
 
         # Write a success message to the log
         self.project_logger.log_info(
