@@ -2,8 +2,8 @@
 ####              This WDL script is used to run the Alignment steps as individual modules              ##
 ##########################################################################################################
 
-import "src/wdl_scripts/Alignment/Tasks/trim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl_scripts/Alignment/Tasks/alignment.wdl" as ALIGNMENT
+import "src/wdl_scripts/Alignment/TestTasks/Testtrim_sequences.wdl" as CUTADAPTTRIM
+import "src/wdl_scripts/Alignment/TestTasks/Testalignment.wdl" as ALIGNMENT
 import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP 
 
 workflow CallAlignmentTasks {
@@ -56,7 +56,7 @@ workflow CallAlignmentTasks {
          SampleName = SampleName
    }
     
-   call ALIGNMENT.CallalignmentTask as align {
+   call ALIGNMENT.CallalignmentSubTask as align {
       input:
          InputReads = trimseq.TrimmedInputReads,
          Ref = Ref,

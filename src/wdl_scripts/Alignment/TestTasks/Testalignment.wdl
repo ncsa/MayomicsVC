@@ -6,7 +6,7 @@
 
 import "src/wdl_scripts/Alignment/Tasks/alignment.wdl" as ALIGN
 
-workflow CallalignmentTask {
+workflow CallalignmentSubTask {
 
    Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
    String SampleName               # Name of the Sample
