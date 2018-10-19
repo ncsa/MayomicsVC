@@ -42,7 +42,7 @@ workflow CallHaplotyperVCTasks {
    File HaplotyperScript
    File HaplotyperEnvProfile
 
-   String HaplotyperExtraOptions
+   String HaplotyperExtraOptionsString
 
    File VqsrScript
    File VqsrEnvProfile
@@ -95,7 +95,7 @@ workflow CallHaplotyperVCTasks {
          DebugMode = DebugMode,
          HaplotyperScript = HaplotyperScript,
          HaplotyperEnvProfile = HaplotyperEnvProfile,
-	 HaplotyperExtraOptions = HaplotyperExtraOptions
+	 HaplotyperExtraOptionsString = HaplotyperExtraOptionsString
    }
 
    call VQSR.vqsrTask as vqsr {
