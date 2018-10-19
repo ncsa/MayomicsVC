@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys
 
 if sys.version_info[0] != 3 or sys.version_info[1] < 6:
@@ -10,8 +11,9 @@ import argparse
 import logging
 import pathlib
 from util.util import read_json_file
+from util.util import flatten
 from util.log import ProjectLogger
-from util.special_keys import NULLABLE_KEYS, OPTIONAL_KEYS
+from util.special_keys import OPTIONAL_KEYS
 
 """
 Exit code Rules:
@@ -195,18 +197,6 @@ class Validator:
             # Stop the function here; do not try to validate this key
             return True
 
-        # NULLABLE_KEYS ###
-        # For variables in the NULLABLE_KEYS list (src/config/util/special_keys.py), if the value is set to "null",
-        #   give an info message and stop the validation for that key
-        #   This is necessary because some variables are optional, but Cromwell/WDL and the Bash scripts still need
-        #   something in place of a value
-        if key_value.lower() == 'null' and key_name.lower() in NULLABLE_KEYS:
-            self.project_logger.log_info("The key '" + key_name + "' was set to '" + key_value +
-                                         "'; its type will not be validated "
-                                         )
-            # Stop the function here; do not try to validate this key
-            return True
-
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
             # Checks if the directory exists, and does not check permissions
@@ -336,7 +326,9 @@ class Validator:
                 '" in the key types file, which is not a recognized type ' +
                 '(see src/config/validation/config_parser_README.md for a list of valid types)'
             )
+
             return False
+
 
     def validate_keys(self, configuration_dict, key_types_dict):
         """
@@ -358,10 +350,20 @@ class Validator:
         # For all keys that have typing information, confirm that its value is valid
         #   Sorted to ensure repeated problematic runs fail on the same key
         for key in sorted(checked_keys):
-            key_is_valid = self.check_key(key, configuration_dict[key], key_types_dict[key])
-            if not key_is_valid:
-                # The check key function itself wrote to the log; here we just exit because we have found an invalid key
-                sys.exit(1)
+
+            # If the type has square brackets, it is an array (or array of arrays, etc.)
+            if key_types_dict[key][0] == "[" and key_types_dict[key][-1] == "]":
+                for entry in flatten(configuration_dict[key]):
+                    trimmed_type = key_types_dict[key][1:-1]
+                    key_is_valid = self.check_key(key, entry, trimmed_type)
+                    if not key_is_valid:
+                        sys.exit(1)
+            # Check all other types of values
+            else:
+                key_is_valid = self.check_key(key, configuration_dict[key], key_types_dict[key])
+                if not key_is_valid:
+                    # The check key function itself wrote to the log; here we just exit because we have found an invalid key
+                    sys.exit(1)
 
         # Write a success message to the log
         self.project_logger.log_info(

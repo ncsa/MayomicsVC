@@ -24,6 +24,16 @@ The 'key_types.json' file contains only one kind of entry: key-value pairs.
 
 ### Valid Types
 
+#### Arrays of Types
+    
+    For any arrays in the type file, write square brackets '[]' around the type.
+    Even if the array is nested, it only requires single brackets.
+    All lists entries must be of the same type
+    
+    Examples:
+        For an array of files, write "[Files]"
+        For an array of array of Integers, write "[Int]"  
+
 #### ExecFile
 
 For ExecFile types, we confirm that
