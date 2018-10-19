@@ -3,6 +3,7 @@
   "major_name.minor_name.test_boolean": "true",
   "major_name.minor_name.test_integer": "7",
   "major_name.minor_name.test_decimal": "3.14159",
-  "major_name.minor_name.DebugMode": ""
-
+  "major_name.minor_name.DebugMode": "",
+  "major_name.minor_name.test_boolean_array": ["true", "false", "true"],
+  "major_name.minor_name.test_boolean_nested_array": [["true", "false"], ["true", "false"]]
 }
