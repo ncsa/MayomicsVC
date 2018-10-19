@@ -20,7 +20,7 @@
     "DeliveryFolder_HaplotyperVC": "OutputDirectory",
     "Group": "String",
     "HaplotyperEnvProfile": "File",
-    "HaplotyperExtraOptions": "String",
+    "HaplotyperExtraOptionsString": "String",
     "HaplotyperScript": "File",
     "InputReads": "[File]",
     "PairedEnd": "Boolean",
