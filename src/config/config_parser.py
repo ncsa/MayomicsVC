@@ -1,15 +1,10 @@
 #!/usr/bin/env python
-"""
-    This script parses the values from a flat 'key="value"' formatted file into a JSON template file by key
 
-                              Script Options
+import sys
 
-    -i                  "The input Tool info text file"                                  (Required)
-    --jsonTemplate      "json Input file to which path information is written into"      (Required)
-
-    --jobID             "The job ID (defaults to 'NA')"                                  (Optional)
-    -d                  "Enables debug mode"                                             (Optional)
-"""
+if sys.version_info[0] != 3 or sys.version_info[1] < 6:
+    print("This script (" + sys.argv[0] + ") requires Python version 3.6 or higher")
+    sys.exit(1)
 
 from util.util import read_json_file
 from util.log import ProjectLogger
@@ -17,8 +12,6 @@ from util.special_keys import OPTIONAL_KEYS
 import json
 import argparse
 import logging
-import sys
-
 
 """
 Exit code Rules:
@@ -313,7 +306,6 @@ class Parser:
             input_reads_2d_array = [[x] for x in input_read_1_array + input_read_2_array]
 
         return input_reads_2d_array
-
 
     def insert_values_into_dict(self, starting_dict, key_value_tuple, input_reads_2d_array):
         """
