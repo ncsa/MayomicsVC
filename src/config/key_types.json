@@ -3,6 +3,7 @@
     "AlignEnvProfile": "File",
     "AlignmentScript": "File",
     "AnnotateText": "String",
+    "BWAExtraOptionsString": "String",
     "BqsrEnvProfile": "File",
     "BqsrKnownSites": "String",
     "BqsrScript": "File",
