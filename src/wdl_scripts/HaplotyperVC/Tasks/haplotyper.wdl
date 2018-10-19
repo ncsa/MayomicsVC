@@ -28,7 +28,7 @@ task variantCallingTask {
 
    String SampleName                                       # Name of the Sample
 
-   String HaplotyperExtraOptions                         # String of extra options for haplotyper, this can be an empty string
+   String HaplotyperExtraOptionsString                         # String of extra options for haplotyper, this can be an empty string
 
    File DBSNP                                              # DBSNP file
    File DBSNPIdx                                           # Index file for the DBSNPs   
@@ -45,7 +45,7 @@ task variantCallingTask {
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptions} -e ${HaplotyperEnvProfile} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
 
    }
 
