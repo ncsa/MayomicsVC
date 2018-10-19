@@ -4,6 +4,7 @@ import unittest
 import os
 from util.log import ProjectLogger
 from util.util import read_json_file
+from util.util import flatten
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))
@@ -41,6 +42,13 @@ class TestUtil(unittest.TestCase):
             read_json_file("/this/path/does/not/exist.json", project_logger=self.project_logger,
                            json_bad_format_error_code="BadFormat", json_not_found_error_code="NotFound"
                            )
+
+    def test_flatten(self):
+        input_list = [[1,2], [9,[[11, 4], 87, "a"]]]
+        expected = [1, 2, 9, 11, 4, 87, "a"]
+        actual = flatten(input_list)
+
+        self.assertEqual(expected, actual)
 
 
 if __name__ == "__main__":
