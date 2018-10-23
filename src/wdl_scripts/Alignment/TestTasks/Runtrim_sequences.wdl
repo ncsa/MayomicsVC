@@ -6,7 +6,7 @@
 
 import "src/wdl_scripts/Alignment/Tasks/trim_sequences.wdl" as TRIMSEQ
 
-workflow RunTrimInputSequencesTask {
+workflow RunTrimSequencesTask {
 
    Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
 

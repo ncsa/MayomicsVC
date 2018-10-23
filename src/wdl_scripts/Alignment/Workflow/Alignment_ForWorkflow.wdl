@@ -43,7 +43,7 @@ workflow CallAlignmentTasks {
 
 #####################################################################################          
    
-   call CUTADAPTTRIM.RunTrimInputSequencesTask as trimseq {
+   call CUTADAPTTRIM.RunTrimSequencesTask as trimseq {
       input:
          InputReads = InputReads,
          Adapters = Adapters,
