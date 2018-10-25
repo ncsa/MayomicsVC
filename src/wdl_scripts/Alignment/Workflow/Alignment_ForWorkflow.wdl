@@ -30,6 +30,7 @@ workflow CallAlignmentTasks {
    String Sentieon 
    String SentieonThreads    
    String ChunkSizeInBases
+   String BWAExtraOptionsString
 
    File TrimSeqScript
    File TrimEnvProfile
@@ -68,6 +69,7 @@ workflow CallAlignmentTasks {
          RefSa = RefSa,
          Sentieon = Sentieon,
          ChunkSizeInBases = ChunkSizeInBases,
+         BWAExtraOptionsString = BWAExtraOptionsString,
          Group = Group,
          Platform = Platform,
          DebugMode = DebugMode,
