@@ -5,5 +5,5 @@
 ###
 
 # This is the list of keys that are allowed to be blank (i.e. set to either 'Key=' or 'Key=""') in the flat config file
-OPTIONAL_KEYS = ("debugmode")
+OPTIONAL_KEYS = ("debugmode", "inputread2")
 

@@ -4,19 +4,16 @@
     "major.minor.DebugMode": "",
     "major.minor.InputReads": [
         [
-            "readL1.fq",
-            "readR1.fq"
+            "readL1.fq"
         ],
         [
-            "readL2.fq",
-            "readR2.fq"
+            "readL2.fq"
         ],
         [
-            "readL3.fq",
-            "readR3.fq"
+            "readL3.fq"
         ]
     ],
-    "major.minor.PairedEnd": "true",
+    "major.minor.PairedEnd": "false",
     "major.minor.REF": "ref.fa",
     "major.minor.ValueWithQuotes": "\"'InBetweenQuotes'\"",
     "major.minor.test_boolean": "true",
