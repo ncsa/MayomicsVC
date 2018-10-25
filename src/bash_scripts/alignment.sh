@@ -38,6 +38,7 @@ read -r -d '' DOCS << DOCS
                    -r           <read2.fq>
                    -G		<reference_genome>
                    -K		<chunk_size_in_bases> 
+                   -o		<additional_bwa_options>
                    -S           </path/to/sentieon> 
                    -t           <threads> 
                    -P		paired-end reads (true/false)
@@ -46,9 +47,10 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
+ alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
 
- NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+ NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+        In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
 
@@ -163,7 +165,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:K:S:t:P:e:d" OPT
+while getopts ":hg:s:p:l:r:G:K:o:S:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -198,7 +200,11 @@ do
 			CHUNK_SIZE=${OPTARG}
 			checkArg
 			;;
-                S )  # Full path to sentieon directory
+		o )  # Additional BWA MEM options to pass into the Sentieon command
+			BWA_OPTS=${OPTARG}
+			checkArg
+			;;
+		S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
@@ -341,6 +347,11 @@ then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
 fi
+if [[ -z ${BWA_OPTS+x}  ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing additional BWA MEM options option: -O"
+fi
 if [[ -z ${SENTIEON+x} ]]
 then
         EXITCODE=1
@@ -372,6 +383,8 @@ SORTBAM=${SAMPLE}.aligned.sorted.bam
 SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 TOOL_LOG=${SAMPLE}.align_sentieon.log
 
+## Parse extra options if specified
+BWA_OPTS_PARSED=`sed -e "s/'//g" <<< ${BWA_OPTS}`
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -391,7 +404,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	${SENTIEON}/bin/bwa mem  ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -402,7 +415,7 @@ then
 else # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 

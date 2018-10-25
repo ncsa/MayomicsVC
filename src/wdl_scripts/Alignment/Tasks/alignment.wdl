@@ -12,6 +12,7 @@
 #       -S        "Path to the Sentieon Tool"                 (Required)
 #       -g        "Group"                                     (Required)
 #       -p        "Platform"                                  (Required)
+#       -o        "BWA Extra Options"                         (Required)
 #       -e        "Path to the environmental profile          (Required)
 #       -d        "debug mode on/off                          (Optional: can be empty)
 
@@ -39,13 +40,13 @@ task alignmentTask {
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
-
+   String BWAExtraOptionsString          # String of extra options for BWA. This can be an empty string.
 
    String DebugMode                # Flag to enable Debug Mode
 
    command {
 
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
    }
 
