@@ -23,8 +23,8 @@ workflow CallAlignmentTasks {
 
    output {
      
-      File GlobalAlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam
-      File GlobalAlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
+      File AlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam
+      File AlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
    }    
     
 }
