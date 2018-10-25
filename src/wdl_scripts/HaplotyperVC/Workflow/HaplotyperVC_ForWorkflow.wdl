@@ -20,7 +20,7 @@ workflow CallHaplotyperVCTasks {
    File RefFai                                         
 
    String RealignmentKnownSites                                     
-   String BQSRKnownSites                                     
+   String BqsrKnownSites                                     
    File DBSNP
    File DBSNPIdx
 
@@ -71,7 +71,7 @@ workflow CallHaplotyperVCTasks {
          SampleName = SampleName,
          Ref = Ref,
          RefFai = RefFai,
-         BQSRKnownSites = BQSRKnownSites,
+         BqsrKnownSites = BqsrKnownSites,
          SentieonThreads = SentieonThreads,
          Sentieon = Sentieon,
          DebugMode = DebugMode,
