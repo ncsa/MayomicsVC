@@ -30,7 +30,7 @@ task dedupTask {
 
    command {
 
-      /bin/bash ${DedupScript} -b ${sep=',' InputAlignedSortedBam} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+      /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
 
    }
 

@@ -23,7 +23,7 @@ task deliverAlignmentTask {
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
-      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${AlignedSortedDedupedBam} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} ${DebugMode}
+      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} ${DebugMode}
    }
 
 }

@@ -19,8 +19,8 @@
 
 task vqsrTask {
 
-   File InputVCF                        # Input VCF from Haplotyper
-   File InputVCFIdx                     # Input VCF Index
+   File InputVcf                        # Input VCF from Haplotyper
+   File InputVcfIdx                     # Input VCF Index
   
    File Ref                             # Reference Genome
    File RefFai                          # Reference files that are provided as implicit inputs
@@ -43,7 +43,7 @@ task vqsrTask {
 
 
    command {
-      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVCF} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} ${DebugMode}
    }
 
    
