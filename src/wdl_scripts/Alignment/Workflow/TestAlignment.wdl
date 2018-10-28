@@ -12,19 +12,19 @@ workflow CallAlignmentTasks {
     
    call ALIGNMENT.RunAlignmentTask as align {
       input:
-         InputReads = trimseq.TrimmedInputReads
+         InputReads = trimseq.Outputs
    }
    
    call DEDUP.dedupTask as dedup {
       input:
-         InputAlignedSortedBam  = align.AlignedSortedBams,
-         InputAlignedSortedBamBai = align.AlignedSortedBamBais
+         InputBams = align.OutputBams,
+         InputBais = align.OutputBais
    }
 
    output {
      
-      File AlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam
-      File AlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
+      File InputBams = dedup.OutputBams,
+      File InputBais = dedup.OutputBais
    }    
     
 }

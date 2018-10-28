@@ -22,92 +22,57 @@ workflow MasterWF {
 
    call ALIGNMENT.RunAlignmentTask as align {
       input:
-         InputReads = trimseq.TrimmedInputReads
+         InputReads = trimseq.Outputs
    }
 
    call DEDUP.dedupTask as dedup {
       input:
-         InputAlignedSortedBam  = align.AlignedSortedBams,
-         InputAlignedSortedBamBai = align.AlignedSortedBamBais
+         InputBams = align.OutputBams,
+         InputBais = align.OutputBais
    }
 
 
 
    call DELIVER_Alignment.deliverAlignmentTask as DAB {
       input:
-         AlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam,
-         AlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
+         InputBams = dedup.OutputBams,
+         InputBais = dedup.OutputBais
    }
 
 
 
    call REALIGNMENT.realignmentTask  as realign {
       input:
-         InputAlignedSortedDedupedBam = dedup.AlignedSortedDedupedBam,
-         InputAlignedSortedDedupedBamBai = dedup.AlignedSortedDedupedBamBai
+         InputBams = dedup.OutputBams,
+         InputBais = dedup.OutputBais
    }
 
 
    call BQSR.bqsrTask as bqsr {
       input:
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
+         InputBams = realign.OutputBams,
+         InputBais = realign.OutputBais,
    }
 
    call HAPLOTYPER.variantCallingTask as haplotype {
       input:
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
+         InputBams = realign.OutputBams,
+         InputBais = realign.OutputBais,
          RecalTable = bqsr.RecalTable,
    }
 
    call VQSR.vqsrTask as vqsr {
       input:
-         InputVCF = haplotype.VCF,
-         InputVCFIdx = haplotype.VcfIdx,
+         InputVcf = haplotype.OutputVcf,
+         InputVcfIdx = haplotype.OutputVcfIdx,
    }
 
 
 
    call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
       input:
-         RecalibratedVcf = vqsr.RecalibratedVcf,
-         RecalibratedVcfIdx = vqsr.RecalibratedVcfIdx
+         InputVcf = vqsr.OutputVcf,
+         InputVcfIdx = vqsr.OutputVcfIdx
    } 
 
 }
-
-
-
-
-
-
-##################################################################################################
-
-#import "src/wdl_scripts/Alignment/Workflow/Alignment_ForWorkflow.wdl" as WF1
-#import "src/wdl_scripts/DeliveryOfAlignment/Workflow/DeliverAlignment_ForWorkflow.wdl" as DWF1
-#import "src/wdl_scripts/HaplotyperVC/Workflow/HaplotyperVC_ForWorkflow.wdl" as WF2a
-#import "src/wdl_scripts/DeliveryOfHaplotyperVC/Workflow/DeliverHaplotyperVC_ForWorkflow.wdl" as DWF2a
-#
-#workflow MasterWF {
-#
-#   call WF1.CallAlignmentTasks as AlignmentBlock
-#
-#   call DWF1.CallDeliveryAlignmentTask as DAB {
-#      input:
-#         GlobalAlignedSortedDedupedBam = AlignmentBlock.GlobalAlignedSortedDedupedBam,
-#         GlobalAlignedSortedDedupedBamBai = AlignmentBlock.GlobalAlignedSortedDedupedBamBai
-#   }
-#
-#   call WF2a.CallHaplotyperVCTasks as HaplotyperVCBlock {
-#      input:
-#         GlobalAlignedSortedDedupedBam = AlignmentBlock.GlobalAlignedSortedDedupedBam,
-#         GlobalAlignedSortedDedupedBamBai = AlignmentBlock.GlobalAlignedSortedDedupedBamBai
-#   }
-#
-#   call DWF2a.CallDeliveryHaplotyperVCTask as DHVCB {
-#      input:
-#         GlobalRecalibratedVcf = HaplotyperVCBlock.GlobalRecalibratedVcf,
-#         GlobalRecalibratedVcfIdx = HaplotyperVCBlock.GlobalRecalibratedVcfIdx
-#   }
-#}

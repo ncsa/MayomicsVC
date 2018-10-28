@@ -85,8 +85,8 @@ workflow RunAlignmentTask {
 
    output {
       # Unify outputs from scatter and filter out null entries 
-      Array[File] AlignedSortedBams = select_all(flatten([ALIGN_paired.AlignedSortedBam,ALIGN_single.AlignedSortedBam]))
-      Array[File] AlignedSortedBamBais = select_all(flatten([ALIGN_paired.AlignedSortedBamBai,ALIGN_single.AlignedSortedBamBai]))
+      Array[File] OutputBams = select_all(flatten([ALIGN_paired.OutputBams,ALIGN_single.OutputBams]))
+      Array[File] OutputBais = select_all(flatten([ALIGN_paired.OutputBais,ALIGN_single.OutputBais]))
    }
 
 }
