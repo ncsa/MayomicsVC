@@ -11,15 +11,15 @@
 
 task deliverAlignmentTask {
 
-   File AlignedSortedDedupedBam           # aligned sorted dedupped BAM file
-   File AlignedSortedDedupedBamBai        # aligned sorted dedupped BAM.BAI file
+   File InputBams                         # aligned sorted dedupped BAM file
+   File InputBais                         # aligned sorted dedupped BAM.BAI file
 
    String SampleName                      # Name of the Sample
 
    File WorkflowJson                      # JSON file for the workflow
 
-   File DeliveryAlignment_Script            # Bash script that performs the delivery
-   String DeliveryFolder_Alignment          # Path to delivery folder
+   File DeliveryAlignment_Script          # Bash script that performs the delivery
+   String DeliveryFolder_Alignment        # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
