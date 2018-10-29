@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="456.67462mm"
+   height="204.87625mm"
+   viewBox="0 0 1618.1384 725.93948"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="ParserDiagram.svg">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker5539"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
+         id="path5541"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible"
+       inkscape:isstock="true"
+       inkscape:collect="always">
+      <path
+         id="path4616"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="852.32985"
+     inkscape:cy="301.04396"
+     inkscape:document-units="px"
+     inkscape:current-layer="g4520"
+     showgrid="false"
+     fit-margin-top="1"
+     fit-margin-left="1"
+     fit-margin-right="1"
+     fit-margin-bottom="1"
+     inkscape:window-width="1440"
+     inkscape:window-height="810"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(1.5433071,-725.59038)">
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4168"
+       style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
+         id="flowRegion4170"><rect
+           id="rect4172"
+           width="350"
+           height="161.42857"
+           x="44.285713"
+           y="160.93364" /></flowRegion><flowPara
+         id="flowPara4174"></flowPara></flowRoot>    <flowRoot
+       transform="matrix(1.1010665,0,0,1,44.728479,-81.714285)"
+       style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="flowRoot4186"
+       xml:space="preserve"><flowRegion
+         id="flowRegion4188"><rect
+           y="143.22491"
+           x="74.751289"
+           height="384.8681"
+           width="347.49246"
+           id="rect4190"
+           style="font-size:17.5px;fill:#ffffff;stroke:none;stroke-opacity:1" /></flowRegion><flowPara
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20.28703308px;font-family:Courier;-inkscape-font-specification:Courier;fill:#ffffff;stroke:none;stroke-opacity:1"
+         id="flowPara4210" /></flowRoot>    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4512"
+       style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
+         id="flowRegion4514"><rect
+           id="rect4516"
+           width="230.31477"
+           height="86.873116"
+           x="143.44167"
+           y="336.16406" /></flowRegion><flowPara
+         id="flowPara4518"
+         style="letter-spacing:1.01015258px" /></flowRoot>    <g
+       id="g5991"
+       transform="translate(-8.0507622,717.13723)">
+      <g
+         id="g12805"
+         transform="matrix(0.80467644,0,0,0.80437465,2.1584742,2.5424316)">
+        <rect
+           ry="24.459892"
+           rx="16.380527"
+           y="12.996452"
+           x="1091.3574"
+           height="716.85284"
+           width="528.74512"
+           id="rect5853"
+           style="opacity:1;fill:#afe9dd;fill-opacity:1;fill-rule:evenodd;stroke:#2ca089;stroke-width:2.48593736;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <path
+           sodipodi:nodetypes="csc"
+           inkscape:connector-curvature="0"
+           id="path5537"
+           d="m 995.88414,390.89552 c 0,0 12.60886,-36.89198 68.91166,-22.54255 24.2039,6.16865 50.8608,27.05106 50.8608,27.05106"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.24296868px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5539)" />
+        <rect
+           style="opacity:1;fill:#aaccff;fill-opacity:1;fill-rule:evenodd;stroke:#2a7fff;stroke-width:2.48593736;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect5699"
+           width="1010.2406"
+           height="595.12311"
+           x="11.050762"
+           y="79.899071"
+           rx="31.297262"
+           ry="20.306326" />
+        <g
+           id="g4520"
+           transform="matrix(2.2273658,0,0,2.2315978,17.710246,21.68153)">
+          <rect
+             rx="14.100885"
+             ry="6.1227312"
+             y="60.392418"
+             x="6.5076256"
+             height="158.93051"
+             width="212.9232"
+             id="rect3336"
+             style="opacity:1;fill:#d5e5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.11502969;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+          <flowRoot
+             transform="matrix(0.7181351,0,0,0.71693538,-33.867303,-14.655042)"
+             style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             id="flowRoot4138"
+             xml:space="preserve"><flowRegion
+               id="flowRegion4140"><rect
+                 y="143.22491"
+                 x="74.751289"
+                 height="384.8681"
+                 width="347.49246"
+                 id="rect4142" /></flowRegion><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4144">FileLocation=&quot;/path/to/file&quot;</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4152">StringVariable=&quot;AnInputString&quot;</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4154">DeliveryFolder=&quot;/path/to/folder&quot;</flowPara><flowPara
+               id="flowPara4164"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">...</flowPara><flowPara
+               id="flowPara4162"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier" /><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4148"># Special Variables</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4150">Ref=&quot;ref1.fa&quot;</flowPara><flowPara
+               id="flowPara4160"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier" /><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara12922">PairedEnd=&quot;true&quot;</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4156">InputRead1=&quot;inL1.fq,inL2.fq,inL3.fq&quot;</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4158">InputRead2=&quot;inR1.fq,inR2.fq,inR3.fq&quot;</flowPara></flowRoot>          <g
+             transform="matrix(0.72471171,0,0,0.71693538,-31.067579,17.094953)"
+             id="g4182">
+            <rect
+               rx="17.871897"
+               ry="7.9057846"
+               y="61.820976"
+               x="52.962055"
+               height="25.811577"
+               width="291.58578"
+               id="rect4176"
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.70708466;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+            <rect
+               rx="0"
+               ry="0"
+               y="76.125534"
+               x="52.422783"
+               height="14.699899"
+               width="292.12509"
+               id="rect4180"
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.70708466;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+          </g>
+          <flowRoot
+             xml:space="preserve"
+             id="flowRoot4266"
+             style="font-style:normal;font-weight:normal;font-size:20px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d5e5ff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             transform="matrix(0.7181351,0,0,0.71693538,5.630128,-41.079232)"><flowRegion
+               id="flowRegion4268"><rect
+                 style="font-size:20px;fill:#d5e5ff"
+                 id="rect4270"
+                 width="347.49246"
+                 height="384.8681"
+                 x="74.751289"
+                 y="143.22491" /></flowRegion><flowPara
+               id="flowPara4290"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;font-family:Courier;-inkscape-font-specification:Courier;fill:#d5e5ff">input.config</flowPara></flowRoot>        </g>
+        <g
+           id="g4573"
+           transform="matrix(2.2273658,0,0,2.2315978,-31.382255,-45.744593)">
+          <rect
+             style="opacity:1;fill:#d7f4ee;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.11502969;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect4346"
+             width="215.95366"
+             height="280.43958"
+             x="516.93616"
+             y="58.963848"
+             ry="10.803817"
+             rx="14.301578" />
+          <flowRoot
+             xml:space="preserve"
+             id="flowRoot4348"
+             style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             transform="matrix(0.7181351,0,0,0.71693538,466.56127,-16.083613)"><flowRegion
+               id="flowRegion4350"><rect
+                 id="rect4352"
+                 width="347.49246"
+                 height="384.8681"
+                 x="74.751289"
+                 y="143.22491" /></flowRegion><flowPara
+               id="flowPara4354"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">{</flowPara><flowPara
+               id="flowPara4388"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;FileLocation&quot;: &quot;/path/to/file&quot;,</flowPara><flowPara
+               id="flowPara4356"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;StringVariable&quot;: &quot;AnInputString&quot;,</flowPara><flowPara
+               id="flowPara4358"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;DeliveryFolder&quot;: &quot;/path/to/folder&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4360">   ...</flowPara><flowPara
+               id="flowPara4364"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier" /><flowPara
+               id="flowPara4366"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;Ref&quot;: &quot;ref1.fa&quot;,</flowPara><flowPara
+               id="flowPara4396"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefAmb&quot;: &quot;ref1.fa.amb&quot;,</flowPara><flowPara
+               id="flowPara4400"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefAnn&quot;: &quot;ref1.fa.ann&quot;,</flowPara><flowPara
+               id="flowPara4402"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefBwt&quot;: &quot;ref1.fa.bwt&quot;,</flowPara><flowPara
+               id="flowPara4404"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefDict&quot;: &quot;ref1.dict&quot;,</flowPara><flowPara
+               id="flowPara4406"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefFai&quot;: &quot;ref1.fa.fai&quot;,</flowPara><flowPara
+               id="flowPara4408"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefPac&quot;: &quot;ref1.fa.pac&quot;,</flowPara><flowPara
+               id="flowPara4410"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;RefSa&quot;: &quot;ref1.fa.sa&quot;,</flowPara><flowPara
+               id="flowPara4370"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier" /><flowPara
+               id="flowPara4372"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">  &quot;PairedEnd&quot;: &quot;true&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara12926">  &quot;InputReads&quot;:[</flowPara><flowPara
+               id="flowPara4412"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">                [&quot;inL1.fq&quot;, &quot;inR1.fq&quot;],</flowPara><flowPara
+               id="flowPara4424"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">                [&quot;inL2.fq&quot;, &quot;inR2.fq&quot;],</flowPara><flowPara
+               id="flowPara4422"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">                [&quot;inL3.fq&quot;, &quot;inR3.fq&quot;]</flowPara><flowPara
+               id="flowPara4414"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">               ]</flowPara><flowPara
+               id="flowPara4390"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">}</flowPara></flowRoot>          <g
+             id="g4374"
+             transform="matrix(0.72835605,0,0,0.71693538,480.14866,15.666382)">
+            <rect
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.70030379;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+               id="rect4376"
+               width="294.66766"
+               height="25.811577"
+               x="51.200985"
+               y="61.820976"
+               ry="12.370317"
+               rx="18.918175" />
+            <rect
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.70030355;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+               id="rect4378"
+               width="293.88837"
+               height="14.699899"
+               x="51.980324"
+               y="76.125534"
+               ry="0"
+               rx="0" />
+          </g>
+          <flowRoot
+             transform="matrix(0.7181351,0,0,0.71693538,519.63013,-42.507803)"
+             style="font-style:normal;font-weight:normal;font-size:20px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d5ffd5;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             id="flowRoot4380"
+             xml:space="preserve"><flowRegion
+               id="flowRegion4382"><rect
+                 y="143.22491"
+                 x="74.751289"
+                 height="384.8681"
+                 width="347.49246"
+                 id="rect4384"
+                 style="font-size:20px;fill:#d5ffd5" /></flowRegion><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;font-family:Courier;-inkscape-font-specification:Courier;fill:#d5ffd5"
+               id="flowPara4386">config.json</flowPara></flowRoot>        </g>
+        <g
+           id="g4543"
+           transform="matrix(2.2273658,0,0,2.2315978,20.050681,5.9017509)">
+          <rect
+             rx="11.084925"
+             ry="9.0278416"
+             y="56.840946"
+             x="272.89487"
+             height="234.33975"
+             width="167.38223"
+             id="rect4434"
+             style="opacity:1;fill:#d5e5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.11502969;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+          <flowRoot
+             transform="matrix(0.7181351,0,0,0.71693538,222.51994,-18.206521)"
+             style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             id="flowRoot4436"
+             xml:space="preserve"><flowRegion
+               id="flowRegion4438"><rect
+                 y="143.22491"
+                 x="74.751289"
+                 height="384.8681"
+                 width="347.49246"
+                 id="rect4440" /></flowRegion><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4442">{</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4444">  &quot;FileLocation&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4446">  &quot;StringVariable&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4448">  &quot;DeliveryFolder&quot;: &quot;&quot;,</flowPara><flowPara
+               id="flowPara4450"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier">   ...</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4452" /><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4454">  &quot;Ref&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4456">  &quot;RefAmb&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4458">  &quot;RefAnn&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4460">  &quot;RefBwt&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4462">  &quot;RefDict&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4464">  &quot;RefFai&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4466">  &quot;RefPac&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4468">  &quot;RefSa&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4470" /><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4480">  &quot;PairedEnd&quot;: &quot;&quot;,</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara12924">  &quot;InputReads&quot;: &quot;&quot;</flowPara><flowPara
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;font-family:Courier;-inkscape-font-specification:Courier"
+               id="flowPara4482">}</flowPara></flowRoot>          <g
+             transform="matrix(0.56563443,0,0,0.71693538,244.00353,13.543474)"
+             id="g4484">
+            <rect
+               rx="18.211462"
+               ry="7.9057846"
+               y="61.820976"
+               x="52.961754"
+               height="25.811577"
+               width="292.15335"
+               id="rect4486"
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.06419635;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+            <rect
+               rx="0"
+               ry="0"
+               y="76.125534"
+               x="51.979679"
+               height="14.699899"
+               width="293.70267"
+               id="rect4488"
+               style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.06419611;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+          </g>
+          <flowRoot
+             xml:space="preserve"
+             id="flowRoot4490"
+             style="font-style:normal;font-weight:normal;font-size:20px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d5e5ff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             transform="matrix(0.7181351,0,0,0.71693538,231.5888,-44.630711)"><flowRegion
+               id="flowRegion4492"><rect
+                 style="font-size:20px;fill:#d5e5ff"
+                 id="rect4494"
+                 width="347.49246"
+                 height="384.8681"
+                 x="74.751289"
+                 y="143.22491" /></flowRegion><flowPara
+               id="flowPara4496"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;font-family:Courier;-inkscape-font-specification:Courier;fill:#d5e5ff">wdl_template.json</flowPara></flowRoot>        </g>
+        <path
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.24296868px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+           d="m 504.93776,350.31894 c 0,0 5.79316,-43.65475 65.56641,-29.30533 25.69585,6.16865 53.99583,27.05107 53.99583,27.05107"
+           id="path4607"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="csc" />
+        <flowRoot
+           xml:space="preserve"
+           id="flowRoot5701"
+           style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2a7fff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           transform="matrix(2.2273658,0,0,2.2315978,-99.19822,-546.34519)"><flowRegion
+             id="flowRegion5703"><rect
+               id="rect5705"
+               width="300.01532"
+               height="97.984795"
+               x="61.619305"
+               y="284.64627"
+               style="font-size:17.5px;fill:#2a7fff" /></flowRegion><flowPara
+             id="flowPara5707">Inputs</flowPara></flowRoot>        <flowRoot
+           transform="matrix(2.2273658,0,0,2.2315978,978.76796,-613.24781)"
+           style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2ca089;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           id="flowRoot5983"
+           xml:space="preserve"><flowRegion
+             id="flowRegion5985"><rect
+               style="font-size:17.5px;fill:#2ca089"
+               y="284.64627"
+               x="61.619305"
+               height="97.984795"
+               width="300.01532"
+               id="rect5987" /></flowRegion><flowPara
+             id="flowPara5989"
+             style="fill:#2ca089">Output</flowPara></flowRoot>      </g>
+    </g>
+  </g>
+</svg>
