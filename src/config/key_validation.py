@@ -376,9 +376,9 @@ def main():
     args = parse_args()
 
     if args.jobID is None:
-        validator = Validator()
+        validator = Validator(debug_mode=args.d)
     else:
-        validator = Validator(args.jobID, args.d)
+        validator = Validator(args.jobID, debug_mode=args.d)
 
     json_input_file = read_json_file(args.i, validator.project_logger,
                                      json_not_found_error_code="E.val.JSN.1",
