@@ -353,8 +353,8 @@ class Validator:
 
             # If the type has square brackets, it is an array (or array of arrays, etc.)
             if key_types_dict[key][0] == "[" and key_types_dict[key][-1] == "]":
+                trimmed_type = key_types_dict[key][1:-1]
                 for entry in flatten(configuration_dict[key]):
-                    trimmed_type = key_types_dict[key][1:-1]
                     key_is_valid = self.check_key(key, entry, trimmed_type)
                     if not key_is_valid:
                         sys.exit(1)
@@ -376,9 +376,9 @@ def main():
     args = parse_args()
 
     if args.jobID is None:
-        validator = Validator()
+        validator = Validator(debug_mode=args.d)
     else:
-        validator = Validator(args.jobID, args.d)
+        validator = Validator(args.jobID, debug_mode=args.d)
 
     json_input_file = read_json_file(args.i, validator.project_logger,
                                      json_not_found_error_code="E.val.JSN.1",
