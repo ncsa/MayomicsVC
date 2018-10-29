@@ -140,5 +140,6 @@ class TestParsingTools(unittest.TestCase):
 
         actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
         self.assertEqual(expected_paired_end_value, actual_paired_end_value)
+
 if __name__ == '__main__':
     unittest.main()
