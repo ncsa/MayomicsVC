@@ -353,8 +353,8 @@ class Validator:
 
             # If the type has square brackets, it is an array (or array of arrays, etc.)
             if key_types_dict[key][0] == "[" and key_types_dict[key][-1] == "]":
+                trimmed_type = key_types_dict[key][1:-1]
                 for entry in flatten(configuration_dict[key]):
-                    trimmed_type = key_types_dict[key][1:-1]
                     key_is_valid = self.check_key(key, entry, trimmed_type)
                     if not key_is_valid:
                         sys.exit(1)
