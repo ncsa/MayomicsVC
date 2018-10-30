@@ -373,14 +373,14 @@ class Validator:
 
 
 def main(args):
-    args = parse_args(args)
+    parsed_args = parse_args(args)
 
-    if args.jobID is None:
-        validator = Validator(debug_mode=args.d)
+    if parsed_args.jobID is None:
+        validator = Validator(debug_mode=parsed_args.d)
     else:
-        validator = Validator(args.jobID, debug_mode=args.d)
+        validator = Validator(parsed_args.jobID, debug_mode=parsed_args.d)
 
-    json_input_file = read_json_file(args.i, validator.project_logger,
+    json_input_file = read_json_file(parsed_args.i, validator.project_logger,
                                      json_not_found_error_code="E.val.JSN.1",
                                      json_bad_format_error_code="E.val.JSN.2"
                                      )
@@ -389,7 +389,7 @@ def main(args):
     config_dict = validator.trim_config_file_keys(json_input_file)
 
     # The key type dictionary
-    key_type_dict = read_json_file(args.KeyTypeFile, validator.project_logger,
+    key_type_dict = read_json_file(parsed_args.KeyTypeFile, validator.project_logger,
                                    json_not_found_error_code="E.val.JSN.1",
                                    json_bad_format_error_code="E.val.JSN.2"
                                    )
