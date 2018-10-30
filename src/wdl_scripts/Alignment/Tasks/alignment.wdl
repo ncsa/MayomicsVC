@@ -40,7 +40,7 @@ task alignmentTask {
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
-   String BWAExtraOptionsString          # String of extra options for BWA. This can be an empty string.
+   String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
    String DebugMode                # Flag to enable Debug Mode
 
@@ -52,8 +52,8 @@ task alignmentTask {
 
    output {
 
-      File AlignedSortedBam = "${SampleName}.aligned.sorted.bam"
-      File AlignedSortedBamBai = "${SampleName}.aligned.sorted.bam.bai"
+      File OutputBams = "${SampleName}.aligned.sorted.bam"
+      File OutputBais = "${SampleName}.aligned.sorted.bam.bai"
 
    }
 

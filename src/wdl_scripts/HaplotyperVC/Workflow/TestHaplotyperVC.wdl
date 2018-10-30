@@ -13,20 +13,21 @@ workflow CallHaplotyperVCTasks {
    
    call BQSR.bqsrTask as bqsr {
       input:
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
+         InputBams = realign.OutputBams,
+         InputBais = realign.OutputBais,
    }
 
    call HAPLOTYPER.variantCallingTask as haplotype { 
       input:
-         InputAlignedSortedDedupedRealignedBam = realign.AlignedSortedDedupedRealignedBam,
-         InputAlignedSortedDedupedRealignedBamBai = realign.AlignedSortedDedupedRealignedBamBai,
+         InputBams = realign.OutputBams,
+         InputBais = realign.OutputBais,
+         RecalTable = bqsr.RecalTable,
    }
 
    call VQSR.vqsrTask as vqsr {
       input:
-         InputVCF = haplotype.VCF,
-         InputVCFIdx = haplotype.VcfIdx,
+         InputVCF = haplotype.OutputVCF,
+         InputVCFIdx = haplotype.OutputVcfIdx,
    }
 
    

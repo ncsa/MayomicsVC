@@ -320,8 +320,6 @@ class Parser:
         """
         output_dict = starting_dict.copy()
 
-        # Add the special key, InputReads, to the dictionary
-
         # For each key-value pair that will be substituted into the dictionary
         for config_key, config_value in key_value_tuple:
             # Switch signaling whether the key from the config file was found in the json template
@@ -410,9 +408,6 @@ class Parser:
 def main():
     args = parse_args()
 
-    # List of all the input files
-    input_file_list = args.i
-
     # Instantiation of the Parser class
     if args.jobID is None:
         k_v_parser = Parser(debug_mode=args.d)
@@ -420,7 +415,7 @@ def main():
         k_v_parser = Parser(args.jobID, debug_mode=args.d)
 
     # Fill in the json template file with values from the Key="Value" formatted input files
-    k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate, args.o)
+    k_v_parser.fill_in_json_template(args.i, args.jsonTemplate, args.o)
 
 
 if __name__ == '__main__':

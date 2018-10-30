@@ -16,8 +16,8 @@
 
 task realignmentTask {
 
-   File InputAlignedSortedDedupedBam                  # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedBamBai               # Input Sorted Deduped Bam Index
+   File InputBams                                     # Input Sorted Deduped Bam
+   File InputBais                                     # Input Sorted Deduped Bam Index
 
    File Ref                                           # Reference Genome
    File RefFai                                        # Reference Index File
@@ -37,12 +37,12 @@ task realignmentTask {
  
 
    command {
-      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
+      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
    }
 
    output {
-      File AlignedSortedDedupedRealignedBam = "${SampleName}.aligned.sorted.deduped.realigned.bam"
-      File AlignedSortedDedupedRealignedBamBai = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
+      File OutputBams = "${SampleName}.aligned.sorted.deduped.realigned.bam"
+      File OutputBais = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
    }  
    
 } 
