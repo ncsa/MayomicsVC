@@ -51,7 +51,7 @@ E.val.Bug.1 = The DebugMode key had a non-empty value that was not '-d'
 """
 
 
-def parse_args():
+def parse_args(args):
     """
     By default, argparse treats all arguments that begin with '-' or '--' as optional in the help menu
         (preferring to have required arguments be positional).
@@ -74,7 +74,7 @@ def parse_args():
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
     # Debug mode is on when the flag is present and is false by default
     parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 class Validator:
@@ -372,8 +372,8 @@ class Validator:
         )
 
 
-def main():
-    args = parse_args()
+def main(args):
+    args = parse_args(args)
 
     if args.jobID is None:
         validator = Validator(debug_mode=args.d)
@@ -399,4 +399,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
