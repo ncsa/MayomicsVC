@@ -30,7 +30,10 @@ task trimsequencesTask {
    Boolean PairedEnd               # Variable to check if single ended or not
 
    File TrimSeqScript              # Bash script which is called inside the WDL script
-   File TrimEnvProfile                 # File containing the environmental profile variables
+   File TrimEnvProfile             # File containing the environmental profile variables
+
+   String SoftMemLimit             # Soft memory limit - nice shutdown
+   String HardMemLimit             # Hard memory limit - kill immediately
 
    String DebugMode                # Variable to check if Debug Mode is on or not
 
@@ -39,6 +42,11 @@ task trimsequencesTask {
       /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} -e ${TrimEnvProfile} ${DebugMode}
    }
 
+   runtime {
+      cpu: "${CutAdaptThreads}"
+      s_vmem: "${SoftMemLimit}"
+      h_vmem: "${HardMemLimit}"
+   }
 
    output {
       Array[File] Outputs = glob("${SampleName}.read?.trimmed.fq.gz")
