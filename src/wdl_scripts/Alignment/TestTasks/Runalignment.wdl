@@ -27,6 +27,7 @@ workflow RunAlignmentTask {
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
+   String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
 
    String DebugMode                # Flag to enable Debug Mode
@@ -54,6 +55,7 @@ workflow RunAlignmentTask {
                AlignmentScript=AlignmentScript,
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
+               BWAExtraOptionsString=BWAExtraOptionsString,
                DebugMode=DebugMode
          }
       }
@@ -78,6 +80,7 @@ workflow RunAlignmentTask {
                AlignmentScript=AlignmentScript,
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
+               BWAExtraOptionsString=BWAExtraOptionsString,
                DebugMode=DebugMode
          }
       }
