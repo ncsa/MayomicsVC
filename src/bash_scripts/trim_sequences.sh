@@ -68,7 +68,8 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-source /projects/bioinformatics/MRW/MayomicsVC-Dev/MayomicsVC/src/bash_scripts/log_functions.sh
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
