@@ -39,8 +39,8 @@ workflow CallAlignmentTasks {
 
    output {
      
-      File InputBams = dedup.OutputBams
-      File InputBais = dedup.OutputBais
+      File OutputBams = dedup.OutputBams
+      File OutputBais = dedup.OutputBais
    }    
     
 }
