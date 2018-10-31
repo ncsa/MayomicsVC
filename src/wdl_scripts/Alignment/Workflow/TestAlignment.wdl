@@ -33,8 +33,8 @@ workflow CallAlignmentTasks {
    
    call DEDUP.dedupTask as dedup {
       input:
-         InputBams = select_all([align_w_trim.OutputBams,align_wo_trim.OutputBams]),
-         InputBais = select_all([align_w_trim.OutputBais,align_wo_trim.OutputBais])
+         InputBams = select_first([align_w_trim.OutputBams,align_wo_trim.OutputBams]),
+         InputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
    }
 
    output {
