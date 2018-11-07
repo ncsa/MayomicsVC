@@ -46,7 +46,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o "'${BWAExtraOptionsString}'" -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
    }
 
