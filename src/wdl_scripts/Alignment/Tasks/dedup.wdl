@@ -15,23 +15,32 @@
 
 task dedupTask {
 
-   Array[File] InputBams                  # Input Sorted BAM File
-   Array[File] InputBais                  # Input Sorted Bam Index File
+   Array[File] InputBams           # Input Sorted BAM File
+   Array[File] InputBais           # Input Sorted Bam Index File
 
-   String SampleName                      # Name of the Sample
+   String SampleName               # Name of the Sample
 
-   String Sentieon                        # Variable path to Sentieon 
+   String Sentieon                 # Variable path to Sentieon 
 
-   String SentieonThreads                 # Specifies the number of thread required per run
-   String DebugMode                       # Variable to check whether Debud Mode is on
+   String SentieonThreads          # Specifies the number of thread required per run
+   String DebugMode                # Variable to check whether Debud Mode is on
 
-   File DedupScript                       # Bash script that is called inside the WDL script
-   File DedupEnvProfile                   # File containing the environmental profile variables
+   File DedupScript                # Bash script that is called inside the WDL script
+   File DedupEnvProfile            # File containing the environmental profile variables
+
+   String SoftMemLimit             # Soft memory limit - nice shutdown
+   String HardMemLimit             # Hard memory limit - kill immediately
 
    command {
 
       /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
 
+   }
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${SoftMemLimit}"
+      h_vmem: "${HardMemLimit}"
    }
 
    output {

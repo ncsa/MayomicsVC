@@ -42,12 +42,21 @@ task alignmentTask {
    String ChunkSizeInBases         # The -K option for BWA MEM
    String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
+   String SoftMemLimit             # Soft memory limit - nice shutdown
+   String HardMemLimit             # Hard memory limit - kill immediately
+
    String DebugMode                # Flag to enable Debug Mode
 
    command {
 
       /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
+   }
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${SoftMemLimit}"
+      h_vmem: "${HardMemLimit}"
    }
 
    output {
