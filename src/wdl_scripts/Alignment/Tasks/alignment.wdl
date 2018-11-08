@@ -1,7 +1,5 @@
 ###########################################################################################
-
 ##              This WDL script performs alignment using BWA Mem                         ##
-
 ##                              Script Options
 #       -t        "Number of Threads"                         (Optional)
 #       -P        "Single Ended Reads specification"          (Required)
@@ -37,6 +35,7 @@ task alignmentTask {
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
 
+   File BashPreamble               # Bash script run before every task
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
@@ -44,11 +43,10 @@ task alignmentTask {
 
    String DebugMode                # Flag to enable Debug Mode
 
-   command {
-
+   command <<<
+      source ${BashPreamble}
       /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
-
-   }
+   >>>
 
    output {
 

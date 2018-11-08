@@ -20,11 +20,13 @@ task deliverHaplotyperVCTask {
 
    File WorkflowJson                      # JSON file for the workflow
 
+   File BashPreamble
    File DeliveryHaplotyperVC_Script       # Bash script that performs the delivery
    String DeliveryFolder_HaplotyperVC     # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
+      source ${BashPreamble}
       /bin/bash ${DeliveryHaplotyperVC_Script} -s ${SampleName} -r ${InputVcf} -j ${WorkflowJson} -f ${DeliveryFolder_HaplotyperVC} ${DebugMode}
    }
 

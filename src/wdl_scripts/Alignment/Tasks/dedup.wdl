@@ -1,7 +1,5 @@
 #################################################################################################
-
 ##              This WDL script marks the duplicates on input sorted BAMs                ##
-
 #                              Script Options
 #      -b        "Input BAM File"                            (Required)      
 #      -s        "Name of the sample"                        (Optional)
@@ -10,7 +8,6 @@
 #      -O        "Directory for the Output"                  (Required)
 #      -e        "Path to the environmental profile          (Required)
 #      -d        "Debug Mode Toggle"                         (Optional)
-
 #################################################################################################
 
 task dedupTask {
@@ -25,19 +22,17 @@ task dedupTask {
    String SentieonThreads                 # Specifies the number of thread required per run
    String DebugMode                       # Variable to check whether Debud Mode is on
 
+   File BashPreamble               # shell file to source before each task
    File DedupScript                       # Bash script that is called inside the WDL script
    File DedupEnvProfile                   # File containing the environmental profile variables
 
-   command {
-
-      /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
-
-   }
+   command <<<
+   	   source ${BashPreamble}
+   	   /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+   >>>
 
    output {
-
       File OutputBams = "${SampleName}.aligned.sorted.deduped.bam"
       File OutputBais = "${SampleName}.aligned.sorted.deduped.bam.bai"
-
    }
 }

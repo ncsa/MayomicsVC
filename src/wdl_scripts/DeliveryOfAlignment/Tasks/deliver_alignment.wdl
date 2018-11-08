@@ -18,11 +18,13 @@ task deliverAlignmentTask {
 
    File WorkflowJson                      # JSON file for the workflow
 
+   File BashPreamble
    File DeliveryAlignment_Script          # Bash script that performs the delivery
    String DeliveryFolder_Alignment        # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
+      source ${BashPreamble}
       /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} ${DebugMode}
    }
 

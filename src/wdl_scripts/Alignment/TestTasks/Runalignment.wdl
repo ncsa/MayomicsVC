@@ -24,6 +24,7 @@ workflow RunAlignmentTask {
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
 
+   File BashPreamble               # Bash script to source before every task
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
@@ -37,6 +38,7 @@ workflow RunAlignmentTask {
       if(PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_paired {
             input:
+
                InputRead1=lane[0],
                InputRead2=lane[1],
                Ref=Ref,
@@ -54,6 +56,7 @@ workflow RunAlignmentTask {
                AlignmentScript=AlignmentScript,
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
+               BashPreamble = BashPreamble,
                DebugMode=DebugMode
          }
       }
@@ -78,6 +81,7 @@ workflow RunAlignmentTask {
                AlignmentScript=AlignmentScript,
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
+               BashPreamble = BashPreamble,
                DebugMode=DebugMode
          }
       }

@@ -31,23 +31,23 @@ task variantCallingTask {
    String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
 
    File DBSNP                                     # DBSNP file
-   File DBSNPIdx                                  # Index file for the DBSNPs   
-  
-   
+   File DBSNPIdx                                  # Index file for the DBSNPs
+
+
    String Sentieon                                # Path to Sentieon
    String SentieonThreads                         # No of Threads for the Tool
 
+   File BashPreamble                              # bash script to source before every task
    File HaplotyperScript                          # Path to bash script called within WDL script
    File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
    String DebugMode                               # Enable or Disable Debug Mode
 
 
-   command {
-
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
-
-   }
+   command <<<
+        source ${BashPreamble}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
+   >>>
 
   output {
    
