@@ -31,9 +31,11 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- alignment.sh      -g		<readgroup_ID>
-                   -s           <sample_name> 
+ alignment.sh      -s           <sample_name> 
                    -p		<platform>
+                   -L           <library>
+                   -f           <flowcell_ID/platform_unit>
+                   -c           <sequencing_center>
                    -l           <read1.fq> 
                    -r           <read2.fq>
                    -G		<reference_genome>
@@ -47,10 +49,10 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
+ alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
 
  NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
-        In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
+        In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
 
@@ -165,17 +167,13 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:K:o:S:t:P:e:d" OPT
+while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
                         echo -e "\n${DOCS}\n"
                         exit 0
 			;;
-                g )  # Read group ID
-                        GROUP=${OPTARG}
-			checkArg
-                        ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
 			checkArg
@@ -184,6 +182,18 @@ do
                         PLATFORM=${OPTARG}
 			checkArg
                         ;;
+		L )  # Library name
+			LIBRARY=${OPTARG}
+			checkArg
+			;;
+		f )  # Platform unit / flowcell ID
+			PLATFORM_UNIT=${OPTARG}
+			checkArg
+			;;
+		c )  # Sequencing center name
+			CENTER_NAME=${OPTARG}
+			checkArg
+			;;
                 l )  # Full path to input read 1
                         INPUT1=${OPTARG}
 			checkArg
@@ -337,15 +347,25 @@ if [[ ${CHUNK_SIZE} != 10000000 ]]
 then
 	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
 fi
-if [[ -z ${GROUP+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -g"
-fi
 if [[ -z ${PLATFORM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
+fi
+if [[ -z ${LIBRARY+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing library option: -L"
+fi
+if [[ -z ${PLATFORM_UNIT+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing platform unit / flowcell ID option: -f"
+fi
+if [[ -z ${CENTER_NAME+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing center name option: -c"
 fi
 if [[ -z ${BWA_OPTS+x}  ]]
 then
@@ -374,7 +394,7 @@ fi
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
+## FILENAME/OPTIONS PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
@@ -385,6 +405,14 @@ TOOL_LOG=${SAMPLE}.align_sentieon.log
 
 ## Parse extra options if specified
 BWA_OPTS_PARSED=`sed -e "s/'//g" <<< ${BWA_OPTS}`
+
+## Parse read group name
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	GROUP=$(basename ${INPUT1} .fastq.gz)  ## Removes path and hard-coded file extension
+else
+	GROUP=$(basename ${INPUT1} .fastq.gz)_$(basename ${INPUT2} .fastq.gz)
+fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -404,7 +432,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem  ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -415,7 +443,7 @@ then
 else # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 

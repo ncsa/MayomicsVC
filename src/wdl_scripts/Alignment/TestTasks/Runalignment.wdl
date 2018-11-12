@@ -12,6 +12,9 @@ workflow RunAlignmentTask {
    String SampleName               # Name of the Sample
    String Group                    # starting read group string
    String Platform                 # sequencing platform for read group
+   String Library                  # sequencing library for read group
+   String CenterName               # sequencing center name for read group
+   Array[String] PlatformUnit      # One platform unit per alignment task
    Boolean PairedEnd               # Variable to check if single ended or not
 
    File Ref                        # Reference Genome
@@ -49,6 +52,9 @@ workflow RunAlignmentTask {
                SampleName=SampleName,
                Group=Group,
                Platform=Platform,
+               Library=Library,
+               CenterName=CenterName,
+               PlatformUnit=PlatformUnit,
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
@@ -74,6 +80,9 @@ workflow RunAlignmentTask {
                SampleName=SampleName,
                Group=Group,
                Platform=Platform,
+               Library=Library,
+               CenterName=CenterName,
+               PlatformUnit=PlatformUnit,
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
