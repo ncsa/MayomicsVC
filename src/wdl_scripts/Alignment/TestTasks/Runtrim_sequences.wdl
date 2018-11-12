@@ -23,8 +23,8 @@ workflow RunTrimSequencesTask {
 
    String SampleName               # Name of the Sample
 
-   String SoftMemLimit             # Soft memory limit - nice shutdown
-   String HardMemLimit             # Hard memory limit - kill immediately
+   String TrimSoftMemLimit         # Soft memory limit - nice shutdown
+   String TrimHardMemLimit         # Hard memory limit - kill immediately
 
 
    scatter (lane in InputReads) {
@@ -40,8 +40,8 @@ workflow RunTrimSequencesTask {
                CutAdaptThreads=CutAdaptThreads,
                PairedEnd=PairedEnd,
                DebugMode=DebugMode,
-               SoftMemLimit=SoftMemLimit,
-               HardMemLimit=HardMemLimit,
+               TrimSoftMemLimit=TrimSoftMemLimit,
+               TrimHardMemLimit=TrimHardMemLimit,
                TrimSeqScript=TrimSeqScript,
                TrimEnvProfile=TrimEnvProfile
          }
@@ -58,8 +58,8 @@ workflow RunTrimSequencesTask {
                CutAdaptThreads=CutAdaptThreads,
                PairedEnd=PairedEnd,
                DebugMode=DebugMode,
-               SoftMemLimit=SoftMemLimit,
-               HardMemLimit=HardMemLimit,
+               TrimSoftMemLimit=TrimSoftMemLimit,
+               TrimHardMemLimit=TrimHardMemLimit,
                TrimSeqScript=TrimSeqScript,
                TrimEnvProfile=TrimEnvProfile
          }

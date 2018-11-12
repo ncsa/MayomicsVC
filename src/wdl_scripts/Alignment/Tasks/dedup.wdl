@@ -28,8 +28,8 @@ task dedupTask {
    File DedupScript                # Bash script that is called inside the WDL script
    File DedupEnvProfile            # File containing the environmental profile variables
 
-   String SoftMemLimit             # Soft memory limit - nice shutdown
-   String HardMemLimit             # Hard memory limit - kill immediately
+   String DedupSoftMemLimit        # Soft memory limit - nice shutdown
+   String DedupHardMemLimit        # Hard memory limit - kill immediately
 
    command {
 
@@ -39,8 +39,8 @@ task dedupTask {
 
    runtime {
       cpu: "${SentieonThreads}"
-      s_vmem: "${SoftMemLimit}"
-      h_vmem: "${HardMemLimit}"
+      s_vmem: "${DedupSoftMemLimit}"
+      h_vmem: "${DedupHardMemLimit}"
    }
 
    output {

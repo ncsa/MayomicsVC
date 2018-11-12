@@ -32,8 +32,8 @@ task trimsequencesTask {
    File TrimSeqScript              # Bash script which is called inside the WDL script
    File TrimEnvProfile             # File containing the environmental profile variables
 
-   String SoftMemLimit             # Soft memory limit - nice shutdown
-   String HardMemLimit             # Hard memory limit - kill immediately
+   String TrimSoftMemLimit         # Soft memory limit - nice shutdown
+   String TrimHardMemLimit         # Hard memory limit - kill immediately
 
    String DebugMode                # Variable to check if Debug Mode is on or not
 
@@ -44,8 +44,8 @@ task trimsequencesTask {
 
    runtime {
       cpu: "${CutAdaptThreads}"
-      s_vmem: "${SoftMemLimit}"
-      h_vmem: "${HardMemLimit}"
+      s_vmem: "${TrimSoftMemLimit}"
+      h_vmem: "${TrimHardMemLimit}"
    }
 
    output {

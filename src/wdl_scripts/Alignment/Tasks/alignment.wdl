@@ -42,8 +42,8 @@ task alignmentTask {
    String ChunkSizeInBases         # The -K option for BWA MEM
    String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
-   String SoftMemLimit             # Soft memory limit - nice shutdown
-   String HardMemLimit             # Hard memory limit - kill immediately
+   String AlignSoftMemLimit        # Soft memory limit - nice shutdown
+   String AlignHardMemLimit        # Hard memory limit - kill immediately
 
    String DebugMode                # Flag to enable Debug Mode
 
@@ -55,8 +55,8 @@ task alignmentTask {
 
    runtime {
       cpu: "${SentieonThreads}"
-      s_vmem: "${SoftMemLimit}"
-      h_vmem: "${HardMemLimit}"
+      s_vmem: "${AlignSoftMemLimit}"
+      h_vmem: "${AlignHardMemLimit}"
    }
 
    output {

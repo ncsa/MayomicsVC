@@ -29,8 +29,8 @@ workflow RunAlignmentTask {
    String ChunkSizeInBases         # The -K option for BWA MEM
    String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
-   String SoftMemLimit             # Soft memory limit - nice shutdown
-   String HardMemLimit             # Hard memory limit - kill immediately
+   String AlignSoftMemLimit        # Soft memory limit - nice shutdown
+   String AlignHardMemLimit        # Hard memory limit - kill immediately
 
 
    String DebugMode                # Flag to enable Debug Mode
@@ -59,8 +59,8 @@ workflow RunAlignmentTask {
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
                BWAExtraOptionsString=BWAExtraOptionsString,
-               SoftMemLimit=SoftMemLimit,
-               HardMemLimit=HardMemLimit,
+               AlignSoftMemLimit=AlignSoftMemLimit,
+               AlignHardMemLimit=AlignHardMemLimit,
                DebugMode=DebugMode
          }
       }
@@ -86,8 +86,8 @@ workflow RunAlignmentTask {
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
                BWAExtraOptionsString=BWAExtraOptionsString,
-               SoftMemLimit=SoftMemLimit,
-               HardMemLimit=HardMemLimit,
+               AlignSoftMemLimit=AlignSoftMemLimit,
+               AlignHardMemLimit=AlignHardMemLimit,
                DebugMode=DebugMode
          }
       }
