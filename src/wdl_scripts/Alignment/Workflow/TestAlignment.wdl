@@ -25,10 +25,14 @@ workflow CallAlignmentTasks {
       call ALIGNMENT.RunAlignmentTask as align_wo_trim
    }
    
+   Array[File] AlignOutputBams = select_first([align_w_trim.OutputBams,align_wo_trim.OutputBams])
+   Array[File] AlignOutputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
+
+
    call DEDUP.dedupTask as dedup {
       input:
-         InputBams = select_first([align_w_trim.OutputBams,align_wo_trim.OutputBams]),
-         InputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
+         InputBams = AlignOutputBams,
+         InputBais = AlignOutputBais
    }
 
    output {
