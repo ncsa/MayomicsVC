@@ -35,14 +35,15 @@ workflow RunAlignmentTask {
 
    String DebugMode                # Flag to enable Debug Mode
    
+   Array[Int] Indexes = range(length(InputReads))
 
-   scatter (lane in InputReads) {
+   scatter (idx in Indexes) {
 
       if(PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_paired {
             input:
-               InputRead1=lane[0],
-               InputRead2=lane[1],
+               InputRead1=InputReads[idx][0],
+               InputRead2=InputReads[idx][1],
                Ref=Ref,
                RefAmb=RefAmb,
                RefAnn=RefAnn,
@@ -54,7 +55,7 @@ workflow RunAlignmentTask {
                Platform=Platform,
                Library=Library,
                CenterName=CenterName,
-               PlatformUnit=PlatformUnit,
+               PlatformUnit=PlatformUnit[idx],
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
@@ -69,7 +70,7 @@ workflow RunAlignmentTask {
       if(!PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_single {
             input:
-               InputRead1=lane[0],
+               InputRead1=InputReads[idx][0],
                InputRead2="null",
                Ref=Ref,
                RefAmb=RefAmb,
@@ -82,7 +83,7 @@ workflow RunAlignmentTask {
                Platform=Platform,
                Library=Library,
                CenterName=CenterName,
-               PlatformUnit=PlatformUnit,
+               PlatformUnit=PlatformUnit[idx],
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
