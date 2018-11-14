@@ -10,7 +10,6 @@ workflow RunAlignmentTask {
 
    Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
    String SampleName               # Name of the Sample
-   String Group                    # starting read group string
    String Platform                 # sequencing platform for read group
    String Library                  # sequencing library for read group
    String CenterName               # sequencing center name for read group
@@ -51,7 +50,6 @@ workflow RunAlignmentTask {
                RefPac=RefPac,
                RefSa=RefSa,
                SampleName=SampleName,
-               Group=Group,
                Platform=Platform,
                Library=Library,
                CenterName=CenterName,
@@ -79,7 +77,6 @@ workflow RunAlignmentTask {
                RefPac=RefPac,
                RefSa=RefSa,
                SampleName=SampleName,
-               Group=Group,
                Platform=Platform,
                Library=Library,
                CenterName=CenterName,
