@@ -13,7 +13,6 @@
 #       -G        "Reference Genome"                          (Required)
 #       -s        "Name of the sample"                        (Optional)
 #       -S        "Path to the Sentieon Tool"                 (Required)
-#       -g        "Group"                                     (Required)
 #       -p        "Platform"                                  (Required)
 #       -o        "BWA Extra Options"                         (Required)
 #       -e        "Path to the environmental profile          (Required)
@@ -26,7 +25,6 @@ task alignmentTask {
    File InputRead1                 # Input Read File           
    String InputRead2               # Input Read File           
    String SampleName               # Name of the Sample
-   String Group                    # starting read group string
    String Platform                 # sequencing platform for read group
    String Library                  # Sequencing library for read group
    String PlatformUnit             # Platform unit / flowcell ID for read group
@@ -52,7 +50,7 @@ task alignmentTask {
 
    command {
 
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
    }
 
