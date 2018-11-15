@@ -19,40 +19,40 @@
 
 task variantCallingTask {
 
-   File InputAlignedSortedDedupedRealignedBam              # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedRealignedBamBai           # Input Sorted Deduped Bam Index
-   File RecalTable                                         # Input Recal Table after BQSR step
+   File InputBams                                 # Input Sorted Deduped Bam
+   File InputBais                                 # Input Sorted Deduped Bam Index
+   File RecalTable                                # Input Recal Table after BQSR step
 
-   File Ref                                                # Reference Genome
-   File RefFai                                             # Reference Genome index
+   File Ref                                       # Reference Genome
+   File RefFai                                    # Reference Genome index
 
-   String SampleName                                       # Name of the Sample
+   String SampleName                              # Name of the Sample
 
-   String HaplotyperExtraOptionsString                         # String of extra options for haplotyper, this can be an empty string
+   String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
 
-   File DBSNP                                              # DBSNP file
-   File DBSNPIdx                                           # Index file for the DBSNPs   
+   File DBSNP                                     # DBSNP file
+   File DBSNPIdx                                  # Index file for the DBSNPs   
   
    
-   String Sentieon                                         # Path to Sentieon
-   String SentieonThreads                                  # No of Threads for the Tool
+   String Sentieon                                # Path to Sentieon
+   String SentieonThreads                         # No of Threads for the Tool
 
-   File HaplotyperScript                                   # Path to bash script called within WDL script
-   File HaplotyperEnvProfile                               # File containing the environmental profile variables
+   File HaplotyperScript                          # Path to bash script called within WDL script
+   File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
-   String DebugMode                                        # Enable or Disable Debug Mode
+   String DebugMode                               # Enable or Disable Debug Mode
 
 
    command {
 
-      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputAlignedSortedDedupedRealignedBam} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
+      /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
 
    }
 
   output {
    
-      File VCF = "${SampleName}.vcf"
-      File VcfIdx = "${SampleName}.vcf.idx"
+      File OutputVcf = "${SampleName}.vcf"
+      File OutputVcfIdx = "${SampleName}.vcf.idx"
     
    }
 

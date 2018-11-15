@@ -41,8 +41,7 @@ task trimsequencesTask {
 
 
    output {
-      File TrimmedInputRead1 = "${SampleName}.read1.trimmed.fq.gz"
-      File TrimmedInputRead2 = "${SampleName}.read2.trimmed.fq.gz"
+      Array[File] Outputs = glob("${SampleName}.read?.trimmed.fq.gz")
    }
 
 }
