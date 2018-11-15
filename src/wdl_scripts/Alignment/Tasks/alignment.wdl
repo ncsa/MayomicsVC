@@ -13,7 +13,6 @@
 #       -G        "Reference Genome"                          (Required)
 #       -s        "Name of the sample"                        (Optional)
 #       -S        "Path to the Sentieon Tool"                 (Required)
-#       -g        "Group"                                     (Required)
 #       -p        "Platform"                                  (Required)
 #       -o        "BWA Extra Options"                         (Required)
 #       -e        "Path to the environmental profile          (Required)
@@ -51,11 +50,12 @@ task alignmentTask {
    String AlignSoftMemLimit        # Soft memory limit - nice shutdown
    String AlignHardMemLimit        # Hard memory limit - kill immediately
 
+   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Flag to enable Debug Mode
 
    command {
 
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -g ${Group} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
 
    }
 

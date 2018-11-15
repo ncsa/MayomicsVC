@@ -23,6 +23,7 @@ task dedupTask {
    String Sentieon                 # Variable path to Sentieon 
 
    String SentieonThreads          # Specifies the number of thread required per run
+   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Variable to check whether Debud Mode is on
 
    File DedupScript                # Bash script that is called inside the WDL script

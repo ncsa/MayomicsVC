@@ -35,6 +35,7 @@ task trimsequencesTask {
    String TrimSoftMemLimit         # Soft memory limit - nice shutdown
    String TrimHardMemLimit         # Hard memory limit - kill immediately
 
+   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Variable to check if Debug Mode is on or not
 
 
