@@ -25,7 +25,6 @@ task alignmentTask {
    File InputRead1                 # Input Read File           
    String InputRead2               # Input Read File           
    String SampleName               # Name of the Sample
-   String Group                    # starting read group string
    String Platform                 # sequencing platform for read group
    String Library                  # Sequencing library for read group
    String PlatformUnit             # Platform unit / flowcell ID for read group
