@@ -14,6 +14,11 @@
         ]
     ],
     "major.minor.PairedEnd": "false",
+    "major.minor.PlatformUnit": [
+        "A",
+        "B",
+        "C"
+    ],
     "major.minor.REF": "ref.fa",
     "major.minor.ValueWithQuotes": "\"'InBetweenQuotes'\"",
     "major.minor.test_boolean": "true",

@@ -338,7 +338,12 @@ class Parser:
                     #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
                     trimmed_value = config_value[1:-1]
 
-                    output_dict[dict_key] = trimmed_value
+                    # Special case where the value should be split into an array
+                    if dict_key_suffix == "PlatformUnit":
+                        print("trimmed_value: " + trimmed_value)
+                        output_dict[dict_key] = trimmed_value.split(",")
+                    else:
+                        output_dict[dict_key] = trimmed_value
 
                     # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
                     self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value)
