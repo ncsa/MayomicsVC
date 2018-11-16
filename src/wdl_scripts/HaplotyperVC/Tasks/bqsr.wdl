@@ -35,6 +35,7 @@ task bqsrTask {
    File BqsrScript                       # Path to bash script called within WDL script
    File BqsrEnvProfile                   # File containing the environmental profile variables
 
+   File SharedFunctionsScript            # Bash script with shared functions
    String DebugMode                      # Enable or Disable Debug Mode
 
 

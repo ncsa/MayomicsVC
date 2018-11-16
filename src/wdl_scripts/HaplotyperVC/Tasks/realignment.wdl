@@ -29,6 +29,7 @@ task realignmentTask {
    String Sentieon                                    # Path to Sentieon
    String SentieonThreads                             # No of Threads for the Tool
 
+   File SharedFunctionsScript                         # Bash script with shared functions
    String DebugMode                                   # Enable or Disable Debug Mode
    
    File RealignmentScript                             # Path to bash script called within WDL script

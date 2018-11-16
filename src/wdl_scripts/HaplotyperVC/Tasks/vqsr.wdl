@@ -39,6 +39,7 @@ task vqsrTask {
    File VqsrScript                      # Path to bash script called within WDL script
    File VqsrEnvProfile                  # File containing the environmental profile variables
 
+   File SharedFunctionsScript           # Bash script with shared functions
    String DebugMode                     # Enable or Disable Debug Mode
 
 
