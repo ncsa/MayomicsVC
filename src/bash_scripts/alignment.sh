@@ -31,24 +31,28 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- alignment.sh      -g		<readgroup_ID>
-                   -s           <sample_name> 
+ alignment.sh      -s           <sample_name> 
                    -p		<platform>
+                   -L           <library>
+                   -f           <flowcell_ID/platform_unit>
+                   -c           <sequencing_center>
                    -l           <read1.fq> 
                    -r           <read2.fq>
                    -G		<reference_genome>
                    -K		<chunk_size_in_bases> 
+                   -o		<additional_bwa_options>
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
                    -P		paired-end reads (true/false)
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -g readgroup_ID -s sample -p platform -l read1.fq -r read2.fq -G reference.fa -K 10000000 -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -P true -d
+ alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
 
- NOTE: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+ NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+        In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
 
@@ -78,72 +82,8 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-# Get date and time information
-function getDate()
-{
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
-
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-
-    if [[ -z ${EXITCODE+x} ]]; then
-        EXITCODE=1
-    fi
-
-    exit ${EXITCODE};
-}
-
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function checkArg()
-{
-    if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
-        echo -e "\n${DOCS}\n"
-        exit 1;
-    fi
-}
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -163,17 +103,13 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hg:s:p:l:r:G:K:S:L:t:P:d" OPT
+while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
                         echo -e "\n${DOCS}\n"
                         exit 0
 			;;
-                g )  # Read group ID
-                        GROUP=${OPTARG}
-			checkArg
-                        ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
 			checkArg
@@ -182,6 +118,18 @@ do
                         PLATFORM=${OPTARG}
 			checkArg
                         ;;
+		L )  # Library name
+			LIBRARY=${OPTARG}
+			checkArg
+			;;
+		f )  # Platform unit / flowcell ID
+			PLATFORM_UNIT=${OPTARG}
+			checkArg
+			;;
+		c )  # Sequencing center name
+			CENTER_NAME=${OPTARG}
+			checkArg
+			;;
                 l )  # Full path to input read 1
                         INPUT1=${OPTARG}
 			checkArg
@@ -198,14 +146,14 @@ do
 			CHUNK_SIZE=${OPTARG}
 			checkArg
 			;;
-                S )  # Full path to sentieon directory
+		o )  # Additional BWA MEM options to pass into the Sentieon command
+			BWA_OPTS=${OPTARG}
+			checkArg
+			;;
+		S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license
-			LICENSE=${OPTARG}
-			checkArg
-			;;
                 t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
@@ -213,6 +161,10 @@ do
                 P )  # Is this a paired-end process? [true/false] Invoked with -P
                         IS_PAIRED_END=${OPTARG}
 			checkArg
+                        ;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
@@ -255,6 +207,15 @@ truncate -s 0 ${SAMPLE}.align_sentieon.log
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
 
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUT1+x} ]]
@@ -322,15 +283,30 @@ if [[ ${CHUNK_SIZE} != 10000000 ]]
 then
 	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
 fi
-if [[ -z ${GROUP+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -g"
-fi
 if [[ -z ${PLATFORM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
+fi
+if [[ -z ${LIBRARY+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing library option: -L"
+fi
+if [[ -z ${PLATFORM_UNIT+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing platform unit / flowcell ID option: -f"
+fi
+if [[ -z ${CENTER_NAME+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing center name option: -c"
+fi
+if [[ -z ${BWA_OPTS+x}  ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line ${LINENO}. \nREASON=Missing additional BWA MEM options option: -O"
 fi
 if [[ -z ${SENTIEON+x} ]]
 then
@@ -341,11 +317,6 @@ if [[ ! -d ${SENTIEON} ]]
 then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${LICENSE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
 fi
 if [[ -z ${THR+x} ]]
 then
@@ -359,7 +330,7 @@ fi
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
+## FILENAME/OPTIONS PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
@@ -368,6 +339,16 @@ SORTBAM=${SAMPLE}.aligned.sorted.bam
 SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
 TOOL_LOG=${SAMPLE}.align_sentieon.log
 
+## Parse extra options if specified
+BWA_OPTS_PARSED=`sed -e "s/'//g" <<< ${BWA_OPTS}`
+
+## Parse read group name
+if [[ "${IS_PAIRED_END}" == false ]]
+then
+	GROUP=$(basename ${INPUT1} .fastq.gz)  ## Removes path and hard-coded file extension
+else
+	GROUP=$(basename ${INPUT1} .fastq.gz)_$(basename ${INPUT2} .fastq.gz)
+fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -385,10 +366,9 @@ logInfo "[BWA-MEM] START."
 ## BWA-MEM command, run for each read against a reference genome. 
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
-	export SENTIEON_LICENSE=${LICENSE}
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -397,10 +377,9 @@ then
                 logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
         fi
 else # Paired-end reads aligned
-	export SENTIEON_LICENSE=${LICENSE}
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${SENTIEON}/bin/bwa mem -M -R "@RG\tID:$GROUP\tSM:${SAMPLE}\tPL:${PLATFORM}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 

@@ -35,13 +35,13 @@ read -r -d '' DOCS << DOCS
                    -G		<reference_genome>
                    -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
                    -S           </path/to/sentieon> 
-                   -L		<sentieon_license>
                    -t           <threads> 
+                   -e           </path/to/env_profile_file>
                    -d           turn on debug mode
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -L sentieon_license_number -t 12 -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -73,72 +73,8 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-# Get date and time information
-function getDate()
-{
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
-
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-
-    if [[ -z ${EXITCODE+x} ]]; then
-        EXITCODE=1
-    fi
-
-    exit ${EXITCODE};
-}
-
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function checkArg()
-{
-    if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
-        echo -e "\n${DOCS}\n"
-        exit 1;
-    fi
-}
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -158,7 +94,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:G:k:S:L:t:d" OPT
+while getopts ":hs:b:G:k:S:t:e:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -185,13 +121,13 @@ do
                         SENTIEON=${OPTARG}
 			checkArg
                         ;;
-		L )  # Sentieon license number
-			LICENSE=${OPTARG}
-			checkArg
-			;;
                 t )  # Number of threads available
                         THR=${OPTARG}
 			checkArg
+                        ;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
@@ -232,6 +168,15 @@ truncate -s 0 ${SAMPLE}.realign_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
 
 ## Check if input files, directories, and variables are non-zero
 if [[ -z ${INPUTBAM+x} ]]
@@ -274,11 +219,6 @@ then
 	EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
 fi
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon license option: -L"
-fi
 if [[ -z ${THR+x} ]]
 then
         EXITCODE=1
@@ -316,7 +256,6 @@ OUT=${SAMPLE}.aligned.sorted.deduped.realigned.bam
 logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
 
 ## Sentieon Realigner command.
-export SENTIEON_LICENSE=${LICENSE}
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1

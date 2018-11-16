@@ -4,6 +4,8 @@
 ## haplotyper.sh MANIFEST, USAGE DOCS, SET CHECKS
 #------------------------------------------------------------------------------------------------------------------------------
 
+
+
 read -r -d '' MANIFEST << MANIFEST
 *******************************************
 `readlink -m $0`
@@ -32,18 +34,20 @@ read -r -d '' DOCS << DOCS
  USAGE:
  Haplotyper.sh     -s 	<sample_name>
 		   -S	</path/to/sentieon>
-		   -L	<sentieon_license>
 		   -G	<reference_genome>
 		   -t	<threads>
 		   -b	<sorted.deduped.realigned.bam>
 		   -D	<dbsnp.vcf>
 		   -r	<recal_data.table>
+		   -o	<extra_haplotyper_options>
+                   -e   </path/to/env_profile_file>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/env_profile_file -d 
 
+NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ##########################################################################################################################################################
 
 
@@ -63,78 +67,9 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
-# Get date and time information
-function getDate()
-{
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
 
-
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-
-
-#SEVERITY=ERROR
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-
-    if [[ -z ${EXITCODE+x} ]]; then
-        EXITCODE=1
-    fi
-
-    exit ${EXITCODE};
-}
-
-
-#SEVERITY=WARN
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-#SEVERITY=INFO
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function checkArg()
-{
-    if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
-        echo -e "\n${DOCS}\n "
-        exit 1;
-    fi
-}
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -150,7 +85,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:L:G:t:b:D:r:d" OPT
+while getopts ":hs:S:G:t:b:D:r:o:e:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -163,10 +98,6 @@ do
 			;;
 		S ) # Full path to sentieon directory
 			SENTIEON=${OPTARG}
-			checkArg
-			;;
-		L ) # Sentieon license number
-			LICENSE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to referance genome fasta file
@@ -189,6 +120,14 @@ do
 			RECAL=${OPTARG}
 			checkArg
 			;;
+		o ) #Extra options and arguments to haplotyper, input as a long string, can be empty if desired
+			HAPLOTYPER_OPTIONS=${OPTARG}
+			checkArg
+			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		d ) # Turn on debug mode. Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -226,6 +165,16 @@ truncate -s 0 "${ERRLOG}"
 truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
+
 
 ## Check if Sentieon path is present
 if [[ -z ${SENTIEON+x} ]]
@@ -305,6 +254,12 @@ then
         logError "$0 stopped at line $LINENO. \nREASON=Missing RECAL_DATA.TABLE option: -r"
 fi
 
+if [[ -z ${HAPLOTYPER_OPTIONS+x} ]]
+then
+	EXITCODE=1
+	logError "$0 stopped at line $LINENO. \nREASON=Missing extra haplotyper options option: -o"
+fi
+
 ## Check if the Recal_data.table file produced in BQSR is present
 if [[ ! -s ${RECAL} ]]
 then
@@ -312,13 +267,15 @@ then
 	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist."
 fi
 
-## Check if Sentieon license string is present.
-if [[ -z ${LICENSE+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon license option: -L"
-fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
+
+
+
+
+
+
+
 
 
 
@@ -330,12 +287,11 @@ fi
 ## Record start time
 logInfo "[Haplotyper] START."
 
-export SENTIEON_LICENSE=${LICENSE}
 
 #Execute Sentieon with the Haplotyper algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

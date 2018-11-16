@@ -32,16 +32,16 @@ read -r -d '' DOCS << DOCS
  USAGE:
  bqsr.sh -s 	<sample_name>
 	 -S 	</path/to/sentieon> 
-	 -L	<sentieon_license>
 	 -G 	<reference_genome>
 	 -t 	<threads>
 	 -b 	<sorted.deduped.realigned.bam>
 	 -k 	<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
+         -e     </path/to/env_profile_file>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/sentieon_directory -L sentieon_license_number -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -d 
+ bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -d 
 
 ############################################################################################################################
 
@@ -64,81 +64,9 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
-# Get date and time information
-function getDate()
-{   
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
 
-
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-  
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-
-
-#SEVERITY=ERROR
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-
-    if [[ -z ${EXITCODE+x} ]]
-    then
-	EXITCODE=1
-    fi 
-
-
-    exit ${EXITCODE};
-}
-
-
-#SEVERITY=WARN
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-
-#SEVERITY=INFO
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function checkArg()
-{
-    if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
-        echo -e "\n${DOCS}\n"
-        exit 1;
-    fi
-}
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -155,7 +83,7 @@ then
 fi
 
 
-while getopts ":hs:S:L:G:t:b:k:d" OPT
+while getopts ":hs:S:G:t:b:k:e:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -168,10 +96,6 @@ do
 			;;
 		S ) # Full path to Sentieon
 			SENTIEON=${OPTARG}
-			checkArg
-			;;
-		L ) # Sentieon license number
-			LICENSE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to reference fasta
@@ -190,6 +114,10 @@ do
 			KNOWN=${OPTARG}
 			checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -234,6 +162,15 @@ truncate -s 0 ${SAMPLE}.bqsr_sentieon.log
 
 ## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
+then
+        source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
+fi
 
 ## Check if the Sentieon executable option was passed in.
 if [[ -z ${SENTIEON+x} ]]
@@ -297,13 +234,6 @@ then
 	EXITCODE=1
 	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
 fi
-
-## Check if Sentieon license string is present.
-if [[ -z ${LICENSE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon license option: -L"
-fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -332,7 +262,6 @@ SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 ## Record start time
 logInfo "[bqsr] START. Performing bqsr on the input BAM to produce bqsr table."
 
-export SENTIEON_LICENSE=${LICENSE}
 
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))

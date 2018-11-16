@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## dedup.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_alignment.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -25,21 +25,20 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deduplicate BAMs with Sentieon. Part of the MayomicsVC Workflow.
+# Deliver results of Design Block 1: trim-seq, align, sort, dedup. 
+# Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- dedup.sh          -s           <sample_name> 
-                   -b		<lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
-                   -d           turn on debug mode
+ deliver_alignment.sh       -b           <aligned.sorted.deduped.bam>
+                          -j           <WorkflowJSONfile>
+                          -f           </path/to/delivery_folder>
+                          -d           turn on debug mode
 
  EXAMPLES:
- dedup.sh -h
- dedup.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -d
+ deliver_alignment.sh -h     # get help message
+ deliver_alignment.sh -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -d
 
 #############################################################################
 
@@ -56,7 +55,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=dedup.sh
+SCRIPT_NAME=deliver_alignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -70,8 +69,73 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+## Logging functions
+# Get date and time information
+function getDate()
+{
+    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
+}
+
+# This is "private" function called by the other logging functions, don't call it directly,
+# use logError, logWarn, etc.
+function _logMsg () {
+    echo -e "${1}"
+
+    if [[ -n ${ERRLOG-x} ]]; then
+        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
+    fi
+}
+
+function logError()
+{
+    local LEVEL="ERROR"
+    local CODE="-1"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+
+    if [[ -z ${EXITCODE+x} ]]; then
+        EXITCODE=1
+    fi
+
+    exit ${EXITCODE};
+}
+
+function logWarn()
+{
+    local LEVEL="WARN"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function logInfo()
+{
+    local LEVEL="INFO"
+    local CODE="0"
+
+    if [[ ! -z ${2+x} ]]; then
+        CODE="${2}"
+    fi
+
+    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
+}
+
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -91,31 +155,27 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:t:e:d" OPT
+while getopts ":hs:b:j:f:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-		s )  # Sample name
-			SAMPLE=${OPTARG}
-			checkArg
-			;;
-                b )  # Full path to the input BAM or list of BAMS
-                        INPUTBAM=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
+                        checkArg
+                        ;;
+                b )  # Full path to the input BAM file
+                        BAM=${OPTARG}
 			checkArg
                         ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
+                        checkArg
                         ;;
-                t )  # Number of threads available
-                        THR=${OPTARG}
-			checkArg
-                        ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                f )  # Path to delivery folder
+                        DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
@@ -151,55 +211,52 @@ then
 fi
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_alignment.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup_sentieon.log
+truncate -s 0 ${SAMPLE}.deliver_alignment.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
-
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUTBAM+x} ]]
+if [[ -z ${BAM+x} ]]
 then
         EXITCODE=1
         logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
 fi
-for LANE in $(echo ${INPUTBAM} | sed "s/,/ /g")
-do
-	if [[ ! -s ${LANE} ]]
-	then 
-		EXITCODE=1
-        	logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${LANE} is empty or does not exist."
-	fi
-	if [[ ! -s ${LANE}.bai ]]
-	then
-		EXITCODE=1
-        	logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${LANE}.bai is empty or does not exist."
-	fi
-done
-if [[ -z ${SENTIEON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
+if [[ ! -s ${BAM} ]]
+then 
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${BAM} is empty or does not exist."
 fi
-if [[ ! -d ${SENTIEON} ]]
+if [[ ! -s ${BAM}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${BAM}.bai is empty or does not exist."
 fi
-if [[ -z ${THR+x} ]]
+if [[ -z ${JSON+x} ]]
 then
         EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
+fi
+if [[ ! -s ${JSON} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
+fi
+if [[ -z ${DELIVERY_FOLDER+x} ]]
+then
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
+fi
+if [[ -d ${DELIVERY_FOLDER} ]]
+then
+	EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
+elif [[ -f ${DELIVERY_FOLDER} ]]
+then 
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -209,77 +266,16 @@ fi
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Defining file names
-samplename=${SAMPLE}
-SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.aligned.sorted.deduped.bam
-OUTBAMIDX=${SAMPLE}.aligned.sorted.deduped.bam.bai
-DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
-
-BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
-MERGED_BAM=${SAMPLE}.aligned.sorted.bam
-
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## BAM Merging
+## MAKE DELIVERY FOLDER
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Merging BAMs if list was given."
+logInfo "[DELIVERY] Creating the Delivery folder."
 
-## Locus Collector command
+## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM merging error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${BAMS} --algo ReadWriter ${MERGED_BAM} >> ${SAMPLE}.dedup_sentieon.log 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[SENTIEON] BAM merging finished; starting Locus Collector."
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## DEDUPLICATION STAGE
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
-
-## Locus Collector command
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
-
-## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${MERGED_BAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating Design Block 1 delivery folder. " ' INT TERM EXIT
+mkdir -p ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -287,7 +283,59 @@ if [[ ${EXITCODE} -ne 0 ]]
 then
         logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
 fi
-logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
+logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DELIVERY
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
+
+## Copy the files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM into delivery folder. " ' INT TERM EXIT
+cp ${BAM} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
+
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
+cp ${BAM}.bai ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Aligned sorted deduped BAM.BAI delivered."
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+if [[ ${EXITCODE} -ne 0 ]]
+then
+        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
+fi
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -299,23 +347,31 @@ logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index. Open read permissions to the user group
-if [[ ! -s ${OUT} ]]
+## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
+BAM_NAME=`basename ${BAM}`
+if [[ ! -s ${DELIVERY_FOLDER}/${BAM_NAME} ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM file ${OUT} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${BAM_NAME} is empty."
 fi
-if [[ ! -s ${OUTBAMIDX} ]]
+if [[ ! -s ${DELIVERY_FOLDER}/${BAM_NAME}.bai ]]
 then
 	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output deduplicated BAM index file ${OUTBAMIDX} is empty."
+        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${BAM_NAME}.bai is empty."
+fi
+JSON_FILENAME=`basename ${JSON}` 
+if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
+then
+       EXITCODE=1
+       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
 fi
 
-chmod g+r ${MERGED_BAM}
-chmod g+r ${OUT}
-chmod g+r ${OUTBAMIDX}
-chmod g+r ${DEDUPMETRICS}
-chmod g+r ${SCORETXT}
+chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}
+chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}.bai
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
+
+
+logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 

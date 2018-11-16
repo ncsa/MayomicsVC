@@ -36,12 +36,12 @@ read -r -d '' DOCS << DOCS
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
-                   -p		</path/to/python_env_var> (optional; use if python installs are dynamically linked)
+                   -e		</path/to/env_profile_file>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -p /path/to/python_env_var -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
 
 #############################################################################
 
@@ -67,72 +67,9 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
-# Get date and time information
-function getDate()
-{
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
-  
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-  
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-  
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-    
-    if [[ -z ${EXITCODE+x} ]]; then
-        EXITCODE=1
-    fi
-    
-    exit ${EXITCODE};
-}
-  
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-  
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-  
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-  
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
 
-function checkArg()
-{
-    if [[ "${OPTARG}" == -* ]]; then
-        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
-        echo -e "\n${DOCS}\n"
-        exit 1;
-    fi
-}
+LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
+source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -151,7 +88,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:p:d" OPT
+while getopts ":hl:r:A:C:t:P:s:e:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -186,8 +123,8 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		p )  # Path to python-specific environmental variables
-			PY_ENV=${OPTARG}
+		e )  # Path to file with environmental profile variables
+			ENV_PROFILE=${OPTARG}
 			checkArg
 			;;
 		d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
@@ -230,10 +167,13 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## If provided, source the python environmental variables
-if [[ ! -z ${PY_ENV+x} ]]
+## source the file with environmental profile variables
+if [[ ! -z ${ENV_PROFILE+x} ]]
 then
-	source ${PY_ENV}
+	source ${ENV_PROFILE}
+else
+        EXITCODE=1
+        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
 fi
 
 ## Check existence and var type of inputs

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys
 
 if sys.version_info[0] != 3 or sys.version_info[1] < 6:
@@ -7,6 +8,20 @@ if sys.version_info[0] != 3 or sys.version_info[1] < 6:
 
 import json
 
+def flatten(input_container):
+    """
+    :param container: collection of lists and tuples with arbitrary nesting levels
+    :return: A 1-D list of the input's contents
+    """
+    def __flattener(container):
+        for i in container:
+            if isinstance(i, (list, tuple)):
+                for j in __flattener(i):
+                    yield j
+            else:
+                yield i
+
+    return list(__flattener(input_container))
 
 def read_json_file(json_file, project_logger, json_not_found_error_code, json_bad_format_error_code):
     """
