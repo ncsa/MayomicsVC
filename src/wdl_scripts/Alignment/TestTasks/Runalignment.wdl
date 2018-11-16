@@ -10,8 +10,10 @@ workflow RunAlignmentTask {
 
    Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
    String SampleName               # Name of the Sample
-   String Group                    # starting read group string
    String Platform                 # sequencing platform for read group
+   String Library                  # sequencing library for read group
+   String CenterName               # sequencing center name for read group
+   Array[String] PlatformUnit      # One platform unit per alignment task
    Boolean PairedEnd               # Variable to check if single ended or not
 
    File Ref                        # Reference Genome
@@ -28,19 +30,21 @@ workflow RunAlignmentTask {
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
+   String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
 
 
    String DebugMode                # Flag to enable Debug Mode
    
+   Array[Int] Indexes = range(length(InputReads))
 
-   scatter (lane in InputReads) {
+   scatter (idx in Indexes) {
 
       if(PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_paired {
             input:
 
-               InputRead1=lane[0],
-               InputRead2=lane[1],
+               InputRead1=InputReads[idx][0],
+               InputRead2=InputReads[idx][1],
                Ref=Ref,
                RefAmb=RefAmb,
                RefAnn=RefAnn,
@@ -48,8 +52,10 @@ workflow RunAlignmentTask {
                RefPac=RefPac,
                RefSa=RefSa,
                SampleName=SampleName,
-               Group=Group,
                Platform=Platform,
+               Library=Library,
+               CenterName=CenterName,
+               PlatformUnit=PlatformUnit[idx],
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
@@ -57,6 +63,7 @@ workflow RunAlignmentTask {
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
                BashPreamble = BashPreamble,
+               BWAExtraOptionsString=BWAExtraOptionsString,
                DebugMode=DebugMode
          }
       }
@@ -64,7 +71,7 @@ workflow RunAlignmentTask {
       if(!PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_single {
             input:
-               InputRead1=lane[0],
+               InputRead1=InputReads[idx][0],
                InputRead2="null",
                Ref=Ref,
                RefAmb=RefAmb,
@@ -73,8 +80,10 @@ workflow RunAlignmentTask {
                RefPac=RefPac,
                RefSa=RefSa,
                SampleName=SampleName,
-               Group=Group,
                Platform=Platform,
+               Library=Library,
+               CenterName=CenterName,
+               PlatformUnit=PlatformUnit[idx],
                PairedEnd=PairedEnd,
                Sentieon=Sentieon,
                SentieonThreads=SentieonThreads,
@@ -82,6 +91,7 @@ workflow RunAlignmentTask {
                AlignEnvProfile=AlignEnvProfile,
                ChunkSizeInBases=ChunkSizeInBases,
                BashPreamble = BashPreamble,
+               BWAExtraOptionsString=BWAExtraOptionsString,
                DebugMode=DebugMode
          }
       }
