@@ -80,9 +80,9 @@ class Validator:
     def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger (with the level at INFO by default and DEBUG if in debug mode)
         if debug_mode:
-            self.project_logger = ProjectLogger(job_id, "key_validation.Validator", logging.DEBUG)
+            self.project_logger = ProjectLogger(job_id, "validator.key_validation.Validator", logging.DEBUG)
         else:
-            self.project_logger = ProjectLogger(job_id, "key_validation.Validator")
+            self.project_logger = ProjectLogger(job_id, "validator.key_validation.Validator")
         self.job_id = job_id
         self.debug_mode = debug_mode
 
