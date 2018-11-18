@@ -8,12 +8,12 @@ import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
 
 import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
-import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl_scripts/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
-import "src/wdl_scripts/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
-import "src/wdl_scripts/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 
-import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
+import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "src/wdl_scripts/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "src/wdl_scripts/SomaticVC/Tasks/mutect.wdl" as MUTECT
+
+import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_HaplotyperVC
 
 
 workflow MasterWF {
