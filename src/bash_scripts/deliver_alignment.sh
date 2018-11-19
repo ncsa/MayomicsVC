@@ -19,8 +19,6 @@ echo -e "${MANIFEST}"
 
 
 
-
-
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -31,21 +29,20 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- deliver_alignment.sh       -b           <aligned.sorted.deduped.bam>
+ deliver_alignment.sh     -s           <sample_name>
+                          -b           <aligned.sorted.deduped.bam>
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
+                          -F           </path/to/shared_functions.sh>
                           -d           turn on debug mode
 
  EXAMPLES:
  deliver_alignment.sh -h     # get help message
- deliver_alignment.sh -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -d
+ deliver_alignment.sh -s sample_name -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
 DOCS
-
-
-
 
 
 
@@ -56,10 +53,9 @@ set -o pipefail
 set -o nounset
 
 SCRIPT_NAME=deliver_alignment.sh
-SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -68,65 +64,6 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
-
-## Logging functions
-# Get date and time information
-function getDate()
-{
-    echo "$(date +%Y-%m-%d'T'%H:%M:%S%z)"
-}
-
-# This is "private" function called by the other logging functions, don't call it directly,
-# use logError, logWarn, etc.
-function _logMsg () {
-    echo -e "${1}"
-
-    if [[ -n ${ERRLOG-x} ]]; then
-        echo -e "${1}" | sed -r 's/\\n//'  >> "${ERRLOG}"
-    fi
-}
-
-function logError()
-{
-    local LEVEL="ERROR"
-    local CODE="-1"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    >&2 _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-
-    if [[ -z ${EXITCODE+x} ]]; then
-        EXITCODE=1
-    fi
-
-    exit ${EXITCODE};
-}
-
-function logWarn()
-{
-    local LEVEL="WARN"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
-
-function logInfo()
-{
-    local LEVEL="INFO"
-    local CODE="0"
-
-    if [[ ! -z ${2+x} ]]; then
-        CODE="${2}"
-    fi
-
-    _logMsg "[$(getDate)] ["${LEVEL}"] [${SCRIPT_NAME}] [${SGE_JOB_ID-NOJOB}] [${SGE_TASK_ID-NOTASK}] [${CODE}] \t${1}"
-}
 
 function checkArg()
 {
@@ -137,7 +74,6 @@ function checkArg()
     fi
 }
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -178,6 +114,10 @@ do
                         DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
+                F )  # Path to shared_functions.sh
+                        SHARED_FUNCTIONS=${OPTARG}
+                        checkArg
+                        ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -193,8 +133,6 @@ do
         esac
 done
 
-#-------------------------------------------------------------------------------------------------------------------------------
-
 
 
 
@@ -203,12 +141,11 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+
+source ${SHARED_FUNCTIONS}
+
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-        exit 1
-fi
+checkVar ${SAMPLE} "Missing sample name option: -s"
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.deliver_alignment.${SGE_JOB_ID}.log
@@ -219,47 +156,14 @@ truncate -s 0 ${SAMPLE}.deliver_alignment.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${BAM+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
-fi
-if [[ ! -s ${BAM} ]]
-then 
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input sorted BAM file ${BAM} is empty or does not exist."
-fi
-if [[ ! -s ${BAM}.bai ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Sorted BAM index file ${BAM}.bai is empty or does not exist."
-fi
-if [[ -z ${JSON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing JSON option: -j"
-fi
-if [[ ! -s ${JSON} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input JSON ${JSON} is empty or does not exist."
-fi
-if [[ -z ${DELIVERY_FOLDER+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing delivery folder option: -f"
-fi
-if [[ -d ${DELIVERY_FOLDER} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} already exists."
-elif [[ -f ${DELIVERY_FOLDER} ]]
-then 
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivery folder ${DELIVERY_FOLDER} is in fact a file."
-fi
+checkVar ${BAM} "Missing BAM option: -b"
+checkFile ${BAM} "Input BAM file ${BAM} is empty or does not exist."
+checkFile ${BAM}.bai "Input BAM index file ${BAM}.bai is empty or does not exist."
 
-#-------------------------------------------------------------------------------------------------------------------------------
+checkVar ${JSON} "Missing JSON option: -j"
+checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist."
+
+checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f"
 
 
 
@@ -272,17 +176,14 @@ fi
 ## Record start time
 logInfo "[DELIVERY] Creating the Delivery folder."
 
-## Copy the files over
+## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating Design Block 1 delivery folder. " ' INT TERM EXIT
-mkdir -p ${DELIVERY_FOLDER}
+makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}"
 EXITCODE=$?
 trap - INT TERM EXIT
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
+checkExitcode ${EXITCODE}
 logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
 
 
@@ -301,28 +202,21 @@ logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
 ## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${BAM} ${DELIVERY_FOLDER}
+cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.bam
 EXITCODE=$?
 trap - INT TERM EXIT
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
+checkExitcode ${EXITCODE}
 logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${BAM}.bai ${DELIVERY_FOLDER}
+cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
 EXITCODE=$?
 trap - INT TERM EXIT
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[DELIVERY] Aligned sorted deduped BAM.BAI delivered."
+checkExitcode ${EXITCODE}
 
 ## Copy the JSON over
 TRAP_LINE=$(($LINENO + 1))
@@ -331,13 +225,7 @@ cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-logInfo "[DELIVERY] Workflow JSON delivered."
-
-#-------------------------------------------------------------------------------------------------------------------------------
+checkExitcode ${EXITCODE}
 
 
 
@@ -348,37 +236,19 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
-BAM_NAME=`basename ${BAM}`
-if [[ ! -s ${DELIVERY_FOLDER}/${BAM_NAME} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Delivered deduplicated BAM file ${DELIVERY_FOLDER}/${BAM_NAME} is empty."
-fi
-if [[ ! -s ${DELIVERY_FOLDER}/${BAM_NAME}.bai ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Deliveredt deduplicated BAM index file ${DELIVERY_FOLDER}/${BAM_NAME}.bai is empty."
-fi
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam "Delivered BAM file ${DELIVERY_FOLDER}/${SAMPLE}.bam is empty"
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai "Delivered BAM index file ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai is empty"
+
 JSON_FILENAME=`basename ${JSON}` 
-if [[ ! -s ${DELIVERY_FOLDER}/${JSON_FILENAME} ]]
-then
-       EXITCODE=1
-       logError "$0 stopped at line ${LINENO}. \nREASON=Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty."
-fi
+checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty"
 
 chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}
 chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}.bai
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
-
 logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
