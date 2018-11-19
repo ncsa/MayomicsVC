@@ -23,6 +23,8 @@ workflow MasterWF {
    #############################################################
 
    call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq
+      input:
+         InputReads = TumorInputRead1,
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
