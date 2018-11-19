@@ -13,19 +13,21 @@
 
 task deliverHaplotyperVCTask {
 
-   File RecalibratedVcf                   # VCF File
-   File RecalibratedVcfIdx                # VCF.IDX File
+   File InputVcf                          # VCF File
+   File InputVcfIdx                       # VCF.IDX File
 
    String SampleName                      # Name of the Sample
 
    File WorkflowJson                      # JSON file for the workflow
 
-   File DeliveryHaplotyperVC_Script           # Bash script that performs the delivery
-   String DeliveryFolder_HaplotyperVC         # Path to delivery folder
+   File BashPreamble
+   File DeliveryHaplotyperVC_Script       # Bash script that performs the delivery
+   String DeliveryFolder_HaplotyperVC     # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
-      /bin/bash ${DeliveryHaplotyperVC_Script} -s ${SampleName} -r ${RecalibratedVcf} -j ${WorkflowJson} -f ${DeliveryFolder_HaplotyperVC} ${DebugMode}
+      source ${BashPreamble}
+      /bin/bash ${DeliveryHaplotyperVC_Script} -s ${SampleName} -r ${InputVcf} -j ${WorkflowJson} -f ${DeliveryFolder_HaplotyperVC} ${DebugMode}
    }
 
 }

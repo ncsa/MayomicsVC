@@ -43,7 +43,7 @@ E.par.InR.3 = PairedEnd was true but the InputRead2 lists was empty
 """
 
 
-def parse_args():
+def parse_args(args):
     """
     By default, argparse treats all arguments that begin with '-' or '--' as optional in the help menu
       (preferring to have required arguments be positional).
@@ -67,7 +67,7 @@ def parse_args():
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
     # Debug mode is on when the flag is present and is false by default
     parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 class Parser:
@@ -320,8 +320,6 @@ class Parser:
         """
         output_dict = starting_dict.copy()
 
-        # Add the special key, InputReads, to the dictionary
-
         # For each key-value pair that will be substituted into the dictionary
         for config_key, config_value in key_value_tuple:
             # Switch signaling whether the key from the config file was found in the json template
@@ -340,7 +338,12 @@ class Parser:
                     #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
                     trimmed_value = config_value[1:-1]
 
-                    output_dict[dict_key] = trimmed_value
+                    # Special case where the value should be split into an array
+                    if dict_key_suffix == "PlatformUnit":
+                        print("trimmed_value: " + trimmed_value)
+                        output_dict[dict_key] = trimmed_value.split(",")
+                    else:
+                        output_dict[dict_key] = trimmed_value
 
                     # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
                     self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value)
@@ -407,22 +410,19 @@ class Parser:
         )
 
 
-def main():
-    args = parse_args()
-
-    # List of all the input files
-    input_file_list = args.i
+def main(args):
+    parsed_args = parse_args(args)
 
     # Instantiation of the Parser class
-    if args.jobID is None:
-        k_v_parser = Parser(debug_mode=args.d)
+    if parsed_args.jobID is None:
+        k_v_parser = Parser(debug_mode=parsed_args.d)
     else:
-        k_v_parser = Parser(args.jobID, debug_mode=args.d)
+        k_v_parser = Parser(parsed_args.jobID, debug_mode=parsed_args.d)
 
     # Fill in the json template file with values from the Key="Value" formatted input files
-    k_v_parser.fill_in_json_template(input_file_list, args.jsonTemplate, args.o)
+    k_v_parser.fill_in_json_template(parsed_args.i, parsed_args.jsonTemplate, parsed_args.o)
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 

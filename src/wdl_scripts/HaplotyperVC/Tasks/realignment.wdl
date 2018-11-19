@@ -16,8 +16,8 @@
 
 task realignmentTask {
 
-   File InputAlignedSortedDedupedBam                  # Input Sorted Deduped Bam
-   File InputAlignedSortedDedupedBamBai               # Input Sorted Deduped Bam Index
+   File InputBams                                     # Input Sorted Deduped Bam
+   File InputBais                                     # Input Sorted Deduped Bam Index
 
    File Ref                                           # Reference Genome
    File RefFai                                        # Reference Index File
@@ -30,19 +30,18 @@ task realignmentTask {
    String SentieonThreads                             # No of Threads for the Tool
 
    String DebugMode                                   # Enable or Disable Debug Mode
-   
+
+   File BashPreamble                                  # Bash script to source before every task
    File RealignmentScript                             # Path to bash script called within WDL script
    File RealignEnvProfile                             # File containing the environmental profile variables
 
- 
-
-   command {
-      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputAlignedSortedDedupedBam} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
-   }
+   command <<<
+      source ${BashPreamble}
+      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
+   >>>
 
    output {
-      File AlignedSortedDedupedRealignedBam = "${SampleName}.aligned.sorted.deduped.realigned.bam"
-      File AlignedSortedDedupedRealignedBamBai = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
+      File OutputBams = "${SampleName}.aligned.sorted.deduped.realigned.bam"
+      File OutputBais = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
    }  
-   
 } 

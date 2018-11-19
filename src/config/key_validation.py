@@ -51,7 +51,7 @@ E.val.Bug.1 = The DebugMode key had a non-empty value that was not '-d'
 """
 
 
-def parse_args():
+def parse_args(args):
     """
     By default, argparse treats all arguments that begin with '-' or '--' as optional in the help menu
         (preferring to have required arguments be positional).
@@ -74,7 +74,7 @@ def parse_args():
     parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
     # Debug mode is on when the flag is present and is false by default
     parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 class Validator:
@@ -353,8 +353,8 @@ class Validator:
 
             # If the type has square brackets, it is an array (or array of arrays, etc.)
             if key_types_dict[key][0] == "[" and key_types_dict[key][-1] == "]":
+                trimmed_type = key_types_dict[key][1:-1]
                 for entry in flatten(configuration_dict[key]):
-                    trimmed_type = key_types_dict[key][1:-1]
                     key_is_valid = self.check_key(key, entry, trimmed_type)
                     if not key_is_valid:
                         sys.exit(1)
@@ -372,15 +372,15 @@ class Validator:
         )
 
 
-def main():
-    args = parse_args()
+def main(args):
+    parsed_args = parse_args(args)
 
-    if args.jobID is None:
-        validator = Validator()
+    if parsed_args.jobID is None:
+        validator = Validator(debug_mode=parsed_args.d)
     else:
-        validator = Validator(args.jobID, args.d)
+        validator = Validator(parsed_args.jobID, debug_mode=parsed_args.d)
 
-    json_input_file = read_json_file(args.i, validator.project_logger,
+    json_input_file = read_json_file(parsed_args.i, validator.project_logger,
                                      json_not_found_error_code="E.val.JSN.1",
                                      json_bad_format_error_code="E.val.JSN.2"
                                      )
@@ -389,7 +389,7 @@ def main():
     config_dict = validator.trim_config_file_keys(json_input_file)
 
     # The key type dictionary
-    key_type_dict = read_json_file(args.KeyTypeFile, validator.project_logger,
+    key_type_dict = read_json_file(parsed_args.KeyTypeFile, validator.project_logger,
                                    json_not_found_error_code="E.val.JSN.1",
                                    json_bad_format_error_code="E.val.JSN.2"
                                    )
@@ -399,4 +399,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
