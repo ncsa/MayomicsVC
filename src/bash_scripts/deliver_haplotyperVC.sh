@@ -91,7 +91,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:r:j:f:d" OPT
+while getopts ":hs:r:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 

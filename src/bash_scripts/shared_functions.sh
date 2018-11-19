@@ -93,10 +93,10 @@ function checkArg()
 
 function checkVar()
 {
-	if [[ ! -z ${1+x} ]]
+	if [[ -z "$1" ]]
 	then
 		EXITCODE=1
-		logError "$0 stopped at line ${LINENO}. \nREASON=$2"
+		logError "$0 stopped at line $3. \nREASON=$2"
 	fi
 }
 
@@ -109,11 +109,12 @@ function checkDir()
 	then
 		EXITCODE=1
                 REASON="$2 does not exist"
-		logError "$0 stopped at line $LINENO. \nREASON=${REASON}"
+		logError "$0 stopped at line $3. \nREASON=${REASON}"
         elif [[ -f $1 ]]
         then
                 EXITCODE=1
                 REASON="$2 is in fact a file"
+                logError "$0 stopped at line $3. \nREASON=${REASON}"
 	fi
 }
 
@@ -128,11 +129,12 @@ function makeDir()
         then
                 EXITCODE=1
                 REASON="$2 already exists"
-                logError "$0 stopped at line $LINENO. \nREASON=${REASON}"
+                logError "$0 stopped at line $3. \nREASON=${REASON}"
         elif [[ -f $1 ]]
         then
                 EXITCODE=1
                 REASON="$2 is in fact a file"
+                logError "$0 stopped at line $3. \nREASON=${REASON}"
         fi
 }
 
@@ -145,7 +147,7 @@ function checkFile()
 	if [[ ! -s $1 ]]
 	then
         	EXITCODE=1
-        	logError "$0 stopped at line $LINENO. \nREASON=$2"
+        	logError "$0 stopped at line $3. \nREASON=$2"
 	fi
 }
 
@@ -156,7 +158,7 @@ function checkExitcode()
 {
         if [[ $1 -ne 0 ]]
         then
-                logError "$0 stopped at line ${LINENO} with exit code $1."
+                logError "$0 stopped at line $3 with exit code $1."
         fi
 }
 
