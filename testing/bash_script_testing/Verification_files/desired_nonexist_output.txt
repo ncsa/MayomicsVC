@@ -1,0 +1,27 @@
+command line input: -Q garbage
+*****************************************************************************
+
+Invalid option: -Q
+
+#############################################################################
+#
+# Trim input sequences using Cutadapt. Part of the MayomicsVC Workflow.
+# 
+#############################################################################
+
+ USAGE:
+ trim_sequences.sh -s 		<sample_name> 
+                   -A 		<adapters.fa> 
+                   -l 		<read1.fq> 
+                   -r 		<read2.fq> 
+                   -C 		</path/to/cutadapt> 
+                   -t 		<threads> 
+                   -P 		paired-end reads (true/false)
+                   -e		</path/to/env_profile_file>
+                   -d 		turn on debug mode 
+
+ EXAMPLES:
+ trim_sequences.sh -h
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
+
+#############################################################################

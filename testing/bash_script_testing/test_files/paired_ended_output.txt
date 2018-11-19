@@ -1,0 +1,6 @@
+called by: jallen17 on Mon Nov 19 16:53:45 CST 2018
+command line input: -s outputs/paired_ended_output -l inputs/Chr1_read1.fq -r inputs/Chr1_read2.fq -A inputs/toy_adapters.fa -C /usr/bin/ -t 0 -P true -e inputs/env.txt
+*****************************************************************************
+[2018-11-19T16:53:45-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
+[2018-11-19T16:53:45-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Trimmed adapters in inputs/toy_adapters.fa from input sequences. CUTADAPT log: outputs/paired_ended_output.cutadapt.log
+[2018-11-19T16:53:45-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Finished trimming adapter sequences.

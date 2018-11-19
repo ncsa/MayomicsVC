@@ -1,0 +1,59 @@
+This is cutadapt 1.15 with Python 3.6.6
+Command line parameters: -a file:inputs/toy_adapters.fa --cores=0 -o outputs/paired_ended_output.read1.trimmed.fq.gz inputs/Chr1_read1.fq
+Running on 1 core
+Trimming 3 adapters with at most 10.0% errors in single-end mode ...
+Finished in 0.04 s (42 us/read; 1.42 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:                   1,000
+Reads with adapters:                        31 (3.1%)
+Reads written (passing filters):         1,000 (100.0%)
+
+Total basepairs processed:       100,000 bp
+Total written (filtered):         99,893 bp (99.9%)
+
+=== Adapter Adapter1 ===
+
+Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 17 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-33 bp: 3
+
+Bases preceding removed adapters:
+  A: 5.9%
+  C: 47.1%
+  G: 41.2%
+  T: 5.9%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+3	11	15.6	0	11
+4	5	3.9	0	5
+5	1	1.0	0	1
+
+=== Adapter Adapter2 ===
+
+Sequence: CAAGCAGAAGACGGCATACGAGCTCTTCCGATCT; Type: regular 3'; Length: 34; Trimmed: 14 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
+
+Bases preceding removed adapters:
+  A: 21.4%
+  C: 35.7%
+  G: 14.3%
+  T: 28.6%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+3	9	15.6	0	9
+4	3	3.9	0	3
+5	2	1.0	0	2
+
+=== Adapter Adapter3 ===
+
+Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 0 times.
+
