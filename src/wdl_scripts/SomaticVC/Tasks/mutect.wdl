@@ -1,6 +1,6 @@
 ###########################################################################################
 
-##              This WDL script performs tumor/normal Variant Calling  using strelka     ##
+##              This WDL script performs tumor/normal Variant Calling  using mutect     ##
 
 ##                                Script Options
 #               -t        "Number of Threads"                                     (Optional)
@@ -8,15 +8,15 @@
 #               -T        "Input Sorted Deduped Tumor Bam"                        (Required)
 #               -N        "Input Sorted Deduped Normal Bam"                       (Required)
 #               -s        "Name of the sample"                                    (Optional)
-#               -o        "Strelka Extra Options"                                 (Required)
-#               -S        "Path to the Strelka Tool"                              (Required)
+#               -o        "Mutect Extra Options"                                  (Required)
+#               -S        "Path to the Mutect Tool"                               (Required)
 #               -e        "Path to the environmental profile                      (Required)
 #               -d        "debug mode on/off                        (Optional: can be empty)
 #
 
 ############################################################################################
 
-task strelkaTask {
+task mutectTask {
 
    File TumorBams                                 # Input Sorted Deduped Tumor Bam
    File TumorBais                                 # Input Sorted Deduped Tumor Bam Index
@@ -28,21 +28,21 @@ task strelkaTask {
 
    String SampleName                              # Name of the Sample
 
-   String StrelkaExtraOptionsString               # String of extra options for strelka, this can be an empty string
+   String MutectExtraOptionsString                # String of extra options for mutect, this can be an empty string
 
-   String Strelka                                 # Path to Strelka 
-   String StrelkaThreads                          # No of Threads for the Tool
+   String Mutect                                  # Path to Mutect 
+   String MutectThreads                           # No of Threads for the Tool
 
    File BashPreamble                              # bash script to source before every task
-   File StrelkaScript                             # Path to bash script called within WDL script
-   File StrelkaEnvProfile                         # File containing the environmental profile variables
+   File MutectScript                              # Path to bash script called within WDL script
+   File MutectEnvProfile                          # File containing the environmental profile variables
 
    String DebugMode                               # Enable or Disable Debug Mode
 
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -S ${Strelka} -G ${Ref} -t ${StrelkaThreads} -T ${TumorBams} -N ${NormalBams} -o ${StrelkaExtraOptionsString} -e ${StrelkaEnvProfile} ${DebugMode}
+        /bin/bash ${MutectScript} -s ${SampleName} -S ${Mutect} -G ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} ${DebugMode}
    >>>
 
   output {
