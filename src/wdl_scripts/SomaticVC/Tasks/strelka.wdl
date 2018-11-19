@@ -16,43 +16,38 @@
 
 ############################################################################################
 
-task variantCallingTask {
+task strelkaTask {
 
-   File InputBams                                 # Input Sorted Deduped Bam
-   File InputBais                                 # Input Sorted Deduped Bam Index
-   File RecalTable                                # Input Recal Table after BQSR step
+   File TumorBams                                 # Input Sorted Deduped Tumor Bam
+   File TumorBais                                 # Input Sorted Deduped Tumor Bam Index
+   File NormalBams                                # Input Sorted Deduped Normal Bam
+   File NormalBais                                # Input Sorted Deduped Normal Bam Index
 
    File Ref                                       # Reference Genome
    File RefFai                                    # Reference Genome index
 
    String SampleName                              # Name of the Sample
 
-   String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
+   String StrelkaExtraOptionsString               # String of extra options for strelka, this can be an empty string
 
-   File DBSNP                                     # DBSNP file
-   File DBSNPIdx                                  # Index file for the DBSNPs
-
-
-   String Sentieon                                # Path to Sentieon
-   String SentieonThreads                         # No of Threads for the Tool
+   String Strelka                                 # Path to Strelka 
+   String StrelkaThreads                          # No of Threads for the Tool
 
    File BashPreamble                              # bash script to source before every task
-   File HaplotyperScript                          # Path to bash script called within WDL script
-   File HaplotyperEnvProfile                      # File containing the environmental profile variables
+   File StrelkaScript                             # Path to bash script called within WDL script
+   File StrelkaEnvProfile                         # File containing the environmental profile variables
 
    String DebugMode                               # Enable or Disable Debug Mode
 
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -T ${TumorBams} -N ${NormalBams} -o ${StrelkaExtraOptionsString} -e ${StrelkaEnvProfile} ${DebugMode}
    >>>
 
   output {
-   
       File OutputVcf = "${SampleName}.vcf"
       File OutputVcfIdx = "${SampleName}.vcf.idx"
-    
    }
 
 }
