@@ -18,11 +18,18 @@ import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELI
 
 workflow MasterWF {
 
+   Array[Array[File]] NormalInputReads
+   Array[Array[File]] TumorInputReads
+
 
    ######     Alignment subworkflow for Tumor sample      ######
    #############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq
+   call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
+      input: 
+         InputReads = TumorInputReads 
+   }
+
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
@@ -47,7 +54,10 @@ workflow MasterWF {
    ######     Alignment subworkflow for Normal sample      ######
    ##############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq
+   call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
+      input:
+         InputReads = NormalInputReads
+   }
 
    call ALIGNMENT.RunAlignmentTask as NormalAlign {
       input:

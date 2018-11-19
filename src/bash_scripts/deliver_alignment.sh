@@ -217,6 +217,7 @@ EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
+logInfo "[DELIVERY] Aligned sorted deduped BAM index delivered."
 
 ## Copy the JSON over
 TRAP_LINE=$(($LINENO + 1))
@@ -226,7 +227,7 @@ EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
-
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
@@ -242,11 +243,11 @@ checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai "Delivered BAM index file ${DELIV
 JSON_FILENAME=`basename ${JSON}` 
 checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty"
 
-chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}
-chmod g+r ${DELIVERY_FOLDER}/${BAM_NAME}.bai
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
-logInfo "[DELIVERY] Design Block 1 delivered. Have a nice day."
+logInfo "[DELIVERY] Alignment block delivered. Have a nice day."
 
 
 ## END
