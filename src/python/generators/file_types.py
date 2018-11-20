@@ -9,10 +9,8 @@ class FileType:
 
         self.in_use: bool = False
 
-
-
     def mark_as_used(self):
-        self.inUse = True
+        self.in_use = True
 
 
 FASTQ = FileType(name="fastq", input_variable_name="InputReads", output_variable_name="OutputReads")

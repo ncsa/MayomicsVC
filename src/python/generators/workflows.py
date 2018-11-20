@@ -17,8 +17,10 @@ Exit code Rules:
 
 Error Code List
 ========================================================================================================================
+E.wfg.Bad.1 = Workflow was created without passing in either a task list or a task list file
 E.wfg.InO.1 = A task could not infer the location of one of its inputs from any upstream tasks
 E.wfg.BIn.1 = An input task name was not a valid task
+E.wfg.Ord.1 = The task list had tasks that were out of order
 """
 
 
@@ -26,9 +28,8 @@ class Workflow:
 
     INDENT = "   "
 
-    def __init__(self, workflow_name, task_list_file, debug_mode, job_id="NA"):
+    def __init__(self, workflow_name, debug_mode, job_id="NA", input_file: str=None, task_list: List[Task]=None):
         self.workflow_name = workflow_name
-        self.task_list: List[Task] = Workflow.__process_task_list_file(task_list_file)
 
         # Initialize the project logger
         if debug_mode:
@@ -37,27 +38,49 @@ class Workflow:
             self.project_logger = ProjectLogger(job_id, "generators.workflows.Workflow")
         self.job_id = job_id
 
+        # Either input_file or task_list must be set
+        if input_file is not None:
+            self.task_list: List[Task] = Workflow.__process_task_list_file(self, input_file)
+        elif task_list is not None:
+            self.task_list: List[Task] = task_list
+        else:
+            self.project_logger.log_error("E.wfg.Bad.1", "Must use either interactive mode or pass in an input file")
+
+    def __validate_task_order(self, tasks):
+        """
+        Given a list of tasks, assures that their ranks are in ascending order
+
+        If tasks are out of order, an error is thrown
+
+        :param tasks: A list of Task objects
+        """
+        for i in range(0, len(tasks) - 2):
+            task_1 = tasks[i]
+            task_2 = tasks[i + 1]
+
+            if task_1.rank >= task_2.rank:
+                self.project_logger.log_error(
+                    "E.wfg.Ord.1", "Cannot have " + task_1.alias.upper() + "before " + task_2.alias.upper()
+                )
+                sys.exit(1)
+
     def __process_task_list_file(self, file_path: str) -> List[FileType]:
-        def throw_error(input_string):
-            self.project_logger.log_error("E.wfg.BIn.1",
-                                          "The input task : " + input_string + " is not a valid task name"
-                                          )
-            sys.exit(1)
-
-        type_dict: Dict[str, FileType] = {
-            "CUTADAPTTRIM": CUTADAPTTRIM,
-            "ALIGNMENT": ALIGNMENT,
-            "DEDUP": DEDUP,
-            "DELIVER_ALIGNMENT": DELIVER_ALIGNMENT,
-            "BQSR": BQSR,
-            "HAPLOTYPER": HAPLOTYPER,
-            "VQSR": VQSR
-        }
-
         with open(file_path, "r") as F:
             trimmed_lines = [line.strip() for line in F]
 
-        return [type_dict.get(i.upper(), throw_error(i)) for i in trimmed_lines]
+        tasks = []
+
+        for i in trimmed_lines:
+            upper_i = i.upper()
+            if upper_i in task_dict.keys():
+                tasks.append(task_dict.get(upper_i))
+            else:
+                self.project_logger.log_error("E.wfg.BIn.1", "The input task : " + i + " is not a valid task name")
+                sys.exit(1)
+
+        # Verify that the tasks are not out of order (throw an error otherwise)
+        self.__validate_task_order(tasks)
+        return tasks
 
     @staticmethod
     def __format_import_statement(node: Task):
@@ -124,7 +147,7 @@ class Workflow:
                     sys.exit(1)
             task.mark_dependencies_found()
 
-    def process_task_list(self):
+    def __process_task_list(self):
         for index, task in enumerate(self.task_list):
             self.__find_dependencies(task, index)
 
@@ -155,7 +178,7 @@ class Workflow:
             lines.append(first_line_fragment)
         return lines
 
-    def construct_output_lines(self):
+    def __construct_output_lines(self):
         import_lines = self.__construct_import_lines()
 
         workflow_line = "workflow " + self.workflow_name + " {"
@@ -171,9 +194,10 @@ class Workflow:
 
         return import_lines + ["", workflow_line] + task_lines + [final_line]
 
+    def create_and_write_wdl_file(self, output_file):
+        self.__process_task_list()
+        lines = self.__construct_output_lines()
 
-
-
-
-
-
+        with open(output_file, "w") as F:
+            for line in lines:
+                F.write(line + "\n")
