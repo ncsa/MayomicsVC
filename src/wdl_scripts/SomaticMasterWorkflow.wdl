@@ -116,7 +116,7 @@ workflow MasterWF {
    call MERGE.mergeSomaticVcfTask as merge_somatic_vcf {
       input:
          InputStrelkaVcf = strelka.OutputVcf,
-         InputStrelksVcfIdx = strelka.OutputVcfIdx,
+         InputStrelkaVcfIdx = strelka.OutputVcfIdx,
          InputMutectVcf = mutect.OutputVcf,
          InputMutectVcfIdx = mutect.OutputVcfIdx
    }
