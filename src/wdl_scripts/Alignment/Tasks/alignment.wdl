@@ -39,7 +39,8 @@ task alignmentTask {
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
 
-   File BashPreamble               # Bash script run before every task
+   File BashPreamble               # Bash script that helps control zombie processes
+   File BashSharedFunctions        # Bash script that contains shared helpful functions
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
@@ -49,7 +50,7 @@ task alignmentTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
 

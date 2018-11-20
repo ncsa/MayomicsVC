@@ -158,7 +158,7 @@ function checkExitcode()
 {
         if [[ $1 -ne 0 ]]
         then
-                logError "$0 stopped at line $3 with exit code $1."
+                logError "$0 stopped at line $2 with exit code $1."
         fi
 }
 

@@ -45,11 +45,12 @@ read -r -d '' DOCS << DOCS
                    -t           <threads> 
                    -P		paired-end reads (true/false)
                    -e           </path/to/env_profile_file>
+                   -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -d
+ alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
  NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
         In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
@@ -72,20 +73,21 @@ SCRIPT_NAME=alignment.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
-#-------------------------------------------------------------------------------------------------------------------------------
-
-
-
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -103,7 +105,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:e:d" OPT
+while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -166,6 +168,10 @@ do
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
+                F )  # Path to shared_functions.sh
+                        SHARED_FUNCTIONS=${OPTARG}
+                        checkArg
+                        ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
                         set -x
@@ -182,7 +188,6 @@ do
         esac
 done
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -192,12 +197,11 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+
+source ${SHARED_FUNCTIONS}
+
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-        exit 1
-fi
+checkVar ${SAMPLE} "Missing sample name option: -s"
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.alignment.${SGE_JOB_ID}.log
@@ -207,37 +211,17 @@ truncate -s 0 ${SAMPLE}.align_sentieon.log
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-
 ## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
+checkVar ${ENV_PROFILE} "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
 
 ## Check if input files, directories, and variables are non-zero
-if [[ -z ${INPUT1+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
-fi
-if [[ ! -s ${INPUT1} ]]
-then 
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
-fi
-if [[ -z ${INPUT2+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
-fi
-if [[ -z ${IS_PAIRED_END+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P"
-fi
+checkVar ${INPUT1} "Missing read 1 option: -l" $LINENO
+checkFile ${INPUT1} "Input read 1 file ${INPUT1} is empty or does not exist." $LINENO
+checkVar ${INPUT2} "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
+
+checkVar ${IS_PAIRED_END} "Missing paired-end option: -P" $LINENO
+
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
 	EXITCODE=1
@@ -245,11 +229,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-	if [[ ! -s ${INPUT2} ]]
-	then
-		EXITCODE=1
-		logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
-	fi
+        checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
 	if [[ "${INPUT2}" == null ]]
 	then
 		EXITCODE=1
@@ -264,66 +244,24 @@ then
 		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
 	fi
 fi
-if [[ -z ${REFGEN+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
-fi
-if [[ ! -s ${REFGEN} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
-fi
-if [[ -z ${CHUNK_SIZE+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count."
-fi
+
+checkVar ${REFGEN} "Missing reference genome option: -G" $LINENO
+checkFile ${REFGEN} "Reference genome file ${REFGEN} is empty or does not exist." $LINENO
+
+checkVar ${CHUNK_SIZE} "Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count." $LINENO
 if [[ ${CHUNK_SIZE} != 10000000 ]]
 then
 	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
 fi
-if [[ -z ${PLATFORM+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing platform option: -p"
-fi
-if [[ -z ${LIBRARY+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing library option: -L"
-fi
-if [[ -z ${PLATFORM_UNIT+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing platform unit / flowcell ID option: -f"
-fi
-if [[ -z ${CENTER_NAME+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing sequencing center name option: -c"
-fi
-if [[ -z ${BWA_OPTS+x}  ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Missing additional BWA MEM options option: -O"
-fi
-if [[ -z ${SENTIEON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
-fi
-if [[ ! -d ${SENTIEON} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=BWA directory ${SENTIEON} is not a directory or does not exist."
-fi
-if [[ -z ${THR+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
-fi
-#-------------------------------------------------------------------------------------------------------------------------------
+
+checkVar ${PLATFORM} "Missing sequencing platform option: -p" $LINENO
+checkVar ${LIBRARY} "Missing sequencing library option: -L" $LINENO
+checkVar ${PLATFORM_UNIT} "Missing platform unit / flowcell ID option: -f" $LINENO
+checkVar ${CENTER_NAME} "Missing sequencing center name option: -c" $LINENO
+checkVar ${BWA_OPTS} "Missing additional BWA MEM options option: -O" $LINENO
+checkVar ${SENTIEON} "Missing Sentieon path option: -S" $LINENO
+checkDir ${SENTIEON} "REASON=BWA directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar ${THR} "Missing threads option: -t" $LINENO
 
 
 
@@ -371,34 +309,20 @@ then
 	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
-
-	if [[ ${EXITCODE} -ne 0 ]]
-        then
-                logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-        fi
-else # Paired-end reads aligned
+        checkExitcode ${EXITCODE} $LINENO
+else 
+        # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
 	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
-
-        if [[ ${EXITCODE} -ne 0 ]]
-        then
-                logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	fi
+        checkExitcode ${EXITCODE} $LINENO
 fi
 
-if [[ ! -s ${OUT} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Output SAM ${OUT} is empty."
-fi
-
-
+checkFile ${OUT} "Output SAM ${OUT} is empty." $LINENO
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -416,14 +340,10 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM conversion and so
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
 logInfo "[SENTIEON] Converted output to BAM format and sorted."
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -434,16 +354,8 @@ logInfo "[SENTIEON] Converted output to BAM format and sorted."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check if BAM and index were created. Open read permissions to the user group
-if [[ ! -s ${SORTBAM} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM ${SORTBAM} is empty."
-fi
-if [[ ! -s ${SORTBAMIDX} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output sorted BAM index ${SORTBAMIDX} is empty."
-fi
+checkFile ${SORTBAM} "Output sorted BAM ${SORTBAM} is empty." $LINENO
+checkFile ${SORTBAMIDX} "Output sorted BAM ${SORTBAMIDX} is empty." $LINENO
 
 chmod g+r ${OUT}
 chmod g+r ${SORTBAM}

@@ -93,7 +93,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:e:d" OPT
+while getopts ":hl:r:A:C:t:P:s:e:F:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -177,13 +177,14 @@ echo "${MANIFEST}" >> "${ERRLOG}"
 checkVar ${ENV_PROFILE} "Missing environmental profile option: -e" $LINENO
 source ${ENV_PROFILE}
 
-## Check existence and var type of inputs
+##  Check if input files, directories, and variables are non-zero
 checkVar ${ADAPTERS} "Missing adapters file option: -A" $LINENO
 checkFile ${ADAPTERS} "Adapters fasta file ${ADAPTERS} is empty or does not exist." $LINENO
 checkVar ${INPUT1} "Missing read 1 option: -l" $LINENO
 checkFile ${INPUT1} "Input read 1 file ${INPUT1} is empty or does not exist." $LINENO
 checkVar ${INPUT2} "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
-checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
+
+checkVar ${IS_PAIRED_END} "Missing paired-end option: -P" $LINENO
 
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
@@ -192,11 +193,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-        if [[ ! -s ${INPUT2} ]]
-        then
-		EXITCODE=1
-                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
-        fi
+        checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
 	if [[ "${INPUT2}" == null ]]
 	then
 		EXITCODE=1
