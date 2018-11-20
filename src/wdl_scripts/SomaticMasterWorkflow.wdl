@@ -113,7 +113,7 @@ workflow MasterWF {
          NormalBais = NormalRealign.OutputBais
    }
 
-   call MERGE.mergeSomaticVcf as merge_somatic_vcf {
+   call MERGE.mergeSomaticVcfTask as merge_somatic_vcf {
       input:
          InputStrelkaVcf = strelka.OutputVcf,
          InputStrelksVcfIdx = strelka.OutputVcfIdx,
@@ -123,8 +123,8 @@ workflow MasterWF {
 
    call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
       input:
-         InputMergedVcf = merge_somatic_vcf.OutputVcf,
-         InputMergedVcfIdx = merge_somatic_vcf.OutputVcfIdx,
+         InputVcf = merge_somatic_vcf.OutputVcf,
+         InputVcfIdx = merge_somatic_vcf.OutputVcfIdx,
    } 
 
 }
