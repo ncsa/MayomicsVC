@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## deliver_haplotyperVC.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_somaticVC.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -23,22 +23,22 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deliver results of HaplotyperVC block: vcf for snps and indels, their index files, and workflow JSON. 
+# Deliver results of SomaticVC block: vcf for snps and indels, their index files, and workflow JSON. 
 # Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- deliver_haplotyperVC.sh  -s           <sample_name>
-                          -r           <RecalibratedVcf> 
+ deliver_somaticVC.sh     -s           <sample_name>
+                          -r           <ResultantVcf> 
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
                           -F           </path/to/shared_functions.sh>
                           -d           turn on debug mode
 
  EXAMPLES:
- deliver_haplotyperVC.sh -h
- deliver_haplotyperVC.sh -s sample_name -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ deliver_somaticVC.sh -h
+ deliver_somaticVC.sh -s sample_name -r ResultantVcf.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -52,7 +52,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=deliver_haplotyperVC.sh
+SCRIPT_NAME=deliver_somaticVC.sh
 SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -102,7 +102,7 @@ do
                         SAMPLE=${OPTARG}
 			checkArg
                         ;;
-                r )  # Full path to the recalibrated VCF file
+                r )  # Full path to the VCF file
                         VCF=${OPTARG}
                         checkArg
                         ;;
@@ -148,9 +148,9 @@ source ${SHARED_FUNCTIONS}
 checkVar ${SAMPLE} "Missing sample name option: -s"
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_somaticVC.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
+truncate -s 0 ${SAMPLE}.deliver_somaticVC.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -178,13 +178,13 @@ logInfo "[DELIVERY] Creating the Delivery folder."
 
 ## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating SomaticVC block delivery folder. " ' INT TERM EXIT
 makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}"
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
-logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
+logInfo "[DELIVERY] Created the SomaticVC block delivery folder."
 
 
 
@@ -197,7 +197,7 @@ logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
+logInfo "[DELIVERY] Copying SomaticVC block outputs into Delivery folder."
 
 ## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
@@ -247,7 +247,7 @@ chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
-logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
+logInfo "[DELIVERY] SomaticVC block delivered. Have a nice day."
 
 
 ## END
