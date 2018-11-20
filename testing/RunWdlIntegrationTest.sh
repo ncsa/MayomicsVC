@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EXAMPLE USAGE 
-# ./AutomatingTesting.sh /projects/mgc/Project_1/LSM/CleaningUpWDLtails/Multilane src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
+# ./AutomatingTesting.sh /path/to/test/folder src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
 
 
 
@@ -43,10 +43,6 @@ cd ${TestingMayomics};
 source /etc/profile.d/modules.sh
 module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34;
 module load python/python-3.6.1;
-#CROMWELL=/usr/local/apps/bioapps/cromwell/cromwell-34/cromwell-34.jar
-#WOMTOOL=/usr/local/apps/bioapps/cromwell/cromwell-34/womtool-34.jar
-#export PATH=/usr/local/apps/bioapps/python/Python-3.6.1:/usr/local/apps/bioapps/python/Python-3.6.1/bin:${PATH}
-#export LD_LIBRARY_PATH=/usr/local/apps/bioapps/python/Python-3.6.1/lib:${PATH}
 
 
 
