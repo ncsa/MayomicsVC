@@ -1,11 +1,6 @@
 #################################################################################################
 
-##              This WDL script delivers output of alignment Block                             ##
-
-#                              Script Options
-#      -b        "BAM File"                                  (Required)      
-#      -f        "Path to the delivery folder "              (Required)
-#      -d        "Debug Mode Toggle"                         (Optional)
+##              This WDL script delivers output of Alignment Block                             ##
 
 #################################################################################################
 
@@ -18,14 +13,16 @@ task deliverAlignmentTask {
 
    File WorkflowJson                      # JSON file for the workflow
 
-   File BashPreamble
+   File BashPreamble                      # Bash script that helps control zombie processes
+   File BashSharedFunctions               # Bash script that contains shared helpful functions
    File DeliveryAlignment_Script          # Bash script that performs the delivery
+
    String DeliveryFolder_Alignment        # Path to delivery folder
    String DebugMode                       # Variable to check whether Debud Mode is on
 
    command {
       source ${BashPreamble}
-      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} ${DebugMode}
+      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} -F ${BashSharedFunctions} ${DebugMode}
    }
 
 }
