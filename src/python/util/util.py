@@ -23,6 +23,7 @@ def flatten(input_container):
 
     return list(__flattener(input_container))
 
+
 def read_json_file(json_file, project_logger, json_not_found_error_code, json_bad_format_error_code):
     """
     Reads a JSON formatted file, and returns its contents as a Python dictionary

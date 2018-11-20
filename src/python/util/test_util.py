@@ -23,7 +23,7 @@ class TestUtil(unittest.TestCase):
 
         try:
             json_dict = read_json_file(
-                package_full_path + "/util/test_resources/test.json",
+                package_full_path + "/test_resources/test.json",
                 project_logger=self.project_logger,
                 json_bad_format_error_code="BadFormat",
                 json_not_found_error_code="NotFound"
@@ -50,6 +50,3 @@ class TestUtil(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
-
-if __name__ == "__main__":
-    unittest.main()
