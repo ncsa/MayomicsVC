@@ -12,8 +12,9 @@ import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELI
 import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
 import "src/wdl_scripts/SomaticVC/Tasks/strelka.wdl" as STRELKA
 import "src/wdl_scripts/SomaticVC/Tasks/mutect.wdl" as MUTECT
+import "src/wdl_scripts/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGE
 
-import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_HaplotyperVC
+import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
 workflow MasterWF {
@@ -112,12 +113,18 @@ workflow MasterWF {
          NormalBais = NormalRealign.OutputBais
    }
 
-   call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
+   call MERGE.mergeSomaticVcf as merge_somatic_vcf {
       input:
          InputStrelkaVcf = strelka.OutputVcf,
          InputStrelksVcfIdx = strelka.OutputVcfIdx,
          InputMutectVcf = mutect.OutputVcf,
          InputMutectVcfIdx = mutect.OutputVcfIdx
+   }
+
+   call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
+      input:
+         InputMergedVcf = merge_somatic_vcf.OutputVcf,
+         InputMergedVcfIdx = merge_somatic_vcf.OutputVcfIdx,
    } 
 
 }
