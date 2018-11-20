@@ -13,21 +13,21 @@ set -o nounset
 # ASSUMPTIONS
 # cd into your test working folder
 # in there do git pull on the repo, which creates the MayomicsVC/ folder
-# also in there have folders Config/, Jsons/, Inputs/ - although it is also a good practice  to keep all input data in one central place, not in test folder
+# also in there have folders Config/, Jsons/, Inputs/ 
+# - although it is also a good practice to keep all input data in one central place, not in test folder
 # Let's name that workspace ${TestingMayomics}
 # TestingMayomics="/projects/mgc/Project_1/LSM/CleaningUpWDLtails/Multilane/"
-# Folder that includes hg38 simurlated data: /projects/bioinformatics/DataPacks/human/Hg38_chr20_21_22_simulated_data_Jan_2018/fastqs/
 # 
 
 #Define the path to test folder
 TestingMayomics=$1
 
-#define which stage of the workflow is being tested: relative path to .wdl file within the MAyomicsVC repository
+#define which stage of the workflow is being tested: relative path to .wdl file within the MayomicsVC repository
 WorkflowBeingTested=$2;
 BaseNameOfWorkflowBeingTested=`basename ${WorkflowBeingTested} .wdl`
 
 #define which config files to use in this test
-#should be in format "-i /full/path/to/config1.txt -i /full/path/to/config2.txt -i /full/path/to/config3.txt etc..."
+#should be in format "-i /full/path/to/config1.txt -i /full/path/to/config2.txt etc..."
 #or can automatically grab all configs in a folder, if you like - easy enough to code that up
 ConfigsBeingUsed=$3;
 
@@ -37,11 +37,9 @@ ConfigsBeingUsed=$3;
 
 cd ${TestingMayomics};
 
-# these are specific to our system and I'd rather they were not explicitly mentioned in a script that hangs on github
-# should we perhaps make these paths be input variables?
-# module load directly does not work from within Bash, and the workaround seems complicated; I defined the variables directly for that reason
+# these are specific to our system; should we perhaps make these paths be input variables?
 source /etc/profile.d/modules.sh
-module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34;
+module load cromwell/cromwell-34;
 module load python/python-3.6.1;
 
 
