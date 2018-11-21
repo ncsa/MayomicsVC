@@ -252,10 +252,7 @@ then
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
-	if [[ ${EXITCODE} -ne 0 ]]
-	then
-		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	fi
+	checkExitcode ${EXITCODE} $LINENO
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
@@ -265,10 +262,7 @@ else
 	EXITCODE=$?
 	trap - INT TERM EXIT
 
-	if [[ ${EXITCODE} -ne 0 ]]
-	then
-		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
-	fi
+        checkExitcode ${EXITCODE} $LINENO
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 fi
 
@@ -283,18 +277,10 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for file creation
-if [[ ! -s ${OUT1} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
-fi
+checkFile ${OUT1} "Output trimmed read 1 file ${OUT1} is empty." ${LINENO}
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-	if [[ ! -s ${OUT2} ]]
-	then
-		EXITCODE=1
-		logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 2 file ${OUT2} is empty."
-	fi
+        checkFile ${OUT2} "Output trimmed read 2 file ${OUT2} is empty." ${LINENO}
 fi
 
 ## Open read permissions to the user group
