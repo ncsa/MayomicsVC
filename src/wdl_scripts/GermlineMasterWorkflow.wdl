@@ -16,7 +16,7 @@ import "src/wdl_scripts/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
 
 
-workflow MasterWF {
+workflow GermlineMasterWF {
 
    call CUTADAPTTRIM.RunTrimSequencesTask as trimseq
 

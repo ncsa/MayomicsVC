@@ -17,7 +17,7 @@ import "src/wdl_scripts/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGE
 import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
-workflow MasterWF {
+workflow SomaticMasterWF {
 
    Array[Array[File]] NormalInputReads
    Array[Array[File]] TumorInputReads
