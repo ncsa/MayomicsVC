@@ -50,7 +50,7 @@ task alignmentTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
 
