@@ -1,21 +1,5 @@
 ###########################################################################################
 ##              This WDL script performs alignment using BWA Mem                         ##
-##                              Script Options
-#       -t        "Number of Threads"                         (Optional)
-#       -P        "Single Ended Reads specification"          (Required)
-#       -L        "Library Name"                              (Required)
-#       -f        "Platform Unit / Flowcell ID"               (Required)
-#       -c        "Sequencing Center Name"                    (Required)
-#       -l        "Left Fastq File"                           (Required)
-#       -r        "Right Fastq File"                          (Optional)
-#       -G        "Reference Genome"                          (Required)
-#       -s        "Name of the sample"                        (Optional)
-#       -S        "Path to the Sentieon Tool"                 (Required)
-#       -p        "Platform"                                  (Required)
-#       -o        "BWA Extra Options"                         (Required)
-#       -e        "Path to the environmental profile          (Required)
-#       -d        "debug mode on/off                          (Optional: can be empty)
-
 ###########################################################################################
 
 task alignmentTask {

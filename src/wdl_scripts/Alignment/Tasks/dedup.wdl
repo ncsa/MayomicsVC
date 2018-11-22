@@ -14,13 +14,14 @@ task dedupTask {
    String SentieonThreads          # Specifies the number of thread required per run
    String DebugMode                # Variable to check whether Debud Mode is on
 
-   File BashPreamble               # shell file to source before each task
+   File BashPreamble               # Bash script that helps control zombie processes
+   File BashSharedFunctions        # Bash script that contains shared helpful functions
    File DedupScript                # Bash script that is called inside the WDL script
    File DedupEnvProfile            # File containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    output {
