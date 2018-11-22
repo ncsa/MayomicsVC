@@ -139,7 +139,6 @@ do
         esac
 done
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -171,7 +170,7 @@ source ${ENV_PROFILE}
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
 checkFile ${INPUTBAM} "Input sorted BAM file ${INPUTBAM} is empty or does not exist." $LINENO
 checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty or does not exist." $LINENO
-done
+
 checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
 checkDir ${SENTIEON} "REASON=BWA directory ${SENTIEON} is not a directory or does not exist." $LINENO
 checkVar "${THR+x}" "Missing threads option: -t" $LINENO
