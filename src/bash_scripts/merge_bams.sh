@@ -220,7 +220,7 @@ logInfo "[SENTIEON] BAM merging complete."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index. Open read permissions to the user group
-checkFile ${MERGED_BAM} "Output merged BAM file ${OUT} is empty." $LINENO
+checkFile ${MERGED_BAM} "Output merged BAM file ${MERGED_BAM} is empty." $LINENO
 checkFile ${MERGED_BAM}.bai "Output merged BAM index file ${MERGED_BAM} is empty." $LINENO
 
 chmod g+r ${MERGED_BAM}

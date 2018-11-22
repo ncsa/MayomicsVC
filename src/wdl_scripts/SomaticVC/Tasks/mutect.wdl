@@ -1,20 +1,8 @@
-###########################################################################################
+##########################################################################################
 
 ##              This WDL script performs tumor/normal Variant Calling  using mutect     ##
 
-##                                Script Options
-#               -t        "Number of Threads"                                     (Optional)
-#               -G        "Reference Genome"                                      (Required)
-#               -T        "Input Sorted Deduped Tumor Bam"                        (Required)
-#               -N        "Input Sorted Deduped Normal Bam"                       (Required)
-#               -s        "Name of the sample"                                    (Optional)
-#               -o        "Mutect Extra Options"                                  (Required)
-#               -S        "Path to the Mutect Tool"                               (Required)
-#               -e        "Path to the environmental profile                      (Required)
-#               -d        "debug mode on/off                        (Optional: can be empty)
-#
-
-############################################################################################
+##########################################################################################
 
 task mutectTask {
 
@@ -33,7 +21,8 @@ task mutectTask {
    String Mutect                                  # Path to Mutect 
    String MutectThreads                           # No of Threads for the Tool
 
-   File BashPreamble                              # bash script to source before every task
+   File BashPreamble                              # Bash script that helps control zombie processes
+   File BashSharedFunctions                       # Bash script that contains shared helpful functions
    File MutectScript                              # Path to bash script called within WDL script
    File MutectEnvProfile                          # File containing the environmental profile variables
 
@@ -42,7 +31,7 @@ task mutectTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${MutectScript} -s ${SampleName} -S ${Mutect} -G ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} ${DebugMode}
+        /bin/bash ${MutectScript} -s ${SampleName} -S ${Mutect} -G ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
   output {

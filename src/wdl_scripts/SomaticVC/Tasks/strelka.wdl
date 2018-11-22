@@ -2,18 +2,6 @@
 
 ##              This WDL script performs tumor/normal Variant Calling  using strelka     ##
 
-##                                Script Options
-#               -t        "Number of Threads"                                     (Optional)
-#               -G        "Reference Genome"                                      (Required)
-#               -T        "Input Sorted Deduped Tumor Bam"                        (Required)
-#               -N        "Input Sorted Deduped Normal Bam"                       (Required)
-#               -s        "Name of the sample"                                    (Optional)
-#               -o        "Strelka Extra Options"                                 (Required)
-#               -S        "Path to the Strelka Tool"                              (Required)
-#               -e        "Path to the environmental profile                      (Required)
-#               -d        "debug mode on/off                        (Optional: can be empty)
-#
-
 ############################################################################################
 
 task strelkaTask {
@@ -33,7 +21,8 @@ task strelkaTask {
    String Strelka                                 # Path to Strelka 
    String StrelkaThreads                          # No of Threads for the Tool
 
-   File BashPreamble                              # bash script to source before every task
+   File BashPreamble                              # Bash script that helps control zombie processes
+   File BashSharedFunctions                       # Bash script that contains shared helpful functions
    File StrelkaScript                             # Path to bash script called within WDL script
    File StrelkaEnvProfile                         # File containing the environmental profile variables
 
@@ -42,7 +31,7 @@ task strelkaTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -S ${Strelka} -G ${Ref} -t ${StrelkaThreads} -T ${TumorBams} -N ${NormalBams} -o ${StrelkaExtraOptionsString} -e ${StrelkaEnvProfile} ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -S ${Strelka} -G ${Ref} -t ${StrelkaThreads} -T ${TumorBams} -N ${NormalBams} -o ${StrelkaExtraOptionsString} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
   output {
