@@ -4,6 +4,7 @@
 
 import "src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
 import "src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "src/wdl_scripts/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
 import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
 
 import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
@@ -25,10 +26,16 @@ workflow GermlineMasterWF {
          InputReads = trimseq.Outputs
    }
 
-   call DEDUP.dedupTask as dedup {
+   call MERGEBAM.mergebamTask as mergebam {
       input:
          InputBams = align.OutputBams,
          InputBais = align.OutputBais
+   }
+
+   call DEDUP.dedupTask as dedup {
+      input:
+         InputBams = mergebam.OutputBams,
+         InputBais = mergebam.OutputBais
    }
 
 
