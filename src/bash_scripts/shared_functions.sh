@@ -135,7 +135,7 @@ function makeDir()
         then
                 EXITCODE=1
                 REASON="$2 already exists"
-                logError "$0 stopped at line $3. \nREASON=${REASON}"
+                logWarn "$0 stopped at line $3. \nREASON=${REASON}"
         elif [[ -f $1 ]]
         then
                 EXITCODE=1
