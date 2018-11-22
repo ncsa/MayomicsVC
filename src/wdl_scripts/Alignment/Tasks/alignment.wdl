@@ -55,10 +55,8 @@ task alignmentTask {
 
 
    output {
-
       File OutputBams = "${SampleName}.aligned.sorted.bam"
       File OutputBais = "${SampleName}.aligned.sorted.bam.bai"
-
    }
 
 } 

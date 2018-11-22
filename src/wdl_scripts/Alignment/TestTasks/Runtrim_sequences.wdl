@@ -18,7 +18,7 @@ workflow RunTrimSequencesTask {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
             input:
                InputRead1=lane[0],
-               InputRead2=lane[1],
+               InputRead2=lane[1]
          }
       }
 
@@ -26,7 +26,7 @@ workflow RunTrimSequencesTask {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
             input:
                InputRead1=lane[0],
-               InputRead2="null",
+               InputRead2="null"
          }
       }
    }

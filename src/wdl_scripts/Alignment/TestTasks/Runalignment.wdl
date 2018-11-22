@@ -19,10 +19,9 @@ workflow RunAlignmentTask {
       if(PairedEnd) {
          call ALIGN.alignmentTask as ALIGN_paired {
             input:
-
                InputRead1=InputReads[idx][0],
                InputRead2=InputReads[idx][1],
-               PlatformUnit=PlatformUnit[idx],
+               PlatformUnit=PlatformUnit[idx]
          }
       }
 
@@ -31,7 +30,7 @@ workflow RunAlignmentTask {
             input:
                InputRead1=InputReads[idx][0],
                InputRead2="null",
-               PlatformUnit=PlatformUnit[idx],
+               PlatformUnit=PlatformUnit[idx]
          }
       }
    }

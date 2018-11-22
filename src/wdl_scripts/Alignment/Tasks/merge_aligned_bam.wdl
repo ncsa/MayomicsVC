@@ -28,6 +28,6 @@ task mergebamTask {
 
    output {
       File OutputBams = "${SampleName}.aligned.sorted.merged.bam"
-      File OutputBais = "${SampleName}.aligned.sorted.merged.bai"
+      File OutputBais = "${SampleName}.aligned.sorted.merged.bam.bai"
    }
 }
