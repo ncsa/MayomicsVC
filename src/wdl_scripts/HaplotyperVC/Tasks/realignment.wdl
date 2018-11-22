@@ -2,16 +2,6 @@
 
 ##              This WDL script performs realignment using Sentieon                      ##
 
-##                                Script Options
-#       -t        "Number of Threads"                              (Optional)
-#       -G        "Reference Genome"                               (Required)
-#       -b        "Input Deduped Bam"                              (Required)
-#       -k        "List of Known Sites"                            (Required)
-#       -s        "Name of the sample"                             (Optional)
-#       -S        "Path to the Sentieon Tool"                      (Required)
-#       -e        "Path to the environmental profile               (Required)
-#       -d        "debug mode on/off                               (Optional: can be empty)
-
 ###########################################################################################
 
 task realignmentTask {
@@ -31,13 +21,14 @@ task realignmentTask {
 
    String DebugMode                                   # Enable or Disable Debug Mode
 
-   File BashPreamble                                  # Bash script to source before every task
+   File BashPreamble                                  # Bash script that helps control zombie processes
+   File BashSharedFunctions                           # Bash script that contains shared helpful functions
    File RealignmentScript                             # Path to bash script called within WDL script
    File RealignEnvProfile                             # File containing the environmental profile variables
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
+      /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    output {
