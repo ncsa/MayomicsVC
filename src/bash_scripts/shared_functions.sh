@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 #########################################################
 #
 #  Logging functions used in MayomicsVC bash scripts
@@ -39,7 +40,9 @@ function logError()
     fi
 
     exit ${EXITCODE};
+    echo "exitcode=${EXITCODE}";
 }
+
 
 function logWarn()
 {
@@ -87,18 +90,21 @@ function checkArg()
 
 # we need to figure out a good way to produce error messages, 
 # I think we should pass in a REASON string to argument $2, that's how I setting up the script for now.
-#check for a set variable
 ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset.
 ## When $VAR is not set, we set it to "x" and throw the error.
+## This is done in the script that calls the shared_functions.sh
 
+#check for a set variable
 function checkVar()
 {
-	if [[ -z "$1" ]]
+	if [[ -z $1 ]]
 	then
 		EXITCODE=1
 		logError "$0 stopped at line $3. \nREASON=$2"
 	fi
 }
+
+
 
 
 #check for the existence of a directory

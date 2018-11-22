@@ -163,7 +163,7 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar ${SAMPLE} "Missing sample name option: -s"
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script and tool
 ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
@@ -174,17 +174,17 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-checkVar ${ENV_PROFILE} "Missing environmental profile option: -e" $LINENO
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
 source ${ENV_PROFILE}
 
 ##  Check if input files, directories, and variables are non-zero
-checkVar ${ADAPTERS} "Missing adapters file option: -A" $LINENO
+checkVar "${ADAPTERS+x}" "Missing adapters file option: -A" $LINENO
 checkFile ${ADAPTERS} "Adapters fasta file ${ADAPTERS} is empty or does not exist." $LINENO
-checkVar ${INPUT1} "Missing read 1 option: -l" $LINENO
+checkVar "${INPUT1+x}" "Missing read 1 option: -l" $LINENO
 checkFile ${INPUT1} "Input read 1 file ${INPUT1} is empty or does not exist." $LINENO
-checkVar ${INPUT2} "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
+checkVar "${INPUT2+x}" "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
 
-checkVar ${IS_PAIRED_END} "Missing paired-end option: -P" $LINENO
+checkVar "${IS_PAIRED_END+x}" "Missing paired-end option: -P" $LINENO
 
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
@@ -208,9 +208,9 @@ then
 	fi
 fi
 
-checkVar ${CUTADAPT} "Missing CutAdapt software path option: -C" $LINENO
+checkVar "${CUTADAPT+x}" "Missing CutAdapt software path option: -C" $LINENO
 checkDir ${CUTADAPT} "Cutadapt directory ${CUTADAPT} is not a directory or does not exist." $LINENO
-checkVar ${THR} "Missing threads option: -t" $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
 
@@ -294,7 +294,6 @@ fi
 
 logInfo "[CUTADAPT] Finished trimming adapter sequences."
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 

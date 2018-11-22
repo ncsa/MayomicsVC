@@ -1,34 +1,26 @@
-#################################################################################################
+###########################################################################################
 ##              This WDL script marks the duplicates on input sorted BAMs                ##
-#                              Script Options
-#      -b        "Input BAM File"                            (Required)      
-#      -s        "Name of the sample"                        (Optional)
-#      -t        "Number of Threads"                         (Optional)
-#      -S        "Path to the Sentieon Tool"                 (Required)
-#      -O        "Directory for the Output"                  (Required)
-#      -e        "Path to the environmental profile          (Required)
-#      -d        "Debug Mode Toggle"                         (Optional)
-#################################################################################################
+###########################################################################################
 
 task dedupTask {
 
-   Array[File] InputBams                  # Input Sorted BAM File
-   Array[File] InputBais                  # Input Sorted Bam Index File
+   File InputBams                  # Input Sorted BAM File
+   File InputBais                  # Input Sorted Bam Index File
 
-   String SampleName                      # Name of the Sample
+   String SampleName               # Name of the Sample
 
-   String Sentieon                        # Variable path to Sentieon 
+   String Sentieon                 # Variable path to Sentieon 
 
-   String SentieonThreads                 # Specifies the number of thread required per run
-   String DebugMode                       # Variable to check whether Debud Mode is on
+   String SentieonThreads          # Specifies the number of thread required per run
+   String DebugMode                # Variable to check whether Debud Mode is on
 
    File BashPreamble               # shell file to source before each task
-   File DedupScript                       # Bash script that is called inside the WDL script
-   File DedupEnvProfile                   # File containing the environmental profile variables
+   File DedupScript                # Bash script that is called inside the WDL script
+   File DedupEnvProfile            # File containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
    >>>
 
    output {

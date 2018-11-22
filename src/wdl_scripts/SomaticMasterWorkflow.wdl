@@ -4,6 +4,7 @@
 
 import "src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
 import "src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "src/wdl_scripts/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
 import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
 
 import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
@@ -12,7 +13,7 @@ import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELI
 import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
 import "src/wdl_scripts/SomaticVC/Tasks/strelka.wdl" as STRELKA
 import "src/wdl_scripts/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl_scripts/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGE
+import "src/wdl_scripts/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGEVCF
 
 import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
@@ -37,10 +38,16 @@ workflow SomaticMasterWF {
          InputReads = TumorTrimseq.Outputs
    }
 
-   call DEDUP.dedupTask as TumorDedup {
+   call MERGEBAM.mergebamTask as TumorMergeBam {
       input:
          InputBams = TumorAlign.OutputBams,
          InputBais = TumorAlign.OutputBais
+   }
+
+   call DEDUP.dedupTask as TumorDedup {
+      input:
+         InputBams = TumorMergeBam.OutputBams,
+         InputBais = TumorMergeBam.OutputBais
    }
 
    call DELIVER_Alignment.deliverAlignmentTask as TumorDAB {
@@ -65,10 +72,16 @@ workflow SomaticMasterWF {
          InputReads = NormalTrimseq.Outputs
    }
 
-   call DEDUP.dedupTask as NormalDedup {
+   call MERGEBAM.mergebamTask as NormalMergeBam {
       input:
          InputBams = NormalAlign.OutputBams,
          InputBais = NormalAlign.OutputBais
+   }
+
+   call DEDUP.dedupTask as NormalDedup {
+      input:
+         InputBams = NormalMergeBam.OutputBams,
+         InputBais = NormalMergeBam.OutputBais
    }
 
    call DELIVER_Alignment.deliverAlignmentTask as NormalDAB {
@@ -113,7 +126,7 @@ workflow SomaticMasterWF {
          NormalBais = NormalRealign.OutputBais
    }
 
-   call MERGE.mergeSomaticVcfTask as merge_somatic_vcf {
+   call MERGEVCF.mergeSomaticVcfTask as merge_somatic_vcf {
       input:
          InputStrelkaVcf = strelka.OutputVcf,
          InputStrelkaVcfIdx = strelka.OutputVcfIdx,

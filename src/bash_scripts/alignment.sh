@@ -70,7 +70,7 @@ set -o pipefail
 set -o nounset
 
 SCRIPT_NAME=alignment.sh
-SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
 
@@ -201,7 +201,7 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar ${SAMPLE} "Missing sample name option: -s"
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.alignment.${SGE_JOB_ID}.log
@@ -212,15 +212,15 @@ truncate -s 0 ${SAMPLE}.align_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-checkVar ${ENV_PROFILE} "Missing environmental profile option: -e" $LINENO
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
 source ${ENV_PROFILE}
 
 ## Check if input files, directories, and variables are non-zero
-checkVar ${INPUT1} "Missing read 1 option: -l" $LINENO
+checkVar "${INPUT1+x}" "Missing read 1 option: -l" $LINENO
 checkFile ${INPUT1} "Input read 1 file ${INPUT1} is empty or does not exist." $LINENO
-checkVar ${INPUT2} "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
+checkVar "${INPUT2+x}" "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
 
-checkVar ${IS_PAIRED_END} "Missing paired-end option: -P" $LINENO
+checkVar "${IS_PAIRED_END+x}" "Missing paired-end option: -P" $LINENO
 
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
@@ -245,23 +245,22 @@ then
 	fi
 fi
 
-checkVar ${REFGEN} "Missing reference genome option: -G" $LINENO
+checkVar "${REFGEN+x}" "Missing reference genome option: -G" $LINENO
 checkFile ${REFGEN} "Reference genome file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar ${CHUNK_SIZE} "Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count." $LINENO
+checkVar "${CHUNK_SIZE+x}" "Missing read group option: -K\nSet -K 10000000 to prevent different results based on thread count." $LINENO
 if [[ ${CHUNK_SIZE} != 10000000 ]]
 then
 	logWarn "[BWA-MEM] Chunk size option -K set to ${CHUNK_SIZE}. When this option is not set to 10000000, there may be different results per run based on different thread counts."
 fi
 
-checkVar ${PLATFORM} "Missing sequencing platform option: -p" $LINENO
-checkVar ${LIBRARY} "Missing sequencing library option: -L" $LINENO
-checkVar ${PLATFORM_UNIT} "Missing platform unit / flowcell ID option: -f" $LINENO
-checkVar ${CENTER_NAME} "Missing sequencing center name option: -c" $LINENO
-checkVar ${BWA_OPTS} "Missing additional BWA MEM options option: -O" $LINENO
-checkVar ${SENTIEON} "Missing Sentieon path option: -S" $LINENO
+checkVar "${LIBRARY+x}" "Missing sequencing library option: -L" $LINENO 
+checkVar "${PLATFORM_UNIT+x}" "Missing platform unit / flowcell ID option: -f" $LINENO
+checkVar "${CENTER_NAME+x}" "Missing sequencing center name option: -c" $LINENO
+checkVar "${BWA_OPTS+x}" "Missing additional BWA MEM options option: -O" $LINENO
+checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
 checkDir ${SENTIEON} "REASON=BWA directory ${SENTIEON} is not a directory or does not exist." $LINENO
-checkVar ${THR} "Missing threads option: -t" $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
 
@@ -309,6 +308,7 @@ then
 	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
+
         checkExitcode ${EXITCODE} $LINENO
 else 
         # Paired-end reads aligned
@@ -317,6 +317,7 @@ else
 	${SENTIEON}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
+
         checkExitcode ${EXITCODE} $LINENO
 fi
 
@@ -340,8 +341,8 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM conversion and so
 ${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
-checkExitcode ${EXITCODE} $LINENO
 
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[SENTIEON] Converted output to BAM format and sorted."
 
 
