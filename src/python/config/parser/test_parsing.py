@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import unittest
-import config_parser
+from config.parser.parsing import Parser
 
-class TestParsingTools(unittest.TestCase):
+
+class TestParser(unittest.TestCase):
 
     # Create an instance of the Parser class
-    parser_inst = config_parser.Parser(job_id="NA")
+    parser_inst = Parser(job_id="NA")
 
     # Turn the project logger off during UnitTesting, so the end user is not confused by error messages
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
@@ -15,13 +16,13 @@ class TestParsingTools(unittest.TestCase):
     def test_remove_comments(self):
         # Should remove comment lines
         input_lines = ["# Comment line", "      # Whitespace with comment", 'Key="Value"']
-        filtered_lines = config_parser.Parser.remove_comments(input_lines)
+        filtered_lines = Parser.remove_comments(input_lines)
         self.assertEqual(filtered_lines, ['Key="Value"'])
 
     def test_clean_input_file(self):
         # Should remove blank and comment lines
         input_lines = ["", "", "# Comment line", 'Key="Value"']
-        filtered_lines = config_parser.Parser.clean_input_file(input_lines)
+        filtered_lines = Parser.clean_input_file(input_lines)
         self.assertEqual(filtered_lines, ['Key="Value"'])
 
     def test_create_key_value_pairs(self):
@@ -141,5 +142,5 @@ class TestParsingTools(unittest.TestCase):
         actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
         self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
-if __name__ == '__main__':
-    unittest.main()
+
+

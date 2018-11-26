@@ -1,7 +1,5 @@
 #################################################################################################
-
 ##              This WDL script marks the duplicates on input sorted BAMs                ##
-
 #                              Script Options
 #      -b        "Input BAM File"                            (Required)      
 #      -s        "Name of the sample"                        (Optional)
@@ -10,7 +8,6 @@
 #      -O        "Directory for the Output"                  (Required)
 #      -e        "Path to the environmental profile          (Required)
 #      -d        "Debug Mode Toggle"                         (Optional)
-
 #################################################################################################
 
 task dedupTask {
@@ -31,12 +28,12 @@ task dedupTask {
 
    String DedupSoftMemLimit        # Soft memory limit - nice shutdown
    String DedupHardMemLimit        # Hard memory limit - kill immediately
+   File BashPreamble               # shell file to source before each task
 
-   command {
-
-      /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
-
-   }
+   command <<<
+   	   source ${BashPreamble}
+   	   /bin/bash ${DedupScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} ${DebugMode}
+   >>>
 
    runtime {
       cpu: "${SentieonThreads}"
@@ -45,9 +42,7 @@ task dedupTask {
    }
 
    output {
-
       File OutputBams = "${SampleName}.aligned.sorted.deduped.bam"
       File OutputBais = "${SampleName}.aligned.sorted.deduped.bam.bai"
-
    }
 }

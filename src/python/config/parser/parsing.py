@@ -1,16 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
-
-if sys.version_info[0] != 3 or sys.version_info[1] < 6:
-    print("This script (" + sys.argv[0] + ") requires Python version 3.6 or higher")
-    sys.exit(1)
-
 from util.util import read_json_file
 from util.log import ProjectLogger
-from util.special_keys import OPTIONAL_KEYS
+from config.util.special_keys import OPTIONAL_KEYS
 import json
-import argparse
 import logging
 
 """
@@ -43,40 +37,13 @@ E.par.InR.3 = PairedEnd was true but the InputRead2 lists was empty
 """
 
 
-def parse_args(args):
-    """
-    By default, argparse treats all arguments that begin with '-' or '--' as optional in the help menu
-      (preferring to have required arguments be positional).
-
-    To get around this, we must define a required group to contain the required arguments
-      This will cause the help menu to be displayed correctly
-    """
-    parser = argparse.ArgumentParser()
-
-    required_group = parser.add_argument_group('required arguments')
-    required_group.add_argument("-i", action='append', required=True, metavar='',
-                                help="The input configuration files (Multiple entries of this flag are allowed)"
-                                )
-    required_group.add_argument("--jsonTemplate", required=True, metavar='',
-                                help='The json template file that is filled in with data from the input files'
-                                )
-    required_group.add_argument("-o", required=True, metavar='',
-                                help='The location of the output file'
-                                )
-    # Truly optional argument
-    parser.add_argument('--jobID', type=str, metavar='', help='The job ID', default='NA', required=False)
-    # Debug mode is on when the flag is present and is false by default
-    parser.add_argument("-d", action="store_true", help="Turns on debug mode", default=False, required=False)
-    return parser.parse_args(args)
-
-
 class Parser:
     def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger
         if debug_mode:
-            self.project_logger = ProjectLogger(job_id, "config_parser.Parser", logging.DEBUG)
+            self.project_logger = ProjectLogger(job_id, "parser.parsing.Parser", logging.DEBUG)
         else:
-            self.project_logger = ProjectLogger(job_id, "config_parser.Parser")
+            self.project_logger = ProjectLogger(job_id, "parser.parsing.Parser")
         self.job_id = job_id
 
     def read_input_file(self, file_path):
@@ -338,7 +305,12 @@ class Parser:
                     #   quote marks (if it got past the validate_key_value_pairs method, this is guaranteed)
                     trimmed_value = config_value[1:-1]
 
-                    output_dict[dict_key] = trimmed_value
+                    # Special case where the value should be split into an array
+                    if dict_key_suffix == "PlatformUnit":
+                        print("trimmed_value: " + trimmed_value)
+                        output_dict[dict_key] = trimmed_value.split(",")
+                    else:
+                        output_dict[dict_key] = trimmed_value
 
                     # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
                     self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value)
@@ -367,9 +339,9 @@ class Parser:
         # Read in the information from the json template file as a Python Dictionary
         #   The values of the template dictionary are filled in as input files are processed
         template_dict = read_json_file(json_template_file, self.project_logger,
-                                               json_not_found_error_code="E.par.JSN.1",
-                                               json_bad_format_error_code="E.par.JSN.2"
-                                               )
+                                       json_not_found_error_code="E.par.JSN.1",
+                                       json_bad_format_error_code="E.par.JSN.2"
+                                       )
 
         # Combine all of the input file key-value tuples into a single list
         all_key_value_tuples = []
@@ -400,24 +372,6 @@ class Parser:
 
         # Write a success message to the log
         self.project_logger.log_info(
-                'Configuration file parsing finished successfully with ' + str(self.project_logger.warnings_issued) +
+                'Configuration file parser finished successfully with ' + str(self.project_logger.warnings_issued) +
                 ' warning(s) issued'
         )
-
-
-def main(args):
-    parsed_args = parse_args(args)
-
-    # Instantiation of the Parser class
-    if parsed_args.jobID is None:
-        k_v_parser = Parser(debug_mode=parsed_args.d)
-    else:
-        k_v_parser = Parser(parsed_args.jobID, debug_mode=parsed_args.d)
-
-    # Fill in the json template file with values from the Key="Value" formatted input files
-    k_v_parser.fill_in_json_template(parsed_args.i, parsed_args.jsonTemplate, parsed_args.o)
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
-

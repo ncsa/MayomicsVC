@@ -14,6 +14,7 @@ workflow CallDeliveryAlignmentTask {
    String DebugMode
    String SampleName
 
+   File BashPreamble
    File DeliveryAlignment_Script
    String DeliveryFolder_Alignment
 
@@ -29,7 +30,8 @@ workflow CallDeliveryAlignmentTask {
          WorkflowJson = WorkflowJson,
          DeliveryAlignment_Script = DeliveryAlignment_Script,
          DeliveryFolder_Alignment = DeliveryFolder_Alignment,
-         DebugMode = DebugMode
+         DebugMode = DebugMode,
+         BashPreamble = BashPreamble
    }
     
 }

@@ -32,20 +32,19 @@ task bqsrTask {
    String Sentieon                       # Path to Sentieon
    String SentieonThreads                # No of Threads for the Tool
 
+   File BashPreamble                     # Bash script to run before every task
    File BqsrScript                       # Path to bash script called within WDL script
    File BqsrEnvProfile                   # File containing the environmental profile variables
 
    File SharedFunctionsScript            # Bash script with shared functions
    String DebugMode                      # Enable or Disable Debug Mode
 
-
-   command {
-      /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -k ${BqsrKnownSites} -e ${BqsrEnvProfile} ${DebugMode}
-   }
-
+   command <<<
+       source ${BashPreamble}
+       /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -k ${BqsrKnownSites} -e ${BqsrEnvProfile} ${DebugMode}
+   >>>
    
    output {
       File RecalTable = "${SampleName}.recal_data.table"
    }
-
 }
