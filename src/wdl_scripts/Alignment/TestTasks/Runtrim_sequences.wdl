@@ -16,10 +16,10 @@ workflow RunTrimSequencesTask {
    String CutAdaptThreads          # Specifies the number of thread required per run
 
    Boolean PairedEnd               # Variable to check if single ended or not
-   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Variable to check if Debud Mode is on or not
 
    File BashPreamble               # Bash script to source before every task
+   File BashSharedFunctions        # Bash script with shared functions
    File TrimSeqScript              # Bash script which is called inside the WDL script
    File TrimEnvProfile             # File containing the environmental profile variables
 
@@ -42,7 +42,7 @@ workflow RunTrimSequencesTask {
                CutAdapt=CutAdapt,
                CutAdaptThreads=CutAdaptThreads,
                PairedEnd=PairedEnd,
-               SharedFunctionsScript=SharedFunctionsScript,
+               BashSharedFunctions=BashSharedFunctions,
                DebugMode=DebugMode,
                TrimSoftMemLimit=TrimSoftMemLimit,
                TrimHardMemLimit=TrimHardMemLimit,
@@ -62,7 +62,7 @@ workflow RunTrimSequencesTask {
                CutAdapt=CutAdapt,
                CutAdaptThreads=CutAdaptThreads,
                PairedEnd=PairedEnd,
-               SharedFunctionsScript=SharedFunctionsScript,
+               BashSharedFunctions=BashSharedFunctions,
                DebugMode=DebugMode,
                TrimSoftMemLimit=TrimSoftMemLimit,
                TrimHardMemLimit=TrimHardMemLimit,
