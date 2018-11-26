@@ -35,29 +35,43 @@ def __create_prompt(prompt_text, task_choices: List[str]) -> str:
     print("Input invalid input passed in too many times. Exiting")
 
 
-def __find_valid_next_choices(task_index) -> List[str]:
+def __find_valid_next_choices(task_index, all_previous_tasks: List[Task]) -> List[str]:
     """
-    Given the index of a task, list all of the downstream tasks whose inputs match the current tasks outputs up to (and
-     possibly including) a required task
+    Given the index of a task, list all of the next possible tasks to chose from in the workflow
+
+    List all of the downstream tasks with a rank higher than the current task's up to the next required task, and only
+      include tasks which have a matching output for their inputs somewhere upstream in the workflow
 
     :param task_index: the index of the task to find the downstream choices for
+    :param all_previous_task: the list of all tasks already included in the workflow
     :return: list of valid next task choices
     """
     valid_choices = []
     task_outputs: List[FileType] = sorted_task_list[task_index].outputs
+    all_previous_outputs = []
+
+    for task in all_previous_tasks:
+        for outputs in task.outputs:
+            all_previous_outputs.append(outputs.name)
 
     curr_index = task_index + 1
+
     while curr_index < len(sorted_task_names):
         curr_task = sorted_task_list[curr_index]
         curr_task_name = sorted_task_names[curr_index]
-        curr_index += 1
 
-        # If the inputs and outputs between tasks match
-        if collections.Counter(task_outputs) == collections.Counter(curr_task.inputs):
+        inputs_found_in_outputs = True
+        for input_type in curr_task.inputs:
+            # Found a case where a needed input was not present in an upstream output
+            if not input_type.name in all_previous_outputs:
+                inputs_found_in_outputs = False
+
+        if inputs_found_in_outputs:
             valid_choices.append(curr_task_name)
         if curr_task.required:
-            # Return because a required task was found
-            return valid_choices
+            break
+
+        curr_index += 1
     # Return because the last task has been reached
     return valid_choices
 
@@ -74,7 +88,7 @@ def generate_task_list_interactively():
     current_task_index = starting_choice_index
 
     while current_task_index < (len(sorted_task_list) - 1):
-        choices = __find_valid_next_choices(current_task_index)
+        choices = __find_valid_next_choices(current_task_index, workflow_tasks)
         choices.append("END")
 
         input_task_name = __create_prompt("Select the next task: ", choices)

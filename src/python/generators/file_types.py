@@ -7,11 +7,6 @@ class FileType:
         self.input_variable_name: str = input_variable_name
         self.output_variable_name: str = output_variable_name
 
-        self.in_use: bool = False
-
-    def mark_as_used(self):
-        self.in_use = True
-
 
 FASTQ = FileType(name="fastq", input_variable_name="InputReads", output_variable_name="OutputReads")
 BAM = FileType(name="bam", input_variable_name="InputBams", output_variable_name="OutputBams")
