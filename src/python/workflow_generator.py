@@ -39,7 +39,7 @@ def main(args):
         task_list = generate_task_list_interactively()
 
         # Print a summary message to stdOut
-        print("Attempting to build a workflow with the following inputs")
+        print("Attempting to build a workflow with the following inputs\n")
         for task in task_list:
             print(task.get_input_output_summary_string())
 

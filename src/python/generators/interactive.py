@@ -23,7 +23,7 @@ def __create_prompt(prompt_text, task_choices: List[str]) -> str:
     Will fail if the user passes in invalid input over 5 times
     """
     fail_count = 5
-    full_text = prompt_text + "[" + " | ".join(task_choices) + "]\n>>>"
+    full_text = prompt_text + "[" + " | ".join(task_choices) + "]\n>>> "
 
     while fail_count > 0:
         input_string = input(full_text).upper()
