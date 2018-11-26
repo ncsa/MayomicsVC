@@ -38,10 +38,10 @@ task variantCallingTask {
    String SentieonThreads                         # No of Threads for the Tool
 
    File BashPreamble                              # bash script to source before every task
+   File BashSharedFunctions                       # Bash script with shared functions
    File HaplotyperScript                          # Path to bash script called within WDL script
    File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
-   File SharedFunctionsScript                     # Bash script with shared functions
    String DebugMode                               # Enable or Disable Debug Mode
 
 

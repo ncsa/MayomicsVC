@@ -32,10 +32,10 @@ task vqsrTask {
    String Sentieon                      # Path to Sentieon
 
    File BashPreamble                    # Path to bash script to source before every task
+   File BashSharedFunctions             # Bash script with shared functions
    File VqsrScript                      # Path to bash script called within WDL script
    File VqsrEnvProfile                  # File containing the environmental profile variables
 
-   File SharedFunctionsScript           # Bash script with shared functions
    String DebugMode                     # Enable or Disable Debug Mode
 
    command <<<

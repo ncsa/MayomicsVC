@@ -28,13 +28,13 @@ task trimsequencesTask {
    Boolean PairedEnd               # Variable to check if single ended or not
 
    File BashPreamble               # shell file to source before each task
+   File BashSharedFunctions        # Bash script with shared functions
    File TrimSeqScript              # Bash script which is called inside the WDL script
    File TrimEnvProfile             # File containing the environmental profile variables
 
    String TrimSoftMemLimit         # Soft memory limit - nice shutdown
    String TrimHardMemLimit         # Hard memory limit - kill immediately
 
-   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Variable to check if Debug Mode is on or not
 
 

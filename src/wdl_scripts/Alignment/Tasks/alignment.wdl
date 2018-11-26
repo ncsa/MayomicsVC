@@ -40,6 +40,7 @@ task alignmentTask {
    String SentieonThreads          # Specifies the number of thread required per run
 
    File BashPreamble               # Bash script run before every task
+   File BashSharedFunctions        # Bash script with shared functions
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
@@ -48,7 +49,6 @@ task alignmentTask {
    String AlignSoftMemLimit        # Soft memory limit - nice shutdown
    String AlignHardMemLimit        # Hard memory limit - kill immediately
 
-   File SharedFunctionsScript      # Bash script with shared functions
    String DebugMode                # Flag to enable Debug Mode
 
 

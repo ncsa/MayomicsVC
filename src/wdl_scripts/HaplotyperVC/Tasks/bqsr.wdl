@@ -33,10 +33,10 @@ task bqsrTask {
    String SentieonThreads                # No of Threads for the Tool
 
    File BashPreamble                     # Bash script to run before every task
+   File BashSharedFunctions              # Bash script with shared functions
    File BqsrScript                       # Path to bash script called within WDL script
    File BqsrEnvProfile                   # File containing the environmental profile variables
 
-   File SharedFunctionsScript            # Bash script with shared functions
    String DebugMode                      # Enable or Disable Debug Mode
 
    command <<<
