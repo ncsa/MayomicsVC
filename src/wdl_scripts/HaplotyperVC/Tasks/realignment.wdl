@@ -29,6 +29,9 @@ task realignmentTask {
    String Sentieon                                    # Path to Sentieon
    String SentieonThreads                             # No of Threads for the Tool
 
+   String RealignSoftMemLimit                         # Soft memory limit - nice shutdown
+   String RealignHardMemLimit                         # Hard memory limit - kill immediately
+
    String DebugMode                                   # Enable or Disable Debug Mode
 
    File BashPreamble                                  # Bash script to source before every task
@@ -40,6 +43,12 @@ task realignmentTask {
       source ${BashPreamble}
       /bin/bash ${RealignmentScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${RealignmentKnownSites} -S ${Sentieon} -t ${SentieonThreads} -e ${RealignEnvProfile} ${DebugMode}
    >>>
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${RealignSoftMemLimit}"
+      h_vmem: "${RealignHardMemLimit}"
+   }
 
    output {
       File OutputBams = "${SampleName}.aligned.sorted.deduped.realigned.bam"
