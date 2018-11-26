@@ -34,40 +34,16 @@ workflow RunTrimSequencesTask {
       if(PairedEnd) {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
             input:
-               BashPreamble = BashPreamble,
-               SampleName=SampleName,
                InputRead1=lane[0],
-               InputRead2=lane[1],
-               Adapters=Adapters,
-               CutAdapt=CutAdapt,
-               CutAdaptThreads=CutAdaptThreads,
-               PairedEnd=PairedEnd,
-               BashSharedFunctions=BashSharedFunctions,
-               DebugMode=DebugMode,
-               TrimSoftMemLimit=TrimSoftMemLimit,
-               TrimHardMemLimit=TrimHardMemLimit,
-               TrimSeqScript=TrimSeqScript,
-               TrimEnvProfile=TrimEnvProfile
+               InputRead2=lane[1]
          }
       }
 
       if(!PairedEnd) {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
             input:
-               BashPreamble = BashPreamble,
-               SampleName=SampleName,
                InputRead1=lane[0],
-               InputRead2="null",
-               Adapters=Adapters,
-               CutAdapt=CutAdapt,
-               CutAdaptThreads=CutAdaptThreads,
-               PairedEnd=PairedEnd,
-               BashSharedFunctions=BashSharedFunctions,
-               DebugMode=DebugMode,
-               TrimSoftMemLimit=TrimSoftMemLimit,
-               TrimHardMemLimit=TrimHardMemLimit,
-               TrimSeqScript=TrimSeqScript,
-               TrimEnvProfile=TrimEnvProfile
+               InputRead2="null"
          }
       }
    }

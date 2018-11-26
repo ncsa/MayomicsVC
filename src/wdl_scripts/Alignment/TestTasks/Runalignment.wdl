@@ -49,29 +49,7 @@ workflow RunAlignmentTask {
 
                InputRead1=InputReads[idx][0],
                InputRead2=InputReads[idx][1],
-               Ref=Ref,
-               RefAmb=RefAmb,
-               RefAnn=RefAnn,
-               RefBwt=RefBwt,
-               RefPac=RefPac,
-               RefSa=RefSa,
-               SampleName=SampleName,
-               Platform=Platform,
-               Library=Library,
-               CenterName=CenterName,
-               PlatformUnit=PlatformUnit[idx],
-               PairedEnd=PairedEnd,
-               Sentieon=Sentieon,
-               SentieonThreads=SentieonThreads,
-               AlignmentScript=AlignmentScript,
-               AlignEnvProfile=AlignEnvProfile,
-               ChunkSizeInBases=ChunkSizeInBases,
-               BashPreamble = BashPreamble,
-               BWAExtraOptionsString=BWAExtraOptionsString,
-               AlignSoftMemLimit=AlignSoftMemLimit,
-               AlignHardMemLimit=AlignHardMemLimit,
-               BashSharedFunctions=BashSharedFunctions,
-               DebugMode=DebugMode
+               PlatformUnit=PlatformUnit[idx]
          }
       }
 
@@ -80,29 +58,7 @@ workflow RunAlignmentTask {
             input:
                InputRead1=InputReads[idx][0],
                InputRead2="null",
-               Ref=Ref,
-               RefAmb=RefAmb,
-               RefAnn=RefAnn,
-               RefBwt=RefBwt,
-               RefPac=RefPac,
-               RefSa=RefSa,
-               SampleName=SampleName,
-               Platform=Platform,
-               Library=Library,
-               CenterName=CenterName,
-               PlatformUnit=PlatformUnit[idx],
-               PairedEnd=PairedEnd,
-               Sentieon=Sentieon,
-               SentieonThreads=SentieonThreads,
-               AlignmentScript=AlignmentScript,
-               AlignEnvProfile=AlignEnvProfile,
-               ChunkSizeInBases=ChunkSizeInBases,
-               BashPreamble = BashPreamble,
-               BWAExtraOptionsString=BWAExtraOptionsString,
-               AlignSoftMemLimit=AlignSoftMemLimit,
-               AlignHardMemLimit=AlignHardMemLimit,
-               BashSharedFunctions=BashSharedFunctions,
-               DebugMode=DebugMode
+               PlatformUnit=PlatformUnit[idx]
          }
       }
    }
