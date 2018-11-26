@@ -323,7 +323,7 @@ class Validator:
                 'E.val.UNK.1',
                 'Input variable "' + key_name + '" has the type "' + key_type +
                 '" in the key types file, which is not a recognized type ' +
-                '(see src/config/validation/config_parser_README.md for a list of valid types)'
+                '(see src/config/validation/README.md for a list of valid types)'
             )
 
             return False

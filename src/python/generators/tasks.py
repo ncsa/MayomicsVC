@@ -45,6 +45,26 @@ class Task:
     def mark_dependencies_found(self):
         self.dependencies_found = True
 
+    def get_input_output_summary_string(self):
+        def format_list(io_types: List[FileType]):
+            if len(io_types) == 0:
+                return "[]"
+            else:
+                built_string = "["
+                for i in io_types[:-1]:
+                    built_string = built_string + i.name + ", "
+                built_string = built_string + io_types[-1].name + "]"
+                return built_string
+
+        return (self.alias.upper() + ":\t\tINPUTS" + format_list(self.inputs) +
+                " --> " + "OUTPUTS" + format_list(self.outputs)
+                )
+
+
+###
+# Delivery tasks should not have outputs
+###
+
 
 CUTADAPTTRIM = Task(inputs=[FASTQ],
                     outputs=[FASTQ],

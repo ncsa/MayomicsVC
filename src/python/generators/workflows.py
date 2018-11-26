@@ -118,7 +118,7 @@ class Workflow:
         :param task: the current task
         :param task_index: its position in the task list
         """
-        if task_index <= 0:
+        if task_index == 0:
             # This is the first task. By definition, it has no dependencies
             task.mark_dependencies_found()
         else:
@@ -128,20 +128,23 @@ class Workflow:
                 while searched_task_index >= 0 and not dependency_found:
                     searched_task = self.task_list[searched_task_index]
 
-                    # Looping through the outputs of the current task being searched
-                    for output in searched_task.outputs:
-                        # If the input/output filetypes match
-                        if i.name == output.name:
-                            task.add_formatted_input_string(Workflow.__format_import_string(i, output, searched_task))
-                            dependency_found = True
-                            break
+                    # Do not try to search delivery tasks, move up the task tree
+                    if not searched_task.delivery_task:
+
+                        # Looping through the outputs of the current task being searched
+                        for output in searched_task.outputs:
+                            # If the input/output filetypes match
+                            if i.name == output.name:
+                                task.add_formatted_input_string(Workflow.__format_import_string(i, output, searched_task))
+                                dependency_found = True
+                                break
                     searched_task_index -= 1
 
                 # If this is reached, there are no more nodes that can be searched. The dependency could not be found
                 if not dependency_found:
                     self.project_logger.log_error(
                         "E.wfg.InO.1",
-                        "The " + i.name.upper() + " input within the " + task.alias.lower() +
+                        "The " + i.name.upper() + " input within the " + task.alias.upper() +
                         " task could not find a fitting output in any of the upstream tasks"
                     )
                     sys.exit(1)
