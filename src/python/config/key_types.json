@@ -3,6 +3,7 @@
     "AlignEnvProfile": "File",
     "AlignmentScript": "File",
     "AnnotateText": "String",
+    "BashSharedFunctions": "File",
     "BqsrEnvProfile": "File",
     "BqsrKnownSites": "String",
     "BqsrScript": "File",

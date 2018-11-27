@@ -12,6 +12,7 @@
 #               -o        "Haplotyper Extra Options"                              (Required)
 #               -S        "Path to the Sentieon Tool"                             (Required)
 #               -e        "Path to the environmental profile                      (Required)
+#               -F        "Path to shared functions file"                         (Required)
 #               -d        "debug mode on/off                        (Optional: can be empty)
 #
 
@@ -50,7 +51,7 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
