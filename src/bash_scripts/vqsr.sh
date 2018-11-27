@@ -40,11 +40,12 @@ read -r -d '' DOCS << DOCS
 	 -R <resource_string_for_INDELS>
 	 -a <annotate_text_string>
          -e </path/to/env_profile_file>
+	 -F </path/to/shared_functions.sh>
 	 -d turn on debug mode
 
  EXAMPLES:
  vqsr.sh -h
- vqsr.sh -s sample -S /path/to/sentieon_directory -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -a "'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ --annotation MQRankSum --annotation ReadPosRankSum'"  -e /path/to/env_profile_file -d
+ vqsr.sh -s sample -S /path/to/sentieon_directory -t 8 -G reference.fa -V sample.vcf -r "'--resource 1000G.vcf --resource_param 1000G,known=false,training=true,truth=false,prior=10.0 --resource omni.vcf --resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource hapmap.vcf --resource_param hapmap,known=false,training=true,truth=true,prior=15.0'" -R "'--resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource mills.vcf --resource_param Mills,known=false,training=true,truth=true,prior=12.0 --resource dbSNP.vcf --resource_param dbsnp,known=true,training=false,truth=false,prior=2.0'" -a "'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ --annotation MQRankSum --annotation ReadPosRankSum'"  -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
 
 NOTE: In order for getops to read in a string arguments for -r (resource_string_for_SNPs) and -R (resource_string_for_INDELs), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
@@ -78,9 +79,15 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 #-------------------------------------------------------------------------------------------------------------------------------
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -101,7 +108,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:t:G:V:r:R:a:e:d" OPT
+while getopts ":hs:S:t:G:V:r:R:a:e:F:d" OPT
 do
 	case ${OPT} in
 		h ) # Flag to display usage
@@ -144,6 +151,10 @@ do
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
+		F ) # Path to shared_functions.sh
+			SHARED_FUNCTIONS=${OPTARG}
+			checkArg
+			;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -174,12 +185,12 @@ done
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
+source ${SHARED_FUNCTIONS}
+
+
 ## Check if sample name is present.
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-	echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-	exit 1
-fi
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.vqsr.${SGE_JOB_ID}.log
@@ -189,84 +200,39 @@ truncate -s 0 ${SAMPLE}.vqsr_sentieon.log
 ## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
 
+
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
 
 ## Check if the Sentieon executable option was passed in
-if [[ -z ${SENTIEON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon executable option: -S"
-fi
-
+checkVar "${SENTIEON+x}" "Missing Sentieon executable option: -S" $LINENO
 ## Check if the Sentieon executable is present
-if [[ ! -d ${SENTIEON} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
+checkDir ${SENTIEON} "Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
 
 ## Check if the number of threads was specified
-if [[ -z ${THR+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
-fi
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 ## Check if the reference option was passed in
-if [[ -z ${REF+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing reference fasta file option: -G"
-fi
-
+checkVar "${REF+x}" "Missing reference fasta file option: -G" $LINENO
 ## Check if the reference fasta file is present
-if [[ ! -s ${REF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
-fi
+checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LINENO
+
 
 ## Check if the sample VCF input file option was passed in
-if [[ -z ${SAMPLEVCF+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing sample input VCF option: -V"
-fi
-
+checkVar "${SAMPLEVCF+x}" "Missing sample input VCF option: -V" $LINENO
 ## Check if the sample VCF input file is present
-if [[ ! -s ${SAMPLEVCF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input sample vcf ${SAMPLEVCF} is empty or does not exist."
-fi
+checkFile ${SAMPLEVCF} "Input sample vcf ${SAMPLEVCF} is empty or does not exist." $LINENO
 
 ## Check if the resource string for SNPs was passed in
-if [[ -z ${RESOURCE_SNPS+x} ]] 
-then 
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for SNPs option: -r"
-fi
+checkVar "${RESOURCE_SNPS+x}" "Missing resource string for SNPs option: -r" $LINENO
 
 ## Check if the resource string for INDELS was passed in
-if [[ -z ${RESOURCE_INDELS+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing resource string for INDELs option: -R"
-fi
+checkVar "${RESOURCE_INDELS+x}" "Missing resource string for INDELs option: -R" $LINENO
+
 ## Check if the annotation  string was passed in
-if [[ -z ${ANNOTATE_TEXT+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing annotation text string option: -a"
-fi
+checkVar "${ANNOTATE_TEXT+x}" "Missing annotation text string option: -a" $LINENO
 
 
 
@@ -300,11 +266,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for SNPs. 
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLEVCF} ${RESOURCE_SNPS_PARSED} ${ANNOTATE_TEXT_PARSED} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-
+checkExitcode ${EXITCODE} $LINENO
 
 ## Apply VQSR for SNPs
 TRAP_LINE=$(($LINENO + 1))
@@ -312,11 +274,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR ApplyVarCal for S
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo ApplyVarCal -v ${SAMPLEVCF} --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-
+checkExitcode ${EXITCODE} $LINENO
 
 ## Plot the report for SNP VQSR
 TRAP_LINE=$(($LINENO + 1))
@@ -324,11 +282,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in plot VQSR for SNPs. " 
 ${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-
+checkExitcode ${EXITCODE} $LINENO
 
 
 
@@ -342,10 +296,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR VarCal for INDELs
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo VarCal -v ${SAMPLE}.SNP.recaled.vcf ${RESOURCE_INDELS_PARSED} ${ANNOTATE_TEXT_PARSED} --var_type ${TYPE} --plot_file ${SAMPLE}.${TYPE}.plotfile --tranches_file ${SAMPLE}.${TYPE}.tranches ${SAMPLE}.${TYPE}.recal >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
+checkExitcode ${EXITCODE} $LINENO
 
 
 ## Apply VQSR for INDELs
@@ -354,10 +305,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in VQSR ApplyVarCal for I
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REF} --algo ApplyVarCal -v ${SAMPLE}.SNP.recaled.vcf --var_type ${TYPE} --tranches_file ${SAMPLE}.${TYPE}.tranches --recal ${SAMPLE}.${TYPE}.recal ${SAMPLE}.${TYPE}.SNP.recaled.vcf >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
+checkExitcode ${EXITCODE} $LINENO
 
 
 ## Plot the report for INDEL VQSR
@@ -366,10 +314,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE} Error in plot VQSR for INDELs. 
 ${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
+checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[vqsr] Finished running successfully for ${SAMPLE}"
 #---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -387,21 +332,11 @@ logInfo "[vqsr] Finished running successfully for ${SAMPLE}"
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for the creation of final recalibrated VCF with the VQSR applied to SNPs and INDELs.
-if [[ ! -s ${SAMPLE}.${TYPE}.SNP.recaled.vcf ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Output recalibrated SNP/INDEL VCF is empty."
-fi
-
+checkFile ${SAMPLE}.${TYPE}.SNP.recaled.vcf "Output recalibrated SNP/INDEL VCF is empty." $LINENO
 chmod g+r ${SAMPLE}.${TYPE}.SNP.recaled.vcf
 
 ## Check for the creation of the final recalibrated VCF index file.
-if [[ ! -s ${SAMPLE}.${TYPE}.SNP.recaled.vcf.idx ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Output recalibrated SNP/INDEL VCF index is empty."
-fi
-
+checkFile ${SAMPLE}.${TYPE}.SNP.recaled.vcf.idx "Output recalibrated SNP/INDEL VCF index is empty." $LINENO
 chmod g+r ${SAMPLE}.${TYPE}.SNP.recaled.vcf.idx
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
