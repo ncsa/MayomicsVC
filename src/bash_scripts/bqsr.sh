@@ -37,11 +37,12 @@ read -r -d '' DOCS << DOCS
 	 -b 	<sorted.deduped.realigned.bam>
 	 -k 	<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
          -e     </path/to/env_profile_file>
+	 -F     </path/to/shared_functions.sh>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -d 
+ bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d 
 
 ############################################################################################################################
 

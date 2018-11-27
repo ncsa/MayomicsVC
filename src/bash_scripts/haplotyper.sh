@@ -236,6 +236,7 @@ trap - INT TERM EXIT
 
 
 checkExitcode ${EXITCODE} $LINENO
+logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #------------------------------------------------------------------------------------------------------------------------------------
 
 
