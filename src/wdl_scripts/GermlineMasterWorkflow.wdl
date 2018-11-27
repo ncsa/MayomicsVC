@@ -19,39 +19,59 @@ import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" a
 
 workflow GermlineMasterWF {
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as trimseq
+   Boolean Trimming
+   Boolean MarkDuplicates
 
-   call ALIGNMENT.RunAlignmentTask as align {
-      input:
-         InputReads = trimseq.Outputs
+   if(Trimming) {
+
+      call CUTADAPTTRIM.RunTrimSequencesTask as trimseq
+       
+      call ALIGNMENT.RunAlignmentTask as align_w_trim {
+         input:
+            InputReads = trimseq.Outputs
+      }
    }
 
-   call MERGEBAM.mergebamTask as mergebam {
+   if(!Trimming) {
+      
+      call ALIGNMENT.RunAlignmentTask as align_wo_trim
+   }
+   
+   Array[File] AlignOutputBams = select_first([align_w_trim.OutputBams,align_wo_trim.OutputBams])
+   Array[File] AlignOutputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
+
+
+   call MERGEBAM.mergebamTask as merge {
       input:
-         InputBams = align.OutputBams,
-         InputBais = align.OutputBais
+         InputBams = AlignOutputBams,
+         InputBais = AlignOutputBais
    }
 
-   call DEDUP.dedupTask as dedup {
-      input:
-         InputBams = mergebam.OutputBams,
-         InputBais = mergebam.OutputBais
+   if(MarkDuplicates) {
+   
+      call DEDUP.dedupTask as dedup {
+         input:
+            InputBams = merge.OutputBams,
+            InputBais = merge.OutputBais
+      }
    }
 
+   File DeliverAlignOutputBams = select_first([dedup.OutputBams,merge.OutputBams])
+   File DeliverAlignOutputBais = select_first([dedup.OutputBais,merge.OutputBais])
 
 
    call DELIVER_Alignment.deliverAlignmentTask as DAB {
       input:
-         InputBams = dedup.OutputBams,
-         InputBais = dedup.OutputBais
+         InputBams = DeliverAlignOutputBams,
+         InputBais = DeliverAlignOutputBais
    }
 
 
 
    call REALIGNMENT.realignmentTask  as realign {
       input:
-         InputBams = dedup.OutputBams,
-         InputBais = dedup.OutputBais
+         InputBams = DeliverAlignOutputBams,
+         InputBais = DeliverAlignOutputBais
    }
 
 
