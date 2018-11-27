@@ -9,25 +9,7 @@ import "src/wdl_scripts/Alignment/Tasks/trim_sequences.wdl" as TRIMSEQ
 workflow RunTrimSequencesTask {
 
    Array[Array[File]] InputReads   # One lane per subarray with one or two input reads
-
-   File Adapters                   # Adapter FastA File         
- 
-   String CutAdapt                 # Path to CutAdapt Tool
-   String CutAdaptThreads          # Specifies the number of thread required per run
-
    Boolean PairedEnd               # Variable to check if single ended or not
-   String DebugMode                # Variable to check if Debud Mode is on or not
-
-   File BashPreamble               # Bash script to source before every task
-   File BashSharedFunctions        # Bash script with shared functions
-   File TrimSeqScript              # Bash script which is called inside the WDL script
-   File TrimEnvProfile             # File containing the environmental profile variables
-
-   String SampleName               # Name of the Sample
-
-   String TrimSoftMemLimit         # Soft memory limit - nice shutdown
-   String TrimHardMemLimit         # Hard memory limit - kill immediately
-
 
    scatter (lane in InputReads) {
       # If PairedEnd=False, set InputRead2="null"

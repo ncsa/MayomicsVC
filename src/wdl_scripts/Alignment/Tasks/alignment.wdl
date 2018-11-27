@@ -1,21 +1,5 @@
 ###########################################################################################
 ##              This WDL script performs alignment using BWA Mem                         ##
-##                              Script Options
-#       -t        "Number of Threads"                         (Optional)
-#       -P        "Single Ended Reads specification"          (Required)
-#       -L        "Library Name"                              (Required)
-#       -f        "Platform Unit / Flowcell ID"               (Required)
-#       -c        "Sequencing Center Name"                    (Required)
-#       -l        "Left Fastq File"                           (Required)
-#       -r        "Right Fastq File"                          (Optional)
-#       -G        "Reference Genome"                          (Required)
-#       -s        "Name of the sample"                        (Optional)
-#       -S        "Path to the Sentieon Tool"                 (Required)
-#       -p        "Platform"                                  (Required)
-#       -o        "BWA Extra Options"                         (Required)
-#       -e        "Path to the environmental profile          (Required)
-#       -d        "debug mode on/off                          (Optional: can be empty)
-
 ###########################################################################################
 
 task alignmentTask {
@@ -39,8 +23,8 @@ task alignmentTask {
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
 
-   File BashPreamble               # Bash script run before every task
-   File BashSharedFunctions        # Bash script with shared functions
+   File BashPreamble               # Bash script that helps control zombie processes
+   File BashSharedFunctions        # Bash script that contains shared helpful functions
    File AlignmentScript            # Bash script which is called inside the WDL script
    File AlignEnvProfile            # File containing the environmental profile variables
    String ChunkSizeInBases         # The -K option for BWA MEM
@@ -54,7 +38,7 @@ task alignmentTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} ${DebugMode}
+      /bin/bash ${AlignmentScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -G ${Ref} -o ${BWAExtraOptionsString} -K ${ChunkSizeInBases} -S ${Sentieon} -t ${SentieonThreads} -e ${AlignEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
@@ -64,10 +48,8 @@ task alignmentTask {
    }
 
    output {
-
       File OutputBams = "${SampleName}.aligned.sorted.bam"
       File OutputBais = "${SampleName}.aligned.sorted.bam.bai"
-
    }
 
 } 

@@ -37,11 +37,12 @@ read -r -d '' DOCS << DOCS
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
                    -e		</path/to/env_profile_file>
+                   -F           </path/to/shared_functions.sh>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -60,7 +61,6 @@ SCRIPT_NAME=trim_sequences.sh
 SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -68,10 +68,15 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -88,7 +93,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:e:d" OPT
+while getopts ":hl:r:A:C:t:P:s:e:F:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -127,6 +132,10 @@ do
 			ENV_PROFILE=${OPTARG}
 			checkArg
 			;;
+                F )  # Path to shared_functions.sh
+                        SHARED_FUNCTIONS=${OPTARG}
+                        checkArg
+                        ;;
 		d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -142,8 +151,6 @@ do
 	esac
 done
 
-#-------------------------------------------------------------------------------------------------------------------------------
-
 
 
 
@@ -152,12 +159,11 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
+
+source ${SHARED_FUNCTIONS}
+
 ## Check if Sample Name variable exists
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-        echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-	exit 1
-fi
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script and tool
 ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
@@ -168,45 +174,18 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-	source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
 
-## Check existence and var type of inputs
-if [[ -z ${ADAPTERS+x} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing adapters file option: -A"
-fi
-if [[ ! -s ${ADAPTERS} ]]  
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Adapters fasta file ${ADAPTERS} is empty or does not exist."
-fi
-if [[ -z ${INPUT1+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 1 option: -l"
-fi
-if [[ ! -s ${INPUT1} ]]  
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Input read 1 file ${INPUT1} is empty or does not exist."
-fi
-if [[ -z ${INPUT2+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing read 2 option: -r. If running a single-end job, set -r null in command."
-fi
-if [[ -z ${IS_PAIRED_END+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing paired-end option: -P. If running a single-end job, set -P false in command."
-fi
+##  Check if input files, directories, and variables are non-zero
+checkVar "${ADAPTERS+x}" "Missing adapters file option: -A" $LINENO
+checkFile ${ADAPTERS} "Adapters fasta file ${ADAPTERS} is empty or does not exist." $LINENO
+checkVar "${INPUT1+x}" "Missing read 1 option: -l" $LINENO
+checkFile ${INPUT1} "Input read 1 file ${INPUT1} is empty or does not exist." $LINENO
+checkVar "${INPUT2+x}" "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
+
+checkVar "${IS_PAIRED_END+x}" "Missing paired-end option: -P" $LINENO
+
 if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
 then
         EXITCODE=1
@@ -214,11 +193,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-        if [[ ! -s ${INPUT2} ]]
-        then
-		EXITCODE=1
-                logError "$0 stopped at line ${LINENO}. \nREASON=Input read 2 file ${INPUT2} is empty or does not exist."
-        fi
+        checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
 	if [[ "${INPUT2}" == null ]]
 	then
 		EXITCODE=1
@@ -232,23 +207,10 @@ then
 		logError "$0 stopped at line ${LINENO}/ \nREASON=User specified Single End option, but did not set read 2 option -r to null."
 	fi
 fi
-if [[ -z ${CUTADAPT+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing CutAdapt software path option: -C"
-fi
-if [[ ! -d ${CUTADAPT} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line ${LINENO}. \nREASON=Cutadapt directory ${CUTADAPT} is not a directory or does not exist."
-fi
-if [[ -z ${THR+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing threads option: -t"
-fi
 
-#-------------------------------------------------------------------------------------------------------------------------------
+checkVar "${CUTADAPT+x}" "Missing CutAdapt software path option: -C" $LINENO
+checkDir ${CUTADAPT} "Cutadapt directory ${CUTADAPT} is not a directory or does not exist." $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
 
@@ -290,10 +252,7 @@ then
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
-	if [[ ${EXITCODE} -ne 0 ]]
-	then
-		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-	fi
+	checkExitcode ${EXITCODE} $LINENO
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 else
 	# Trimming reads with Cutadapt in paired-end mode. -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2 
@@ -303,15 +262,11 @@ else
 	EXITCODE=$?
 	trap - INT TERM EXIT
 
-	if [[ ${EXITCODE} -ne 0 ]]
-	then
-		logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Cutadapt Read 1 and 2 failure."
-	fi
+        checkExitcode ${EXITCODE} $LINENO
 	logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
 fi
 
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -322,18 +277,10 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for file creation
-if [[ ! -s ${OUT1} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 1 file ${OUT1} is empty."
-fi
+checkFile ${OUT1} "Output trimmed read 1 file ${OUT1} is empty." ${LINENO}
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-	if [[ ! -s ${OUT2} ]]
-	then
-		EXITCODE=1
-		logError "$0 stopped at line ${LINENO}. \nREASON=Output trimmed read 2 file ${OUT2} is empty."
-	fi
+        checkFile ${OUT2} "Output trimmed read 2 file ${OUT2} is empty." ${LINENO}
 fi
 
 ## Open read permissions to the user group
@@ -347,7 +294,6 @@ fi
 
 logInfo "[CUTADAPT] Finished trimming adapter sequences."
 
-#-------------------------------------------------------------------------------------------------------------------------------
 
 
 
