@@ -31,7 +31,11 @@ task vqsrTask {
    String SentieonThreads               # No of Threads for the Tool
    String Sentieon                      # Path to Sentieon
 
+   String VqsrSoftMemLimit              # Soft memory limit - nice shutdown
+   String VqsrHardMemLimit              # Hard memory limit - kill immediately
+
    File BashPreamble                    # Path to bash script to source before every task
+   File BashSharedFunctions             # Bash script with shared functions
    File VqsrScript                      # Path to bash script called within WDL script
    File VqsrEnvProfile                  # File containing the environmental profile variables
 
@@ -41,6 +45,12 @@ task vqsrTask {
       source ${BashPreamble}
       /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} ${DebugMode}
    >>>
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${VqsrSoftMemLimit}"
+      h_vmem: "${VqsrHardMemLimit}"
+   }
 
    output {
       File OutputVcf = "${SampleName}.INDEL.SNP.recaled.vcf"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## deliver_alignment.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_somaticVC.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -23,22 +23,22 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deliver results of Design Block 1: trim-seq, align, sort, dedup. 
+# Deliver results of SomaticVC block: vcf for snps and indels, their index files, and workflow JSON. 
 # Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- deliver_alignment.sh     -s           <sample_name>
-                          -b           <aligned.sorted.deduped.bam>
+ deliver_somaticVC.sh     -s           <sample_name>
+                          -r           <ResultantVcf> 
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
                           -F           </path/to/shared_functions.sh>
                           -d           turn on debug mode
 
  EXAMPLES:
- deliver_alignment.sh -h     # get help message
- deliver_alignment.sh -s sample_name -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ deliver_somaticVC.sh -h
+ deliver_somaticVC.sh -s sample_name -r ResultantVcf.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -52,7 +52,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=deliver_alignment.sh
+SCRIPT_NAME=deliver_somaticVC.sh
 SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -91,7 +91,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:j:f:F:d" OPT
+while getopts ":hs:r:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -100,17 +100,17 @@ do
                         ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
-                        checkArg
-                        ;;
-                b )  # Full path to the input BAM file
-                        BAM=${OPTARG}
 			checkArg
+                        ;;
+                r )  # Full path to the VCF file
+                        VCF=${OPTARG}
+                        checkArg
                         ;;
                 j )  # Full path to the workflow JSON file
                         JSON=${OPTARG}
                         checkArg
                         ;;
-                f )  # Path to delivery folder
+                f)   # Path to delivery folder
                         DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
@@ -145,25 +145,25 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+checkVar ${SAMPLE} "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.deliver_alignment.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_somaticVC.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.deliver_alignment.log
+truncate -s 0 ${SAMPLE}.deliver_somaticVC.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar "${BAM+x}" "Missing BAM option: -b" $LINENO
-checkFile ${BAM} "Input BAM file ${BAM} is empty or does not exist." $LINENO
-checkFile ${BAM}.bai "Input BAM index file ${BAM}.bai is empty or does not exist." $LINENO
+checkVar ${VCF} "Missing VCF option: -r" $LINENO
+checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
+checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
 
-checkVar "${JSON+x}" "Missing JSON option: -j" $LINENO
+checkVar ${JSON} "Missing JSON option: -j" $LINENO
 checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
 
-checkVar "${DELIVERY_FOLDER+x}" "Missing delivery folder option: -f" $LINENO
+checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f" $LINENO
 
 
 
@@ -178,13 +178,13 @@ logInfo "[DELIVERY] Creating the Delivery folder."
 
 ## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Creating Design Block 1 delivery folder. " ' INT TERM EXIT
-makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" ${TRAP_LINE}
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating SomaticVC block delivery folder. " ' INT TERM EXIT
+makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
-logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
+logInfo "[DELIVERY] Created the SomaticVC block delivery folder."
 
 
 
@@ -197,31 +197,32 @@ logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
+logInfo "[DELIVERY] Copying SomaticVC block outputs into Delivery folder."
 
-## Copy the files over
+## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.bam
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
-logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
+logInfo "[DELIVERY] Recalibrated VCF delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE}
-logInfo "[DELIVERY] Aligned sorted deduped BAM index delivered."
+logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+
 
 ## Copy the JSON over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying JSON into delivery folder. " ' INT TERM EXIT
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
 cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
@@ -231,23 +232,22 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
-
 #-------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam "Delivered BAM file ${DELIVERY_FOLDER}/${SAMPLE}.bam is empty" $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai "Delivered BAM index file ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai is empty" $LINENO
+## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
 
-JSON_FILENAME=`basename ${JSON}` 
+JSON_FILENAME=`basename ${JSON}`
 checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
 
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
-logInfo "[DELIVERY] Alignment block delivered. Have a nice day."
+logInfo "[DELIVERY] SomaticVC block delivered. Have a nice day."
 
 
 ## END

@@ -37,7 +37,11 @@ task variantCallingTask {
    String Sentieon                                # Path to Sentieon
    String SentieonThreads                         # No of Threads for the Tool
 
+   String HaplotyperSoftMemLimit                  # Soft memory limit - nice shutdown
+   String HaplotyperHardMemLimit                  # Hard memory limit - kill immediately
+
    File BashPreamble                              # bash script to source before every task
+   File BashSharedFunctions                       # Bash script with shared functions
    File HaplotyperScript                          # Path to bash script called within WDL script
    File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
@@ -48,6 +52,12 @@ task variantCallingTask {
         source ${BashPreamble}
         /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
    >>>
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${HaplotyperSoftMemLimit}"
+      h_vmem: "${HaplotyperHardMemLimit}"
+   }
 
   output {
    
