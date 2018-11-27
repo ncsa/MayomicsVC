@@ -19,11 +19,13 @@ workflow CallDeliveryHaplotyperVCTask {
    String DeliveryFolder_HaplotyperVC
 
    File WorkflowJson
+   File BashPreamble
 
 #####################################################################################          
    
    call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as deliverHaplotyperVC {
       input:
+         BashPreamble = BashPreamble,
          SampleName = SampleName,
          RecalibratedVcf = GlobalRecalibratedVcf,
          RecalibratedVcfIdx = GlobalRecalibratedVcfIdx,

@@ -18,6 +18,7 @@ workflow RunTrimSequencesTask {
    Boolean PairedEnd               # Variable to check if single ended or not
    String DebugMode                # Variable to check if Debud Mode is on or not
 
+   File BashPreamble               # Bash script to source before every task
    File TrimSeqScript              # Bash script which is called inside the WDL script
    File TrimEnvProfile             # File containing the environmental profile variables
 
@@ -29,6 +30,7 @@ workflow RunTrimSequencesTask {
       if(PairedEnd) {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_paired {
             input:
+               BashPreamble = BashPreamble,
                SampleName=SampleName,
                InputRead1=lane[0],
                InputRead2=lane[1],
@@ -45,6 +47,7 @@ workflow RunTrimSequencesTask {
       if(!PairedEnd) {
          call TRIMSEQ.trimsequencesTask as TRIMSEQ_single {
             input:
+               BashPreamble = BashPreamble,
                SampleName=SampleName,
                InputRead1=lane[0],
                InputRead2="null",

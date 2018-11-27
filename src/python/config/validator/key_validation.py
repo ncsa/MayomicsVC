@@ -10,10 +10,9 @@ import os
 import argparse
 import logging
 import pathlib
-from util.util import read_json_file
 from util.util import flatten
 from util.log import ProjectLogger
-from util.special_keys import OPTIONAL_KEYS
+from config.util.special_keys import OPTIONAL_KEYS
 
 """
 Exit code Rules:
@@ -81,9 +80,9 @@ class Validator:
     def __init__(self, job_id="NA", debug_mode=False):
         # Initialize the project logger (with the level at INFO by default and DEBUG if in debug mode)
         if debug_mode:
-            self.project_logger = ProjectLogger(job_id, "key_validation.Validator", logging.DEBUG)
+            self.project_logger = ProjectLogger(job_id, "validator.key_validation.Validator", logging.DEBUG)
         else:
-            self.project_logger = ProjectLogger(job_id, "key_validation.Validator")
+            self.project_logger = ProjectLogger(job_id, "validator.key_validation.Validator")
         self.job_id = job_id
         self.debug_mode = debug_mode
 
@@ -324,7 +323,7 @@ class Validator:
                 'E.val.UNK.1',
                 'Input variable "' + key_name + '" has the type "' + key_type +
                 '" in the key types file, which is not a recognized type ' +
-                '(see src/config/validation/config_parser_README.md for a list of valid types)'
+                '(see src/config/validation/README.md for a list of valid types)'
             )
 
             return False
@@ -372,31 +371,3 @@ class Validator:
         )
 
 
-def main(args):
-    parsed_args = parse_args(args)
-
-    if parsed_args.jobID is None:
-        validator = Validator(debug_mode=parsed_args.d)
-    else:
-        validator = Validator(parsed_args.jobID, debug_mode=parsed_args.d)
-
-    json_input_file = read_json_file(parsed_args.i, validator.project_logger,
-                                     json_not_found_error_code="E.val.JSN.1",
-                                     json_bad_format_error_code="E.val.JSN.2"
-                                     )
-
-    # The config file as a dictionary, with long key names replaced with their short names
-    config_dict = validator.trim_config_file_keys(json_input_file)
-
-    # The key type dictionary
-    key_type_dict = read_json_file(parsed_args.KeyTypeFile, validator.project_logger,
-                                   json_not_found_error_code="E.val.JSN.1",
-                                   json_bad_format_error_code="E.val.JSN.2"
-                                   )
-
-    # Check the values present in the configuration file
-    validator.validate_keys(config_dict, key_type_dict)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

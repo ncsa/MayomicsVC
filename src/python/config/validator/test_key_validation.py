@@ -3,7 +3,7 @@
 import os
 import sys
 import unittest
-import key_validation as v
+from config.validator.key_validation import Validator
 
 # This is the full path to the validation package
 package_full_path = os.path.abspath(os.path.dirname(__file__))
@@ -12,7 +12,7 @@ package_full_path = os.path.abspath(os.path.dirname(__file__))
 class TestValidator(unittest.TestCase):
 
     # Create an instance of the validator (without passing in a job_id string, it defaults to "NA")
-    validator = v.Validator()
+    validator = Validator()
     # Turn the project logger off during UnitTesting, so the end user is not confused by error messages
     #   (Some tests are designed to fail, so they will log "ERROR" messages that are expected)
     validator.project_logger.logger.disabled = True

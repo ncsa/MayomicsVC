@@ -10,5 +10,6 @@
   "major.minor.DebugMode": "String",
   "major.minor.InputReads": "String",
   "major.minor.ValueWithQuotes": "String",
-  "major.minor.PairedEnd": "true"
+  "major.minor.PairedEnd": "true",
+  "major.minor.PlatformUnit": "String"
 }

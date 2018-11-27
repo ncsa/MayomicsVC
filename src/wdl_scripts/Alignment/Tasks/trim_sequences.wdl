@@ -1,7 +1,5 @@
 ###########################################################################################
-
 ##              This WDL scripts trim the Inputs Fasta File using CutAdapt               ##
-
 ##                                    Script Options                     
 #         -t        "Number of Threads"                         (Required)
 #         -P        "Single Ended Reads specification"          (Required)
@@ -29,20 +27,20 @@ task trimsequencesTask {
 
    Boolean PairedEnd               # Variable to check if single ended or not
 
+   File BashPreamble               # shell file to source before each task
    File TrimSeqScript              # Bash script which is called inside the WDL script
-   File TrimEnvProfile                 # File containing the environmental profile variables
+   File TrimEnvProfile             # File containing the environmental profile variables
 
    String DebugMode                # Variable to check if Debug Mode is on or not
 
 
-   command {
-      /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} -e ${TrimEnvProfile} ${DebugMode}
-   }
-
+   command <<<
+     source ${BashPreamble}
+     /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} -e ${TrimEnvProfile} ${DebugMode}
+   >>>
 
    output {
       Array[File] Outputs = glob("${SampleName}.read?.trimmed.fq.gz")
    }
-
 }
 
