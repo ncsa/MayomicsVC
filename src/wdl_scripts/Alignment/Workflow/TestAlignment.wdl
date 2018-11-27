@@ -31,20 +31,18 @@ workflow CallAlignmentTasks {
    Array[File] AlignOutputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
 
 
+   call MERGE.mergebamTask as merge {
+      input:
+         InputBams = AlignOutputBams,
+         InputBais = AlignOutputBais
+   }
+
    if(MarkDuplicates) {
    
       call DEDUP.dedupTask as dedup {
          input:
-            InputBams = AlignOutputBams,
-            InputBais = AlignOutputBais
-      }
-   }
-
-   if(!MarkDuplicates) {
-      call MERGE.mergebamTask as merge {
-         input:
-            InputBams = AlignOutputBams,
-            InputBais = AlignOutputBais
+            InputBams = merge.OutputBams,
+            InputBais = merge.OutputBais
       }
    }
 
