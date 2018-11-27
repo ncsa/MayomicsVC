@@ -60,11 +60,19 @@ class Workflow:
 
             if task_1.rank >= task_2.rank:
                 self.project_logger.log_error(
-                    "E.wfg.Ord.1", "Cannot have " + task_1.alias.upper() + "before " + task_2.alias.upper()
+                    "E.wfg.Ord.1",
+                    "Cannot have " + task_1.alias.upper() + "before " + task_2.alias.upper()
                 )
                 sys.exit(1)
 
     def __process_task_list_file(self, file_path: str) -> List[FileType]:
+        """
+        Read in a file with one task name per line, and verify that the lines are valid task names, and convert the task
+          name into its corresponding FileType instance
+
+        :param file_path: The path to the file
+        :return: a list tasks
+        """
         with open(file_path, "r") as F:
             trimmed_lines = [line.strip() for line in F]
 
@@ -135,7 +143,9 @@ class Workflow:
                         for output in searched_task.outputs:
                             # If the input/output filetypes match
                             if i.name == output.name:
-                                task.add_formatted_input_string(Workflow.__format_import_string(i, output, searched_task))
+                                task.add_formatted_input_string(
+                                    Workflow.__format_import_string(i, output, searched_task)
+                                )
                                 dependency_found = True
                                 break
                     searched_task_index -= 1
@@ -151,10 +161,20 @@ class Workflow:
             task.mark_dependencies_found()
 
     def __process_task_list(self):
+        """
+        For each task, construct the input strings that the task definition will need
+
+        side-effect of adding these input strings to the tasks internal list
+        """
         for index, task in enumerate(self.task_list):
             self.__find_dependencies(task, index)
 
     def __construct_import_lines(self):
+        """
+        Construct the import lines needed by the WDL script
+
+        :return: A collection of import lines as strings
+        """
         import_lines = []
         for task in self.task_list:
             import_lines.append('import "' + task.import_location + '" as ' + task.alias.upper())
@@ -162,6 +182,12 @@ class Workflow:
 
     @staticmethod
     def __construct_task_lines(task: Task) -> List[str]:
+        """
+        Construct the task definition for a given task
+
+        :param task: the input task
+        :return: The task definition as a list of strings
+        """
         lines = []
         alias = task.alias
         num_inputs = len(task.formatted_input_strings)
@@ -182,6 +208,11 @@ class Workflow:
         return lines
 
     def __construct_output_lines(self):
+        """
+        Construct all of the lines that make up the WDL script
+
+        :return: The lines of the WDL script
+        """
         import_lines = self.__construct_import_lines()
 
         workflow_line = "workflow " + self.workflow_name + " {"
@@ -198,6 +229,11 @@ class Workflow:
         return import_lines + ["", workflow_line] + task_lines + [final_line]
 
     def create_and_write_wdl_file(self, output_file):
+        """
+        Create the WDL script and write it to a file
+
+        :param output_file: the name of the output file
+        """
         self.__process_task_list()
         lines = self.__construct_output_lines()
 
