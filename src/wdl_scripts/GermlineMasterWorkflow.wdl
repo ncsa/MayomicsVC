@@ -21,6 +21,7 @@ workflow GermlineMasterWF {
 
    Boolean Trimming
    Boolean MarkDuplicates
+   Boolean Vqsr
 
    if(Trimming) {
 
@@ -78,28 +79,32 @@ workflow GermlineMasterWF {
    call BQSR.bqsrTask as bqsr {
       input:
          InputBams = realign.OutputBams,
-         InputBais = realign.OutputBais,
+         InputBais = realign.OutputBais
    }
 
    call HAPLOTYPER.variantCallingTask as haplotype {
       input:
          InputBams = realign.OutputBams,
          InputBais = realign.OutputBais,
-         RecalTable = bqsr.RecalTable,
+         RecalTable = bqsr.RecalTable
    }
 
-   call VQSR.vqsrTask as vqsr {
-      input:
-         InputVcf = haplotype.OutputVcf,
-         InputVcfIdx = haplotype.OutputVcfIdx,
+   if(Vqsr) {
+      call VQSR.vqsrTask as vqsr {
+         input:
+            InputVcf = haplotype.OutputVcf,
+            InputVcfIdx = haplotype.OutputVcfIdx
+      }
    }
 
+   File DeliverHaplotyperVcf = select_first([haplotype.OutputVcf,vqsr.OutputVcf])
+   File DeliverHaplotyperVcfIdx = select_first([haplotype.OutputVcfIdx,vqsr.OutputVcfIdx])
 
 
    call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
       input:
-         InputVcf = vqsr.OutputVcf,
-         InputVcfIdx = vqsr.OutputVcfIdx
+         InputVcf = DeliverHaplotyperVcf,
+         InputVcfIdx = DeliverHaplotyperVcfIdx
    } 
 
 }
