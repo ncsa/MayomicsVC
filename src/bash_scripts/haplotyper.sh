@@ -41,11 +41,12 @@ read -r -d '' DOCS << DOCS
 		   -r	<recal_data.table>
 		   -o	<extra_haplotyper_options>
                    -e   </path/to/env_profile_file>
+                   -F   </path/to/shared_functions.sh>
 		   -d   turn on debug mode
 
  EXAMPLES:
  Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/env_profile_file -d 
+ Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/env_profile_file -F </path/to/shared_functions.sh> -d 
 
 NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ##########################################################################################################################################################
@@ -68,8 +69,17 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
+
+
+
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -85,7 +95,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:r:o:e:d" OPT
+while getopts ":hs:S:G:t:b:D:r:o:e:F:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -128,6 +138,10 @@ do
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
+		F ) # Path to shared_functions.sh
+			SHARED_FUNCTIONS=${OPTARG}
+			checkArg
+			;;
 		d ) # Turn on debug mode. Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -152,12 +166,13 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
+
+
+source ${SHARED_FUNCTIONS}
+
+
 ## Check if sample name is set
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-	echo -e "$0 stopped at line $LINENO. \nREASON=Missing sample name option: -s"
-	exit 1
-fi
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.haplotyper.${SGE_JOB_ID}.log
@@ -167,105 +182,29 @@ truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
 
+checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
+checkDir ${SENTIEON} "REASON=Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
 
-## Check if Sentieon path is present
-if [[ -z ${SENTIEON+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Sentieon path option: -S"
-fi
+checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
 
-## Check if the Sentieon executable is present.
-if [[ ! -d ${SENTIEON} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
+checkVar "${REF+x}" "Missing reference genome option: -G" $LINENO
+checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LINENO
 
-#Check if the number of threads is present.
-if [[ -z ${NTHREADS+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing threads option: -t"
-fi
+checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
+checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINENO
+checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exist." $LINENO
 
-## Check if the reference option was passed in.
-if [[ -z ${REF+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -G"
-fi
+checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
+checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
-## Check if the reference file exits
-if [[ ! -s ${REF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
-fi
+checkVar "${RECAL+x}" "Missing RECAL_DATA.TABLE option: -r" $LINENO
+checkFile ${RECAL} "Recal table from BQSR ${RECAL} is empty or does not exist." $LINENO
 
-## Check if the input BAM option was passed in.
-if [[ -z ${INPUTBAM+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing input BAM option: -b"
-fi
+checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
-## Check if the BAM input file is present.
-if [[ ! -s ${INPUTBAM} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is empty or does not exist."
-fi
-
-## Check if the input BAM index file is present
-if [[ ! -s ${INPUTBAM}.bai ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input BAM index ${INPUTBAM} is empty or does not exist."
-fi
-
-## Check if the dbSNP option was passed in.
-if [[ -z ${DBSNP+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing dbSNP option: -D"
-fi
-
-
-## Check if dbSNP file is present.
-if [[ ! -s ${DBSNP} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=DBSNP ${DBSNP} is empty or does not exist."
-fi
-
-## Check if recal data table is option was passed in
-if [[  -z ${RECAL+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing RECAL_DATA.TABLE option: -r"
-fi
-
-if [[ -z ${HAPLOTYPER_OPTIONS+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing extra haplotyper options option: -o"
-fi
-
-## Check if the Recal_data.table file produced in BQSR is present
-if [[ ! -s ${RECAL} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist."
-fi
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
@@ -295,11 +234,8 @@ ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${REC
 EXITCODE=$?
 trap - INT TERM EXIT
 
-if [[ ${EXITCODE} -ne 0 ]]
-then
-        logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in Sentieon Haplotyper."
-fi
 
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #------------------------------------------------------------------------------------------------------------------------------------
 
@@ -314,22 +250,13 @@ logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for the creation of the output VCF file
-if [[ ! -s ${SAMPLE}.vcf ]] 
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Output VCF is empty."
-fi
+checkFile ${SAMPLE}.vcf "Output VCF is empty." $LINENO
 
 ## Open read permissions to the user group
 chmod g+r ${SAMPLE}.vcf
 
 ## Check for the creation of the output VCF index file 
-if [[ ! -s ${SAMPLE}.vcf.idx ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Output VCF index is empty."
-fi
-
+checkFile ${SAMPLE}.vcf.idx "Output VCF index is empty." $LINENO
 
 ## Open read permissions to the user group
 chmod g+r ${SAMPLE}.vcf.idx

@@ -9,6 +9,7 @@
 #       -s        "Name of the sample"                                    (Optional)
 #       -S        "Path to the Sentieon Tool"                             (Required)
 #       -e        "Path to the environmental profile                      (Required)
+#       -F        "Path to shared functions file"                         (Required)
 #       -d        "debug mode"                                            (Optional)
 ############################################################################################
 
@@ -43,7 +44,7 @@ task vqsrTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r "'${VqsrSnpResourceString}'" -R "'${VqsrIndelResourceString}'" -a ${AnnotateText} -e ${VqsrEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
@@ -53,7 +54,7 @@ task vqsrTask {
    }
 
    output {
-      File OutputVcf = "${SampleName}.INDEL.SNP.recaled.vcf"
-      File OutputVcfIdx = "${SampleName}.INDEL.SNP.recaled.vcf.idx"
+      File OutputVcf = "${SampleName}.SNP.recaled.vcf"
+      File OutputVcfIdx = "${SampleName}.SNP.recaled.vcf.idx"
    }
 }

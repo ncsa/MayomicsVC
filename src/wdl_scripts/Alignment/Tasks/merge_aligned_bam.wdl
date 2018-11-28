@@ -16,6 +16,8 @@ task mergebamTask {
    String SentieonThreads          # Specifies the number of thread required per run
    String DebugMode                # Variable to check whether Debud Mode is on
 
+   String MergeSoftMemLimit        # Soft memory limit - nice shutdown
+   String MergeHardMemLimit        # Hard memory limit - kill immediately
    File BashPreamble               # Bash script that helps control zombie processes
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    File MergeBamScript             # Bash script that is called inside the WDL script
@@ -25,6 +27,12 @@ task mergebamTask {
    	   source ${BashPreamble}
    	   /bin/bash ${MergeBamScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${MergeBamEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${MergeSoftMemLimit}"
+      h_vmem: "${MergeHardMemLimit}"
+   }
 
    output {
       File OutputBams = "${SampleName}.aligned.sorted.merged.bam"

@@ -10,8 +10,9 @@
 #       -D        "Path to the DBSNP File"                         (Required)
 #       -s        "Name of the sample"                             (Optional)
 #       -S        "Path to the Sentieon Tool"                      (Required)
-#       -e        "Path to the environmental profile               (Required)
-#       -d        "debug mode on/off                               (Optional: can be empty)
+#       -e        "Path to the environmental profile"              (Required)
+#	-F        "Path to the shared functions file"              (Required)
+#       -d        "debug mode on/off"                              (Optional: can be empty)
 
 
 ############################################################################################
@@ -44,7 +45,7 @@ task bqsrTask {
 
    command <<<
        source ${BashPreamble}
-       /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -k ${BqsrKnownSites} -e ${BqsrEnvProfile} ${DebugMode}
+       /bin/bash ${BqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -k ${BqsrKnownSites} -e ${BqsrEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
    
    runtime {
