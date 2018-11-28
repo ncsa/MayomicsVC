@@ -92,7 +92,7 @@ function checkArg()
 #check for a set variale
 function checkVar()
 {
-	if [[ ! -z ${1+x} ]]
+	if [[ -z ${1+x} ]]
 	then
 		EXITCODE=1
 		logError "$0 stopped at line ${LINENO}. \nREASON=$2"

@@ -171,19 +171,18 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 
-#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
-source ${SHARED_FUNCTIONS}
-
-## Check if sample name is set
-checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO 
-
-
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.strelka.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.strelka.log                 
+truncate -s 0 ${SAMPLE}.strelka.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
+
+#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
+source "${SHARED_FUNCTIONS}"
+
+## Check if sample name is set
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${NORMAL+x}" "Missing normal BAM option: -B" $LINENO
@@ -196,16 +195,15 @@ checkVar "${REFGEN+x}" "Missing reference genome option: -g" SLINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
 checkVar "${OUTVCF+x}" "Missing output VCF option: -v" SLINENO
-checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
+#checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
 
 checkVar "${INSTALL+x}" "Missing install directory option: -I" SLINENO
-checkDir ${INSTALL} "Reason= directory $INSTALL is not a directory ot does not exist." $LINENO
+checkDir ${INSTALL} "Reason= directory ${INSTALL} is not a directory or does not exist." $LINENO
 
 checkVar "${CONFIG+x}" "Missing python configuration file: -c" SLINENO
-checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
+#checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
 
 checkVar "${THREADS+x}" "Missing number of threads option: -t" SLINENO
-checkFile ${THREADS} "Python configuration file ${THREADS} is empty or does not exist." $LINENO
 
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" SLINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
@@ -229,163 +227,49 @@ STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
 
-#-----------------------------------------------------------------------------------
-## debug mode
-if [ "$DEBUG_MODE" == "YES" ];then set -x; fi
-log "Command to recreate: $0 $@"
-
-if [ ! -s $normal_bam ]
-then
-    $WORKFLOW_PATH/email.sh -f $normal_bam -m strelka.sh -p "$email_param" -l $LINENO
-    exit 100;
-else
-    validate_bam $SAMTOOLS $normal_bam $output strelka
-    if [ $? -gt 0 ]
-    then
-        $WORKFLOW_PATH/email.sh -f $normal_bam -m strelka.sh -p "$email_param" -l $LINENO
-        exit 100;
-    fi
-fi
-
-if [ ! -s $tumor_bam ]
-then
-    $WORKFLOW_PATH/email.sh -f $tumor_bam -m strelka.sh -p "$email_param" -l $LINENO
-    exit 100;
-else
-    validate_bam $SAMTOOLS $tumor_bam $output strelka
-    if [ $? -gt 0 ]
-    then
-        $WORKFLOW_PATH/email.sh -f $tumor_bam -m strelka.sh -p "$email_param" -l $LINENO
-        exit 100;
-    fi
-fi
-
-if [ ! -d $output/strelka ]
-then
-    mkdir -p $output/strelka
-else
-    rm -rv $output/strelka
-    mkdir -p $output/strelka
-fi
-#-------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-## Perform Strelka
+## Perform Strelka variant calling
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 ## Record start time
 logInfo "[Strelka] START."
 
 ## first configure the strelka run
-$STRELKA/bin/configureStrelkaSomaticWorkflow.py \
-    --tumorBam=$TUMOR \
-    --normalBam=$NORMAL \
-    --referenceFasta=$REFGEN \
-    --runDir=$output/strelka/ \
-    $STRELKA_params
-if [ $? -ne 0 ]
-then
-  $WORKFLOW_PATH/email.sh -f $output/$vcf -m somaticvariants.sh -s $STRELKA/bin/configureStrelkaSomaticWorkflow.py -p "email_param" -l $LINENO
-  exit 100;   
-fi
+#
+## Add command trap here
+#
+${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
+    --tumorBam=${TUMOR} \
+    --normalBam=${NORMAL} \
+    --referenceFasta=${REFGEN} \
+    --runDir=./strelka \
+    $STRELKA_OPTIONS_PARSED
+#
+## Add exitCode check
+#
 
-## then run the strelka workflow
-## we choose local so it will not spawn new jobs on the cluster
-$output/strelka/runWorkflow.py -m local -j $THR
-if [ $? -ne 0 ]
-then
-  $WORKFLOW_PATH/email.sh -f $output/$vcf -m somaticvariants.sh -s $output/strelka/runWorkflow.py -p "email_param" -l $LINENO
-  exit 100;   
-fi
+## Run the strelka workflow. We choose local so it will not spawn new jobs on the cluster
+#
+## Add command trap here
+#
+./strelka/runWorkflow.py -m local -j ${THR}
 
-if [ ! -s  $output/strelka/results/variants/somatic.indels.vcf.gz ]
-then
-    $WORKFLOW_PATH/email.sh -f $output/strelka/results/variants/somatic.indels.vcf.gz -m somaticvariants.sh -s strelka.sh -p "$email_param" -l $LINENO -M "failed to create"
-    exit 100;
-fi
+#
+## Add exitCode check
+#
+
+#
+## Add checkFile for output vcf
+#
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-##POST-PROCESSING
+
+logInfo "Strelka workflow completed."
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
-# Clean up strelka output
-zcat $output/strelka/results/variants/somatic.indels.vcf.gz | $PERL $WORKFLOW_PATH/fixStrelka_GT_indels.pl | $TABIX/bgzip -f > $output/strelka/results/variants/somatic.indels.fixed.vcf.gz
-
-if [ ! -s  $output/strelka/results/variants/somatic.indels.fixed.vcf.gz ]
-then
-    $WORKFLOW_PATH/email.sh -f $output/strelka/results/variants/somatic.indels.fixed.vcf.gz -m somaticvariants.sh -s strelka.sh -p "$email_param" -l $LINENO -M "failed to create"
-    exit 100;
-fi
-
-# Since the output is valid, move the file to its final destination
-mv $output/strelka/results/variants/somatic.indels.fixed.vcf.gz $output/strelka/results/variants/somatic.indels.vcf.gz
-$TABIX/tabix -f -p vcf $output/strelka/results/variants/somatic.indels.vcf.gz
-
-if [ ! -s  $output/strelka/results/variants/somatic.snvs.vcf.gz ]
-then
-    $WORKFLOW_PATH/email.sh -f $output/strelka/results/variants/somatic.snvs.vcf.gz -m somaticvariants.sh -s strelka.sh -p "$email_param" -l $LINENO -M "failed to create"
-    exit 1;
-fi
-
-# Clean up strelka output
-zcat $output/strelka/results/variants/somatic.snvs.vcf.gz | $PERL $WORKFLOW_PATH/fixStrelka_GT_snvs.pl | $TABIX/bgzip -f > $output/strelka/results/variants/somatic.snvs.fixed.vcf.gz
-
-if [ ! -s  $output/strelka/results/variants/somatic.snvs.fixed.vcf.gz ]
-then
-    $WORKFLOW_PATH/email.sh -f $output/strelka/results/variants/somatic.snvs.fixed.vcf.gz -m somaticvariants.sh -s strelka.sh -p "$email_param" -l $LINENO -M "failed to create"
-    exit 100;
-fi
-
-# Since the output is valid, move the file to its final destination
-mv $output/strelka/results/variants/somatic.snvs.fixed.vcf.gz $output/strelka/results/variants/somatic.snvs.vcf.gz
-$TABIX/tabix -f -p vcf $output/strelka/results/variants/somatic.snvs.vcf.gz
-
-## combine vcfs into a single output
-if [ -f $output/$vcf ]; then rm $output/$vcf; fi
-
-$WORKFLOW_PATH/combinevcf.sh \
-    -i $output/strelka/results/variants/somatic.indels.vcf.gz \
-    -i $output/strelka/results/variants/somatic.snvs.vcf.gz \
-    -o $output/$vcf \
-    -t $TOOL_INFO \
-    -m $MEMORY_INFO \
-    -b $tumor_bam \
-    -a
-if [ $? -ne 0 ]
-then
-  $WORKFLOW_PATH/email.sh -f $output/$vcf -m somaticvariants.sh -s combinevcf.sh -p "email_param" -l $LINENO
-  exit 100;   
-fi
-
-normal_sample_name=`$SAMTOOLS/samtools view $normal_bam -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
-tumor_sample_name=`$SAMTOOLS/samtools view $tumor_bam -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
-
-# replace NORMAL and TUMOR in the VCF column header line with the actual sample names
-if [ -f $output/$vcf.tmp ]; then rm $output/$vcf.tmp; fi
-
-zcat $output/$vcf | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > $output/$vcf.tmp
-
-$TABIX/bgzip -c $output/$vcf.tmp > $output/$vcf
-rm -v $output/$vcf.tmp
-
-$TABIX/tabix -f -p vcf $output/$vcf
-
-END=$(date +%s)
-DIFF=$(( $END - $START ))
-log "strelka.sh to create $output/$vcf took $DIFF seconds"
