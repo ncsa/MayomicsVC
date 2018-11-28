@@ -16,11 +16,6 @@ echo -e "\n${MANIFEST}"
 
 
 
-
-
-
-
-
 read -r -d '' DOCS << DOCS
 
 #############################################################################
@@ -38,14 +33,14 @@ read -r -d '' DOCS << DOCS
                    -I           <install_path>
 		   -c		<python_config_file>
 		   -t		<threads>
-		   -S		<shared_functions_path>
+		   -F		<shared_functions>
 	           -o		<additonal options>
 		   -d		Turn on debug mode
                    -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -B normal -T tumor -g reference_genome -v outputVCF -I path/to/install -s path/to/shared_functions -o option
+strelka.sh -B normal -T tumor -g reference_genome -v outputVCF -I path/to/install -F path/to/shared_functions -o option
 
 NOTES: 
 
@@ -74,9 +69,14 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -87,8 +87,7 @@ source ${LOG_PATH}/log_functions.sh
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## GETOPTS ARGUMENT PARSER
-#-------------------------------------------------------------------------------------------------------------------------------
-
+#------------------------------------------------------------------------------------------------------------------------------
 ## Check if no arguments were passed
 if (($# == 0))
 then
@@ -97,7 +96,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:s:B:T:g:v:I:d:o" OPT
+while getopts ":hs:B:T:g:v:I:c:t:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -135,9 +134,9 @@ do
 	        t )  # Number of threads
                         THR=${OPTARG}
                         checkArg
-                        ;;
-		s )  # Shared functions 
-                        FUNCTIONS=${OPTARG}
+			;;
+		F )  # Shared functions 
+                        SHARED_FUNCTIONS=${OPTARG}
                         checkArg
                         ;;
 		o )  # Extra options
@@ -171,174 +170,61 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
-# Check if sample name is set
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-        echo -e "$0 stopped at line $LINENO. \nREASON=Missing tumor name option: -s"
-        exit 1
-fi
+
+#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
+source ${SHARED_FUNCTIONS}
+
+## Check if sample name is set
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO 
 
 
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.strelka.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${TUMOR}.strelka.log                 
+truncate -s 0 ${SAMPLE}.strelka.log                 
 
 echo "${MANIFEST}" >> "${ERRLOG}"
-echo "${MANIFEST}" >> "${ERRLOG}"
 
-## Check if the sample name option was passed in.
-if [[ -z ${SAMPLE} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-fi
+## Check if input files, directories, and variables are non-zero
+checkVar "${NORMAL+x}" "Missing normal BAM option: -B" $LINENO
+checkFile ${NORMAL} "Input normal BAM file ${NORMAL} is empty or does not exist." $LINENO
 
-## Check if the sample name is present.
-#if [[ ! -s ${SAMPLE} ]]
-#then
-#        EXITCODE=1
-#        logError "$0 stopped at line $LINENO. \nREASON=SAMPLE NAME ${SAMPLE} is empty or does not exist."
-#fi
+checkVar "${TUMOR+x}" "Missing tumor BAM option: -T" SLINENO
+checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $LINENO
 
-## Check if the NOMRAL input BAM option was passed in.
-if [[ -z ${NORMAL} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing NORMAL BAM option: -B"
-fi
+checkVar "${REFGEN+x}" "Missing reference genome option: -g" SLINENO
+checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-## Check if the NORMAL input BAM is present.
-if [[ ! -s ${NORMAL} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=NORMAL BAM ${NORMAL} is empty or does not exist."
-fi
-## Check if the TUMOR input BAM option was passed in.
-if [[ -z ${TUMOR} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing TUMOR BAM option: -T"
-fi
+checkVar "${OUTVCF+x}" "Missing output VCF option: -v" SLINENO
+checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
 
-## Check if the TUMOR input BAM is present.
-if [[ ! -s ${TUMOR} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=TUMOR BAM ${TUMOR} is empty or does not exist."
-fi
+checkVar "${INSTALL+x}" "Missing install directory option: -I" SLINENO
+checkDir ${INSTALL} "Reason= directory $INSTALL is not a directory ot does not exist." $LINENO
 
-## Check if the reference file option was passed in.
-if [[ -z ${REFGEN} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing reference genome option: -g"
-fi
+checkVar "${CONFIG+x}" "Missing python configuration file: -c" SLINENO
+checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
 
-## Check if the reference file is present.
-if [[ ! -s ${REFGEN} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${REFGEN} is empty or does not exist."
-fi
+checkVar "${THREADS+x}" "Missing number of threads option: -t" SLINENO
+checkFile ${THREADS} "Python configuration file ${THREADS} is empty or does not exist." $LINENO
 
-## Check if the Output VCF option was passed in.
-if [[ -z ${OUTVCF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing output VCF option: -o"
-fi
+checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" SLINENO
+checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
-## Check if the OUTPUT VCF file  is present.
-if [[ ! -s ${OUTVCF} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome fasta file ${OUTVCF} is empty or does not exist."
-fi
+checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 
-## Check if the Strelka INSTALL file option was passed in.
-if [[ -z ${INSTALL} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Strelka INSTALL file option: -I"
-fi
 
-## Check if the Strelka INSTALL file is present.
-if [[ ! -s ${INSTALL} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Strelka directory ${INSTALL} is not a directory or does not exist."
-fi
 
-## Check if the python configuration file option was passed in.
-if [[ -z ${CONFIG} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing python configuration file option: -c"
-fi
 
-## Check if the python configuration file is present.
-if [[ ! -s ${CONFIG} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Strelka directory ${CONFIG} is not a directory or does not exist."
-fi
+#CHECKV_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
+#source ${CHECKV_PATH}/check_variable.sh
 
-## Check if the number of threads option was passed in.
-if [[ -z ${THR} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing number of threads option: -t"
-fi
-
-## Check if the number of threads is present.
-if [[ ! -s ${THR} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Strelka directory ${THR} is not a directory or does not exist."
-fi
-
-## Check if the shared functions option was passed in.
-if [[ -z ${FUNCTIONS} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Strelka INSTALL file option: -I"
-fi
-
-## Check if the shared functions file is present.
-if [[ ! -s ${FUNCTIONS} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Strelka directory ${INSTALL} is not a directory or does not exist."
-fi
-
-## Check if the Extra Options option was passed in
-if [[ -z ${OPTIONS+x} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing Extra Options option: -o"
-fi
-## Check if the Extra Options is present.
-if [[ ! -s ${OPTIONS} ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REFGEN} is empty or does not exist."
+#CHECKF_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
+#source ${CHECKF_PATH}/check_file.sh
 
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -381,7 +267,7 @@ else
     rm -rv $output/strelka
     mkdir -p $output/strelka
 fi
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
