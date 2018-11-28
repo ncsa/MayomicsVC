@@ -44,7 +44,7 @@ task vqsrTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r ${VqsrSnpResourceString} -R ${VqsrIndelResourceString} -a ${AnnotateText} -e ${VqsrEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+      /bin/bash ${VqsrScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -V ${InputVcf} -r "'${VqsrSnpResourceString}'" -R "'${VqsrIndelResourceString}'" -a ${AnnotateText} -e ${VqsrEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {

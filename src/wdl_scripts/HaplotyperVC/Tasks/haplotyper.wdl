@@ -51,7 +51,7 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o "'${HaplotyperExtraOptionsString}'" -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
