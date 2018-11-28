@@ -2,24 +2,41 @@
     "major.minor.DBSNP": "dbsnp.vcf",
     "major.minor.DBSNPIdx": "dbsnp.vcf.idx",
     "major.minor.DebugMode": "",
-    "major.minor.InputReads": [
+    "major.minor.NormalInputReads": [
         [
-            "readL1.fq"
+            "readL1.fq",
+            "readR1.fq"
         ],
         [
-            "readL2.fq"
+            "readL2.fq",
+            "readR2.fq"
         ],
         [
-            "readL3.fq"
+            "readL3.fq",
+            "readR3.fq"
         ]
     ],
-    "major.minor.PairedEnd": "false",
+    "major.minor.PairedEnd": "true",
     "major.minor.PlatformUnit": [
         "A",
         "B",
         "C"
     ],
     "major.minor.REF": "ref.fa",
+    "major.minor.TumorInputReads": [
+        [
+            "tumor_readL1.fq",
+            "tumor_readR1.fq"
+        ],
+        [
+            "tumor_readL2.fq",
+            "tumor_readR2.fq"
+        ],
+        [
+            "tumor_readL3.fq",
+            "tumor_readR3.fq"
+        ]
+    ],
     "major.minor.ValueWithQuotes": "\"'InBetweenQuotes'\"",
     "major.minor.test_boolean": "true",
     "major.minor.test_decimal": "3.14159",

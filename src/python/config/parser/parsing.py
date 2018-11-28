@@ -211,8 +211,11 @@ class Parser:
         elif config_key == "DBSNP":
             output_dictionary[str(full_dict_key) + "Idx"] = str(trimmed_value) + ".idx"
 
-    def combine_input_read_arrays(self, key_value_tuples):
+    def combine_input_read_arrays(self, key_value_tuples, read1_name, read2_name):
         """
+        Takes in the key value tuples, and the names of two read variables, and combines their values into a 2D array
+        (This is used for two pairs of reads: NormalInputReads and TumorInputReads)
+
         InputReads1 & 2 are each provided in the config file as an array of files
 
             InputRead1="L1,L2,L3, ..."
@@ -241,12 +244,13 @@ class Parser:
         try:
             # next iterates through a collection until it finds an item that meets a criterion; here it is used to
             #   find the tuples with the keys we want
-            paired_end_tuple =   next(pair for pair in key_value_tuples if pair[0] == "PairedEnd")
-            input_read_1_tuple = next(pair for pair in key_value_tuples if pair[0] == "InputRead1")
-            input_read_2_tuple = next(pair for pair in key_value_tuples if pair[0] == "InputRead2")
+            paired_end_tuple = next(pair for pair in key_value_tuples if pair[0] == "PairedEnd")
+            input_read_1_tuple = next(pair for pair in key_value_tuples if pair[0] == read1_name)
+            input_read_2_tuple = next(pair for pair in key_value_tuples if pair[0] == read2_name)
         except StopIteration:
             self.project_logger.log_error(
-                "E.par.InR.1", "Either the PairedEnd, InputRead1, or InputRead2 key was not present in the config file"
+                "E.par.InR.1",
+                "Either the PairedEnd, " + read1_name + ", or " + read2_name + " key was not present in the config file"
             )
             sys.exit(1)
 
@@ -260,12 +264,13 @@ class Parser:
         input_read_2_array = [] if input_read_2_value == "" else input_read_2_value.split(",")
 
         if paired_end:
-            if len(input_read_1_array) != len(input_read_2_array):
-                self.project_logger.log_error("E.par.InR.2", "The InputRead1 & InputRead2 lists had different lengths")
-                sys.exit(1)
-            elif len(input_read_2_array) == 0:
+            if len(input_read_2_array) == 0:
                 self.project_logger.log_error("E.par.InR.3", "PairedEnd was true but the InputRead2 lists was empty")
                 sys.exit(1)
+            elif len(input_read_1_array) != len(input_read_2_array):
+                self.project_logger.log_error("E.par.InR.2", "The InputRead1 & InputRead2 lists had different lengths")
+                sys.exit(1)
+
             # By default, zip returns tuples. The list comprehension turns them back into lists
             input_reads_2d_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
         else:
@@ -274,18 +279,28 @@ class Parser:
 
         return input_reads_2d_array
 
-    def insert_values_into_dict(self, starting_dict, key_value_tuple, input_reads_2d_array):
+    def insert_values_into_dict(self,
+                                starting_dict,
+                                key_value_tuple,
+                                normal_input_reads_2d_array,
+                                tumor_input_reads_2d_array=None
+                                ):
         """
          Takes an initial dictionary and a list of (Key, Value) tuples.
            The Values in the tuple list are placed in the initial dictionary by Key.
 
         :param starting_dict = The dictionary derived from the original JSON template
         :param key_value_tuple = The complete list of keys and values (as tuples) that were in the config files
-        :param input_reads_2d_array = The 2D array that will be the value of the JSON "InputReads" key
+        :param normal_input_reads_2d_array = The 2D array that will be the value of the JSON "NormalInputReads" key
+        :param tumor_input_reads_2d_array = 2D array that will be the value of the "TumorInputReads" key (if it is used)
 
         :return The dictionary with all of the values inserted
         """
         output_dict = starting_dict.copy()
+
+        # Switches so internal if statements are not run repeatedly
+        normal_input_reads_found = False
+        tumor_input_reads_found = False
 
         # For each key-value pair that will be substituted into the dictionary
         for config_key, config_value in key_value_tuple:
@@ -307,7 +322,6 @@ class Parser:
 
                     # Special case where the value should be split into an array
                     if dict_key_suffix == "PlatformUnit":
-                        print("trimmed_value: " + trimmed_value)
                         output_dict[dict_key] = trimmed_value.split(",")
                     else:
                         output_dict[dict_key] = trimmed_value
@@ -315,19 +329,50 @@ class Parser:
                     # Handle special keys that need additional json keys added for each config key (such as REF, DBSNP)
                     self.handle_special_keys(config_key, dict_key, output_dict, trimmed_value)
 
-                # Add the special key, InputReads, to the dictionary
-                elif dict_key_suffix == "InputReads":
-                    output_dict[dict_key] = input_reads_2d_array
+                # Add the special key, NormalInputReads, to the dictionary
+                elif dict_key_suffix == "NormalInputReads" and not normal_input_reads_found:
+                    output_dict[dict_key] = normal_input_reads_2d_array
+                    # Flip the switch so that this conditional is not evaluated again
+                    normal_input_reads_found = True
+
+                elif dict_key_suffix == "TumorInputReads" and \
+                        tumor_input_reads_2d_array is not None and \
+                        not tumor_input_reads_found:
+                    self.project_logger.log_debug(
+                        "The TumorInputReads JSON key was paired with a 2D array created from the " +
+                        "TumorInputRead1 and 2 variables"
+                    )
+                    output_dict[dict_key] = tumor_input_reads_2d_array
+                    # Flip the switch so that this conditional is not evaluated again
+                    tumor_input_reads_found = True
 
             # Log a warning message if a key was in the config file but not in the template
-            #   There are special keys, such as InputRead1 & 2, that are not expected to be in the template (they are
-            #     replaced by a variable called InputReads)
-            if not config_key_was_present and config_key not in ["InputRead1", "InputRead2"]:
+            exception_list = ["NormalInputRead1", "NormalInputRead2", "TumorInputRead1", "TumorInputRead2"]
+            if not config_key_was_present and config_key not in exception_list:
                 self.project_logger.log_warning(
                     "Key '" + config_key + "' had no corresponding key in the JSON template;" +
                     " this key-value pair was ignored"
                 )
         return output_dict
+
+    def is_TumorInputRead1_present(self, key_value_tuples) -> bool:
+        """
+        Checks whether the TumorInputRead1 key is present and if it has a value assigned to it
+
+        :return: True if the variable has a value and False if it has no value or is not present
+        """
+        try:
+            tumor_input_read_1_tuple = next(pair for pair in key_value_tuples if pair[0] == "TumorInputRead1")
+            if tumor_input_read_1_tuple[1] in ("", '""'):
+                self.project_logger.log_debug("The TumorInputRead1 key was found, and its value was empty")
+                return False
+            else:
+                self.project_logger.log_debug("The TumorInputRead1 key was found, and its value was not empty")
+                return True
+        except StopIteration:
+            self.project_logger.log_debug("The TumorInputRead1 key was not found in the config file")
+            # The variable was not present
+            return False
 
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
@@ -360,11 +405,30 @@ class Parser:
             # Add all of the pairs from this file into the overall list of pairs
             [all_key_value_tuples.append(pair) for pair in key_value_tuples]
 
-        # Create the InputReads value from the info in the config files
-        input_reads_2d_array = self.combine_input_read_arrays(all_key_value_tuples)
+        # Create the NormalInputReads value from the info in the config files (Always required)
+        normal_input_reads_2d_array = self.combine_input_read_arrays(all_key_value_tuples,
+                                                                     "NormalInputRead1",
+                                                                     "NormalInputRead2"
+                                                                     )
 
-        # Update the values in the template dictionary
-        template_dict = self.insert_values_into_dict(template_dict, all_key_value_tuples, input_reads_2d_array)
+        # Optionally, create the TumorInputReads value from the info in the config files (will be a 2D array if
+        #   TumorInputRead1 was not empty, and None otherwise)
+        if self.is_TumorInputRead1_present(all_key_value_tuples):
+            tumor_input_reads_2d_array = self.combine_input_read_arrays(all_key_value_tuples,
+                                                                        "TumorInputRead1",
+                                                                        "TumorInputRead2"
+                                                                        )
+            template_dict = self.insert_values_into_dict(template_dict,
+                                                         all_key_value_tuples,
+                                                         normal_input_reads_2d_array,
+                                                         tumor_input_reads_2d_array
+                                                         )
+        else:
+            # Update the values in the template dictionary
+            template_dict = self.insert_values_into_dict(template_dict,
+                                                         all_key_value_tuples,
+                                                         normal_input_reads_2d_array
+                                                         )
 
         # Write the python dictionary out as a JSON file in the output file location
         with open(output_file, "w") as updated_json:
