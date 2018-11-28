@@ -19,33 +19,32 @@ import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" a
 
 workflow GermlineMasterWF {
 
+   Array[Array[File]] NormalInputReads
+
    Boolean Trimming
    Boolean MarkDuplicates
    Boolean Vqsr
 
    if(Trimming) {
 
-      call CUTADAPTTRIM.RunTrimSequencesTask as trimseq
-       
-      call ALIGNMENT.RunAlignmentTask as align_w_trim {
+      call CUTADAPTTRIM.RunTrimSequencesTask as trimseq {
          input:
-            InputReads = trimseq.Outputs
+            InputReads = NormalInputReads
       }
    }
-
-   if(!Trimming) {
-      
-      call ALIGNMENT.RunAlignmentTask as align_wo_trim
-   }
    
-   Array[File] AlignOutputBams = select_first([align_w_trim.OutputBams,align_wo_trim.OutputBams])
-   Array[File] AlignOutputBais = select_first([align_w_trim.OutputBais,align_wo_trim.OutputBais])
+   Array[Array[File]] AlignInputReads = select_first([trimseq.Outputs,NormalInputReads])
 
+
+   call ALIGNMENT.RunAlignmentTask as align {
+      input:
+         InputReads = AlignInputReads
+   }
 
    call MERGEBAM.mergebamTask as merge {
       input:
-         InputBams = AlignOutputBams,
-         InputBais = AlignOutputBais
+         InputBams = align.OutputBams,
+         InputBais = align.OutputBais
    }
 
    if(MarkDuplicates) {
