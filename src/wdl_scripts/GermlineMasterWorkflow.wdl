@@ -97,8 +97,8 @@ workflow GermlineMasterWF {
       }
    }
 
-   File DeliverHaplotyperVcf = select_first([haplotype.OutputVcf,vqsr.OutputVcf])
-   File DeliverHaplotyperVcfIdx = select_first([haplotype.OutputVcfIdx,vqsr.OutputVcfIdx])
+   File DeliverHaplotyperVcf = select_first([vqsr.OutputVcf,haplotype.OutputVcf])
+   File DeliverHaplotyperVcfIdx = select_first([vqsr.OutputVcfIdx,haplotype.OutputVcfIdx])
 
 
    call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
