@@ -307,7 +307,6 @@ class Parser:
 
                     # Special case where the value should be split into an array
                     if dict_key_suffix == "PlatformUnit":
-                        print("trimmed_value: " + trimmed_value)
                         output_dict[dict_key] = trimmed_value.split(",")
                     else:
                         output_dict[dict_key] = trimmed_value
