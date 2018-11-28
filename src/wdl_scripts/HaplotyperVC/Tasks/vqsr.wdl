@@ -54,7 +54,7 @@ task vqsrTask {
    }
 
    output {
-      File OutputVcf = "${SampleName}.INDEL.SNP.recaled.vcf"
-      File OutputVcfIdx = "${SampleName}.INDEL.SNP.recaled.vcf.idx"
+      File OutputVcf = "${SampleName}.SNP.recaled.vcf"
+      File OutputVcfIdx = "${SampleName}.SNP.recaled.vcf.idx"
    }
 }
