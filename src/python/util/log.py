@@ -30,6 +30,7 @@ class ProjectLogger:
         self.logger = logging.getLogger(name)
         self.job_id = str(job_id)
         self.warnings_issued = 0
+        self.errors_issued = 0
 
     def log_info(self, message):
         self.logger.info("[" + self.job_id + "] [-] " + message)
@@ -43,3 +44,4 @@ class ProjectLogger:
 
     def log_error(self, error_code, message):
         self.logger.error("[" + self.job_id + "] [" + error_code + "] " + message)
+        self.errors_issued += 1
