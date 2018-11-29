@@ -395,7 +395,7 @@ class Parser:
                           )
 
         # The informative part of the JSON key is the subsection after the last '.' character
-        trimmed_JSON_keys = [i.split(".")[-1] for i in JSON_dict.keys()]
+        trimmed_JSON_keys = list(set([i.split(".")[-1] for i in JSON_dict.keys()]))
         config_keys = [i[0] for i in all_config_tuples]
 
         for json_key in trimmed_JSON_keys:
