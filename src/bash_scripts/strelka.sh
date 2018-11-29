@@ -279,20 +279,22 @@ checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV fil
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Clean up strelka indel output
-# zcat ./strelka/results/variants/somatic.indels.vcf.gz | ### Find fixStrelka_GT_indels.pl | tabix bgzip -f > somatic.indels.fixed.vcf.gz
+#zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} | gzip somatic.indels.fixed.vcf.gz
 #
 ## Check exitCode
 #
 
 ## Clean up strelka snv output
-# zcat ./strelka/results/variants/somatic.snvs.vcf.gz | ### Find fixStrelka_GT_snvs.pl | tabix bgzip -f > somatic.snvs.fixed.vcf.gz
+#zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} | gzip somatic.snvs.fixed.vcf.gz
 #
 ## Check exitCode 
 #
 
+exit 0;
+
 ## Combine vcfs into single output
 ${BCF}/bcftools merge -m any -f PASS,. --force-sample ./strelka/results/variants/*.vcf.gz > ${SAMPLE}.vcf
-gzip ${SAMPLE}.vcf.gz
+gzip ${SAMPLE}.vcf
 #Not sure what this does -> | ${BCF}/bcftools plugin fill-AN-AC | ${BCF}/bcftools filter -i 'SUM(AC)>1' > ${SAMPLE}.vcf.gz
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
