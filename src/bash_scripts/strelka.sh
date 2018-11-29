@@ -96,7 +96,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:B:T:g:v:I:c:t:F:o:d" OPT
+while getopts ":hs:B:T:g:v:I:M:c:t:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -125,6 +125,10 @@ do
 			;;
 		I )  # Install path
 			INSTALL=${OPTARG}
+			checkArg
+			;;
+		M )  # BCF Tools path
+			BCF=${OPTARG}
 			checkArg
 			;;
 	        c )  # Python configuration file
@@ -188,24 +192,27 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 checkVar "${NORMAL+x}" "Missing normal BAM option: -B" $LINENO
 checkFile ${NORMAL} "Input normal BAM file ${NORMAL} is empty or does not exist." $LINENO
 
-checkVar "${TUMOR+x}" "Missing tumor BAM option: -T" SLINENO
+checkVar "${TUMOR+x}" "Missing tumor BAM option: -T" $LINENO
 checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $LINENO
 
-checkVar "${REFGEN+x}" "Missing reference genome option: -g" SLINENO
+checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${OUTVCF+x}" "Missing output VCF option: -v" SLINENO
+checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
 #checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
 
-checkVar "${INSTALL+x}" "Missing install directory option: -I" SLINENO
+checkVar "${INSTALL+x}" "Missing install directory option: -I" $LINENO
 checkDir ${INSTALL} "Reason= directory ${INSTALL} is not a directory or does not exist." $LINENO
 
-checkVar "${CONFIG+x}" "Missing python configuration file: -c" SLINENO
+checkVar "${BCF+x}" "Missing BCFTools directory option: -M" $LINENO
+checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does not exist." $LINENO
+
+checkVar "${CONFIG+x}" "Missing python configuration file: -c" $LINENO
 #checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
 
-checkVar "${THREADS+x}" "Missing number of threads option: -t" SLINENO
+checkVar "${THREADS+x}" "Missing number of threads option: -t" $LINENO
 
-checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" SLINENO
+checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
 checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
@@ -258,15 +265,35 @@ ${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
 ## Add exitCode check
 #
 
-#
-## Add checkFile for output vcf
-#
+checkFile ./strelka/results/variants/somatic.indels.vcf.gz "Output somatic indels file failed to create." $LINENO
+checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV file failed to create." $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+## Post-Processing
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+## Clean up strelka indel output
+# zcat ./strelka/results/variants/somatic.indels.vcf.gz | ### Find fixStrelka_GT_indels.pl | tabix bgzip -f > somatic.indels.fixed.vcf.gz
+#
+## Check exitCode
+#
+
+## Clean up strelka snv output
+# zcat ./strelka/results/variants/somatic.snvs.vcf.gz | ### Find fixStrelka_GT_snvs.pl | tabix bgzip -f > somatic.snvs.fixed.vcf.gz
+#
+## Check exitCode 
+#
+
+## Combine vcfs into single output
+${BCF}/bcftools merge -m any -f PASS,. --force-sample ./strelka/results/variants/*.vcf.gz > ${SAMPLE}.vcf
+gzip ${SAMPLE}.vcf.gz
+#Not sure what this does -> | ${BCF}/bcftools plugin fill-AN-AC | ${BCF}/bcftools filter -i 'SUM(AC)>1' > ${SAMPLE}.vcf.gz
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
