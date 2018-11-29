@@ -174,12 +174,12 @@ class Validator:
 
     def check_key(self, key_name, key_value, key_type):
         """
-        For a given key, confirm that its value is of the type that is expected; returns True if the key is
-            valid and False if it is not
+        For a given key, confirm that its value is of the type that is expected; logs an error message if the type is
+          wrong
 
-        If a value is validated, print a DEBUG message stating that X key was validated; return true
-        If a value is of a type that has no validation defined (such as String), print a DEBUG message; return true
-        If a faulty value is found, print an ERROR message; return false
+        If a value is validated, print a DEBUG message stating that X key was validated
+        If a value is of a type that has no validation defined (such as String), print a DEBUG message
+        If a faulty value is found, print an ERROR message
         """
         lowered_key_type = key_type.lower()
 
@@ -194,25 +194,18 @@ class Validator:
                 "The key '" + key_name + "' has an empty value; because it is an optional key, this is still valid"
             )
             # Stop the function here; do not try to validate this key
-            return True
 
         # Directory ###
         if lowered_key_type in ("directory", "dir"):
             # Checks if the directory exists, and does not check permissions
             if not self.__directory_exists(key_value):
                 self.project_logger.log_error("E.val.Dir.1", "The directory: '" + key_value + "' could not be found.")
-                return False
-            else:
-                return True
 
         # Output Directory ###
         elif lowered_key_type in ("output_directory", "output_dir", "outputdir", "outputdirectory", "output directory"):
             # Only verifies that the directory does not already exist
             if self.__directory_exists(key_value):
                 self.project_logger.log_error("E.val.OuD.1", "The output directory '" + key_value + "' already exists.")
-                return False
-            else:
-                return True
 
         # Read-only Directory ###
         elif lowered_key_type in (
@@ -223,7 +216,6 @@ class Validator:
             # Checks if the directory exists, and has executable (ability to traverse into) and read (read contents).
             if not self.__directory_exists(key_value):
                 self.project_logger.log_error("E.val.ROD.1", "The directory: '" + key_value + "' could not be found.")
-                return False
             else:
                 readable = os.access(key_value, os.R_OK)
                 executable = os.access(key_value, os.X_OK)
@@ -231,15 +223,10 @@ class Validator:
                     self.project_logger.log_error("E.val.ROD.2", "The directory: '" + key_value +
                                                   "' does not have read permissions for the current user."
                                                   )
-                    return False
                 elif not executable:
                     self.project_logger.log_error("E.val.ROD.3", "The directory: '" + key_value +
                                                   "' does not have executable permissions for the current user."
                                                   )
-                    return False
-                else:
-                    # The directory was found and is readable and executable
-                    return True
 
         # ExecFile ###
         elif lowered_key_type in ("execfile", "exec_file", "executable"):
@@ -247,13 +234,10 @@ class Validator:
             exec_status = self.__file_is_executable(key_value)
             if exec_status == "Success":
                 self.project_logger.log_debug(make_message('was found and is executable'))
-                return True
             elif exec_status == "FileNotFound":
                 self.project_logger.log_error("E.val.ExF.1", make_message('could not be found'))
-                return False
             elif exec_status == "FileNotExecutable":
                 self.project_logger.log_error("E.val.ExF.2", make_message('is not executable by the current user'))
-                return False
 
         # File ###
         elif lowered_key_type == "file":
@@ -261,61 +245,50 @@ class Validator:
             readable_status = self.__file_is_readable(key_value)
             if readable_status == "Success":
                 self.project_logger.log_debug(make_message('was found and is readable'))
-                return True
             elif readable_status == "FileNotFound":
                 self.project_logger.log_error("E.val.Fil.1", make_message('could not be found'))
-                return False
             elif readable_status == "FileNotReadable":
                 self.project_logger.log_error("E.val.Fil.2", make_message('is not readable by the current user'))
-                return False
 
         # Boolean ###
         elif lowered_key_type in ("boolean", "bool"):
             # The key_value was not .lowered() because this value is case sensitive
             if key_value in ("true", "false"):
                 self.project_logger.log_debug(make_message('is a valid boolean value'))
-                return True
             else:
                 self.project_logger.log_error(
                     "E.val.Boo.1",
                     make_message('is not a valid boolean value; enter either "true" or "false" (case sensitive)')
                 )
-                return False
 
         # String ###
         elif lowered_key_type in ("string", "str"):
             self.project_logger.log_debug(
                 'Input variable "' + key_name + '" is a String type; no pre-workflow validation can take place'
             )
-            return True
 
         # Integer ###
         elif lowered_key_type in ("integer", "int"):
             if self.__is_integer(key_value):
                 self.project_logger.log_debug(make_message('is a valid integer'))
-                return True
             else:
                 self.project_logger.log_error('E.val.Int.1', make_message('is not a valid integer'))
-                return False
 
         # Decimal ###
         elif lowered_key_type == "decimal":
             if self.__is_float(key_value):
                 self.project_logger.log_debug(make_message('is a valid number'))
-                return True
             else:
                 self.project_logger.log_error('E.val.Dec.1', make_message('is not a valid number'))
-                return False
+
         # DebugMode (special case where the only acceptable value is '-d')
         elif lowered_key_type == "debugmode":
-            if key_value == "-d":
+            if key_value in ["-d", '""', ""]:
                 self.project_logger.log_debug(make_message('is the correct debug flag'))
-                return True
             else:
                 self.project_logger.log_error(
                     'E.val.Bug.1', make_message("is not valid: DebugMode must be blank or '-d'")
                 )
-                return False
         # Other ###
         # (kill the program if an unknown type is provided in the type file)
         else:
@@ -325,9 +298,6 @@ class Validator:
                 '" in the key types file, which is not a recognized type ' +
                 '(see src/config/validation/README.md for a list of valid types)'
             )
-
-            return False
-
 
     def validate_keys(self, configuration_dict, key_types_dict):
         """
@@ -354,20 +324,25 @@ class Validator:
             if key_types_dict[key][0] == "[" and key_types_dict[key][-1] == "]":
                 trimmed_type = key_types_dict[key][1:-1]
                 for entry in flatten(configuration_dict[key]):
-                    key_is_valid = self.check_key(key, entry, trimmed_type)
-                    if not key_is_valid:
-                        sys.exit(1)
+                    # If not valid, check key will log an error message and increment the error counter
+                    self.check_key(key, entry, trimmed_type)
             # Check all other types of values
             else:
-                key_is_valid = self.check_key(key, configuration_dict[key], key_types_dict[key])
-                if not key_is_valid:
-                    # The check key function itself wrote to the log; here we just exit because we have found an invalid key
-                    sys.exit(1)
+                # If not valid, check key will log an error message and increment the error counter
+                self.check_key(key, configuration_dict[key], key_types_dict[key])
 
-        # Write a success message to the log
-        self.project_logger.log_info(
-            'Key validation finished successfully with ' + str(self.project_logger.warnings_issued) +
-            ' warning(s) issued'
+
+        if self.project_logger.errors_issued > 0:
+            # Errors were found; exit
+            self.project_logger.log_info(
+                'Key validation failed with ' + str(self.project_logger.errors_issued) + ' errors(s) issued'
+            )
+            sys.exit(1)
+        else:
+            # Write a success message to the log
+            self.project_logger.log_info(
+                'Key validation finished successfully with ' + str(self.project_logger.warnings_issued) +
+                ' warning(s) issued'
         )
 
 
