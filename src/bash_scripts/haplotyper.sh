@@ -200,8 +200,21 @@ checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exis
 checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
 checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
-checkVar "${RECAL+x}" "Missing RECAL_DATA.TABLE option: -r" $LINENO
-checkFile ${RECAL} "Recal table from BQSR ${RECAL} is empty or does not exist." $LINENO
+
+RECAL_OPTION=""
+if [[ ! -z ${RECAL+x} ]] # if unset return null, if null or set, return x
+then
+	## Check if the Recal_data.table file produced in BQSR is present
+	if [[ ! -s ${RECAL} ]]
+	then
+		EXITCODE=1
+		logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist." 
+	fi
+RECAL_OPTION="-q ${RECAL}"
+fi
+
+#checkVar "${RECAL+x}" "Missing RECAL_DATA.TABLE option: -r" $LINENO
+#checkFile ${RECAL} "Recal table from BQSR ${RECAL} is empty or does not exist." $LINENO
 
 checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
@@ -230,7 +243,7 @@ logInfo "[Haplotyper] START."
 #Execute Sentieon with the Haplotyper algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${RECAL} --algo Haplotyper ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} ${RECAL_OPTION} --algo Haplotyper ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
