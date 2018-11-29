@@ -6,6 +6,7 @@ from util.log import ProjectLogger
 from config.util.special_keys import OPTIONAL_KEYS
 import json
 import logging
+from typing import Dict
 
 """
 Exit code Rules:
@@ -181,6 +182,8 @@ class Parser:
                 "major.minor.DBSNP_IDX": "dbsnp.vcf.idx"
                 ...
             }
+
+        :side-effect adds any additional keys derived from the input config_key to the output dictionary
         """
         def add_index_key_value(key_suffix, value_suffix):
             json_key = full_dict_key + key_suffix
@@ -374,6 +377,35 @@ class Parser:
             # The variable was not present
             return False
 
+    def find_variables_in_JSON_not_in_config(self, all_config_tuples, JSON_dict: Dict[str, str]):
+        """
+        Warns the user if any JSON key was not present in the configuration tuple list (that are not in the exception
+          list).
+
+        Since there are some keys that are added to the JSON that are not part of the config file directly (see the
+          "handle_special_keys" method), they are not sought for in the config keys list, and are put in the exception
+          list
+
+        :param all_config_tuples: list of all config file tuples
+        :param JSON_dict: Python dictionary from the template JSON file
+        """
+        exception_list = ("RefAmb", "RefAnn", "RefBwt", "RefDict", "RefPac", "RefSa",
+                          "DBSNPIdx",
+                          "NormalInputReads", "TumorInputReads"
+                          )
+
+        # The informative part of the JSON key is the subsection after the last '.' character
+        trimmed_JSON_keys = [i.split(".")[-1] for i in JSON_dict.keys()]
+        config_keys = [i[0] for i in all_config_tuples]
+
+        for json_key in trimmed_JSON_keys:
+            if json_key not in exception_list and json_key not in config_keys:
+                self.project_logger.log_warning("The '" + json_key + "' key in the JSON template did not have a " +
+                                                "corresponding key in any of the config files; " +
+                                                "this key was not filled in"
+                                                )
+
+
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
          Takes in a list of input files and the location of the json file template, and writes an output file
@@ -429,6 +461,9 @@ class Parser:
                                                          all_key_value_tuples,
                                                          normal_input_reads_2d_array
                                                          )
+
+        # Send a warning if any JSON keys had no corresponding key in any of the config files
+        self.find_variables_in_JSON_not_in_config(all_key_value_tuples, template_dict)
 
         # Write the python dictionary out as a JSON file in the output file location
         with open(output_file, "w") as updated_json:

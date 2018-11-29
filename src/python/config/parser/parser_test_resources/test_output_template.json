@@ -3,7 +3,7 @@
   "major.minor.test_boolean": "Boolean",
   "major.minor.test_integer": "Integer",
   "major.minor.test_decimal": "Float",
-  "major.minor.REF": "String",
+  "major.minor.Ref": "String",
   "major.minor.DBSNP": "String",
   "major.minor1.LICENSE": "String",
   "major.minor2.LICENSE": "String",
