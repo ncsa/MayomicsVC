@@ -283,7 +283,7 @@ class Validator:
 
         # DebugMode (special case where the only acceptable value is '-d')
         elif lowered_key_type == "debugmode":
-            if key_value == "-d":
+            if key_value in ["-d", '""', ""]:
                 self.project_logger.log_debug(make_message('is the correct debug flag'))
             else:
                 self.project_logger.log_error(
