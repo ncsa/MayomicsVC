@@ -1,5 +1,6 @@
 {
-    "major.minor.DBSNP": "String",
+    "major.minor.DBSNP": "dbsnp.vcf",
+    "major.minor.DBSNPIdx": "dbsnp.vcf.idx",
     "major.minor.DebugMode": "",
     "major.minor.NormalInputReads": [
         [
@@ -21,7 +22,13 @@
         "B",
         "C"
     ],
-    "major.minor.Ref": "String",
+    "major.minor.Ref": "ref.fa",
+    "major.minor.RefAmb": "ref.fa.amb",
+    "major.minor.RefAnn": "ref.fa.ann",
+    "major.minor.RefBwt": "ref.fa.bwt",
+    "major.minor.RefDict": "ref.dict",
+    "major.minor.RefPac": "ref.fa.pac",
+    "major.minor.RefSa": "ref.fa.sa",
     "major.minor.TumorInputReads": [
         [
             "tumor_readL1.fq",
