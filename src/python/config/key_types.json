@@ -9,6 +9,7 @@
     "BashPreamble": "File",
 
     "BashSharedFunctions": "File",
+    "Bqsr": "Boolean",
     "BqsrEnvProfile": "File",
     "BqsrHardMemLimit": "String",
     "BqsrKnownSites": "String",
