@@ -35,6 +35,8 @@ E.par.REF.1 = The config file REF key points to a value that does not have an '.
 E.par.InR.1 = Either the PairedEnd, InputRead1, or InputRead2 key was not present in the config file
 E.par.InR.2 = The InputRead1 and InputRead2 lists had different lengths
 E.par.InR.3 = PairedEnd was true but the InputRead2 lists was empty
+
+E.par.NoJ.1 = There was a JSON key that had no corresponding config file key (and the key was not a special case)
 """
 
 
@@ -129,14 +131,12 @@ class Parser:
                         "E.par.NVa.1",
                         "No value present for key '" + key + "' in input file '" + file_path + "'"
                     )
-                    sys.exit(1)
                 # Check that the value is enclosed in double quotes
                 elif value[0] != '"' or value[-1] != '"':
                     self.project_logger.log_error(
                         "E.par.NQt.1",
                         "No quotes around the value for key '" + key + "' in input file '" + file_path + "'"
                     )
-                    sys.exit(1)
                 # Check to see that non-whitespace are present between the quote marks
                 #   value[1:-1] trims off the first and last chars and strip removes all whitespace chars from the ends
                 elif value[1:-1].strip() == '':
@@ -145,7 +145,6 @@ class Parser:
                         "Only whitespace found in value '" + value + "' of key '" + key + "' in input file '" +
                         file_path + "'"
                     )
-                    sys.exit(1)
                 # Check if any special characters are present
                 special_chars = "!#$%&()*;<>?@[]^`{|}~"
                 for special_char in special_chars:
@@ -155,13 +154,11 @@ class Parser:
                             "Invalid special character '" + special_char + "' found in value '" + value +
                             "' of key '" + key + "' in input file '" + file_path + "'"
                         )
-                        sys.exit(1)
                 # Check whether any key is present multiple times
                 if keys_list.count(key) > 1:
                     self.project_logger.log_error(
                         "E.par.Key.1", "Key '" + key + "' is present more than once in input file '" + file_path + "'"
                     )
-                    sys.exit(1)
                 else:
                     self.project_logger.log_debug("The key-value pair '" + key + "=" + value + "' is a valid pair")
 
@@ -206,7 +203,6 @@ class Parser:
                     "REF key appears to not have a valid value: '" + trimmed_value +
                     " has no '.fa' or '.fasta' extension"
                 )
-                sys.exit(1)
             else:
                 base_name = trimmed_value[:extension_start_index]
                 output_dictionary[full_dict_key + "Dict"] = base_name + ".dict"
@@ -250,6 +246,37 @@ class Parser:
             paired_end_tuple = next(pair for pair in key_value_tuples if pair[0] == "PairedEnd")
             input_read_1_tuple = next(pair for pair in key_value_tuples if pair[0] == read1_name)
             input_read_2_tuple = next(pair for pair in key_value_tuples if pair[0] == read2_name)
+
+            paired_end = True if paired_end_tuple[1].strip('"') == "true" else False
+
+            # Split by comma (unless the string is empty, then return an empty list)
+            input_read_1_value = input_read_1_tuple[1].strip('"')
+            input_read_2_value = input_read_2_tuple[1].strip('"')
+
+            input_read_1_array = [] if input_read_1_value == "" else input_read_1_value.split(",")
+            input_read_2_array = [] if input_read_2_value == "" else input_read_2_value.split(",")
+
+            if paired_end:
+                if len(input_read_2_array) == 0:
+                    self.project_logger.log_error("E.par.InR.3",
+                                                  "PairedEnd was true but the " + read2_name + " lists were empty"
+                                                  )
+                    sys.exit(1)
+                elif len(input_read_1_array) != len(input_read_2_array):
+                    self.project_logger.log_error(
+                        "E.par.InR.2",
+                        "The " + read1_name + " & " + read2_name + " lists had different lengths"
+                    )
+                    sys.exit(1)
+
+                # By default, zip returns tuples. The list comprehension turns them back into lists
+                input_reads_2d_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
+            else:
+                # Concatenate the two lists, then turn each entry into its own list
+                input_reads_2d_array = [[x] for x in input_read_1_array + input_read_2_array]
+
+            return input_reads_2d_array
+
         except StopIteration:
             self.project_logger.log_error(
                 "E.par.InR.1",
@@ -257,30 +284,7 @@ class Parser:
             )
             sys.exit(1)
 
-        paired_end = True if paired_end_tuple[1].strip('"') == "true" else False
 
-        # Split by comma (unless the string is empty, then return an empty list)
-        input_read_1_value = input_read_1_tuple[1].strip('"')
-        input_read_2_value = input_read_2_tuple[1].strip('"')
-
-        input_read_1_array = [] if input_read_1_value == "" else input_read_1_value.split(",")
-        input_read_2_array = [] if input_read_2_value == "" else input_read_2_value.split(",")
-
-        if paired_end:
-            if len(input_read_2_array) == 0:
-                self.project_logger.log_error("E.par.InR.3", "PairedEnd was true but the InputRead2 lists was empty")
-                sys.exit(1)
-            elif len(input_read_1_array) != len(input_read_2_array):
-                self.project_logger.log_error("E.par.InR.2", "The InputRead1 & InputRead2 lists had different lengths")
-                sys.exit(1)
-
-            # By default, zip returns tuples. The list comprehension turns them back into lists
-            input_reads_2d_array = [list(x) for x in list(zip(input_read_1_array, input_read_2_array))]
-        else:
-            # Concatenate the two lists, then turn each entry into its own list
-            input_reads_2d_array = [[x] for x in input_read_1_array + input_read_2_array]
-
-        return input_reads_2d_array
 
     def insert_values_into_dict(self,
                                 starting_dict,
@@ -400,11 +404,11 @@ class Parser:
 
         for json_key in trimmed_JSON_keys:
             if json_key not in exception_list and json_key not in config_keys:
-                self.project_logger.log_warning("The '" + json_key + "' key in the JSON template did not have a " +
-                                                "corresponding key in any of the config files; " +
-                                                "this key was not filled in"
-                                                )
-
+                self.project_logger.log_error(
+                    "E.par.NoJ.1",
+                    "The '" + json_key + "' key in the JSON template did not have a corresponding key in any of the " +
+                    "config files; this key was not filled in"
+                )
 
     def fill_in_json_template(self, input_file_list, json_template_file, output_file):
         """
@@ -469,8 +473,15 @@ class Parser:
         with open(output_file, "w") as updated_json:
             json.dump(template_dict, updated_json, indent=4, sort_keys=True)
 
-        # Write a success message to the log
-        self.project_logger.log_info(
-                'Configuration file parser finished successfully with ' + str(self.project_logger.warnings_issued) +
-                ' warning(s) issued'
-        )
+        # Exit if errors have occurred
+        if self.project_logger.errors_issued > 0:
+            self.project_logger.log_info(
+                'Configuration file parser failed with ' + str(self.project_logger.errors_issued) + ' error(s) issued'
+            )
+            sys.exit(1)
+        else:
+            # Write a success message to the log
+            self.project_logger.log_info(
+                    'Configuration file parser finished successfully with ' + str(self.project_logger.warnings_issued) +
+                    ' warning(s) issued'
+            )
