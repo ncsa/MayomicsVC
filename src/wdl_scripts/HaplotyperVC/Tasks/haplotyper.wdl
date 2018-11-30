@@ -22,7 +22,7 @@ task variantCallingTask {
 
    File InputBams                                 # Input Sorted Deduped Bam
    File InputBais                                 # Input Sorted Deduped Bam Index
-   File RecalTable                                # Input Recal Table after BQSR step
+   File? RecalTable                               # Input Recal Table after BQSR step
 
    File Ref                                       # Reference Genome
    File RefFai                                    # Reference Genome index
@@ -51,7 +51,7 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o "'${HaplotyperExtraOptionsString}'" -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} ${"-r " + RecalTable} -o "'${HaplotyperExtraOptionsString}'" -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {

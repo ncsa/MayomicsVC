@@ -23,6 +23,7 @@ workflow GermlineMasterWF {
 
    Boolean Trimming
    Boolean MarkDuplicates
+   Boolean Bqsr
    Boolean Vqsr
 
    if(Trimming) {
@@ -75,10 +76,13 @@ workflow GermlineMasterWF {
    }
 
 
-   call BQSR.bqsrTask as bqsr {
-      input:
-         InputBams = realign.OutputBams,
-         InputBais = realign.OutputBais
+   if(Bqsr) {
+
+      call BQSR.bqsrTask as bqsr {
+         input:
+            InputBams = realign.OutputBams,
+            InputBais = realign.OutputBais
+      }
    }
 
    call HAPLOTYPER.variantCallingTask as haplotype {
