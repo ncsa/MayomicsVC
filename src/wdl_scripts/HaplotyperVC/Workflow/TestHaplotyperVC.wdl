@@ -26,8 +26,8 @@ workflow CallHaplotyperVCTasks {
 
    call VQSR.vqsrTask as vqsr {
       input:
-         InputVCF = haplotype.OutputVCF,
-         InputVCFIdx = haplotype.OutputVcfIdx,
+         InputVcf = haplotype.OutputVcf,
+         InputVcfIdx = haplotype.OutputVcfIdx,
    }
 
    

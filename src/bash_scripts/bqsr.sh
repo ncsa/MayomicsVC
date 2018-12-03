@@ -37,11 +37,12 @@ read -r -d '' DOCS << DOCS
 	 -b 	<sorted.deduped.realigned.bam>
 	 -k 	<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
          -e     </path/to/env_profile_file>
+	 -F     </path/to/shared_functions.sh>
 	 -d	turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -d 
+ bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d 
 
 ############################################################################################################################
 
@@ -65,8 +66,14 @@ SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ## LOGGING FUNCTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
 
-LOG_PATH="`dirname "$0"`"  ## Parse the directory of this script to locate the logging function script
-source ${LOG_PATH}/log_functions.sh
+function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -83,7 +90,7 @@ then
 fi
 
 
-while getopts ":hs:S:G:t:b:k:e:d" OPT
+while getopts ":hs:S:G:t:b:k:e:F:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -118,6 +125,10 @@ do
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
+		F )  # Path to shared_functions.sh
+			SHARED_FUNCTIONS=${OPTARG}
+			checkArg
+			;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -147,12 +158,11 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
+
+source ${SHARED_FUNCTIONS}
+
 ## Check if sample name is present.
-if [[ -z ${SAMPLE+x} ]] ## NOTE: ${VAR+x} is used for variable expansions, preventing unset variable error from set -o nounset. When $VAR is not set, we set it to "x" and throw the error.
-then
-	echo -e "$0 stopped at line ${LINENO}. \nREASON=Missing sample name option: -s"
-	exit 1
-fi
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.bqsr.${SGE_JOB_ID}.log
@@ -164,76 +174,34 @@ truncate -s 0 ${SAMPLE}.bqsr_sentieon.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-if [[ ! -z ${ENV_PROFILE+x} ]]
-then
-        source ${ENV_PROFILE}
-else
-        EXITCODE=1
-        logError "$0 stopped at line ${LINENO}. \nREASON=Missing environmental profile option: -e"
-fi
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
 
 ## Check if the Sentieon executable option was passed in.
-if [[ -z ${SENTIEON+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing Sentieon path option: -S"
-fi
+checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
 
 ## Check if the Sentieon executable is present.
-if [[ ! -d ${SENTIEON} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Sentieon directory ${SENTIEON} is not a directory or does not exist."
-fi
+checkDir ${SENTIEON} "Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO 
 
 #Check if the number of threads is present.
-if [[ -z ${NTHREADS+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing threads option: -t"
-fi
+checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
 
 ## Check if the reference option was passed in
-if [[ -z ${REF+x} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Missing reference genome option: -G"
-fi
+checkVar "${REF+x}" "Missing reference genome option: -G" $LINENO
 
 ## Check if the reference fasta file is present.
-if [[ ! -s ${REF} ]]
-then
-	EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Reference genome file ${REF} is empty or does not exist."
-fi
+checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LINENO
 
 ## Check if the BAM input file option was passed in
-if [[ -z ${INPUTBAM+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing input BAM option: -b"
-fi
+checkVar "${INPUTBAM+x}" "REASON=Missing input BAM option: -b" $LINENO
 
 ## Check if the BAM input file is present.
-if [[ ! -s ${INPUTBAM} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Input BAM ${INPUTBAM} is empty or does not exist."
-fi
-
-if [[ ! -s ${INPUTBAM}.bai ]]
-then
-        EXITCODE=1
-        logError "$0 stopped at line $LINENO. \nREASON=Input BAM index ${INPUTBAM} is empty or does not exist."
-fi
-
+checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINENO
+checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exist." $LINENO
 
 ## Check if the known sites file option is present.
-if [[ -z ${KNOWN+x} ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Missing known sites option ${KNOWN}: -k"
-fi
+checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -269,11 +237,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate
 ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${SAMPLE}.bqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi
-
+checkExitcode ${EXITCODE} $LINENO
 
 #Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
 TRAP_LINE=$(($LINENO + 1))
@@ -281,11 +245,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Apply the
 ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${SAMPLE}.bqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}."
-fi	
-
+checkExitcode ${EXITCODE} $LINENO
 
 #Create data for plotting
 TRAP_LINE=$(($LINENO + 1))
@@ -293,11 +253,7 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step3: Create da
 ${SENTIEON}/bin/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${SAMPLE}.bqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in bqsr Step3: Create data for plotting"
-fi	
-
+checkExitcode ${EXITCODE} $LINENO
 
 #Plot the calibration data tables, both pre and post, into graphs in a pdf
 TRAP_LINE=$(($LINENO + 1))
@@ -305,10 +261,7 @@ trap 'logError "$0 stopped at line ${TRAP_LINE}. Error in bqsr Step4: Plot the c
 ${SENTIEON}/bin/sentieon plot bqsr -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${SAMPLE}.bqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-if [[ ${EXITCODE} -ne 0 ]]
-then
-	logError "$0 stopped at line ${LINENO} with exit code ${EXITCODE}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf"
-fi	
+checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
 #------------------------------------------------------------------------------------------------------------------------------------
@@ -322,11 +275,7 @@ logInfo "[bqsr] Finished running successfully for ${SAMPLE}"
 # Check for the creation of the recal_data.table necessary for input to Haplotyper. Open read permissions for the group.
 # The other files created in BQSR are not necessary for the workflow to run, so I am not performing checks on them.
 
-if [[ ! -s ${SAMPLE}.recal_data.table ]]
-then
-	EXITCODE=1
-	logError "$0 stopped at line $LINENO. \nREASON=Recal data table ${SAMPLE}.recal_data.table is empty."
-fi
+checkFile ${SAMPLE}.recal_data.table "Recal data table ${SAMPLE}.recal_data.table is empty." $LINENO
 
 chmod g+r ${SAMPLE}.recal_data.table
 

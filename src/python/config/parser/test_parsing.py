@@ -95,51 +95,60 @@ class TestParser(unittest.TestCase):
 
     def test_combine_input_read_arrays_paired_end_both(self):
         key_value_tuples = [("PairedEnd", '"true"'),
-                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
-                            ("InputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
+                            ("NormalInputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("NormalInputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
                             ]
         expected_paired_end_value = [["readL1.fq", "readR1.fq"], ["readL2.fq", "readR2.fq"], ["readL3.fq", "readR3.fq"]]
 
-        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples,
+                                                                             "NormalInputRead1",
+                                                                             "NormalInputRead2"
+                                                                             )
         self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
     def test_combine_input_read_arrays_paired_end_one(self):
         key_value_tuples = [("PairedEnd", '"true"'),
-                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
-                            ("InputRead2", '""')
+                            ("NormalInputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("NormalInputRead2", '""')
                             ]
         with self.assertRaises(SystemExit):
             # Should fail, as paired end is true but only one read set is provided
-            self.parser_inst.combine_input_read_arrays(key_value_tuples)
+            self.parser_inst.combine_input_read_arrays(key_value_tuples, "NormalInputRead1", "NormalInputRead2")
 
     def test_combine_input_read_arrays_paired_end_unequal_lists(self):
         key_value_tuples = [("PairedEnd", '"true"'),
-                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
-                            ("InputRead2", '"readR1.fq"')
+                            ("NormalInputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("NormalInputRead2", '"readR1.fq"')
                             ]
         with self.assertRaises(SystemExit):
             # Should fail, as paired end is true but only one read set is provided
-            self.parser_inst.combine_input_read_arrays(key_value_tuples)
+            self.parser_inst.combine_input_read_arrays(key_value_tuples, "NormalInputRead1", "NormalInputRead2")
 
     def test_combine_input_read_arrays_single_end_both(self):
         key_value_tuples = [("PairedEnd", '"false"'),
-                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
-                            ("InputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
+                            ("NormalInputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("NormalInputRead2", '"readR1.fq,readR2.fq,readR3.fq"')
                             ]
         expected_paired_end_value = [["readL1.fq"], ["readL2.fq"], ["readL3.fq"],
                                      ["readR1.fq"], ["readR2.fq"], ["readR3.fq"]]
 
-        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples,
+                                                                             "NormalInputRead1",
+                                                                             "NormalInputRead2"
+                                                                             )
         self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
     def test_combine_input_read_arrays_single_end_one(self):
         key_value_tuples = [("PairedEnd", '"false"'),
-                            ("InputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
-                            ("InputRead2", '""')
+                            ("NormalInputRead1", '"readL1.fq,readL2.fq,readL3.fq"'),
+                            ("NormalInputRead2", '""')
                             ]
         expected_paired_end_value = [["readL1.fq"], ["readL2.fq"], ["readL3.fq"]]
 
-        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples)
+        actual_paired_end_value = self.parser_inst.combine_input_read_arrays(key_value_tuples,
+                                                                             "NormalInputRead1",
+                                                                             "NormalInputRead2"
+                                                                             )
         self.assertEqual(expected_paired_end_value, actual_paired_end_value)
 
 

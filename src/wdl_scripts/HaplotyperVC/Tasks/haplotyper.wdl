@@ -12,6 +12,7 @@
 #               -o        "Haplotyper Extra Options"                              (Required)
 #               -S        "Path to the Sentieon Tool"                             (Required)
 #               -e        "Path to the environmental profile                      (Required)
+#               -F        "Path to shared functions file"                         (Required)
 #               -d        "debug mode on/off                        (Optional: can be empty)
 #
 
@@ -21,7 +22,7 @@ task variantCallingTask {
 
    File InputBams                                 # Input Sorted Deduped Bam
    File InputBais                                 # Input Sorted Deduped Bam Index
-   File RecalTable                                # Input Recal Table after BQSR step
+   File? RecalTable                               # Input Recal Table after BQSR step
 
    File Ref                                       # Reference Genome
    File RefFai                                    # Reference Genome index
@@ -37,7 +38,11 @@ task variantCallingTask {
    String Sentieon                                # Path to Sentieon
    String SentieonThreads                         # No of Threads for the Tool
 
+   String HaplotyperSoftMemLimit                  # Soft memory limit - nice shutdown
+   String HaplotyperHardMemLimit                  # Hard memory limit - kill immediately
+
    File BashPreamble                              # bash script to source before every task
+   File BashSharedFunctions                       # Bash script with shared functions
    File HaplotyperScript                          # Path to bash script called within WDL script
    File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
@@ -46,8 +51,14 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} -r ${RecalTable} -o ${HaplotyperExtraOptionsString} -e ${HaplotyperEnvProfile} ${DebugMode}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} ${"-r " + RecalTable} -o "'${HaplotyperExtraOptionsString}'" -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
+
+   runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${HaplotyperSoftMemLimit}"
+      h_vmem: "${HaplotyperHardMemLimit}"
+   }
 
   output {
    
