@@ -41,7 +41,7 @@ task trimsequencesTask {
    }
 
    output {
-      Array[File] Outputs = glob("${SampleName}.read?.trimmed.fq.gz")
+      Array[File] Outputs = glob("?.trimmed.fastq.gz")
    }
 }
 
