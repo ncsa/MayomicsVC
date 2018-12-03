@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EXAMPLE USAGE 
-# ./AutomatingTesting.sh /path/to/test/folder src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
+# ./AutomatingTesting.sh /path/to/test/folder src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
 
 
 

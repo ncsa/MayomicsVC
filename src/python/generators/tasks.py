@@ -68,7 +68,7 @@ class Task:
 
 CUTADAPTTRIM = Task(inputs=[FASTQ],
                     outputs=[FASTQ],
-                    import_location="src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl",
+                    import_location="src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl",
                     alias="trimseq",
                     task_name="RunTrimSequencesTask",
                     rank=1
@@ -76,7 +76,7 @@ CUTADAPTTRIM = Task(inputs=[FASTQ],
 
 ALIGNMENT = Task(inputs=[FASTQ],
                  outputs=[BAM, BAI],
-                 import_location="src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl",
+                 import_location="src/wdl/Alignment/TestTasks/Runalignment.wdl",
                  alias="alignment",
                  task_name="RunAlignmentTask",
                  rank=2,
@@ -85,7 +85,7 @@ ALIGNMENT = Task(inputs=[FASTQ],
 
 DELIVER_ALIGNMENT = Task(inputs=[BAM, BAI],
                          outputs=[],
-                         import_location="src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl",
+                         import_location="src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl",
                          alias="deliver_alignment",
                          task_name="deliverAlignmentTask",
                          delivery_task=True,
@@ -94,7 +94,7 @@ DELIVER_ALIGNMENT = Task(inputs=[BAM, BAI],
 
 DEDUP = Task(inputs=[BAM, BAI],
              outputs=[BAM, BAI],
-             import_location="src/wdl_scripts/Alignment/Tasks/dedup.wdl",
+             import_location="src/wdl/Alignment/Tasks/dedup.wdl",
              alias="dedup",
              task_name="dedupTask",
              rank=4
@@ -102,7 +102,7 @@ DEDUP = Task(inputs=[BAM, BAI],
 
 REALIGNMENT = Task(inputs=[BAM, BAI],
                    outputs=[BAM, BAI],
-                   import_location="src/wdl_scripts/Alignment/Tasks/dedup.wdl",
+                   import_location="src/wdl/Alignment/Tasks/dedup.wdl",
                    alias="realign",
                    task_name="realignmentTask",
                    rank=5
@@ -110,7 +110,7 @@ REALIGNMENT = Task(inputs=[BAM, BAI],
 
 BQSR = Task(inputs=[BAM, BAI],
             outputs=[RECAL_TABLE],
-            import_location="src/wdl_scripts/HaplotyperVC/Tasks/bqsr.wdl",
+            import_location="src/wdl/HaplotyperVC/Tasks/bqsr.wdl",
             alias="bqsr",
             task_name="bqsrTask",
             rank=6
@@ -118,7 +118,7 @@ BQSR = Task(inputs=[BAM, BAI],
 
 HAPLOTYPER = Task(inputs=[BAM, BAI, RECAL_TABLE],
                   outputs=[VCF, VCFIDX],
-                  import_location="src/wdl_scripts/HaplotyperVC/Tasks/haplotyper.wdl",
+                  import_location="src/wdl/HaplotyperVC/Tasks/haplotyper.wdl",
                   alias="haplotyper",
                   task_name="variantCallingTask",
                   rank=7
@@ -126,7 +126,7 @@ HAPLOTYPER = Task(inputs=[BAM, BAI, RECAL_TABLE],
 
 VQSR = Task(inputs=[VCF, VCFIDX],
             outputs=[VCF, VCFIDX],
-            import_location="src/wdl_scripts/HaplotyperVC/Tasks/vqsr.wdl",
+            import_location="src/wdl/HaplotyperVC/Tasks/vqsr.wdl",
             alias="vqsr",
             task_name="vqsrTask",
             rank=8
