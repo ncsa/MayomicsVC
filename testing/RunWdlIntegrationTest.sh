@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EXAMPLE USAGE 
-# ./AutomatingTesting.sh /path/to/test/folder src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
+# ./AutomatingTesting.sh /path/to/test/folder src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl "-i Config/memory_info.txt -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt"
 
 
 
@@ -51,10 +51,10 @@ java -jar ${WOMTOOL} inputs ${WorkflowBeingTested} > ../Jsons/${BaseNameOfWorkfl
 cd ../;
 
 #populate the JSON template
-python MayomicsVC/src/config/config_parser.py ${ConfigsBeingUsed} --jsonTemplate Jsons/${BaseNameOfWorkflowBeingTested}.json -o Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json;
+python MayomicsVC/src/python/config_parser.py ${ConfigsBeingUsed} --jsonTemplate Jsons/${BaseNameOfWorkflowBeingTested}.json -o Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json;
 
 #validate the JSON template
-python MayomicsVC/src/config/key_validation.py -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json --KeyTypeFile MayomicsVC/src/config/key_types.json;
+python MayomicsVC/src/python/key_validator.py -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json --KeyTypeFile MayomicsVC/src/python/config/key_types.json;
 
 
 
