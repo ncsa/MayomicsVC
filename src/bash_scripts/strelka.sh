@@ -245,6 +245,9 @@ logInfo "[Strelka] START."
 #
 ## Add command trap here
 #
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line${TRAP_LINE}. Error in Strelka Step1: Configure Strelka Somatic Workdlow.  " ' INT TERM EXIT
+
 ${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
     --tumorBam=${TUMOR} \
     --normalBam=${NORMAL} \
@@ -254,25 +257,32 @@ ${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
 #
 ## Add exitCode check
 #
+EXITCODE=$?
+#trap
+checkExitcode ${EXITCODE} $LINENO
+
 
 ## Run the strelka workflow. We choose local so it will not spawn new jobs on the cluster
 #
 ## Add command trap here
 #
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error Strelka Step2: Run the Strelka workflow. " ' INT TERM EXIT
 ./strelka/runWorkflow.py -m local -j ${THR}
 
 #
 ## Add exitCode check
 #
+EXITCODE=$?
+#trap
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[strelka] Finished running successfully for ${SAMPLE}"
 
 checkFile ./strelka/results/variants/somatic.indels.vcf.gz "Output somatic indels file failed to create." $LINENO
 checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV file failed to create." $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 ## Post-Processing
@@ -280,15 +290,23 @@ checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV fil
 
 ## Clean up strelka indel output
 #zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} | gzip somatic.indels.fixed.vcf.gz
+
 #
 ## Check exitCode
 #
+EXITCODE=$?
+#trap
+checkExitcode ${EXITCODE} $LINENO
 
 ## Clean up strelka snv output
 #zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} | gzip somatic.snvs.fixed.vcf.gz
+
 #
 ## Check exitCode 
 #
+EXITCODE=$?
+#trap
+checkExitcode ${EXITCODE} $LINENO
 
 exit 0;
 
