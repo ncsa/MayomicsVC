@@ -210,7 +210,7 @@ checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does no
 checkVar "${CONFIG+x}" "Missing python configuration file: -c" $LINENO
 #checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
 
-checkVar "${THREADS+x}" "Missing number of threads option: -t" $LINENO
+checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
