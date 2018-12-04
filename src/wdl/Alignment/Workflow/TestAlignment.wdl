@@ -2,10 +2,10 @@
 ####              This WDL script is used to run the Alignment steps as individual modules              ##
 ##########################################################################################################
 
-import "src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP 
-import "src/wdl_scripts/Alignment/Tasks/merge_aligned_bam.wdl" as MERGE
+import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP 
+import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGE
 
 workflow CallAlignmentTasks {
    

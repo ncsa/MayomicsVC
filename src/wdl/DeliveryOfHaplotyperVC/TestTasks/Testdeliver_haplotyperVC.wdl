@@ -6,7 +6,7 @@
 
 
 
-import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
+import "src/wdl/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
 
 workflow CallDeliverHaplotyperVCTask {
 

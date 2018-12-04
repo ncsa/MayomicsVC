@@ -4,7 +4,7 @@
 
 #######################################################################
 
-import "src/wdl_scripts/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
 
 workflow CallvariantCallingTask {
 

@@ -2,7 +2,7 @@
 ####              This WDL script is used to run the Delivery of alignment Block as individual module   ##
 ##########################################################################################################
 
-import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 workflow CallDeliveryAlignmentTask {
 

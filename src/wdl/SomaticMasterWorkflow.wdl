@@ -2,20 +2,20 @@
 ####              This WDL script is used to run Alignment and HaplotyperVC blocks together  ##
 ###############################################################################################
 
-import "src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl_scripts/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
-import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
+import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
+import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
-import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 
-import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl_scripts/SomaticVC/Tasks/strelka.wdl" as STRELKA
-import "src/wdl_scripts/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl_scripts/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGEVCF
+import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
+import "src/wdl/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGEVCF
 
-import "src/wdl_scripts/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
+import "src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
 workflow SomaticMasterWF {

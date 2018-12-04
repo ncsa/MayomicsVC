@@ -4,7 +4,7 @@
 
 #########################################################################
 
-import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
+import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
 workflow CalldedupTask {
 

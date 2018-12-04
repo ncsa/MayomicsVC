@@ -2,19 +2,19 @@
 ####              This WDL script is used to run Alignment and HaplotyperVC blocks together  ##
 ###############################################################################################
 
-import "src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl_scripts/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl_scripts/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
-import "src/wdl_scripts/Alignment/Tasks/dedup.wdl" as DEDUP
+import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
+import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
-import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
-import "src/wdl_scripts/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl_scripts/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
-import "src/wdl_scripts/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
-import "src/wdl_scripts/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
+import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
+import "src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 
-import "src/wdl_scripts/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
+import "src/wdl/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
 
 
 workflow GermlineMasterWF {

@@ -4,7 +4,7 @@
 
 ##############################################################
 
-import "src/wdl_scripts/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
+import "src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
 
 workflow CallbqsrTask {
 

@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "src/wdl_scripts/Alignment/Tasks/alignment.wdl" as ALIGN
+import "src/wdl/Alignment/Tasks/alignment.wdl" as ALIGN
 
 workflow RunAlignmentTask {
 

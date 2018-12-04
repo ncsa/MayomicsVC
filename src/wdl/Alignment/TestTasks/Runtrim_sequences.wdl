@@ -4,7 +4,7 @@
 
 ##############################################################
 
-import "src/wdl_scripts/Alignment/Tasks/trim_sequences.wdl" as TRIMSEQ
+import "src/wdl/Alignment/Tasks/trim_sequences.wdl" as TRIMSEQ
 
 workflow RunTrimSequencesTask {
 

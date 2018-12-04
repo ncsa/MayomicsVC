@@ -4,7 +4,7 @@
 
 #########################################################################
 
-import "src/wdl_scripts/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 workflow CallDeliverAlignmentTask {
 
