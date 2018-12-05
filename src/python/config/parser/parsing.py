@@ -6,7 +6,6 @@ from util.log import ProjectLogger
 from config.util.special_keys import OPTIONAL_KEYS
 import json
 import logging
-from typing import Dict
 
 """
 Exit code Rules:
@@ -381,7 +380,7 @@ class Parser:
             # The variable was not present
             return False
 
-    def find_variables_in_JSON_not_in_config(self, all_config_tuples, JSON_dict: Dict[str, str]):
+    def find_variables_in_JSON_not_in_config(self, all_config_tuples, JSON_dict):
         """
         Warns the user if any JSON key was not present in the configuration tuple list (that are not in the exception
           list).
