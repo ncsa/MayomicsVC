@@ -279,7 +279,7 @@ checkExitcode ${EXITCODE} $LINENO
 ## Plot the report for SNP VQSR
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in plot VQSR for SNPs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon plot VarCal -o ${SAMPLE}.${TYPE}.VQSR.pdf --plot_file ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
@@ -311,7 +311,7 @@ checkExitcode ${EXITCODE} $LINENO
 ## Plot the report for INDEL VQSR
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE} Error in plot VQSR for INDELs. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon plot vqsr -o ${SAMPLE}.${TYPE}.VQSR.pdf ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
+${SENTIEON}/bin/sentieon plot VarCal -o ${SAMPLE}.${TYPE}.VQSR.pdf --plot_file ${SAMPLE}.${TYPE}.plotfile >> ${SAMPLE}.vqsr_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO

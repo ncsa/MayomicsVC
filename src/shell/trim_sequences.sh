@@ -221,12 +221,12 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Parse filename without full path
-OUT1=$(basename ${INPUT1}).trimmed.fastq.gz
+OUT1=$(basename ${INPUT1})
 if  [[ "${IS_PAIRED_END}" == false ]]  # If single-end, we do not need a second output trimmed read
 then
 	OUT2=null
 else
-	OUT2=$(basename ${INPUT2}).trimmed.fastq.gz
+	OUT2=$(basename ${INPUT2})
 fi
 #-------------------------------------------------------------------------------------------------------------------------------
 
