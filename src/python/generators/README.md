@@ -22,7 +22,7 @@ It works by traversing the list of tasks in reverse order, and linking the input
 
 Delivery tasks are nodes in the workflow that are terminating, i.e. their outputs 
   are not used further downstream. They are called purely to generate and save their
-  output files
+  output files in a delivery folder instead of within Cromwell's output structure
 
 ## Defining a task
 

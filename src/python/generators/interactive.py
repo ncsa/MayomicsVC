@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from typing import List
 import collections
 from generators.file_types import *
 from generators.tasks import *
 
 
-sorted_task_list: List[Task] = sorted(task_dict.values(), key=lambda task: task.rank)
-sorted_task_names: List[str] = [i.alias.upper() for i in sorted_task_list]
+sorted_task_list = sorted(task_dict.values(), key=lambda task: task.rank)
+sorted_task_names = [i.alias.upper() for i in sorted_task_list]
 
 
 def __get_start_list():
@@ -17,7 +16,7 @@ def __get_start_list():
     return [i.alias.upper() for i in sorted_task_list[:-1]]
 
 
-def __create_prompt(prompt_text, task_choices: List[str]) -> str:
+def __create_prompt(prompt_text, task_choices):
     """
     Creates the interactive prompt string, and returns the input passed in from the end user
     Will fail if the user passes in invalid input over 5 times
@@ -35,7 +34,7 @@ def __create_prompt(prompt_text, task_choices: List[str]) -> str:
     print("Input invalid input passed in too many times. Exiting")
 
 
-def __find_valid_next_choices(task_index, all_previous_tasks: List[Task]) -> List[str]:
+def __find_valid_next_choices(task_index, all_previous_tasks):
     """
     Given the index of a task, list all of the next possible tasks to chose from in the workflow
 
@@ -47,7 +46,7 @@ def __find_valid_next_choices(task_index, all_previous_tasks: List[Task]) -> Lis
     :return: list of valid next task choices
     """
     valid_choices = []
-    task_outputs: List[FileType] = sorted_task_list[task_index].outputs
+    task_outputs = sorted_task_list[task_index].outputs
     all_previous_outputs = []
 
     for task in all_previous_tasks:
