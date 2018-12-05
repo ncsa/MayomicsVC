@@ -182,8 +182,9 @@ done
 
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.mutect.${SGE_JOB_ID}.log
+TOOL_LOG=${SAMPLE}.mutect_tool.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.mutect.log
+truncate -s 0 "${TOOL_LOG}"
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
@@ -214,25 +215,16 @@ checkDir ${JAVA} "Reason= Java directory ${JAVA} is not a directory or does not 
 checkVar "${BCF+x}" "Missing BCFTools directory option: -M" $LINENO
 checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does not exist." $LINENO
 
-checkVar "${THREADS+x}" "Missing number of threads option: -t" $LINENO
+checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
 checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 
-
-
-
-#CHECKV_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
-#source ${CHECKV_PATH}/check_variable.sh
-
-#CHECKF_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
-#source ${CHECKF_PATH}/check_file.sh
-
-
-
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Extra options
 MUTECT_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
@@ -246,24 +238,20 @@ MUTECT_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 logInfo "[MuTect] START."
 
 ## first configure the MuTect run
-#
-## Add command trap here
-#
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. MuTect2 error. Check tool log ${TOOL_LOG}. " ' INT TERM EXIT
 java -jar /usr/local/apps/bioapps/gatk/gatk-3.7.0/GenomeAnalysisTK.jar \
 	-T MuTect2 \
 	-R ${REFGEN} \
 	-I ${TUMOR} \
-#	-tumor tumor${SAMPLE} \
+	-tumor tumor_${SAMPLE} \
 	-I ${NORMAL} \
-#	-normal normal${SAMPLE} \
+	-normal normal_${SAMPLE} \
 	-O ${OUTVCF}
-#
-## Add exitCode check
-#
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
 
-#
-## Add exitCode check
-#
+checkExitcode ${EXITCODE} $LINENO
 
 checkFile ${OUTVCF} "Output somatic variant file failed to create." $LINENO
 

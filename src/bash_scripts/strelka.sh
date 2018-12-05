@@ -29,9 +29,10 @@ read -r -d '' DOCS << DOCS
 		   -B           <normal_bam> 
                    -T		<tumor_bam>
 		   -g		<reference_genome_fasta>
-                   -v           <outputVCF>
+                   -M           <BCFTools_path>
                    -I           <install_path>
-		   -c		<python_config_file>
+                   -S           <Samtools_path>
+                   -Z           <bgzip_path>
 		   -t		<threads>
 		   -F		<shared_functions>
 	           -o		<additonal options>
@@ -40,7 +41,7 @@ read -r -d '' DOCS << DOCS
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -B normal -T tumor -g reference_genome -v outputVCF -I path/to/install -F path/to/shared_functions -o option
+strelka.sh -B normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -M /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
 
 NOTES: 
 
@@ -96,7 +97,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:B:T:g:v:I:M:c:t:F:o:d" OPT
+while getopts ":hs:B:T:g:I:M:S:Z:t:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -119,10 +120,6 @@ do
                         REFGEN=${OPTARG}
                         checkArg
                         ;;
-		v )  # Output VCF 
-			OUTVCF=${OPTARG}
-			checkArg
-			;;
 		I )  # Install path
 			INSTALL=${OPTARG}
 			checkArg
@@ -131,10 +128,14 @@ do
 			BCF=${OPTARG}
 			checkArg
 			;;
-	        c )  # Python configuration file
-                        CONFIG=${OPTARG}
-                        checkArg
-                        ;;
+		S )  # Samtools path
+			SAMTOOLS=${OPTARG}
+			checkArg
+			;;
+		Z )  # bgzip path
+			BGZIP=${OPTARG}
+			checkArg
+			;;
 	        t )  # Number of threads
                         THR=${OPTARG}
                         checkArg
@@ -177,8 +178,9 @@ done
 
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.strelka.${SGE_JOB_ID}.log
+TOOL_LOG=${SAMPLE}.strelka_tool.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.strelka.log
+truncate -s 0 "${TOOL_LOG}"
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
@@ -198,7 +200,7 @@ checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $
 checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
+#checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
 #checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
 
 checkVar "${INSTALL+x}" "Missing install directory option: -I" $LINENO
@@ -207,7 +209,13 @@ checkDir ${INSTALL} "Reason= directory ${INSTALL} is not a directory or does not
 checkVar "${BCF+x}" "Missing BCFTools directory option: -M" $LINENO
 checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does not exist." $LINENO
 
-checkVar "${CONFIG+x}" "Missing python configuration file: -c" $LINENO
+checkVar "${SAMTOOLS+x}" "Missing Samtools directory option: -S" $LINENO
+checkDir ${SAMTOOLS} "Reason= Samtools directory ${SAMTOOLS} is not a directory or does not exist." $LINENO
+
+checkVar "${BGZIP+x}" "Missing bgzip directory option: -Z" $LINENO
+checkDir ${BGZIP} "Reason= Bgzip directory ${BGZIP} is not a directory or does not exist." $LINENO
+
+#checkVar "${CONFIG+x}" "Missing python configuration file: -c" $LINENO
 #checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
 
 checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
@@ -217,18 +225,9 @@ checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empt
 
 checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 
-
-
-
-#CHECKV_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
-#source ${CHECKV_PATH}/check_variable.sh
-
-#CHECKF_PATH=="`dirname "$0"`" #parse the directory of this function to locate the checkfiles script
-#source ${CHECKF_PATH}/check_file.sh
-
-
-
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Parsing extra options string
 STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
@@ -242,50 +241,42 @@ STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 logInfo "[Strelka] START."
 
 ## first configure the strelka run
-#
-## Add command trap here
-#
 TRAP_LINE=$(($LINENO+1))
-trap 'logError " $0 stopped at line${TRAP_LINE}. Error in Strelka Step1: Configure Strelka Somatic Workdlow.  " ' INT TERM EXIT
-
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in configuring Strelka somatic workflow.  " ' INT TERM EXIT
 ${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
     --tumorBam=${TUMOR} \
     --normalBam=${NORMAL} \
     --referenceFasta=${REFGEN} \
     --runDir=./strelka \
-    $STRELKA_OPTIONS_PARSED
-#
-## Add exitCode check
-#
+    $STRELKA_OPTIONS_PARSED >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
-#trap
+trap - INT TERM EXIT
+
 checkExitcode ${EXITCODE} $LINENO
 
 
 ## Run the strelka workflow. We choose local so it will not spawn new jobs on the cluster
-#
-## Add command trap here
-#
 TRAP_LINE=$(($LINENO+1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error Strelka Step2: Run the Strelka workflow. " ' INT TERM EXIT
-./strelka/runWorkflow.py -m local -j ${THR}
-
-#
-## Add exitCode check
-#
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution of runWorkflow.py. " ' INT TERM EXIT
+./strelka/runWorkflow.py -m local -j ${THR} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
-#trap
+trap - INT TERM EXIT
+
 checkExitcode ${EXITCODE} $LINENO
 
-logInfo "[strelka] Finished running successfully for ${SAMPLE}"
+logInfo "[strelka] Finished running strelka workflow successfully for ${SAMPLE}"
 
 checkFile ./strelka/results/variants/somatic.indels.vcf.gz "Output somatic indels file failed to create." $LINENO
 checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV file failed to create." $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
-## Post-Processing
+## Reformat SNV and Indel Genotypes
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Clean up strelka indel output
@@ -308,11 +299,74 @@ EXITCODE=$?
 #trap
 checkExitcode ${EXITCODE} $LINENO
 
-exit 0;
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+## Post-Processing: VCF Merge
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+## Replace sample names
+normal_sample_name=`${SAMTOOLS}/samtools view ${NORMAL} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
+tumor_sample_name=`${SAMTOOLS}/samtools view ${TUMOR} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
 
 ## Combine vcfs into single output
-${BCF}/bcftools merge -m any -f PASS,. --force-sample ./strelka/results/variants/*.vcf.gz > ${SAMPLE}.vcf
-gzip ${SAMPLE}.vcf
+logInfo "[BCFTools] Merging strelka output VCFs."
+
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools merge error. " ' INT TERM EXIT
+${BCF}/bcftools merge -m any -f PASS,. --force-sample ./strelka/results/variants/*.vcf.gz > ${SAMPLE}.vcf 2>>${TOOL_LOG}
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[BCFTools] Finished VCF merge."
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+## Post-Processing: bgzip and tabix
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+cat ${SAMPLE}.vcf | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>>${TOOL_LOG}
+
+
+
+
+## BGZip merged vcf
+logInfo "[bgzip] Zipping merged VCF."
+
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. BGZIP error. " ' INT TERM EXIT
+${BGZIP}/bgzip -c ${SAMPLE}.vcf.tmp > ${SAMPLE}.vcf.bgz 2>>${TOOL_LOG}
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[bgzip] Finished VCF zipping."
+
+
+
+
+## Generate Tabix index
+logInfo "[tabix] Creating Tabix index."
+
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools tabix error. " ' INT TERM EXIT
+${BCF}/bcftools tabix -f -p vcf ${SAMPLE}.vcf.bgz >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[tabix] Finished index generation."
+
 #Not sure what this does -> | ${BCF}/bcftools plugin fill-AN-AC | ${BCF}/bcftools filter -i 'SUM(AC)>1' > ${SAMPLE}.vcf.gz
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
