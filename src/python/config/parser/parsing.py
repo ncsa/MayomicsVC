@@ -361,7 +361,7 @@ class Parser:
                 )
         return output_dict
 
-    def is_TumorInputRead1_present(self, key_value_tuples) -> bool:
+    def is_TumorInputRead1_present(self, key_value_tuples):
         """
         Checks whether the TumorInputRead1 key is present and if it has a value assigned to it
 
