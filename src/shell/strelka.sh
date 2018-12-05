@@ -30,7 +30,7 @@ read -r -d '' DOCS << DOCS
                    -T		<tumor_bam>
 		   -g		<reference_genome_fasta>
                    -M           <BCFTools_path>
-                   -I           <install_path>
+                   -I           <strelka_install_path>
                    -S           <Samtools_path>
                    -Z           <bgzip_path>
 		   -t		<threads>

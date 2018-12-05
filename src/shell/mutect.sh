@@ -240,7 +240,7 @@ logInfo "[MuTect] START."
 ## first configure the MuTect run
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. MuTect2 error. Check tool log ${TOOL_LOG}. " ' INT TERM EXIT
-java -jar /usr/local/apps/bioapps/gatk/gatk-3.7.0/GenomeAnalysisTK.jar \
+${JAVA}/java -jar ${INSTALL}/GenomeAnalysisTK.jar \
 	-T MuTect2 \
 	-R ${REFGEN} \
 	-I ${TUMOR} \
