@@ -2,7 +2,6 @@
 
 import sys
 from .tasks import *
-from typing import List
 import logging
 from util.log import ProjectLogger
 
@@ -28,7 +27,7 @@ class Workflow:
 
     INDENT = "   "
 
-    def __init__(self, workflow_name, debug_mode, job_id="NA", input_file: str=None, task_list: List[Task]=None):
+    def __init__(self, workflow_name, debug_mode, job_id="NA", input_file=None, task_list=None):
         self.workflow_name = workflow_name
 
         # Initialize the project logger
@@ -40,9 +39,9 @@ class Workflow:
 
         # Either input_file or task_list must be set
         if input_file is not None:
-            self.task_list: List[Task] = Workflow.__process_task_list_file(self, input_file)
+            self.task_list = Workflow.__process_task_list_file(self, input_file)
         elif task_list is not None:
-            self.task_list: List[Task] = task_list
+            self.task_list = task_list
         else:
             self.project_logger.log_error("E.wfg.Bad.1", "Must use either interactive mode or pass in an input file")
 
@@ -65,7 +64,7 @@ class Workflow:
                 )
                 sys.exit(1)
 
-    def __process_task_list_file(self, file_path: str) -> List[FileType]:
+    def __process_task_list_file(self, file_path):
         """
         Read in a file with one task name per line, and verify that the lines are valid task names, and convert the task
           name into its corresponding FileType instance
@@ -91,11 +90,11 @@ class Workflow:
         return tasks
 
     @staticmethod
-    def __format_import_statement(node: Task):
+    def __format_import_statement(node):
         return 'import "' + node.import_location + '" as ' + node.alias.upper()
 
     @staticmethod
-    def __format_import_string(input_type: FileType, output_type: FileType, task_containing_output: Task):
+    def __format_import_string(input_type, output_type, task_containing_output):
         """
         Takes in the types of the input and output files and the task that contains the output file and returns a string
           with the output assigned to the input variable
@@ -181,7 +180,7 @@ class Workflow:
         return import_lines
 
     @staticmethod
-    def __construct_task_lines(task: Task) -> List[str]:
+    def __construct_task_lines(task):
         """
         Construct the task definition for a given task
 

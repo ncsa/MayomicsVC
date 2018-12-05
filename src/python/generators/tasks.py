@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 from .file_types import *
-from typing import List
-from typing import Dict
 
 
 class Task:
@@ -12,7 +10,7 @@ class Task:
                  import_location,
                  alias,
                  task_name,
-                 rank: int,
+                 rank,
                  delivery_task=False,
                  required=False
                  ):
@@ -26,13 +24,13 @@ class Task:
         :param delivery_task: if true, this task will have no child tasks; its only purpose is to save output files
         :param required: this task must be included in all workflows
         """
-        self.inputs: List[FileType] = inputs
-        self.outputs: List[FileType] = outputs
-        self.import_location: str = import_location
-        self.alias: str = alias
-        self.task_name: str = task_name
-        self.formatted_input_strings: List[str] = []
-        self.rank: int = rank
+        self.inputs = inputs
+        self.outputs = outputs
+        self.import_location = import_location
+        self.alias = alias
+        self.task_name = task_name
+        self.formatted_input_strings = []
+        self.rank = rank
 
         self.delivery_task = delivery_task
         self.required = required
@@ -46,7 +44,7 @@ class Task:
         self.dependencies_found = True
 
     def get_input_output_summary_string(self):
-        def format_list(io_types: List[FileType]):
+        def format_list(io_types):
             if len(io_types) == 0:
                 return "[]"
             else:
@@ -132,7 +130,7 @@ VQSR = Task(inputs=[VCF, VCFIDX],
             rank=8
             )
 
-task_dict: Dict[str, FileType] = {
+task_dict = {
     "CUTADAPTTRIM": CUTADAPTTRIM,
     "ALIGNMENT": ALIGNMENT,
     "DEDUP": DEDUP,

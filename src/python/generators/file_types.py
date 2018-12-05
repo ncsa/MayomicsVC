@@ -2,10 +2,10 @@
 
 
 class FileType:
-    def __init__(self, name: str, input_variable_name: str, output_variable_name: str):
-        self.name: str = name
-        self.input_variable_name: str = input_variable_name
-        self.output_variable_name: str = output_variable_name
+    def __init__(self, name, input_variable_name, output_variable_name):
+        self.name = name
+        self.input_variable_name = input_variable_name
+        self.output_variable_name = output_variable_name
 
 
 FASTQ = FileType(name="fastq", input_variable_name="InputReads", output_variable_name="OutputReads")
