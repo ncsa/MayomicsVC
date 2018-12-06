@@ -51,10 +51,10 @@ java -jar ${WOMTOOL} inputs ${WorkflowBeingTested} > ../Jsons/${BaseNameOfWorkfl
 cd ../;
 
 #populate the JSON template
-python MayomicsVC/src/config/config_parser.py ${ConfigsBeingUsed} --jsonTemplate Jsons/${BaseNameOfWorkflowBeingTested}.json -o Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json;
+python MayomicsVC/src/python/config_parser.py ${ConfigsBeingUsed} --jsonTemplate Jsons/${BaseNameOfWorkflowBeingTested}.json -o Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json;
 
 #validate the JSON template
-python MayomicsVC/src/config/key_validation.py -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json --KeyTypeFile MayomicsVC/src/config/key_types.json;
+python MayomicsVC/src/python/key_validator.py -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json --KeyTypeFile MayomicsVC/key_types.json;
 
 
 
