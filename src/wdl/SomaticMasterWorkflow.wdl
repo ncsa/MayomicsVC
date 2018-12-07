@@ -53,7 +53,8 @@ workflow SomaticMasterWF {
    call DELIVER_Alignment.deliverAlignmentTask as TumorDAB {
       input:
          InputBams = TumorDedup.OutputBams,
-         InputBais = TumorDedup.OutputBais
+         InputBais = TumorDedup.OutputBais,
+         SampleType = "Tumor"
    }
 
 
@@ -87,7 +88,8 @@ workflow SomaticMasterWF {
    call DELIVER_Alignment.deliverAlignmentTask as NormalDAB {
       input:
          InputBams = NormalDedup.OutputBams,
-         InputBais = NormalDedup.OutputBais
+         InputBais = NormalDedup.OutputBais,
+         SampleType = "Normal"
    }
 
 

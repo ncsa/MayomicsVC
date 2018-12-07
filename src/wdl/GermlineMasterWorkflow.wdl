@@ -64,7 +64,8 @@ workflow GermlineMasterWF {
    call DELIVER_Alignment.deliverAlignmentTask as DAB {
       input:
          InputBams = DeliverAlignOutputBams,
-         InputBais = DeliverAlignOutputBais
+         InputBais = DeliverAlignOutputBais,
+         SampleType = "Normal"
    }
 
 
