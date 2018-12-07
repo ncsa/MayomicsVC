@@ -127,7 +127,7 @@ do
 			checkArg
 			;;
 		G )  # GATK jar path
-			INSTALL=${OPTARG}
+			GATK=${OPTARG}
 			checkArg
 			;;
 		J )  # Java path
@@ -212,7 +212,8 @@ checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist."
 
 checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
 
-checkVar "${INSTALL+x}" "Missing GATK jar file path option: -I" $LINENO
+checkVar "${GATK+x}" "Missing GATK directory path option: -G" $LINENO
+checkDir ${GATK} "Reason= GATK directory ${GATK} is not a directory or does not exist." $LINENO
 
 checkVar "${JAVA+x}" "Missing Java directory option: -J" $LINENO
 checkDir ${JAVA} "Reason= Java directory ${JAVA} is not a directory or does not exist." $LINENO
@@ -251,14 +252,12 @@ logInfo "[MuTect] START."
 ## first configure the MuTect run
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. MuTect2 error. Check tool log ${TOOL_LOG}. " ' INT TERM EXIT
-${JAVA}/java -jar ${INSTALL}/GenomeAnalysisTK.jar \
+${JAVA}/java -jar ${GATK}/GenomeAnalysisTK.jar \
 	-T MuTect2 \
 	-R ${REFGEN} \
-	-I ${TUMOR} \
-	-tumor tumor_${SAMPLE} \
-	-I ${NORMAL} \
-	-normal normal_${SAMPLE} \
-	-O ${OUTVCF}
+	-I:tumor ${TUMOR} \
+	-I:normal ${NORMAL} \
+	-o ${OUTVCF}
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
