@@ -21,6 +21,10 @@ task strelkaTask {
    String Strelka                                 # Path to Strelka 
    String StrelkaThreads                          # No of Threads for the Tool
 
+   String BCFtools                                # Path to BCFtools
+   String Samtools                                # Path to Samtools
+   String Bgzip                                   # Path to bgzip
+
    File BashPreamble                              # Bash script that helps control zombie processes
    File BashSharedFunctions                       # Bash script that contains shared helpful functions
    File StrelkaScript                             # Path to bash script called within WDL script
@@ -31,7 +35,7 @@ task strelkaTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -S ${Strelka} -G ${Ref} -t ${StrelkaThreads} -T ${TumorBams} -N ${NormalBams} -o ${StrelkaExtraOptionsString} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -B ${NormalBams} -T ${TumorBams} -g ${Ref} -M ${BCFtools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
    >>>
 
   output {
