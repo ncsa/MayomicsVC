@@ -243,7 +243,7 @@ logInfo "[Strelka] START."
 ## first configure the strelka run
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in configuring Strelka somatic workflow.  " ' INT TERM EXIT
-${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
+${INSTALL}/configureStrelkaSomaticWorkflow.py \
     --tumorBam=${TUMOR} \
     --normalBam=${NORMAL} \
     --referenceFasta=${REFGEN} \

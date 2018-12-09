@@ -23,19 +23,24 @@ workflow SomaticMasterWF {
    Array[Array[File]] NormalInputReads
    Array[Array[File]] TumorInputReads
 
+   Boolean Trimming 
+
 
    ######     Alignment subworkflow for Tumor sample      ######
    #############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
-      input: 
-         InputReads = TumorInputReads 
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
+         input: 
+            InputReads = TumorInputReads 
+      }
    }
 
+   Array[Array[File]] TumorAlignInputReads = select_first([TumorTrimseq.Outputs,TumorInputReads])
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
-         InputReads = TumorTrimseq.Outputs
+         InputReads = TumorAlignInputReads
    }
 
    call MERGEBAM.mergebamTask as TumorMergeBam {
@@ -53,7 +58,8 @@ workflow SomaticMasterWF {
    call DELIVER_Alignment.deliverAlignmentTask as TumorDAB {
       input:
          InputBams = TumorDedup.OutputBams,
-         InputBais = TumorDedup.OutputBais
+         InputBais = TumorDedup.OutputBais,
+         SampleType = "Tumor"
    }
 
 
@@ -62,14 +68,18 @@ workflow SomaticMasterWF {
    ######     Alignment subworkflow for Normal sample      ######
    ##############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
-      input:
-         InputReads = NormalInputReads
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
+         input:
+            InputReads = NormalInputReads
+      }
    }
+
+   Array[Array[File]] NormalAlignInputReads = select_first([NormalTrimseq.Outputs,NormalInputReads])
 
    call ALIGNMENT.RunAlignmentTask as NormalAlign {
       input:
-         InputReads = NormalTrimseq.Outputs
+         InputReads = NormalAlignInputReads
    }
 
    call MERGEBAM.mergebamTask as NormalMergeBam {
@@ -87,7 +97,8 @@ workflow SomaticMasterWF {
    call DELIVER_Alignment.deliverAlignmentTask as NormalDAB {
       input:
          InputBams = NormalDedup.OutputBams,
-         InputBais = NormalDedup.OutputBais
+         InputBais = NormalDedup.OutputBais,
+         SampleType = "Normal"
    }
 
 

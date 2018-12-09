@@ -30,6 +30,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  deliver_alignment.sh     -s           <sample_name>
+                          -T           <sample_type>
                           -b           <aligned.sorted.deduped.bam>
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
@@ -38,7 +39,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  deliver_alignment.sh -h     # get help message
- deliver_alignment.sh -s sample_name -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ deliver_alignment.sh -s sample_name -T <sample_type> -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -91,7 +92,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:j:f:F:d" OPT
+while getopts ":hs:T:b:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -100,6 +101,10 @@ do
                         ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
+                        checkArg
+                        ;;
+                T )  # Sample type: i.e. tumor vs normal
+                        SAMPLE_TYPE=${OPTARG}
                         checkArg
                         ;;
                 b )  # Full path to the input BAM file
@@ -202,7 +207,7 @@ logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
 ## Copy the files over
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.bam
+cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -212,7 +217,7 @@ logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
+cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam.bai
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -237,14 +242,14 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam "Delivered BAM file ${DELIVERY_FOLDER}/${SAMPLE}.bam is empty" $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai "Delivered BAM index file ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai is empty" $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam "Delivered BAM file ${DELIVERY_FOLDER}/${SAMPLE}.bam is empty" $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam.bai "Delivered BAM index file ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai is empty" $LINENO
 
 JSON_FILENAME=`basename ${JSON}` 
 checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
 
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.${SAMPLE_TYPE}.bam.bai
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
 logInfo "[DELIVERY] Alignment block delivered. Have a nice day."
