@@ -32,11 +32,22 @@ task strelkaTask {
 
    String DebugMode                               # Enable or Disable Debug Mode
 
+   String StrelkaSoftMemLimit                     # Soft memory limit - nice shutdown
+   String StrelkaHardMemLimit                     # Hard memory limit - kill immediately
+
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -B ${NormalBams} -T ${TumorBams} -g ${Ref} -M ${BCFtools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -B ${NormalBams} -T ${TumorBams} -g ${Ref} -M ${BCFtools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
    >>>
+
+
+   runtime {
+      cpu: "${StrelkaThreads}"
+      s_vmem: "${StrelkaSoftMemLimit}"
+      h_vmem: "${StrelkaHardMemLimit}"
+   }
+
 
   output {
       File OutputVcf = "${SampleName}.vcf"

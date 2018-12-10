@@ -34,6 +34,7 @@ read -r -d '' DOCS << DOCS
                    -S           <Samtools_path>
                    -Z           <bgzip_path>
 		   -t		<threads>
+                   -e           <environmental_profile>
 		   -F		<shared_functions>
 	           -o		<additonal options>
 		   -d		Turn on debug mode
@@ -41,7 +42,7 @@ read -r -d '' DOCS << DOCS
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -B normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -M /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
+strelka.sh -B normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -M /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
 
 NOTES: 
 
@@ -80,6 +81,7 @@ function checkArg()
 }
 
 #-------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -140,6 +142,10 @@ do
                         THR=${OPTARG}
                         checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		F )  # Shared functions 
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
@@ -176,19 +182,23 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## Send Manifest to log
-ERRLOG=${SAMPLE}.strelka.${SGE_JOB_ID}.log
-TOOL_LOG=${SAMPLE}.strelka_tool.log
-truncate -s 0 "${ERRLOG}"
-truncate -s 0 "${TOOL_LOG}"
-
-echo "${MANIFEST}" >> "${ERRLOG}"
-
-#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
 source "${SHARED_FUNCTIONS}"
 
-## Check if sample name is set
+## Check if Sample Name variable exists
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+
+## Create log for JOB_ID/script and tool
+ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+truncate -s 0 ${SAMPLE}.cutadapt.log
+
+## Send manifest to log
+echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
+
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${NORMAL+x}" "Missing normal BAM option: -B" $LINENO
