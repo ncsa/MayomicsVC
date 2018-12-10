@@ -10,7 +10,6 @@ task deliverAlignmentTask {
    File InputBais                         # aligned sorted dedupped BAM.BAI file
 
    String SampleName                      # Name of the Sample
-   String SampleType                      # Type of the sample (Normal/Tumor)
 
    File WorkflowJson                      # JSON file for the workflow
 
