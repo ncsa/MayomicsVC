@@ -121,7 +121,6 @@ The workflow should be able to port smoothly among the following four kinds of s
 * MS Azure.
 
 
-
 ## Development and test automation 
 
 The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
@@ -130,8 +129,10 @@ The workflow should be constructed in such a way as to support multiple levels o
 * Integration testing for the main (i.e. most used) codepath in the workflow
 * Regression testing on all of the above.
 
+## Source directory structure
 
-
+Under `src`, the directories are separated by language (wdl, shell, python) instead of by feature. Because Python cannot import scripts from a directory higher than the script being executed (the "__main__" script), all executable Python scripts must be located within the `src/python` folder, and never nested within sub-directories/Python packages. Imports in all other Python files within the python directory must have their import statements relative to the `src/python` directory. Once this assumption is made, it allows all of the MayomicsVC Python scripts to import local modules correctly, without the use of the PYTHONPATH environment variable.
+ 
 # Implementation
 
 ## Implementing modularity
