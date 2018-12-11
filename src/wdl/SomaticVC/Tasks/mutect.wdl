@@ -19,14 +19,14 @@ task mutectTask {
 
    String MutectExtraOptionsString                # String of extra options for mutect, this can be an empty string
 
-   String GatkJarPath                             # Path to GATK .jar
-   String JavaPath                                # Path to Java to invoke GATK
+   String GatkJar                                 # Path to GATK .jar
+   String Java                                    # Path to Java to invoke GATK
    String MutectThreads                           # No of Threads for the Tool
    String MutectJavaMemOption                     # is a string in form of e.g. "-Xmx4G" or "-Xms2G -Xmx8G"
 
-   String BcfToolsPath                            # Path to BCF tools executable
-   String BgzipPath                               # Path to BGZip executable
-   String SamtoolsPath                            # Path to Samtools executable
+   String Bcftools                                # Path to BCF tools executable
+   String Bgzip                                   # Path to BGZip executable
+   String Samtools                                # Path to Samtools executable
 
    File BashPreamble                              # Bash script that helps control zombie processes
    File BashSharedFunctions                       # Bash script that contains shared helpful functions
@@ -41,7 +41,7 @@ task mutectTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${MutectScript} -s ${SampleName} -G ${GatkJarPath} -J ${JavaPath} -j ${MutectJavaMemOption} -B ${BcfToolsPath} -Z ${BgzipPath} -S ${SamtoolsPath} -g ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${MutectScript} -s ${SampleName} -G ${GatkJar} -J ${Java} -j ${MutectJavaMemOption} -B ${Bcftools} -Z ${Bgzip} -S ${Samtools} -g ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
 

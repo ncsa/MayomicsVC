@@ -21,7 +21,7 @@ task strelkaTask {
    String Strelka                                 # Path to Strelka 
    String StrelkaThreads                          # No of Threads for the Tool
 
-   String BCFtools                                # Path to BCFtools
+   String Bcftools                                # Path to BCFtools
    String Samtools                                # Path to Samtools
    String Bgzip                                   # Path to bgzip
 
@@ -38,7 +38,7 @@ task strelkaTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -B ${NormalBams} -T ${TumorBams} -g ${Ref} -M ${BCFtools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -B ${NormalBams} -T ${TumorBams} -g ${Ref} -M ${Bcftools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
    >>>
 
 

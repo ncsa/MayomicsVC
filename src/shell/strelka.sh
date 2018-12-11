@@ -26,10 +26,10 @@ read -r -d '' DOCS << DOCS
  USAGE:
  strelka.sh        
 		   -s		<sample_name>
-		   -B           <normal_bam> 
+		   -N           <normal_bam> 
                    -T		<tumor_bam>
 		   -g		<reference_genome_fasta>
-                   -M           <BCFTools_path>
+                   -B           <BCFTools_path>
                    -I           <strelka_install_path>
                    -S           <Samtools_path>
                    -Z           <bgzip_path>
@@ -42,7 +42,7 @@ read -r -d '' DOCS << DOCS
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -B normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -M /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
+strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
 
 NOTES: 
 
@@ -99,7 +99,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:B:T:g:I:M:S:Z:t:e:F:o:d" OPT
+while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -110,7 +110,7 @@ do
                         SAMPLE=${OPTARG}
                         checkArg
                         ;;
-                B )  # Normal sample BAM
+                N )  # Normal sample BAM
                         NORMAL=${OPTARG}
 			checkArg
                         ;;
@@ -126,7 +126,7 @@ do
 			INSTALL=${OPTARG}
 			checkArg
 			;;
-		M )  # BCF Tools path
+		B )  # BCF Tools path
 			BCF=${OPTARG}
 			checkArg
 			;;
