@@ -271,6 +271,7 @@ ${JAVA}/java ${JAVA_MEMORY_OPTIONS_PARSED} -jar ${INSTALL}/GenomeAnalysisTK.jar 
 	-R ${REFGEN} \
 	-I:tumor ${TUMOR} \
 	-I:normal ${NORMAL} \
+        -nct ${THR} \
 	-o ${OUTVCF}
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
