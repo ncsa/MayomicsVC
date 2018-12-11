@@ -188,9 +188,10 @@ source "${SHARED_FUNCTIONS}"
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script and tool
-ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.strelka_variant_calling.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.cutadapt.log
+TOOL_LOG=${SAMPLE}.strelka.log                                                                                                            
+truncate -s 0 ${TOOL_LOG}
 
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
