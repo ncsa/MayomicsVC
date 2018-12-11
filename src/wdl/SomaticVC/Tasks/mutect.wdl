@@ -41,7 +41,7 @@ task mutectTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${MutectScript} -s ${SampleName} -G ${GatkJar} -J ${Java} -j ${MutectJavaMemOption} -B ${Bcftools} -Z ${Bgzip} -S ${Samtools} -g ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o ${MutectExtraOptionsString} -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${MutectScript} -s ${SampleName} -G ${GatkJar} -J ${Java} -j "'${MutectJavaMemOption}'" -B ${Bcftools} -Z ${Bgzip} -S ${Samtools} -g ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o "'${MutectExtraOptionsString}'" -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
 
