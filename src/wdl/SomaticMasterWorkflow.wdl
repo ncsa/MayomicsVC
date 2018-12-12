@@ -22,6 +22,8 @@ workflow SomaticMasterWF {
 
    Array[Array[File]] NormalInputReads
    Array[Array[File]] TumorInputReads
+   String SampleNameNormal
+   String SampleNameTumor
 
    Boolean Trimming 
 
@@ -41,22 +43,26 @@ workflow SomaticMasterWF {
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
          InputReads = TumorAlignInputReads
+
    }
 
    call MERGEBAM.mergebamTask as TumorMergeBam {
       input:
+         SampleName = SampleNameTumor,
          InputBams = TumorAlign.OutputBams,
          InputBais = TumorAlign.OutputBais
    }
 
    call DEDUP.dedupTask as TumorDedup {
       input:
+         SampleName = SampleNameTumor,
          InputBams = TumorMergeBam.OutputBams,
          InputBais = TumorMergeBam.OutputBais
    }
 
    call DELIVER_Alignment.deliverAlignmentTask as TumorDAB {
       input:
+         SampleName = SampleNameTumor,
          InputBams = TumorDedup.OutputBams,
          InputBais = TumorDedup.OutputBais,
          SampleType = "Tumor"
@@ -84,18 +90,21 @@ workflow SomaticMasterWF {
 
    call MERGEBAM.mergebamTask as NormalMergeBam {
       input:
+         SampleName = SampleNameNormal,
          InputBams = NormalAlign.OutputBams,
          InputBais = NormalAlign.OutputBais
    }
 
    call DEDUP.dedupTask as NormalDedup {
       input:
+         SampleName = SampleNameNormal,
          InputBams = NormalMergeBam.OutputBams,
          InputBais = NormalMergeBam.OutputBais
    }
 
    call DELIVER_Alignment.deliverAlignmentTask as NormalDAB {
       input:
+         SampleName = SampleNameNormal,
          InputBams = NormalDedup.OutputBams,
          InputBais = NormalDedup.OutputBais,
          SampleType = "Normal"
@@ -111,12 +120,14 @@ workflow SomaticMasterWF {
 
    call REALIGNMENT.realignmentTask  as TumorRealign {
       input:
+         SampleName = SampleNameTumor,
          InputBams = TumorDedup.OutputBams,
          InputBais = TumorDedup.OutputBais
    }
 
    call REALIGNMENT.realignmentTask  as NormalRealign {
       input:
+         SampleName = SampleNameNormal,
          InputBams = NormalDedup.OutputBams,
          InputBais = NormalDedup.OutputBais
    }
