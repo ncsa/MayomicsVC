@@ -221,8 +221,6 @@ checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $
 checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
-
 checkVar "${GATK+x}" "Missing GATK directory path option: -G" $LINENO
 checkDir ${GATK} "Reason= GATK directory ${GATK} is not a directory or does not exist." $LINENO
 
