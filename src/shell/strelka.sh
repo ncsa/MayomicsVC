@@ -280,23 +280,28 @@ checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV fil
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Clean up strelka indel output
-#zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} | gzip somatic.indels.fixed.vcf.gz
+FIX_INDEL_GT=./fixStrelka_GT_indels.pl
+FIX_SNV_GT=./fixStrelka_GT_snvs.pl
 
-#
-## Check exitCode
-#
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution of fix Indel GT script. " ' INT TERM EXIT
+zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} > somatic.indels.fixed.vcf 2>> ${TOOL_LOG} 
+${BGZIP}/bgzip -c somatic.indels.fixed.vcf > somatic.indels.fixed.vcf.bgz 2>> ${TOOL_LOG}
+${BCF}/bcftools tabix -f -p vcf somatic.indels.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
-#trap
+trap - INT TERM EXIT
+
 checkExitcode ${EXITCODE} $LINENO
 
 ## Clean up strelka snv output
-#zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} | gzip somatic.snvs.fixed.vcf.gz
-
-#
-## Check exitCode 
-#
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution fix SNV GT script. " ' INT TERM EXIT
+zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} > somatic.snvs.fixed.vcf 2>> ${TOOL_LOG} 
+${BGZIP}/bgzip -c somatic.snvs.fixed.vcf > somatic.snvs.fixed.vcf.bgz 2>> ${TOOL_LOG}
+${BCF}/bcftools tabix -f -p vcf somatic.snvs.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
-#trap
+trap - INT TERM EXIT
+
 checkExitcode ${EXITCODE} $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
@@ -318,7 +323,7 @@ logInfo "[BCFTools] Merging strelka output VCFs."
 
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools merge error. " ' INT TERM EXIT
-${BCF}/bcftools merge -m any -f PASS,. --force-sample ./strelka/results/variants/*.vcf.gz > ${SAMPLE}.vcf 2>>${TOOL_LOG}
+${BCF}/bcftools merge -m any -f PASS,. --force-sample ./*fixed.vcf.bgz > ${SAMPLE}.vcf 2>> ${TOOL_LOG}
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
@@ -335,7 +340,7 @@ logInfo "[BCFTools] Finished VCF merge."
 ## Post-Processing: bgzip and tabix
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-cat ${SAMPLE}.vcf | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>>${TOOL_LOG}
+cat ${SAMPLE}.vcf | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>> ${TOOL_LOG}
 
 
 
@@ -345,7 +350,7 @@ logInfo "[bgzip] Zipping merged VCF."
 
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. BGZIP error. " ' INT TERM EXIT
-${BGZIP}/bgzip -c ${SAMPLE}.vcf.tmp > ${SAMPLE}.vcf.bgz 2>>${TOOL_LOG}
+${BGZIP}/bgzip -c ${SAMPLE}.vcf.tmp > ${SAMPLE}.vcf.bgz 2>> ${TOOL_LOG}
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
