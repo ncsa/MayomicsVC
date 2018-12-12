@@ -222,7 +222,7 @@ checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Extra options
-MUTECT_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
+MERGE_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
 
@@ -243,7 +243,7 @@ ${JAVA}/java -jar ${GATK}/GenomeAnalysisTK.jar \
 	--variant ${STRELKA_VCF} \
 	--variant ${MUTECT_VCF} \
 	-o ${OUTVCF} \
-	${OPTIONS}
+	${MERGE_OPTIONS_PARSED}
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
