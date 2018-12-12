@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## merge_somatic_vcf.sh MANIFEST, USAGE DOCS, SET CHECKS
+## combine_variants.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 read -r -d '' MANIFEST << MANIFEST
 
@@ -25,12 +25,11 @@ read -r -d '' DOCS << DOCS
 # 
 #############################################################################
  USAGE:
- merge_somatic_vcf.sh        
+combine_variants.sh        
                        -s           <sample_name>
                        -S           <Strelka_vcf>
                        -M           <MuTect_vcf>           
                        -g           <reference_genome_fasta>
-                       -v           <outputVCF>
                        -G           <GATK_jar_path>
                        -J           <Java_path>
                        -Z           <bgzip_path>
@@ -41,8 +40,8 @@ read -r -d '' DOCS << DOCS
                        -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
-merge_somatic_vcf.sh -h
-merge_somatic_vcf.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -v output_merged.vcf -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
+combine_variants.sh -h
+combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
 
 NOTES: Common extra option is "--genotypeMergeOptions PRIORITIZE -priority sample1.vcf,sample2.vcf" 
 
@@ -98,7 +97,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:M:g:v:G:J:Z:t:F:o:d" OPT
+while getopts ":hs:S:M:g:G:J:Z:t:F:o:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display help message
@@ -119,10 +118,6 @@ do
 			;;
 		g )  # Full path to reference genome fasta file
 			REFGEN=${OPTARG}
-			checkArg
-			;;
-		v )  # Output merged vcf name
-			OUTVCF=${OPTARG}
 			checkArg
 			;;
 		G )  # GATK path
@@ -178,7 +173,7 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 
 ## Send Manifest to log
-ERRLOG=${SAMPLE}.merge_vcfs.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.combine_variants.${SGE_JOB_ID}.log
 TOOL_LOG=${SAMPLE}.CombineVariants.log
 truncate -s 0 "${ERRLOG}"
 truncate -s 0 "${TOOL_LOG}"
@@ -201,8 +196,6 @@ checkFile ${MUTECT_VCF} "Input MuTect vcf file ${MUTECT_VCF} is empty or does no
 checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
-
 checkVar "${GATK+x}" "Missing GATK directory path option: -G" $LINENO
 checkDir ${GATK} "Reason= GATK directory ${GATK} is not a directory or does not exist." $LINENO
 
@@ -222,10 +215,11 @@ checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Extra options
-MUTECT_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
+MERGE_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
-
+# Create output file name
+OUTVCF=${SAMPLE}.vcf
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -242,8 +236,9 @@ ${JAVA}/java -jar ${GATK}/GenomeAnalysisTK.jar \
 	-R ${REFGEN} \
 	--variant ${STRELKA_VCF} \
 	--variant ${MUTECT_VCF} \
+        -nt ${THR} \
 	-o ${OUTVCF} \
-	${OPTIONS}
+	${MERGE_OPTIONS_PARSED}
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
@@ -255,12 +250,23 @@ checkFile ${OUTVCF} "Failed to create output merged VCF file." $LINENO
 ## Post-Processing
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
+## Check for the creation of the output VCF file
+checkFile ${OUTVCF} "Output VCF is empty." $LINENO
+
+## Open read permissions to the user group
+chmod g+r ${OUTVCF}
+
+## Check for the creation of the output VCF index file
+checkFile ${OUTVCF}.idx "Output VCF index is empty." $LINENO
+
+## Open read permissions to the user group
+chmod g+r ${OUTVCF}.idx
 
 
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-logInfo "Merge VCFs completed. Find merged result at ${OUTVCF}."
+logInfo "Merge VCFs completed. Find merged result in ${OUTVCF}."
 
 #----------------------------------------------------------------------------------------------------------------------------------------------

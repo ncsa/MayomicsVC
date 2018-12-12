@@ -254,7 +254,7 @@ JAVA_MEMORY_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${JAVA_MEMORY_OPTIONS}`
 
 
 ## Define output VCF name
-OUTVCF=${SAMPLE}.mutect_calls.vcf
+OUTVCF=${SAMPLE}.vcf
 
 
 

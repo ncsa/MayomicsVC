@@ -17,12 +17,11 @@ task mutectTask {
 
    String SampleName                              # Name of the Sample
 
-   String MutectExtraOptionsString                # String of extra options for mutect, this can be an empty string
-
    String GatkJar                                 # Path to GATK .jar
    String Java                                    # Path to Java to invoke GATK
    String MutectThreads                           # No of Threads for the Tool
    String MutectJavaMemOption                     # is a string in form of e.g. "-Xmx4G" or "-Xms2G -Xmx8G"
+   String MutectExtraOptionsString                # String of extra options for mutect, this can be an empty string
 
    String Bcftools                                # Path to BCF tools executable
    String Bgzip                                   # Path to BGZip executable
@@ -53,8 +52,9 @@ task mutectTask {
 
 
   output {
-      File OutputVcf = "${SampleName}.vcf"
-      File OutputVcfIdx = "${SampleName}.vcf.idx"
+      File OutputVcfBgz = "${SampleName}.vcf.bgz"
+      File OutputVcfBgzTbi = "${SampleName}.vcf.bgz.tbi"
    }
+
 
 }
