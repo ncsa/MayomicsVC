@@ -20,6 +20,8 @@ task strelkaTask {
 
    String Strelka                                 # Path to Strelka 
    String StrelkaThreads                          # No of Threads for the Tool
+   File IndelGtFixPerlScript                      # path and name of indel_GT_fix_perl_script
+   File SnpGtFixPerlScript                        # path and name of snp_GT_fix_perl_script
 
    String Bcftools                                # Path to BCFtools
    String Samtools                                # Path to Samtools
@@ -38,7 +40,7 @@ task strelkaTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -N ${NormalBams} -T ${TumorBams} -g ${Ref} -B ${Bcftools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -N ${NormalBams} -T ${TumorBams} -g ${Ref} -B ${Bcftools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -i ${IndelGtFixPerlScript} -p ${SnpGtFixPerlScript} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
    >>>
 
 
@@ -50,8 +52,8 @@ task strelkaTask {
 
 
   output {
-      File OutputVcf = "${SampleName}.vcf"
-      File OutputVcfIdx = "${SampleName}.vcf.idx"
+      Array[File] OutputVcfBgz = glob("*.vcf.bgz")
+      Array[File] OutputVcfBgzTbi = glob("*.vcf.bgz.tbi")
    }
 
 }

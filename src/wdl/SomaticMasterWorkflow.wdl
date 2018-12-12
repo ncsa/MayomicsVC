@@ -42,6 +42,7 @@ workflow SomaticMasterWF {
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
+         SampleName = SampleNameTumor,
          InputReads = TumorAlignInputReads
 
    }
@@ -85,6 +86,7 @@ workflow SomaticMasterWF {
 
    call ALIGNMENT.RunAlignmentTask as NormalAlign {
       input:
+         SampleName = SampleNameNormal,
          InputReads = NormalAlignInputReads
    }
 
@@ -148,18 +150,18 @@ workflow SomaticMasterWF {
          NormalBais = NormalRealign.OutputBais
    }
 
-   call MERGEVCF.mergeSomaticVcfTask as merge_somatic_vcf {
+   call MERGEVCF.combineVariantsTask as merge_somatic_vcf {
       input:
-         InputStrelkaVcf = strelka.OutputVcf,
-         InputStrelkaVcfIdx = strelka.OutputVcfIdx,
-         InputMutectVcf = mutect.OutputVcf,
-         InputMutectVcfIdx = mutect.OutputVcfIdx
+         StrelkaVcf = strelka.OutputVcfBgz,
+         StrelkaVcfIdx = strelka.OutputVcfBgzTbi,
+         MutectVcf = mutect.OutputVcfBgz,
+         MutectVcfIdx = mutect.OutputVcfBgzTbi
    }
 
    call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
       input:
          InputVcf = merge_somatic_vcf.OutputVcf,
-         InputVcfIdx = merge_somatic_vcf.OutputVcfIdx,
+         InputVcfIdx = merge_somatic_vcf.OutputVcfIdx
    } 
 
 }
