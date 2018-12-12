@@ -36,13 +36,15 @@ read -r -d '' DOCS << DOCS
 		   -t		<threads>
                    -e           <environmental_profile>
 		   -F		<shared_functions>
-	           -o		<additonal options>
+	           -i           <indel_GT_fix_perl_script>
+                   -p           <snp_GT_fix_perl_script>
+                   -o		<additonal options>
 		   -d		Turn on debug mode
                    -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
+strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -i /path/to/fix_indels.pl -p /path/to/fix_snps.pl -o "'--extra_option'"
 
 NOTES: 
 
@@ -99,7 +101,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:o:d" OPT
+while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:i:p:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -150,6 +152,14 @@ do
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
                         ;;
+		i )  # Path to fixStrelka_GT_indels.pl
+			FIX_INDEL_GT=${OPTARG}
+			checkArg
+			;;
+		p )  # Path to fixStrelka_GT_snvs.pl
+			FIX_SNV_GT=${OPTARG}
+			checkArg
+			;;
 		o )  # Extra options
                         OPTIONS=${OPTARG}
                         checkArg
@@ -211,9 +221,6 @@ checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $
 checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-#checkVar "${OUTVCF+x}" "Missing output VCF option: -v" $LINENO
-#checkFile ${OUTVCF} "Output VCF file ${OUTVCF} is empty or does not exist." $LINENO
-
 checkVar "${INSTALL+x}" "Missing install directory option: -I" $LINENO
 checkDir ${INSTALL} "Reason= directory ${INSTALL} is not a directory or does not exist." $LINENO
 
@@ -233,6 +240,12 @@ checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
+
+checkVar "${FIX_INDEL_GT+x}" "Missing Fix GT Indel perl script option: -i" $LINENO
+checkFile ${FIX_INDEL_GT} "Fix GT INDEL perl script ${FIX_INDEL_GT} is empty or does not exist." $LINENO
+
+checkVar "${FIX_SNV_GT+x}" "Missing Fix GT SNV perl script option: -p" $LINENO
+checkFile ${FIX_SNV_GT} "Fix GT SNV perl script ${FIX_SNV_GT} is empty or does not exist." $LINENO
 
 checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 
@@ -291,9 +304,6 @@ checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV fil
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Clean up strelka indel output
-FIX_INDEL_GT=./fixStrelka_GT_indels.pl
-FIX_SNV_GT=./fixStrelka_GT_snvs.pl
-
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution of fix Indel GT script. " ' INT TERM EXIT
 zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} > somatic.indels.fixed.vcf 2>> ${TOOL_LOG} 
