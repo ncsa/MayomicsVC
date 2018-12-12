@@ -34,7 +34,7 @@ task dedupTask {
    }
 
    output {
-      File OutputBams = "${SampleName}.aligned.sorted.deduped.bam"
-      File OutputBais = "${SampleName}.aligned.sorted.deduped.bam.bai"
+      File OutputBams = glob("*.bam")[0]
+      File OutputBais = glob("*.bai")[0]
    }
 }
