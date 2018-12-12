@@ -10,8 +10,8 @@ workflow CallMutectTask {
    call STRELKA.mutectTask as mutect
 
    output {
-      Array[File] MutectVcf = mutect.OutputVcfBgz
-      Array[File] MutectVcfIdx = mutect.OutputVcfBgzTbi
+      File MutectVcf = mutect.OutputVcfBgz
+      File MutectVcfIdx = mutect.OutputVcfBgzTbi
    }
 
 }

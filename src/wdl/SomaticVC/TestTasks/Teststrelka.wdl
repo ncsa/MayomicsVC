@@ -10,8 +10,8 @@ workflow CallStrelkaTask {
    call STRELKA.strelkaTask as strelka
 
    output {
-      Array[File] StrelkaVcf = strelka.OutputVcfBgz
-      Array[File] StrelkaVcfIdx = strelka.OutputVcfBgzTbi
+      File StrelkaVcf = strelka.OutputVcfBgz
+      File StrelkaVcfIdx = strelka.OutputVcfBgzTbi
    }
 
 }

@@ -49,8 +49,8 @@ task combineVariantsTask  {
 
 
   output {
-      File OutputVcf = glob("*.vcf")
-      File OutputVcfIdx = glob("*.vcf.idx")
+      OutputVcf = ${SampleName}.vcf
+      OutputVcfIdx = ${SampleName}.vcf.idx
    }
 
 }

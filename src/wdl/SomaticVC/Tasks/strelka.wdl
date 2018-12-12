@@ -52,8 +52,8 @@ task strelkaTask {
 
 
   output {
-      Array[File] OutputVcfBgz = glob("*.vcf.bgz")
-      Array[File] OutputVcfBgzTbi = glob("*.vcf.bgz.tbi")
+      File OutputVcfBgz = "${SampleName}.vcf.bgz"
+      File OutputVcfBgzTbi = "${SampleName}.vcf.bgz.tbi"
    }
 
 }
