@@ -25,21 +25,25 @@ workflow SomaticMasterWF {
    String SampleNameNormal
    String SampleNameTumor
 
+   Boolean Trimming 
+
 
    ######     Alignment subworkflow for Tumor sample      ######
    #############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
-      input: 
-         SampleName = SampleNameTumor,
-         InputReads = TumorInputReads 
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
+         input: 
+            InputReads = TumorInputReads 
+      }
    }
 
+   Array[Array[File]] TumorAlignInputReads = select_first([TumorTrimseq.Outputs,TumorInputReads])
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
-         SampleName = SampleNameTumor,
-         InputReads = TumorTrimseq.Outputs
+         InputReads = TumorAlignInputReads
+
    }
 
    call MERGEBAM.mergebamTask as TumorMergeBam {
@@ -60,7 +64,8 @@ workflow SomaticMasterWF {
       input:
          SampleName = SampleNameTumor,
          InputBams = TumorDedup.OutputBams,
-         InputBais = TumorDedup.OutputBais
+         InputBais = TumorDedup.OutputBais,
+         SampleType = "Tumor"
    }
 
 
@@ -69,16 +74,18 @@ workflow SomaticMasterWF {
    ######     Alignment subworkflow for Normal sample      ######
    ##############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
-      input:
-         SampleName = SampleNameNormal,
-         InputReads = NormalInputReads
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
+         input:
+            InputReads = NormalInputReads
+      }
    }
+
+   Array[Array[File]] NormalAlignInputReads = select_first([NormalTrimseq.Outputs,NormalInputReads])
 
    call ALIGNMENT.RunAlignmentTask as NormalAlign {
       input:
-         SampleName = SampleNameNormal,
-         InputReads = NormalTrimseq.Outputs
+         InputReads = NormalAlignInputReads
    }
 
    call MERGEBAM.mergebamTask as NormalMergeBam {
@@ -100,6 +107,7 @@ workflow SomaticMasterWF {
          SampleName = SampleNameNormal,
          InputBams = NormalDedup.OutputBams,
          InputBais = NormalDedup.OutputBais,
+         SampleType = "Normal"
    }
 
 

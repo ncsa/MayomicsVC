@@ -26,14 +26,15 @@ read -r -d '' DOCS << DOCS
  USAGE:
  strelka.sh        
 		   -s		<sample_name>
-		   -B           <normal_bam> 
+		   -N           <normal_bam> 
                    -T		<tumor_bam>
 		   -g		<reference_genome_fasta>
-                   -M           <BCFTools_path>
+                   -B           <BCFTools_path>
                    -I           <strelka_install_path>
                    -S           <Samtools_path>
                    -Z           <bgzip_path>
 		   -t		<threads>
+                   -e           <environmental_profile>
 		   -F		<shared_functions>
 	           -o		<additonal options>
 		   -d		Turn on debug mode
@@ -41,7 +42,7 @@ read -r -d '' DOCS << DOCS
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -B normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -M /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
+strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -o "'--extra_option'"
 
 NOTES: 
 
@@ -86,6 +87,7 @@ function checkArg()
 
 
 
+
 #-------------------------------------------------------------------------------------------------------------------------------
 ## GETOPTS ARGUMENT PARSER
 #------------------------------------------------------------------------------------------------------------------------------
@@ -97,7 +99,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:B:T:g:I:M:S:Z:t:F:o:d" OPT
+while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -108,7 +110,7 @@ do
                         SAMPLE=${OPTARG}
                         checkArg
                         ;;
-                B )  # Normal sample BAM
+                N )  # Normal sample BAM
                         NORMAL=${OPTARG}
 			checkArg
                         ;;
@@ -124,7 +126,7 @@ do
 			INSTALL=${OPTARG}
 			checkArg
 			;;
-		M )  # BCF Tools path
+		B )  # BCF Tools path
 			BCF=${OPTARG}
 			checkArg
 			;;
@@ -140,6 +142,10 @@ do
                         THR=${OPTARG}
                         checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		F )  # Shared functions 
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
@@ -176,19 +182,24 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## Send Manifest to log
-ERRLOG=${SAMPLE}.strelka.${SGE_JOB_ID}.log
-TOOL_LOG=${SAMPLE}.strelka_tool.log
-truncate -s 0 "${ERRLOG}"
-truncate -s 0 "${TOOL_LOG}"
-
-echo "${MANIFEST}" >> "${ERRLOG}"
-
-#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
 source "${SHARED_FUNCTIONS}"
 
-## Check if sample name is set
+## Check if Sample Name variable exists
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+
+## Create log for JOB_ID/script and tool
+ERRLOG=${SAMPLE}.strelka_variant_calling.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+TOOL_LOG=${SAMPLE}.strelka.log                                                                                                            
+truncate -s 0 ${TOOL_LOG}
+
+## Send manifest to log
+echo "${MANIFEST}" >> "${ERRLOG}"
+
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
+
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${NORMAL+x}" "Missing normal BAM option: -B" $LINENO
@@ -243,7 +254,7 @@ logInfo "[Strelka] START."
 ## first configure the strelka run
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in configuring Strelka somatic workflow.  " ' INT TERM EXIT
-${INSTALL}/bin/configureStrelkaSomaticWorkflow.py \
+${INSTALL}/configureStrelkaSomaticWorkflow.py \
     --tumorBam=${TUMOR} \
     --normalBam=${NORMAL} \
     --referenceFasta=${REFGEN} \
