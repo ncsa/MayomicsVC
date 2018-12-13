@@ -4,7 +4,7 @@
 
 #######################################################################
 
-import "src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
 
 workflow CallvariantCallingTask {
 

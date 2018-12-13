@@ -38,13 +38,14 @@ read -r -d '' DOCS << DOCS
 		   -F		<shared_functions>
 	           -i           <indel_GT_fix_perl_script>
                    -p           <snp_GT_fix_perl_script>
-                   -o		<additonal options>
+                   -o		<additonal strelka options>
+                   -O		<additonal bcf options>
 		   -d		Turn on debug mode
                    -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
 strelka.sh -h
-strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -i /path/to/fix_indels.pl -p /path/to/fix_snps.pl -o "'--extra_option'"
+strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -i /path/to/fix_indels.pl -p /path/to/fix_snps.pl -o "'--extra_option'" -O "'extra_bcf_options'"
 
 NOTES: 
 
@@ -160,8 +161,12 @@ do
 			FIX_SNV_GT=${OPTARG}
 			checkArg
 			;;
-		o )  # Extra options
-                        OPTIONS=${OPTARG}
+		o )  # Extra strelka options
+                        STRELKA_OPTIONS=${OPTARG}
+                        checkArg
+                        ;;
+                O )  # Extra bcf tools options
+                        BCFTOOLS_OPTIONS=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
@@ -247,12 +252,14 @@ checkFile ${FIX_INDEL_GT} "Fix GT INDEL perl script ${FIX_INDEL_GT} is empty or 
 checkVar "${FIX_SNV_GT+x}" "Missing Fix GT SNV perl script option: -p" $LINENO
 checkFile ${FIX_SNV_GT} "Fix GT SNV perl script ${FIX_SNV_GT} is empty or does not exist." $LINENO
 
-checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
+checkVar "${STRELKA_OPTIONS}" "Missing additional strelka options option: -o" $LINENO
+checkVar "${BCFTOOLS_OPTIONS}" "Missing additional bcftools options option: -o" $LINENO
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Parsing extra options string
-STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
+STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${STRELKA_OPTIONS}`
+BCFTOOLS_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${BCFTOOLS_OPTIONS}`
 
 
 
@@ -344,7 +351,7 @@ logInfo "[BCFTools] Merging strelka output VCFs."
 
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools merge error. " ' INT TERM EXIT
-${BCF}/bcftools merge -m any -f PASS,. --force-sample ./*fixed.vcf.bgz > ${SAMPLE}.vcf 2>> ${TOOL_LOG}
+${BCF}/bcftools merge ${BCFTOOLS_OPTIONS_PARSED} ./*fixed.vcf.bgz > ${SAMPLE}.vcf 2>> ${TOOL_LOG}
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO

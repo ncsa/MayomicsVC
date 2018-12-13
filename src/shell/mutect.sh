@@ -38,13 +38,14 @@ read -r -d '' DOCS << DOCS
 		   -t		<threads>
 		   -F		<shared_functions>
                    -e           <environmental_profile>
+                   -D           <fix_DP_field_script>
 	           -o		<additonal options>
 		   -d		Turn on debug mode
                    -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
 mutect.sh -h
-mutect.sh -s sample_name -N normal.bam -T tumor.bam -g reference_genome.fa -v output.vcf -G path/to/GATK.jar -J /path/to/java -j "-xms2G -Xmx8G" -B /path/to/BCFTools -Z /path/to/bgzip -S /path/to/samtools -F path/to/shared_functions -o option
+mutect.sh -s sample_name -N normal.bam -T tumor.bam -g reference_genome.fa -v output.vcf -G path/to/GATK.jar -J /path/to/java -j "-xms2G -Xmx8G" -B /path/to/BCFTools -Z /path/to/bgzip -S /path/to/samtools -F path/to/shared_functions -e /path/to/environment_vars -D /path/to/fixDP.pl -o option
 
 NOTES: 
 
@@ -100,7 +101,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:N:T:g:G:J:j:B:Z:S:t:e:F:o:d" OPT
+while getopts ":hs:N:T:g:G:J:j:B:Z:S:t:e:D:F:o:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -155,6 +156,10 @@ do
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
+		D )  # Path to fix DP field perl script
+			FIX_DP=${OPTARG}
+			checkArg
+			;;
 		F )  # Shared functions 
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
@@ -240,6 +245,9 @@ checkDir ${SAMTOOLS} "Reason= Samtools directory ${SAMTOOLS} is not a directory 
 
 checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 
+checkVar "${FIX_DP+x}" "Missing fix DP field script option: -D" $LINENO
+checkFile ${FIX_DP} "Fix DP field script ${FIX_DP} is empty or does not exist." $LINENO
+
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
@@ -272,8 +280,8 @@ ${JAVA}/java ${JAVA_MEMORY_OPTIONS_PARSED} -jar ${GATK}/GenomeAnalysisTK.jar \
 	-R ${REFGEN} \
 	-I:tumor ${TUMOR} \
 	-I:normal ${NORMAL} \
-  -nct ${THR} \
-	-o ${OUTVCF}
+	-nct ${THR} \
+	-o ${OUTVCF} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
@@ -290,31 +298,22 @@ checkFile ${OUTVCF} "Output somatic variant file failed to create." $LINENO
 ## Post-Processing
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-#
-## FROM STRELKA--------------------------------------------------------------------------------------------------------------------------------
-#
+
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-## Reformat SNV and Indel Genotypes
+## Add DP field to output VCF
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-## Clean up strelka indel output
-#zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} | gzip somatic.indels.fixed.vcf.gz
-#
-# Check exitCode
-#
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution fix DP field script. " ' INT TERM EXIT
+cat ${OUTVCF} | perl ${FIX_DP} > ${OUTVCF}.fixed 2>> ${TOOL_LOG}
+#${BGZIP}/bgzip -c somatic.snvs.fixed.vcf > somatic.snvs.fixed.vcf.bgz 2>> ${TOOL_LOG}
+#${BCF}/bcftools tabix -f -p vcf somatic.snvs.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
-#trap
+trap - INT TERM EXIT
+
 checkExitcode ${EXITCODE} $LINENO
 
-## Clean up strelka snv output
-#zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} | gzip somatic.snvs.fixed.vcf.gz
-#
-## Check exitCode 
-#
-EXITCODE=$?
-#trap
-checkExitcode ${EXITCODE} $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -323,25 +322,12 @@ checkExitcode ${EXITCODE} $LINENO
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-## Post-Processing: VCF Merge
+## Post-Processing: Sample Name Fix
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Replace sample names
 normal_sample_name=`${SAMTOOLS}/samtools view ${NORMAL} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
 tumor_sample_name=`${SAMTOOLS}/samtools view ${TUMOR} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
-
-## Combine vcfs into single output
-#logInfo "[BCFTools] Merging mutect output VCFs."
-
-#TRAP_LINE=$(($LINENO+1))
-#trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools merge error. " ' INT TERM EXIT
-#${BCF}/bcftools merge -m any -f PASS,. --force-sample ./*.vcf > ${SAMPLE}.vcf 2>>${TOOL_LOG}
-#EXITCODE=$?
-#trap - INT TERM EXIT
-
-#checkExitcode ${EXITCODE} $LINENO
-
-#logInfo "[BCFTools] Finished VCF merge."
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -353,7 +339,7 @@ tumor_sample_name=`${SAMTOOLS}/samtools view ${TUMOR} -H | awk '/@RG/ { for (i=1
 ## Post-Processing: bgzip and tabix
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-cat ${OUTVCF} | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>>${TOOL_LOG}
+cat ${OUTVCF}.fixed | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>>${TOOL_LOG}
 
 ## BGZip merged vcf
 logInfo "[bgzip] Zipping output VCF."
@@ -381,6 +367,11 @@ checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[tabix] Finished index generation."
 #Not sure what this does -> | ${BCF}/bcftools plugin fill-AN-AC | ${BCF}/bcftools filter -i 'SUM(AC)>1' > ${SAMPLE}.vcf.gz
+
+rm ${OUTVCF}.fixed
+rm ${SAMPLE}.vcf.tmp
+
+checkFile ${OUTVCF}.bgz "Output somatic variant file failed to create." $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -3,7 +3,7 @@
 
 #########################################################################
 
-import "src/wdl/SomaticVC/Tasks/mutect.wdl" as STRELKA
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/mutect.wdl" as STRELKA
 
 workflow CallMutectTask {
 

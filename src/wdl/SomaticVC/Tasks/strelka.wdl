@@ -17,6 +17,7 @@ task strelkaTask {
    String SampleName                              # Name of the Sample
 
    String StrelkaExtraOptionsString               # String of extra options for strelka, this can be an empty string
+   String BcftoolsExtraOptionsString              # String of extra options for bcftools, this can be an empty string
 
    String Strelka                                 # Path to Strelka 
    String StrelkaThreads                          # No of Threads for the Tool
@@ -40,7 +41,7 @@ task strelkaTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${StrelkaScript} -s ${SampleName} -N ${NormalBams} -T ${TumorBams} -g ${Ref} -B ${Bcftools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -i ${IndelGtFixPerlScript} -p ${SnpGtFixPerlScript} -o "'${StrelkaExtraOptionsString}'" ${DebugMode}
+        /bin/bash ${StrelkaScript} -s ${SampleName} -N ${NormalBams} -T ${TumorBams} -g ${Ref} -B ${Bcftools} -I ${Strelka} -S ${Samtools} -Z ${Bgzip} -t ${StrelkaThreads} -e ${StrelkaEnvProfile} -F ${BashSharedFunctions} -i ${IndelGtFixPerlScript} -p ${SnpGtFixPerlScript} -o "'${StrelkaExtraOptionsString}'" -O "'${BcftoolsExtraOptionsString}'" ${DebugMode}
    >>>
 
 

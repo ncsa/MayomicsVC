@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "src/wdl/Alignment/Tasks/alignment.wdl" as ALIGN
+import "MayomicsVC/src/wdl/Alignment/Tasks/alignment.wdl" as ALIGN
 
 workflow RunAlignmentTask {
 

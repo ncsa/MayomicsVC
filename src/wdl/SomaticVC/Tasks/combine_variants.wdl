@@ -38,7 +38,11 @@ task combineVariantsTask  {
 
    command <<<
         source ${BashPreamble}
+<<<<<<< HEAD
         /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -g ${Ref} -G ${GatkJar} -J ${Java} -Z ${Bgzip} -t ${CombineVariantsThreads} -F ${BashSharedFunctions} -e ${CombineVariantsEnvProfile} -o ${CombineVariantsExtraOptionsString} ${DebugMode}
+=======
+        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -g ${Ref} -G ${GatkJar} -J ${Java} -Z ${Bgzip} -t ${CombineVariantsThreads} -F ${BashSharedFunctions} -e ${CombineVariantsEnvProfile} -o "'${CombineVariantsExtraOptionsString}'" ${DebugMode}
+>>>>>>> bbcc26437847ef75dfe967b8f4d284bbf8e7ba1c
    >>>
 
 

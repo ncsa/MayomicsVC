@@ -2,20 +2,20 @@
 ####              This WDL script is used to run Alignment and HaplotyperVC blocks together  ##
 ###############################################################################################
 
-import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
-import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "MayomicsVC/src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
+import "MayomicsVC/src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
-import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "MayomicsVC/src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
-import "src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
 
-import "src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
+import "MayomicsVC/src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
 workflow SomaticMasterWF {

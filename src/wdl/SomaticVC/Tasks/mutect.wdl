@@ -31,6 +31,7 @@ task mutectTask {
    File BashSharedFunctions                       # Bash script that contains shared helpful functions
    File MutectScript                              # Path to bash script called within WDL script
    File MutectEnvProfile                          # File containing the environmental profile variables
+   File FixDPScript                               # Path to fix DP script
 
    String DebugMode                               # Enable or Disable Debug Mode
 
@@ -40,7 +41,7 @@ task mutectTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${MutectScript} -s ${SampleName} -G ${GatkJar} -J ${Java} -j "'${MutectJavaMemOption}'" -B ${Bcftools} -Z ${Bgzip} -S ${Samtools} -g ${Ref} -t ${MutectThreads} -T ${TumorBams} -N ${NormalBams} -o "'${MutectExtraOptionsString}'" -e ${MutectEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${MutectScript} -s ${SampleName} -N ${NormalBams} -T ${TumorBams} -g ${Ref} -G ${GatkJar} -J ${Java} -j "'${MutectJavaMemOption}'" -B ${Bcftools} -Z ${Bgzip} -S ${Samtools} -t ${MutectThreads} -F ${BashSharedFunctions} -e ${MutectEnvProfile} -D ${FixDPScript} -o "'${MutectExtraOptionsString}'" ${DebugMode}
    >>>
 
 

@@ -103,5 +103,14 @@
     "StrelkaHardMemLimit": "String",
     "StrelkaScript": "File",
     "StrelkaSoftMemLimit": "String",
-    "StrelkaThreads": "String"
+    "StrelkaThreads": "String",
+
+    "CombineVariantsEnvProfile": "File",
+    "CombineVariantsExtraOptionsString": "String",
+    "CombineVariantsHardMemLimit": "String",
+    "CombineVariantsScript": "File",
+    "CombineVariantsSoftMemLimit": "String",
+    "CombineVariantsThreads": "String",
+    "IndelGtFixPerlScript": "File",
+    "SnpGtFixPerlScript": "File"
 }
