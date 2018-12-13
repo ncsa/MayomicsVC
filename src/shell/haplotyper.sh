@@ -42,6 +42,7 @@ read -r -d '' DOCS << DOCS
 		   -o	<extra_haplotyper_options>
                    -e   </path/to/env_profile_file>
                    -F   </path/to/shared_functions.sh>
+           -V   VCF Source Field (default: Sentieon)
 		   -d   turn on debug mode
 
  EXAMPLES:
@@ -61,6 +62,7 @@ set -o nounset
 SCRIPT_NAME=Haplotyper.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+SOURCE_FIELD="Sentieon"
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -95,7 +97,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:r:o:e:F:d" OPT
+while getopts ":hs:S:G:t:b:D:r:o:e:F:dV:" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -146,6 +148,9 @@ do
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;
+	    V ) # Set the source field overriding 'Sentieon'
+	        SOURCE_FIELD=${OPTARG}
+	        ;;
 		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
@@ -252,15 +257,19 @@ checkExitcode ${EXITCODE} $LINENO
 logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 #------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
 #-------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
+
+## Inject Source Field into VCF Header (2nd row) and reindex
+
+rm -f ${SAMPLE}.vcf.idx
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper (vcfindex). " ' INT TERM EXIT
+sed -i "2i##source=${SOURCE_FIELD}" ${SAMPLE}.vcf
+${SENTIEON}/bin/sentieon util vcfindex ${SAMPLE}.vcf 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
 
 ## Check for the creation of the output VCF file
 checkFile ${SAMPLE}.vcf "Output VCF is empty." $LINENO
