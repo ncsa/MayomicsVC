@@ -37,7 +37,7 @@ task combineVariantsTask  {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcf} -M ${MutectVcf} -e ${CombineVariantsEnvProfile} ${DebugMode}
+        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -e ${CombineVariantsEnvProfile} ${DebugMode}
    >>>
 
 
@@ -49,8 +49,8 @@ task combineVariantsTask  {
 
 
   output {
-      OutputVcf = ${SampleName}.vcf
-      OutputVcfIdx = ${SampleName}.vcf.idx
+      File OutputVcf = "somaticvariants.vcf.gz"
+      File OutputVcfIdx = "somaticvariants.vcf.gz.idx"
    }
 
 }

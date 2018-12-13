@@ -48,8 +48,11 @@ task alignmentTask {
    }
 
    output {
-      File OutputBams = glob("*.bam")[0]
-      File OutputBais = glob("*.bai")[0]
+#      File OutputBams = glob("*.bam")[0]
+#      File OutputBais = glob("*.bai")[0]
+
+       File OutputBams = "${SampleName}.bam"
+       File OutputBais = "${SampleName}.bam.bai"
    }
 
 } 

@@ -187,7 +187,7 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 ## Defining file names
 BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
-MERGED_BAM=${SAMPLE}.aligned.sorted.merged.bam
+MERGED_BAM=${SAMPLE}.bam
 
 
 

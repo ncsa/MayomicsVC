@@ -219,7 +219,7 @@ MERGE_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
 
 
 # Create output file name
-OUTVCF=${SAMPLE}.vcf
+OUTVCF=somaticvariants.vcf.gz
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------

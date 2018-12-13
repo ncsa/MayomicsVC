@@ -13,7 +13,7 @@ import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alig
 import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
 import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
 import "src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGEVCF
+import "src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
 
 import "src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
@@ -152,10 +152,10 @@ workflow SomaticMasterWF {
 
    call MERGEVCF.combineVariantsTask as merge_somatic_vcf {
       input:
-         StrelkaVcf = strelka.OutputVcfBgz,
-         StrelkaVcfIdx = strelka.OutputVcfBgzTbi,
-         MutectVcf = mutect.OutputVcfBgz,
-         MutectVcfIdx = mutect.OutputVcfBgzTbi
+         StrelkaVcfBgz = strelka.OutputVcfBgz,
+         StrelkaVcfBgzTbi = strelka.OutputVcfBgzTbi,
+         MutectVcfBgz = mutect.OutputVcfBgz,
+         MutectVcfBgzTbi = mutect.OutputVcfBgzTbi
    }
 
    call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
