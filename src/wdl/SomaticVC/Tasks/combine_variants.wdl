@@ -13,6 +13,7 @@ task combineVariantsTask  {
 
    File Ref                                       # Reference genome fasta
    File RefFai                                    # Reference Genome index
+   File RefDict                                   # Reference Dictionary
 
    String SampleName                              # Name of the Sample
 
@@ -37,7 +38,7 @@ task combineVariantsTask  {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -e ${CombineVariantsEnvProfile} ${DebugMode}
+        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -g ${Ref} -G ${GatkJar} -J ${Java} -Z ${Bgzip} -t ${CombineVariantsThreads} -F ${BashSharedFunctions} -e ${CombineVariantsEnvProfile} -o ${CombineVariantsExtraOptionsString} ${DebugMode}
    >>>
 
 
