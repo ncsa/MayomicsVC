@@ -151,7 +151,7 @@ do
                         THR=${OPTARG}
                         checkArg
 			;;
-                e )  # Path to file with environmental profile variables                                                                 
+                e )  # Path to file with environmental profile variables       
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;

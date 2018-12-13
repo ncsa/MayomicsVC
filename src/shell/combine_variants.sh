@@ -35,13 +35,14 @@ combine_variants.sh
                        -Z           <bgzip_path>
                        -t           <threads>
                        -F           <shared_functions>
+                       -e           <environmental_profile>
                        -o           <additonal options>
                        -d           Turn on debug mode
                        -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
 combine_variants.sh -h
-combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
+combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -e /path.to/environmentprofile.file -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
 
 NOTES: Common extra option is "--genotypeMergeOptions PRIORITIZE -priority sample1.vcf,sample2.vcf" 
 
@@ -97,7 +98,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:M:g:G:J:Z:t:F:o:d" OPT
+while getopts ":hs:S:M:g:G:J:Z:t:F:e:o:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display help message
@@ -140,6 +141,10 @@ do
 			SHARED_FUNCTIONS=${OPTARG}
 			checkArg
 			;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
 		o )  # Extra options string
 			OPTIONS=${OPTARG}
 			checkArg
@@ -172,16 +177,22 @@ done
 ## PRECHECK FOR INPUTS AND OPTIONS 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## Send Manifest to log
-ERRLOG=${SAMPLE}.combine_variants.${SGE_JOB_ID}.log
-TOOL_LOG=${SAMPLE}.CombineVariants.log
-truncate -s 0 "${ERRLOG}"
-truncate -s 0 "${TOOL_LOG}"
+source "${SHARED_FUNCTIONS}"
 
+## Create log for JOB_ID/script and tool
+ERRLOG=${SAMPLE}.combine_variants.${SGE_JOB_ID}.log
+truncate -s 0 "${ERRLOG}"
+TOOL_LOG=${SAMPLE}.CombineVariants.log
+truncate -s 0 ${TOOL_LOG}
+
+## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-#SHARED_FUNCTIONS_PATH=(look at LOG_PATH in alignment)
-source "${SHARED_FUNCTIONS}"
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO                                       
+source ${ENV_PROFILE}
+
+
 
 ## Check if sample name is set
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
