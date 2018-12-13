@@ -2,12 +2,12 @@
 ####                  Standalone script for realignment and variant calling                  ##
 ###############################################################################################
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
-import "src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
 
-import "src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
+import "MayomicsVC/src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
 workflow SomaticMasterWF {

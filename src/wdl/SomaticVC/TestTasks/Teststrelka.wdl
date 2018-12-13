@@ -3,7 +3,7 @@
 
 #########################################################################
 
-import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
 
 workflow CallStrelkaTask {
 
