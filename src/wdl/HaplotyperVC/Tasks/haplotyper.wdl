@@ -28,6 +28,7 @@ task variantCallingTask {
    File RefFai                                    # Reference Genome index
 
    String SampleName                              # Name of the Sample
+   String HaplotyperVCFSourceField                # SOURCE to include in VCF header
 
    String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
 
@@ -51,7 +52,17 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} -s ${SampleName} -S ${Sentieon} -G ${Ref} -t ${SentieonThreads} -b ${InputBams} -D ${DBSNP} ${"-r " + RecalTable} -o "'${HaplotyperExtraOptionsString}'" -e ${HaplotyperEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${HaplotyperScript} \
+            -s ${SampleName} \
+            -S ${Sentieon} \
+            -G ${Ref} \
+            -t ${SentieonThreads} \
+            -b ${InputBams} \
+            -D ${DBSNP} ${"-r " + RecalTable} \
+            -o "'${HaplotyperExtraOptionsString}'" \
+            -e ${HaplotyperEnvProfile} \
+            -V ${HaplotyperVCFSourceField} \
+            -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
