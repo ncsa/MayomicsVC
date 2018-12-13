@@ -34,6 +34,7 @@ E.val.ROD.1 = A directory that is supposed to be readable and executable could n
 E.val.ROD.2 = A read-only directory does not have read permissions for the current user
 E.val.ROD.3 = A read-only directory does not have executable permissions for the current user
 
+E.val.Mem.1 = A memory string was not valid
 
 E.val.ExF.1 = A file expected to be executable could not be found
 E.val.ExF.2 = A file expected to be executable was not executable by the current user
@@ -172,6 +173,18 @@ class Validator:
         except ValueError:
             return False
 
+    @staticmethod
+    def __is_memory_string(input_string):
+        if Validator.__is_integer(input_string):
+            return True
+
+        last_char = input_string[-1]
+        number_part = input_string[:-1]
+        if Validator.__is_integer(number_part) and last_char.upper() in ("K", "M", "G"):
+            return True
+        else:
+            return False
+
     def check_key(self, key_name, key_value, key_type):
         """
         For a given key, confirm that its value is of the type that is expected; logs an error message if the type is
@@ -260,13 +273,17 @@ class Validator:
                     "E.val.Boo.1",
                     make_message('is not a valid boolean value; enter either "true" or "false" (case sensitive)')
                 )
-
         # String ###
         elif lowered_key_type in ("string", "str"):
             self.project_logger.log_debug(
                 'Input variable "' + key_name + '" is a String type; no pre-workflow validation can take place'
             )
-
+        # Memory String ###
+        elif lowered_key_type in ("memory", "memory_string", "memorystring"):
+            if self.__is_memory_string(key_value):
+                self.project_logger.log_debug(make_message('is a valid memory string'))
+            else:
+                self.project_logger.log_error('E.val.Mem.1', make_message('is not a valid memory string'))
         # Integer ###
         elif lowered_key_type in ("integer", "int"):
             if self.__is_integer(key_value):

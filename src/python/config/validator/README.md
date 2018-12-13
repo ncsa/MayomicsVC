@@ -64,7 +64,11 @@ Integer types are validated by seeing if python can convert them to an int.
 #### Decimal
 
 Decimal types are validated by seeing if python can convert them to a floats
-    
+
+#### MemoryString
+
+Memory strings are either Integers or an Integer followed by either a 'K', 'M', or 'G'
+
 #### Directory
 
 For this basic Directory type, we confirm that the directory exists
