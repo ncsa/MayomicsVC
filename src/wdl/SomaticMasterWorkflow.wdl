@@ -2,20 +2,20 @@
 ####              This WDL script is used to run Alignment and HaplotyperVC blocks together  ##
 ###############################################################################################
 
-import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
-import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "MayomicsVC/src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
+import "MayomicsVC/src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
-import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "MayomicsVC/src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
-import "src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
-import "src/wdl/SomaticVC/Tasks/merge_somatic_vcf.wdl" as MERGEVCF
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/strelka.wdl" as STRELKA
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/mutect.wdl" as MUTECT
+import "MayomicsVC/src/wdl/SomaticVC/Tasks/combine_variants.wdl" as MERGEVCF
 
-import "src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
+import "MayomicsVC/src/wdl/DeliveryOfSomaticVC/Tasks/deliver_SomaticVC.wdl" as DELIVER_SomaticVC
 
 
 workflow SomaticMasterWF {
@@ -25,21 +25,26 @@ workflow SomaticMasterWF {
    String SampleNameNormal
    String SampleNameTumor
 
+   Boolean Trimming 
+
 
    ######     Alignment subworkflow for Tumor sample      ######
    #############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
-      input: 
-         SampleName = SampleNameTumor,
-         InputReads = TumorInputReads 
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as TumorTrimseq {
+         input: 
+            InputReads = TumorInputReads 
+      }
    }
 
+   Array[Array[File]] TumorAlignInputReads = select_first([TumorTrimseq.Outputs,TumorInputReads])
 
    call ALIGNMENT.RunAlignmentTask as TumorAlign {
       input:
          SampleName = SampleNameTumor,
-         InputReads = TumorTrimseq.Outputs
+         InputReads = TumorAlignInputReads
+
    }
 
    call MERGEBAM.mergebamTask as TumorMergeBam {
@@ -60,7 +65,7 @@ workflow SomaticMasterWF {
       input:
          SampleName = SampleNameTumor,
          InputBams = TumorDedup.OutputBams,
-         InputBais = TumorDedup.OutputBais
+         InputBais = TumorDedup.OutputBais,
    }
 
 
@@ -69,16 +74,19 @@ workflow SomaticMasterWF {
    ######     Alignment subworkflow for Normal sample      ######
    ##############################################################
 
-   call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
-      input:
-         SampleName = SampleNameNormal,
-         InputReads = NormalInputReads
+   if(Trimming) {
+      call CUTADAPTTRIM.RunTrimSequencesTask as NormalTrimseq {
+         input:
+            InputReads = NormalInputReads
+      }
    }
+
+   Array[Array[File]] NormalAlignInputReads = select_first([NormalTrimseq.Outputs,NormalInputReads])
 
    call ALIGNMENT.RunAlignmentTask as NormalAlign {
       input:
          SampleName = SampleNameNormal,
-         InputReads = NormalTrimseq.Outputs
+         InputReads = NormalAlignInputReads
    }
 
    call MERGEBAM.mergebamTask as NormalMergeBam {
@@ -140,18 +148,18 @@ workflow SomaticMasterWF {
          NormalBais = NormalRealign.OutputBais
    }
 
-   call MERGEVCF.mergeSomaticVcfTask as merge_somatic_vcf {
+   call MERGEVCF.combineVariantsTask as merge_somatic_vcf {
       input:
-         InputStrelkaVcf = strelka.OutputVcf,
-         InputStrelkaVcfIdx = strelka.OutputVcfIdx,
-         InputMutectVcf = mutect.OutputVcf,
-         InputMutectVcfIdx = mutect.OutputVcfIdx
+         StrelkaVcfBgz = strelka.OutputVcfBgz,
+         StrelkaVcfBgzTbi = strelka.OutputVcfBgzTbi,
+         MutectVcfBgz = mutect.OutputVcfBgz,
+         MutectVcfBgzTbi = mutect.OutputVcfBgzTbi
    }
 
    call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
       input:
-         InputVcf = merge_somatic_vcf.OutputVcf,
-         InputVcfIdx = merge_somatic_vcf.OutputVcfIdx,
+         InputVcf = merge_somatic_vcf.OutputVcfGz,
+         InputVcfIdx = merge_somatic_vcf.OutputVcfGzTbi
    } 
 
 }

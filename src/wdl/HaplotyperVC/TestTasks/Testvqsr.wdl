@@ -4,7 +4,7 @@
 
 ##############################################################
 
-import "src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as BQSR
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as BQSR
 
 workflow CallvqsrTask {
 

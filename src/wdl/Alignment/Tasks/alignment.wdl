@@ -48,8 +48,8 @@ task alignmentTask {
    }
 
    output {
-      File OutputBams = "${SampleName}.aligned.sorted.bam"
-      File OutputBais = "${SampleName}.aligned.sorted.bam.bai"
+      File OutputBams = glob("*.bam*")[0]
+      File OutputBais = glob("*.bam*")[1]
    }
 
 } 
