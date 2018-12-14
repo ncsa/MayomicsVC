@@ -36,6 +36,7 @@ combine_variants.sh
                        -t           <threads>
                        -F           <shared_functions>
                        -e           <environmental_profile>
+                       -p           <prioritization option string>   
                        -o           <additonal options>
                        -d           Turn on debug mode
                        -h           Display this usage/help text(No arg)
@@ -44,7 +45,9 @@ EXAMPLES:
 combine_variants.sh -h
 combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -e /path.to/environmentprofile.file -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
 
-NOTES: Common extra option is "--genotypeMergeOptions PRIORITIZE -priority sample1.vcf,sample2.vcf" 
+NOTES: 
+Common PrioritizationOptionString would be "strelka,mutect" or "mutect,strelka". 
+Is a comma-separated list of those two tools, no CAPS. 
 
 #############################################################################
 
@@ -98,7 +101,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:M:g:G:J:Z:t:F:e:o:d" OPT
+while getopts ":hs:S:M:g:G:J:Z:t:F:e:p:o:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display help message
@@ -143,6 +146,10 @@ do
 			;;
                 e )  # Path to file with environmental profile variables
                         ENV_PROFILE=${OPTARG}
+                        checkArg
+                        ;;
+                p )  # Prioritization string
+                        PRIORITIZATION_STRING=${OPTARG}
                         checkArg
                         ;;
 		o )  # Extra options string
@@ -221,12 +228,15 @@ checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
+checkVar "$PRIORITIZATION_STRING{}" "Missing prioritization string option: -p" $LINENO
 checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Extra options
+# other options
 MERGE_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
+PRIORITIZATION_STRING_PARSED=`sed -e "s/'//g" <<< ${PRIORITIZATION_STRING}`
 
 
 # Create output file name
@@ -245,9 +255,10 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. CombineVariants error. Check t
 ${JAVA}/java -jar ${GATK}/GenomeAnalysisTK.jar \
 	-T CombineVariants \
 	-R ${REFGEN} \
-	--variant ${STRELKA_VCF} \
-	--variant ${MUTECT_VCF} \
+	--variant:strelka ${STRELKA_VCF} \
+	--variant:mutect ${MUTECT_VCF} \
         -nt ${THR} \
+        -genotypeMergeOptions PRIORITIZE -priority ${PRIORITIZATION_STRING_PARSED} \
 	-o ${OUTVCF} \
 	${MERGE_OPTIONS_PARSED}
 EXITCODE=$?  # Capture exit code
