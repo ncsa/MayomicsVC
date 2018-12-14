@@ -137,10 +137,10 @@ echo "[BWA-MEM] START. ${START_TIME}"
 ## Allocates all available threads to the process.
 if [[ ${IS_SINGLE_END} == true ]]
 then
-	${BWA}/bwa mem -t ${THR} -M -k 32 ${REFGEN} ${INPUT1} > ${OUT} &
+	${BWA}/bwa mem -t ${THR} -Y -k 100000000 ${REFGEN} ${INPUT1} > ${OUT} & 
 	wait
 else
-	${BWA}/bwa mem -t ${THR} -M -k 32 -I 300,30 ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
+	${BWA}/bwa mem -t ${THR} -Y -k 100000000 -I 300,30 ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} &
 	wait
 fi
 END_TIME=`date "+%m-%d-%Y %H:%M:%S"`
