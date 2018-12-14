@@ -268,10 +268,10 @@ checkFile ${OUTVCF} "Output VCF is empty." $LINENO
 chmod g+r ${OUTVCF}
 
 ## Check for the creation of the output VCF index file
-checkFile ${OUTVCF}.idx "Output VCF index is empty." $LINENO
+checkFile ${OUTVCF}.tbi "Output VCF index is empty." $LINENO
 
 ## Open read permissions to the user group
-chmod g+r ${OUTVCF}.idx
+chmod g+r ${OUTVCF}.tbi
 
 
 

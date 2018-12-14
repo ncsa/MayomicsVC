@@ -50,8 +50,8 @@ task combineVariantsTask  {
 
 
   output {
-      File OutputVcf = "somaticvariants.vcf.gz"
-      File OutputVcfIdx = "somaticvariants.vcf.gz.idx"
+      File OutputVcfGz = "somaticvariants.vcf.gz"
+      File OutputVcfGzTbi = "somaticvariants.vcf.gz.tbi"
    }
 
 }

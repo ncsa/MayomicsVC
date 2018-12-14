@@ -102,7 +102,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:i:p:o:d" OPT
+while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:i:p:o:O:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message

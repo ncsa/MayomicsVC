@@ -61,7 +61,8 @@ python MayomicsVC/src/python/key_validator.py -i Jsons/${BaseNameOfWorkflowBeing
 
 #####    create the zip file ##############
 #cd MayomicsVC ; 
-zip -r MayomicsVC.zip MayomicsVC/* ;
+rm ./MayomicsVC.zip;
+zip -r MayomicsVC.zip ./MayomicsVC/src;
 #mv MayomicsVC.zip ../ ;
 #cd ../ ;
 
