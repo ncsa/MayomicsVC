@@ -1,4 +1,0 @@
-command line input: -s outputs/test_output -l inputs/Chr1_read1.fq -r inputs/Chr1_read2.fq -A garbage_test_files/dummy_test_blank.fq -C /usr/bin/ -t 0 -P true -e inputs/env.txt
-*****************************************************************************
-[2018-11-19T14:09:49-0600] [ERROR] [trim_sequences.sh] [TBD] [TBD] [-1] 	/home/jallen17/Documents/NCSA/MayomicsVC/src/bash_scripts/trim_sequences.sh stopped at line 188. 
-REASON=Adapters fasta file garbage_test_files/dummy_test_blank.fq is empty or does not exist.

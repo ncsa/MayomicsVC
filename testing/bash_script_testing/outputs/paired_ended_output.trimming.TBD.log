@@ -1,4 +1,8 @@
 *****************************************************************************
-[2018-11-19T16:57:32-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
-[2018-11-19T16:57:32-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Trimmed adapters in inputs/toy_adapters.fa from input sequences. CUTADAPT log: outputs/paired_ended_output.cutadapt.log
-[2018-11-19T16:57:32-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Finished trimming adapter sequences.
+/home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh 
+called by: jallen17 on Fri Dec 14 16:45:42 CST 2018
+command line input: -s outputs/paired_ended_output -l ../../../WGS_chr1_5X_E0.005_L1_read1.fastq.gz -r ../../../WGS_chr1_5X_E0.005_L1_read2.fastq.gz -A ../../../TruSeqAdaptors.fasta -C /usr/bin/ -t 0 -P true -e inputs/env.txt -F ../../src/shell/shared_functions.sh
+*****************************************************************************
+[2018-12-14T16:45:42-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
+[2018-12-14T16:45:53-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Trimmed adapters in ../../../TruSeqAdaptors.fasta from input sequences. CUTADAPT log: outputs/paired_ended_output.cutadapt.log
+[2018-12-14T16:45:53-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Finished trimming adapter sequences.

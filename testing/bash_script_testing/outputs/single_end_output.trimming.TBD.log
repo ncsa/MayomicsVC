@@ -1,0 +1,8 @@
+*****************************************************************************
+/home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh 
+called by: jallen17 on Fri Dec  7 13:51:55 CST 2018
+command line input: -s outputs/single_end_output -l /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../WGS_chr1_5X_E0.005_L1_read1.fastq.gz -r null -A /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../TruSeqAdaptors.fasta -C /usr/bin/ -t 0 -P false -e inputs/env.txt -F /home/jallen17/Documents/NCSA/MayomicsVC/src/shell/shared_functions.sh
+*****************************************************************************
+[2018-12-07T13:51:55-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
+[2018-12-07T13:52:02-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Trimmed adapters in /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../TruSeqAdaptors.fasta from input sequences. CUTADAPT log: outputs/single_end_output.cutadapt.log
+[2018-12-07T13:52:02-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] Finished trimming adapter sequences.

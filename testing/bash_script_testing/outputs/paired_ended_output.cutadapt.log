@@ -1,106 +1,72 @@
-This is cutadapt 1.15 with Python 3.6.6
-Command line parameters: -a file:inputs/toy_adapters.fa -A file:inputs/toy_adapters.fa --cores=0 -p outputs/paired_ended_output.read2.trimmed.fq.gz -o outputs/paired_ended_output.read1.trimmed.fq.gz inputs/Chr1_read1.fq inputs/Chr1_read2.fq
+This is cutadapt 1.15 with Python 3.6.7
+Command line parameters: -a file:../../../TruSeqAdaptors.fasta -A file:../../../TruSeqAdaptors.fasta --cores=0 -p WGS_chr1_5X_E0.005_L1_read2.fastq.gz -o WGS_chr1_5X_E0.005_L1_read1.fastq.gz ../../../WGS_chr1_5X_E0.005_L1_read1.fastq.gz ../../../WGS_chr1_5X_E0.005_L1_read2.fastq.gz
 Running on 1 core
-Trimming 6 adapters with at most 10.0% errors in paired-end mode ...
+Trimming 2 adapters with at most 10.0% errors in paired-end mode ...
+Finished in 10.45 s (34 us/read; 1.76 M reads/minute).
 
 === Summary ===
 
-Total read pairs processed:              1,000
-  Read 1 with adapter:                      31 (3.1%)
-  Read 2 with adapter:                      34 (3.4%)
-Pairs written (passing filters):         1,000 (100.0%)
+Total read pairs processed:            306,871
+  Read 1 with adapter:                   7,551 (2.5%)
+  Read 2 with adapter:                   7,669 (2.5%)
+Pairs written (passing filters):       306,871 (100.0%)
 
-Total basepairs processed:       200,000 bp
-  Read 1:       100,000 bp
-  Read 2:       100,000 bp
-Total written (filtered):        199,776 bp (99.9%)
-  Read 1:        99,893 bp
-  Read 2:        99,883 bp
+Total basepairs processed:    61,987,942 bp
+  Read 1:    30,993,971 bp
+  Read 2:    30,993,971 bp
+Total written (filtered):     61,938,277 bp (99.9%)
+  Read 1:    30,969,292 bp
+  Read 2:    30,968,985 bp
 
-=== First read: Adapter Adapter1 ===
+=== First read: Adapter adaprot1 ===
 
-Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 17 times.
-
-No. of allowed errors:
-0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-33 bp: 3
-
-Bases preceding removed adapters:
-  A: 5.9%
-  C: 47.1%
-  G: 41.2%
-  T: 5.9%
-  none/other: 0.0%
-
-Overview of removed sequences
-length	count	expect	max.err	error counts
-3	11	15.6	0	11
-4	5	3.9	0	5
-5	1	1.0	0	1
-
-=== First read: Adapter Adapter2 ===
-
-Sequence: CAAGCAGAAGACGGCATACGAGCTCTTCCGATCT; Type: regular 3'; Length: 34; Trimmed: 14 times.
+Sequence: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC; Type: regular 3'; Length: 34; Trimmed: 7551 times.
 
 No. of allowed errors:
 0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
 
 Bases preceding removed adapters:
-  A: 21.4%
-  C: 35.7%
-  G: 14.3%
-  T: 28.6%
+  A: 24.6%
+  C: 29.8%
+  G: 30.9%
+  T: 14.7%
   none/other: 0.0%
 
 Overview of removed sequences
 length	count	expect	max.err	error counts
-3	9	15.6	0	9
-4	3	3.9	0	3
-5	2	1.0	0	2
+3	6022	4794.9	0	6022
+4	1193	1198.7	0	1193
+5	272	299.7	0	272
+6	35	74.9	0	35
+7	7	18.7	0	7
+9	6	1.2	0	2 4
+10	10	0.3	1	0 10
+11	5	0.1	1	0 5
+13	1	0.0	1	0 1
 
-=== First read: Adapter Adapter3 ===
+=== Second read: Adapter adaprot1 ===
 
-Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 0 times.
-
-=== Second read: Adapter Adapter1 ===
-
-Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 18 times.
-
-No. of allowed errors:
-0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-33 bp: 3
-
-Bases preceding removed adapters:
-  A: 27.8%
-  C: 38.9%
-  G: 27.8%
-  T: 5.6%
-  none/other: 0.0%
-
-Overview of removed sequences
-length	count	expect	max.err	error counts
-3	13	15.6	0	13
-4	5	3.9	0	5
-
-=== Second read: Adapter Adapter2 ===
-
-Sequence: CAAGCAGAAGACGGCATACGAGCTCTTCCGATCT; Type: regular 3'; Length: 34; Trimmed: 16 times.
+Sequence: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC; Type: regular 3'; Length: 34; Trimmed: 7669 times.
 
 No. of allowed errors:
 0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
 
 Bases preceding removed adapters:
-  A: 0.0%
-  C: 50.0%
-  G: 37.5%
-  T: 12.5%
+  A: 26.4%
+  C: 29.8%
+  G: 30.6%
+  T: 13.2%
   none/other: 0.0%
 
 Overview of removed sequences
 length	count	expect	max.err	error counts
-3	12	15.6	0	12
-4	3	3.9	0	3
-10	1	0.0	1	0 1
-
-=== Second read: Adapter Adapter3 ===
-
-Sequence: ACACTCTTTCCCTACACGACGCTCTTCCGATCT; Type: regular 3'; Length: 33; Trimmed: 0 times.
+3	6149	4794.9	0	6149
+4	1189	1198.7	0	1189
+5	277	299.7	0	277
+6	32	74.9	0	32
+7	5	18.7	0	5
+9	6	1.2	0	0 6
+10	6	0.3	1	0 6
+11	4	0.1	1	0 4
+13	1	0.0	1	0 1
 

@@ -1,4 +1,0 @@
-command line input: -s outputs/faulty_read1_output -l garbage_test_files/dummy_test_text.fq -r inputs/Chr1_read1.fq -A inputs/toy_adapters.fa -C /usr/bin/ -t 0 -P true -e inputs/env.txt
-*****************************************************************************
-[2018-11-19T14:37:56-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
-[2018-11-19T14:37:56-0600] [ERROR] [trim_sequences.sh] [TBD] [TBD] [-1] 	 /home/jallen17/Documents/NCSA/MayomicsVC/src/bash_scripts/trim_sequences.sh stopped at line 301. Cutadapt Read 1 and 2 failure. 

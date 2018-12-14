@@ -16,10 +16,11 @@ command line input: -h
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
                    -e		</path/to/env_profile_file>
+                   -F           </path/to/shared_functions.sh>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
 #############################################################################

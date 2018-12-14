@@ -1,0 +1,7 @@
+*****************************************************************************
+/home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh 
+called by: jallen17 on Thu Dec 13 13:06:28 CST 2018
+command line input: -s outputs/test_output -l null -r /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../WGS_chr1_5X_E0.005_L1_read1.fastq.gz -A /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../TruSeqAdaptors.fasta -C /usr/bin/ -t 0 -P false -e inputs/env.txt -F /home/jallen17/Documents/NCSA/MayomicsVC/src/shell/shared_functions.sh
+*****************************************************************************
+[2018-12-13T13:06:28-0600] [ERROR] [trim_sequences.sh] [TBD] [TBD] [-1] 	/home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh stopped at line 184. 
+REASON=Input read 1 file null is empty or does not exist.
