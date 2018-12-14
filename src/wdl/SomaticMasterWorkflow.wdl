@@ -66,7 +66,6 @@ workflow SomaticMasterWF {
          SampleName = SampleNameTumor,
          InputBams = TumorDedup.OutputBams,
          InputBais = TumorDedup.OutputBais,
-         SampleType = "Tumor"
    }
 
 
@@ -109,7 +108,6 @@ workflow SomaticMasterWF {
          SampleName = SampleNameNormal,
          InputBams = NormalDedup.OutputBams,
          InputBais = NormalDedup.OutputBais,
-         SampleType = "Normal"
    }
 
 

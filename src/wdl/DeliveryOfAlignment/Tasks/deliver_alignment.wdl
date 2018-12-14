@@ -10,7 +10,6 @@ task deliverAlignmentTask {
    File InputBais                         # aligned sorted dedupped BAM.BAI file
 
    String SampleName                      # Name of the Sample
-   String SampleType                      # Name of the Sample
 
    File WorkflowJson                      # JSON file for the workflow
 
@@ -23,7 +22,7 @@ task deliverAlignmentTask {
 
    command {
       source ${BashPreamble}
-      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -T ${SampleType} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} -F ${BashSharedFunctions} ${DebugMode}
+      /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} -F ${BashSharedFunctions} ${DebugMode}
    }
 
 }
