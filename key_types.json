@@ -112,5 +112,6 @@
     "CombineVariantsSoftMemLimit": "String",
     "CombineVariantsThreads": "String",
     "IndelGtFixPerlScript": "File",
-    "SnpGtFixPerlScript": "File"
+    "SnpGtFixPerlScript": "File",
+    "PrioritizationOptionString": "String"
 }
