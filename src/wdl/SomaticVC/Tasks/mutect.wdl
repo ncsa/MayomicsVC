@@ -53,9 +53,11 @@ task mutectTask {
 
 
   output {
-      File OutputVcfBgz = "${SampleName}.vcf.bgz"
-      File OutputVcfBgzTbi = "${SampleName}.vcf.bgz.tbi"
-   }
+#      File OutputVcfBgz = "${SampleName}.vcf.bgz"
+#      File OutputVcfBgzTbi = "${SampleName}.vcf.bgz.tbi"
+      File OutputVcfBgz = glob("*.vcf.bgz*")[0]
+      File OutputVcfBgzTbi = glob("*.vcf.bgz*")[1]
+  }
 
 
 }

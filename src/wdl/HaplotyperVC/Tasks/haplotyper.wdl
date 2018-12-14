@@ -61,10 +61,11 @@ task variantCallingTask {
    }
 
   output {
-   
-      File OutputVcf = "${SampleName}.vcf"
-      File OutputVcfIdx = "${SampleName}.vcf.idx"
-    
+#      File OutputVcf = "${SampleName}.vcf"
+#      File OutputVcfIdx = "${SampleName}.vcf.idx"
+      File OutputVcf = glob("*.vcf*")[0]
+      File OutputVcfIdx = glob("*.vcf*")[1]
+      
    }
 
 }

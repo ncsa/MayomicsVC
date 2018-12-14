@@ -34,7 +34,9 @@ task dedupTask {
    }
 
    output {
-      File OutputBams = "${SampleName}.bam"
-      File OutputBais = "${SampleName}.bam.bai"
+#      File OutputBams = "${SampleName}.bam"
+#      File OutputBais = "${SampleName}.bam.bai"
+      File OutputBams = glob("*.bam*")[0]
+      File OutputBais = glob("*.bam*")[1]
    }
 }
