@@ -20,6 +20,7 @@ task combineVariantsTask  {
    String GatkJar                                 # Path to GATK .jar
    String Java                                    # Path to Java to invoke GATK
    String CombineVariantsThreads                  # No of Threads for the Tool
+   String PrioritizationOptionString              # String that lists the order in which to prioritize calls from strelka vs mutect
    String CombineVariantsExtraOptionsString       # String of extra options for the tool, can be empty string
 
    String Bgzip                                   # Path to BGZip executable
@@ -38,7 +39,7 @@ task combineVariantsTask  {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -g ${Ref} -G ${GatkJar} -J ${Java} -Z ${Bgzip} -t ${CombineVariantsThreads} -F ${BashSharedFunctions} -e ${CombineVariantsEnvProfile} -o "'${CombineVariantsExtraOptionsString}'" ${DebugMode}
+        /bin/bash ${CombineVariantsScript} -s ${SampleName} -S ${StrelkaVcfBgz} -M ${MutectVcfBgz} -g ${Ref} -G ${GatkJar} -J ${Java} -Z ${Bgzip} -t ${CombineVariantsThreads} -F ${BashSharedFunctions} -e ${CombineVariantsEnvProfile} -p "'${PrioritizationOptionString}'" -o "'${CombineVariantsExtraOptionsString}'" ${DebugMode}
    >>>
 
 
