@@ -32,6 +32,7 @@ combine_variants.sh
                        -g           <reference_genome_fasta>
                        -G           <GATK_jar_path>
                        -J           <Java_path>
+                       -B           <BCFTools_path>
                        -Z           <bgzip_path>
                        -t           <threads>
                        -F           <shared_functions>
@@ -43,7 +44,7 @@ combine_variants.sh
                    
 EXAMPLES:
 combine_variants.sh -h
-combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -Z /path/to/bgzip -F path/to/shared_functions -e /path.to/environmentprofile.file -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
+combine_variants.sh -s sample_name -S strelka.vcf -M mutect.vcf -g reference_genome.fa -G /path/to/GATK -J /path/to/java -B /path/to/bcftools -Z /path/to/bgzip -F path/to/shared_functions -e /path.to/environmentprofile.file -o "'--genotypeMergeOptions PRIORITIZE -priority mutect.vcf,strelka.vcf"
 
 NOTES: 
 Common PrioritizationOptionString would be "strelka,mutect" or "mutect,strelka". 
@@ -101,7 +102,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:S:M:g:G:J:Z:t:F:e:p:o:d" OPT
+while getopts ":hs:S:M:g:G:J:B:Z:t:F:e:p:o:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display help message
@@ -130,6 +131,10 @@ do
 			;;
 		J )  # Java path
 			JAVA=${OPTARG}
+			checkArg
+			;;
+		B )  # BCFTool path
+			BCF=${OPTARG}
 			checkArg
 			;;
 		Z )  # Bgzip path
@@ -220,6 +225,9 @@ checkDir ${GATK} "Reason= GATK directory ${GATK} is not a directory or does not 
 checkVar "${JAVA+x}" "Missing Java directory option: -J" $LINENO
 checkDir ${JAVA} "Reason= Java directory ${JAVA} is not a directory or does not exist." $LINENO
 
+checkVar "${BCF+x}" "Missing BCFTools directory option: -B" $LINENO
+checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does not exist." $LINENO
+
 checkVar "${BGZIP+x}" "Missing bgzip directory option: -Z" $LINENO
 checkDir ${BGZIP} "Reason= bgzip directory ${BGZIP} is not a directory or does not exist." $LINENO
 
@@ -271,6 +279,15 @@ checkFile ${OUTVCF} "Failed to create output merged VCF file." $LINENO
 #----------------------------------------------------------------------------------------------------------------------------------------------
 ## Post-Processing
 #----------------------------------------------------------------------------------------------------------------------------------------------
+
+## Create a Tabix index
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Tabix error. Check tool log ${TOOL_LOG}. " ' INT TERM EXIT
+${BCF}/bcftools tabix -f -p vcf ${OUTVCF} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitCode ${EXITCODE} $LINENO
 
 ## Check for the creation of the output VCF file
 checkFile ${OUTVCF} "Output VCF is empty." $LINENO
