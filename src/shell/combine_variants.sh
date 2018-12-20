@@ -287,7 +287,7 @@ ${BCF}/bcftools tabix -f -p vcf ${OUTVCF} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitCode ${EXITCODE} $LINENO
+checkExitcode ${EXITCODE} $LINENO
 
 ## Check for the creation of the output VCF file
 checkFile ${OUTVCF} "Output VCF is empty." $LINENO
