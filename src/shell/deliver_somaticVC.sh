@@ -158,7 +158,8 @@ echo "${MANIFEST}" >> "${ERRLOG}"
 ## Check if input files, directories, and variables are non-zero
 checkVar ${VCF} "Missing VCF option: -r" $LINENO
 checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
-checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
+checkFile ${VCF}.tbi "Input VCF index file ${VCF}.tbi is empty or does not exist" $LINENO
+#checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
 
 checkVar ${JSON} "Missing JSON option: -j" $LINENO
 checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
