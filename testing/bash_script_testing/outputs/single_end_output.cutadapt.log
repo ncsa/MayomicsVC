@@ -1,3 +1,8 @@
+This is cutadapt 1.15 with Python 3.6.7
+Command line parameters: -a file:/home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../TruSeqAdaptors.fasta --cores=0 -o WGS_chr1_5X_E0.005_L1_read1.fastq.gz /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz
+Running on 1 core
+Trimming 1 adapter with at most 10.0% errors in single-end mode ...
+Finished in 6.07 s (20 us/read; 3.03 M reads/minute).
 
 === Summary ===
 

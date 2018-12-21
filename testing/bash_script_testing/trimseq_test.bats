@@ -54,6 +54,10 @@ load testing_call
 
 @test "Test successful run paired end and single end" {
   skip "Already tested"
+  if [[ ! -z `ls outputs` ]]; then
+    rm outputs/*
+  fi
+
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
   -l ${Input_File_Path}/WGS_chr1_5X_E0.005_L1_read1.fastq.gz \
@@ -76,6 +80,11 @@ load testing_call
   test1=`diff Verification_files/desired_single_end_output.cutadapt.log outputs/single_end_output.cutadapt.log`
   [ -z "$test1" ]
   [[ "$output" =~ "Finished trimming adapter sequences." ]]
+
+  [[ `ls outputs` =~ "paired_ended_output.cutadapt.log" ]]
+  [[ `ls outputs` =~ "paired_ended_output.trimming.TBD.log" ]]
+  [[ `ls outputs` =~ "single_end_output.cutadapt.log" ]]
+  [[ `ls outputs` =~ "single_end_output.trimming.TBD.log" ]]
 }
 
 @test "Test faulty read 1 options" {
@@ -426,7 +435,7 @@ load testing_call
 }
 
 @test "Checks that output file/folder permissions are set" {
-  # skip "Already tested"
+  skip "Already tested"
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
   -l ${Input_File_Path}/inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz \
@@ -435,12 +444,14 @@ load testing_call
   -t 0 -P true -e inputs/env.txt \
   -F ${Mayomics_path}/src/shell/shared_functions.sh
   [[ `ls -l outputs/paired_ended_output.cutadapt.log` =~ "-rw-r--r--" ]]
-  [[ `ls -l outputs/paired_ended_output.read1.trimmed.fq.gz` =~ "-rw-r--r--" ]]
-  [[ `ls -l outputs/paired_ended_output.read2.trimmed.fq.gz` =~ "-rw-r--r--" ]]
-  [[ `ls -l outputs/paired_ended_output.trimming.TBD.log` =~ "-rw-r--r--" ]]
-  echo `ls -l outputs` > output.txt
+# Original
+#  [[ `ls -l outputs/paired_ended_output.read1.trimmed.fq.gz` =~ "-rw-r--r--" ]]
+  [[ `ls -l WGS_chr1_5X_E0.005_L1_read1.fastq.gz` =~ "-rw-r--r--" ]]
+# Original
+#  [[ `ls -l outputs/paired_ended_output.read2.trimmed.fq.gz` =~ "-rw-r--r--" ]]
+  [[ `ls -l WGS_chr1_5X_E0.005_L1_read2.fastq.gz` =~ "-rw-r--r--" ]]
 
-  run chmod 200 outputs/paired_ended_output.read1.trimmed.fq.gz
+  run chmod 200 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
   echo `ls -l outputs` >> output.txt
   run //bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
@@ -449,11 +460,12 @@ load testing_call
   -A  ${Input_File_Path}/TruSeqAdaptors.fasta -C /usr/bin/ \
   -t 0 -P true -e inputs/env.txt \
   -F ${Mayomics_path}/src/shell/shared_functions.sh
-  [[ `ls -l outputs/paired_ended_output.read1.trimmed.fq.gz` =~ "--w-r-----" ]]
-  echo `ls -l outputs` >> output.txt
-  run chmod 644 outputs/paired_ended_output.read1.trimmed.fq.gz
+# Original
+  # [[ `ls -l outputs/paired_ended_output.read1.trimmed.fq.gz` =~ "--w-r-----" ]]
+  [[ `ls -l WGS_chr1_5X_E0.005_L1_read1.fastq.gz` =~ "--w-r-----" ]]
+  run chmod 644 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
 
-  run chmod 200 outputs/paired_ended_output.read2.trimmed.fq.gz
+  run chmod 200 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
   echo `ls -l outputs` >> output.txt
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
@@ -462,9 +474,8 @@ load testing_call
   -A  ${Input_File_Path}/TruSeqAdaptors.fasta -C /usr/bin/ \
   -t 0 -P true -e inputs/env.txt \
   -F ${Mayomics_path}/src/shell/shared_functions.sh
-  [[ `ls -l outputs/paired_ended_output.read2.trimmed.fq.gz` =~ "--w-r-----" ]]
-  echo `ls -l outputs` >> output.txt
-  run chmod 644 outputs/paired_ended_output.read2.trimmed.fq.gz
+  [[ `ls -l WGS_chr1_5X_E0.005_L1_read1.fastq.gz` =~ "--w-r-----" ]]
+  run chmod 644 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
 
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
@@ -473,8 +484,7 @@ load testing_call
   -A  ${Input_File_Path}/TruSeqAdaptors.fasta -C /usr/bin/ \
   -t 0 -P true -e inputs/env.txt \
   -F ${Mayomics_path}/src/shell/shared_functions.sh
-  run chmod 200 outputs/single_end_output.read1.trimmed.fq.gz
-  echo `ls -l outputs` >> output.txt
+  run chmod 200 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
 
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/paired_ended_output \
@@ -483,41 +493,20 @@ load testing_call
   -A  ${Input_File_Path}/TruSeqAdaptors.fasta -C /usr/bin/ \
   -t 0 -P true -e inputs/env.txt \
   -F ${Mayomics_path}/src/shell/shared_functions.sh
-  [[ `ls -l outputs/single_end_output.read1.trimmed.fq.gz` =~ "--w-r-----" ]]
-  echo `ls -l outputs` >> output.txt
-  run chmod 644 outputs/single_end_output.read1.trimmed.fq.gz
-}
-
-@test "Creates output file if none exists" {
-  skip "Already tested"
-  if [[ ! -z `ls outputs` ]]; then
-    rm outputs/*
-  fi
-
-  run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
-  -s outputs/paired_ended_output -l inputs/Chr1_read1.fq -r inputs/Chr1_read2.fq \
-  -A inputs/toy_adapters.fa -C /usr/bin/ -t 0 -P true -e inputs/env.txt
-
-  run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
-  -s outputs/single_end_output -l inputs/Chr1_read1.fq -r null \
-  -A inputs/toy_adapters.fa -C /usr/bin/ -t 0 -P false -e inputs/env.txt
-
-  [[ `ls outputs` =~ "paired_ended_output.read1.trimmed.fq.gz" ]]
-  [[ `ls outputs` =~ "paired_ended_output.read2.trimmed.fq.gz" ]]
-  [[ `ls outputs` =~ "paired_ended_output.cutadapt.log" ]]
-  [[ `ls outputs` =~ "paired_ended_output.trimming.TBD.log" ]]
-  [[ `ls outputs` =~ "single_end_output.read1.trimmed.fq.gz" ]]
-  [[ `ls outputs` =~ "single_end_output.cutadapt.log" ]]
-  [[ `ls outputs` =~ "single_end_output.trimming.TBD.log" ]]
+  [[ `ls -l WGS_chr1_5X_E0.005_L1_read1.fastq.gz` =~ "--w-r-----" ]]
+  run chmod 644 WGS_chr1_5X_E0.005_L1_read1.fastq.gz
 }
 
 @test "Logs are truncated at the beginning of the run" {
-  skip "Already tested"
-  Create a log with a failed run
+  # skip "Already tested"
+  # Create a log with a failed run
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
-  -s outputs/first_run -l inputs/Chr1_read1.fq -r \
-  inputs/Chr1_read2.fq -A garbage_test_files/dummy_test_text.fq -C \
-  /usr/bin/ -t 0 -P true -e inputs/env.txt
+  -s outputs/first_run \
+  -l ${Input_File_Path}/inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz \
+  -r ${Input_File_Path}/WGS_chr1_5X_E0.005_L1_read2.fastq.gz \
+  -A garbage_test_files/dummy_test_text.fq -C /usr/bin/ \
+  -t 0 -P true -e inputs/env.txt \
+  -F ${Mayomics_path}/src/shell/shared_functions.sh
 
   IFS=$'\r\n' GLOBIGNORE='*' command eval  'RUN1_CUTLOG=($(cat outputs/first_run.cutadapt.log))'
   sed -i -e 1,1d outputs/first_run.trimming.TBD.log
@@ -526,15 +515,21 @@ load testing_call
 
   # Second run has a slightly different problem
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
-  -s outputs/second_run -l inputs/Chr1_read1.fq -r \
-  inputs/Chr1_read2.fq -A garbage_test_files/dummy_test_text_with_gt.fq -C \
-  /usr/bin/ -t 0 -P true -e inputs/env.txt
+  -s outputs/second_run \
+  -l ${Input_File_Path}/inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz \
+  -r ${Input_File_Path}/WGS_chr1_5X_E0.005_L1_read2.fastq.gz \
+  -A garbage_test_files/dummy_test_text_with_gt.fq -C /usr/bin/ \
+  -t 0 -P true -e inputs/env.txt \
+  -F ${Mayomics_path}/src/shell/shared_functions.sh
+
 
   # Check to make sure that the logs are overwritten and don't contain old information
+  sed -i -e 1,1d outputs/second_run.trimming.TBD.log
+  sed -i -e 4,4d outputs/second_run.trimming.TBD.log
   [[ `cat outputs/second_run.cutadapt.log` =~ "cutadapt: error: Character 'I' in adapter sequence 'VIVAMTS TLTRICES FELIS AT METTS MALESTADA IMPERDIET.STSPENDISSE A LEO BLANDIT, CONSEQTAT EX ET, FATCIBTS TTRPIS.ETIAM MOLLIS RISTS QTIS ERAT ELEIFEND BIBENDTM.STSPENDISSE SODALES MAGNA ID LIGTLA SAGITTIS, SIT AMET LOBORTIS NIBH POSTERE.PHASELLTS VENENATIS NEQTE AT NEQTE PELLENTESQTE, ET ELEMENTTM MI TLTRICIES.' is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN." ]]
   # echo "${RUN1_CUTLOG[13]}" >&3
   [[ ! `cat outputs/second_run.cutadapt.log` =~ "${RUN1_CUTLOG[13]}" ]]
-  [[ `cat outputs/second_run.trimming.TBD.log` =~ "trim_sequences.sh stopped at line 301. Cutadapt Read 1 and 2 failure." ]]
+  [[ `cat outputs/second_run.trimming.TBD.log` =~ "trim_sequences.sh stopped at line 260. Cutadapt Read 1 and 2 failure." ]]
   [[ ! `cat outputs/second_run.trimming.TBD.log` =~ "${RUN1_STDOUT[3]}" ]]
 
 }

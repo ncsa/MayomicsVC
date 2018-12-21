@@ -1,72 +1,14 @@
-This is cutadapt 1.15 with Python 3.6.7
-Command line parameters: -a file:../../../TruSeqAdaptors.fasta -A file:../../../TruSeqAdaptors.fasta --cores=0 -p WGS_chr1_5X_E0.005_L1_read2.fastq.gz -o WGS_chr1_5X_E0.005_L1_read1.fastq.gz ../../../WGS_chr1_5X_E0.005_L1_read1.fastq.gz ../../../WGS_chr1_5X_E0.005_L1_read2.fastq.gz
-Running on 1 core
-Trimming 2 adapters with at most 10.0% errors in paired-end mode ...
-Finished in 10.45 s (34 us/read; 1.76 M reads/minute).
-
-=== Summary ===
-
-Total read pairs processed:            306,871
-  Read 1 with adapter:                   7,551 (2.5%)
-  Read 2 with adapter:                   7,669 (2.5%)
-Pairs written (passing filters):       306,871 (100.0%)
-
-Total basepairs processed:    61,987,942 bp
-  Read 1:    30,993,971 bp
-  Read 2:    30,993,971 bp
-Total written (filtered):     61,938,277 bp (99.9%)
-  Read 1:    30,969,292 bp
-  Read 2:    30,968,985 bp
-
-=== First read: Adapter adaprot1 ===
-
-Sequence: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC; Type: regular 3'; Length: 34; Trimmed: 7551 times.
-
-No. of allowed errors:
-0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
-
-Bases preceding removed adapters:
-  A: 24.6%
-  C: 29.8%
-  G: 30.9%
-  T: 14.7%
-  none/other: 0.0%
-
-Overview of removed sequences
-length	count	expect	max.err	error counts
-3	6022	4794.9	0	6022
-4	1193	1198.7	0	1193
-5	272	299.7	0	272
-6	35	74.9	0	35
-7	7	18.7	0	7
-9	6	1.2	0	2 4
-10	10	0.3	1	0 10
-11	5	0.1	1	0 5
-13	1	0.0	1	0 1
-
-=== Second read: Adapter adaprot1 ===
-
-Sequence: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC; Type: regular 3'; Length: 34; Trimmed: 7669 times.
-
-No. of allowed errors:
-0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
-
-Bases preceding removed adapters:
-  A: 26.4%
-  C: 29.8%
-  G: 30.6%
-  T: 13.2%
-  none/other: 0.0%
-
-Overview of removed sequences
-length	count	expect	max.err	error counts
-3	6149	4794.9	0	6149
-4	1189	1198.7	0	1189
-5	277	299.7	0	277
-6	32	74.9	0	32
-7	5	18.7	0	5
-9	6	1.2	0	0 6
-10	6	0.3	1	0 6
-11	4	0.1	1	0 4
-13	1	0.0	1	0 1
-
+Traceback (most recent call last):
+  File "/usr/bin//cutadapt", line 11, in <module>
+    load_entry_point('cutadapt==1.15', 'console_scripts', 'cutadapt')()
+  File "/usr/lib/python3/dist-packages/cutadapt/__main__.py", line 688, in main
+    pipeline = pipeline_from_parsed_args(options, paired, pair_filter_mode, quality_filename, is_interleaved_output)
+  File "/usr/lib/python3/dist-packages/cutadapt/__main__.py", line 577, in pipeline_from_parsed_args
+    adapters = adapter_parser.parse_multi(options.adapters, options.anywhere, options.front)
+  File "/usr/lib/python3/dist-packages/cutadapt/adapters.py", line 194, in parse_multi
+    adapters.extend(self.parse(spec, cmdline_type))
+  File "/usr/lib/python3/dist-packages/cutadapt/adapters.py", line 163, in parse
+    for record in fasta:
+  File "/usr/lib/python3/dist-packages/cutadapt/seqio.py", line 232, in __iter__
+    "FASTA record, but got {1!r}.".format(i+1, _shorten(line)))
+cutadapt.seqio.FormatError: At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'.
