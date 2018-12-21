@@ -107,20 +107,35 @@ class ParameterizedTestCase(unittest.TestCase):
 
 
 class TestArgs(ParameterizedTestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        # os.remove('outfile.txt')
+        pass
+
     def test_no_arg(self):
-        print('param =', self.param)
-        # run = subprocess.run([self.SCRIPT])
-        self.assertEqual(1, 1)
+        os.system("/bin/bash " + self.param.name + '> outfile.txt')
+        output = self.parse_output('outfile.txt')
+        self.assertTrue('command line input: \n' in output[4])
+        self.assertTrue("No arguments passed." in output[7])
 
     def test_help_function(self):
-        self.assertEqual(2, 2)
+        os.system("/bin/bash " + self.param.name + ' -h > outfile.txt')
+        output = self.parse_output('outfile.txt')
+        self.assertTrue('command line input: -h' in output[4])
 
+    @staticmethod
+    def parse_output(file):
+        output = []
+        for line in open(file, 'r'):
+            output.append(line)
+        return output
 
 if __name__ == "__main__":
     scripts = ["trim_sequences.sh", 'alignment.sh', 'merge_bams.sh', 'dedup.sh',
                'realignment.sh', 'bqsr.sh', 'haplotyper.sh', 'vqsr.sh']
-    # print(sys.argv)
-    # arg = "trim_sequences"
     try:
         idx = scripts.index(sys.argv[1]+".sh")
     except ValueError:
@@ -143,7 +158,6 @@ if __name__ == "__main__":
         test_script = VQSR()
 
     suite = unittest.TestSuite()
-    suite.addTest(ParameterizedTestCase.parameterize(TestArgs, param=42))
-    suite.addTest(ParameterizedTestCase.parameterize(TestArgs, param=13))
+    suite.addTest(ParameterizedTestCase.parameterize(TestArgs, param=test_script))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
