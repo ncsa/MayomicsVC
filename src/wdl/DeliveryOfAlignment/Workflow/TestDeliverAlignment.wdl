@@ -2,7 +2,7 @@
 ####           This WDL script is used to run the delivery of alignment Block as a standalone module   ###
 ##########################################################################################################
 
-import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "MayomicsVC/src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
 workflow CallDeliverAlignmentTask {
 

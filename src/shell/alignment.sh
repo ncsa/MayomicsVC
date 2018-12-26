@@ -272,8 +272,8 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 ## Set output file names
 OUT=${SAMPLE}.sam
-SORTBAM=${SAMPLE}.aligned.sorted.bam
-SORTBAMIDX=${SAMPLE}.aligned.sorted.bam.bai
+SORTBAM=${SAMPLE}.bam
+SORTBAMIDX=${SAMPLE}.bam.bai
 TOOL_LOG=${SAMPLE}.align_sentieon.log
 
 ## Parse extra options if specified

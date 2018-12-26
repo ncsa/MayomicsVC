@@ -41,7 +41,7 @@ task realignmentTask {
    }
 
    output {
-      File OutputBams = "${SampleName}.aligned.sorted.deduped.realigned.bam"
-      File OutputBais = "${SampleName}.aligned.sorted.deduped.realigned.bam.bai"
+      File OutputBams = "${SampleName}.bam"
+      File OutputBais = "${SampleName}.bam.bai"
    }  
 } 
