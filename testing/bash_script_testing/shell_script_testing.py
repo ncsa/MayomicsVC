@@ -26,7 +26,7 @@ class Script:
 
 class Trimming(Script):
     """
-    Runs trim_sequences.sh. Contains the parts to run the code. Each attribput represents a particular flag, that way
+    Runs trim_sequences.sh. Contains the parts to run the code. Each attribute represents a particular flag, that way
     we can step through the flags and perform tests on each.
     """
     __cwd = os.getcwd()
@@ -37,15 +37,16 @@ class Trimming(Script):
         self.output = output
         self.flag_s = "-s outputs/{}".format(self.output)
         self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
-        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq'
-        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq'
-        self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin'
+        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
+        # self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
+        self.flag_C = '-C /usr/bin' # for local testing
         self.flag_t = '-t {}'.format(threads)
         self.flag_P = '-P {}'.format(paired)
-        self.flag_e = '-e ../../../Inputs/env.file'
+        self.flag_e = '-e ../../../Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
-        self.name = '../../src/shell/trim_sequences.sh'
+        self.name = '{}/trim_sequences.sh'.format(self.path)
 
     def __str__(self):
         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A, self.flag_r,
@@ -123,10 +124,12 @@ class TestArgs(ParameterizedTestCase):
 
 
     def tearDown(self):
-        # cwd = os.getcwd()
-        # files = glob.glob('outputs/*')
-        # for f in files:
-        #     os.remove(f)
+        files = glob.glob('outputs/*')
+        for f in files:
+            os.remove(f)
+        files = glob.glob('WGS*')
+        for f in files:
+            os.remove(f)
         pass
 
     # @unittest.skip("Already tested")
@@ -137,9 +140,8 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue("No arguments passed." in output[7])
 
     def test_help_function(self):
-        cwd = os.getcwd()
         os.system("/bin/bash " + self.param.name + ' -h > outputs/outfile.txt')
-        desired_help = self.parse_output(cwd+'/Verification_files/desired_help_output.txt')
+        desired_help = self.parse_output('Verification_files/desired_help_output.txt')
         output = self.parse_output('outputs/outfile.txt')
         for i in range(4, len(output)-1):
             self.assertTrue(desired_help[i-4] == output[i])
@@ -151,8 +153,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue("Invalid option: -Q" in output[7])
 
     def test_successful_paired_end_read(self):
-        print(self.param)
-        os.system(str(self.param) + " > outputs/outfile.txt")
+        os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/output.trimming.TBD.log')
         self.assertTrue('START' in output[5])
         self.assertTrue("Finished trimming adapter sequences." in output[7])

@@ -1,7 +1,0 @@
-*****************************************************************************
-/home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh 
-called by: jallen17 on Mon Dec 17 09:55:13 CST 2018
-command line input: -s outputs/paired_ended_output -l /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz -r /home/jallen17/Documents/NCSA/MayomicsVC/testing/bash_script_testing/../../../WGS_chr1_5X_E0.005_L1_read2.fastq.gz -A garbage_test_files/dummy_test_text.fq -C /usr/bin/ -t 0 -P true -e inputs/env.txt -F /home/jallen17/Documents/NCSA/MayomicsVC/src/shell/shared_functions.sh
-*****************************************************************************
-[2018-12-17T09:55:13-0600] [INFO] [trim_sequences.sh] [TBD] [TBD] [0] 	[CUTADAPT] START.
-[2018-12-17T09:55:13-0600] [ERROR] [trim_sequences.sh] [TBD] [TBD] [-1] 	 /home/jallen17/Documents/NCSA/MayomicsVC/src/shell/trim_sequences.sh stopped at line 260. Cutadapt Read 1 and 2 failure. 

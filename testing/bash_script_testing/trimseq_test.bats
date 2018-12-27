@@ -53,7 +53,7 @@ load testing_call
 }
 
 @test "Test successful run paired end and single end" {
-  skip "Already tested"
+  # skip "Already tested"
   if [[ ! -z `ls outputs` ]]; then
     rm outputs/*
   fi
@@ -498,7 +498,7 @@ load testing_call
 }
 
 @test "Logs are truncated at the beginning of the run" {
-  # skip "Already tested"
+  skip "Already tested"
   # Create a log with a failed run
   run /bin/bash ${Mayomics_path}/src/shell/trim_sequences.sh \
   -s outputs/first_run \
