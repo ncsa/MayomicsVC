@@ -3,9 +3,14 @@ import os
 import subprocess
 import unittest
 from subprocess import Popen, PIPE
+import glob
 
 
 class Script:
+    """
+    Trim_sequences is done, and the other scripts will have similar setups that have the flags as attributes so tests
+    can step through the list of attributes.
+    """
     __cwd = os.getcwd()
 
     def __init__(self, flags: list):
@@ -20,21 +25,26 @@ class Script:
 
 
 class Trimming(Script):
+    """
+    Runs trim_sequences.sh. Contains the parts to run the code. Each attribput represents a particular flag, that way
+    we can step through the flags and perform tests on each.
+    """
     __cwd = os.getcwd()
 
-    def __init__(self, threads, paired):
+    def __init__(self, output, threads, paired):
         flags = ["s", "A", "l", "r", "C", "t", "P", "e", "F", "d"]
         Script.__init__(self, flags)
-        self.flag_s = "-s {}/../../../Output/testrun".format(self.__cwd)
-        self.flag_A = '-A {}/../../../Inputs/TruSeqAdaptors.fasta'.format(self.__cwd)
-        self.flag_l = '-l {}/../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq'.format(self.__cwd)
-        self.flag_r = '-r {}/../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq'.format(self.__cwd)
+        self.output = output
+        self.flag_s = "-s outputs/{}".format(self.output)
+        self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
+        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq'
+        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq'
         self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin'
         self.flag_t = '-t {}'.format(threads)
         self.flag_P = '-P {}'.format(paired)
-        self.flag_e = '-e {}/../../../Inputs/env.file'.format(self.__cwd)
+        self.flag_e = '-e ../../../Inputs/env.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
-        self.flag_d = ''
+        self.flag_d = '-d'
         self.name = '../../src/shell/trim_sequences.sh'
 
     def __str__(self):
@@ -111,20 +121,41 @@ class TestArgs(ParameterizedTestCase):
     def setUp(self):
         pass
 
+
     def tearDown(self):
-        # os.remove('outfile.txt')
+        # cwd = os.getcwd()
+        # files = glob.glob('outputs/*')
+        # for f in files:
+        #     os.remove(f)
         pass
 
+    # @unittest.skip("Already tested")
     def test_no_arg(self):
-        os.system("/bin/bash " + self.param.name + '> outfile.txt')
-        output = self.parse_output('outfile.txt')
+        os.system("/bin/bash " + self.param.name + ' > outputs/outfile.txt')
+        output = self.parse_output('outputs/outfile.txt')
         self.assertTrue('command line input: \n' in output[4])
         self.assertTrue("No arguments passed." in output[7])
 
     def test_help_function(self):
-        os.system("/bin/bash " + self.param.name + ' -h > outfile.txt')
-        output = self.parse_output('outfile.txt')
-        self.assertTrue('command line input: -h' in output[4])
+        cwd = os.getcwd()
+        os.system("/bin/bash " + self.param.name + ' -h > outputs/outfile.txt')
+        desired_help = self.parse_output(cwd+'/Verification_files/desired_help_output.txt')
+        output = self.parse_output('outputs/outfile.txt')
+        for i in range(4, len(output)-1):
+            self.assertTrue(desired_help[i-4] == output[i])
+
+    def test_nonexistent_option(self):
+        os.system("/bin/bash " + self.param.name + " -Q garbage > outputs/outfile.txt")
+        output = self.parse_output('outputs/outfile.txt')
+        self.assertTrue('command line input: -Q garbage' in output[4])
+        self.assertTrue("Invalid option: -Q" in output[7])
+
+    def test_successful_paired_end_read(self):
+        print(self.param)
+        os.system(str(self.param) + " > outputs/outfile.txt")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        self.assertTrue('START' in output[5])
+        self.assertTrue("Finished trimming adapter sequences." in output[7])
 
     @staticmethod
     def parse_output(file):
@@ -132,6 +163,7 @@ class TestArgs(ParameterizedTestCase):
         for line in open(file, 'r'):
             output.append(line)
         return output
+
 
 if __name__ == "__main__":
     scripts = ["trim_sequences.sh", 'alignment.sh', 'merge_bams.sh', 'dedup.sh',
@@ -141,7 +173,7 @@ if __name__ == "__main__":
     except ValueError:
         print("Argument must be the script to test and the output_file/log_name to use.")
     if idx == 0:
-        test_script = Trimming(20, 'true')
+        test_script = Trimming('output', 20, 'true')
     elif idx == 1:
         test_script = Alignment()
     elif idx == 2:
