@@ -145,7 +145,7 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar ${SAMPLE} "Missing sample name option: -s"
+checkVar ${SAMPLE} "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
@@ -156,14 +156,14 @@ truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar ${VCF} "Missing VCF option: -r"
-checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist"
-checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist"
+checkVar ${VCF} "Missing VCF option: -r" $LINENO
+checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
+checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
 
-checkVar ${JSON} "Missing JSON option: -j"
-checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist."
+checkVar ${JSON} "Missing JSON option: -j" $LINENO
+checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
 
-checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f"
+checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f" $LINENO
 
 
 
@@ -179,11 +179,11 @@ logInfo "[DELIVERY] Creating the Delivery folder."
 ## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
-makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}"
+makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
 
 
@@ -206,7 +206,7 @@ cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Recalibrated VCF delivered."
 
 
@@ -216,7 +216,7 @@ cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
 
 
@@ -227,7 +227,7 @@ cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Workflow JSON delivered."
 
 
@@ -237,11 +237,11 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty."
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty."
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
 
 JSON_FILENAME=`basename ${JSON}`
-checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty"
+checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
 
 chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
