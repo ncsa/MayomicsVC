@@ -183,7 +183,7 @@ makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" ${TRAP_LINE}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
 
 
@@ -206,7 +206,7 @@ cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.bam
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
 
 
@@ -216,7 +216,7 @@ cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Aligned sorted deduped BAM index delivered."
 
 ## Copy the JSON over
@@ -226,7 +226,7 @@ cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Workflow JSON delivered."
 
 

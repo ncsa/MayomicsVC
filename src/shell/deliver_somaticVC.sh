@@ -183,7 +183,7 @@ makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Created the SomaticVC block delivery folder."
 
 
@@ -206,7 +206,7 @@ cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Recalibrated VCF delivered."
 
 
@@ -216,7 +216,7 @@ cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
 
 
@@ -227,7 +227,7 @@ cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Workflow JSON delivered."
 
 
