@@ -4,6 +4,7 @@ import subprocess
 import unittest
 from subprocess import Popen, PIPE
 import glob
+import copy
 
 
 class Script:
@@ -13,84 +14,85 @@ class Script:
     """
     __cwd = os.getcwd()
 
-    def __init__(self, flags: list):
-        self.flags = flags
+    def __init__(self):
         self.path = '{}/../../src/shell'.format(self.__cwd)
-
-    def __str__(self):
-        return "/bin/bash {}".format(self.__class__)
-
-    def __repr__(self):
-        return "/bin/bash {}".format(self.__class__)
 
 
 class Trimming(Script):
     """
     Runs trim_sequences.sh. Contains the parts to run the code. Each attribute represents a particular flag, that way
     we can step through the flags and perform tests on each.
-    """
-    __cwd = os.getcwd()
 
-    def __init__(self, output, threads, paired):
-        flags = ["s", "A", "l", "r", "C", "t", "P", "e", "F", "d"]
-        Script.__init__(self, flags)
-        self.output = output
-        self.flag_s = "-s outputs/{}".format(self.output)
+    TODO: os.path to make tests more generic
+    """
+
+    def __init__(self, output, threads):
+        Script.__init__(self)
+        self.flag_s = "-s outputs/{}".format(output)
         self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
         # self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
         self.flag_C = '-C /usr/bin' # for local testing
         self.flag_t = '-t {}'.format(threads)
-        self.flag_P = '-P {}'.format(paired)
+        self.flag_P = '-P true'
         self.flag_e = '-e ../../../Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/trim_sequences.sh'.format(self.path)
 
-    def __str__(self):
-        return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A, self.flag_r,
-                                                                   self.flag_l, self.flag_C, self.flag_t, self.flag_P,
-                                                                   self.flag_e, self.flag_F, self.flag_d)
+    def __str__(self, case: str = 'paired'):
+        if case == 'single':
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                                  self.flag_l, self.flag_C, self.flag_t,
+                                                                                  self.flag_e, self.flag_F, self.flag_d)
+        elif case == 'paired':
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                       self.flag_l, self.flag_r, self.flag_C,
+                                                                       self.flag_t, self.flag_P, self.flag_e,
+                                                                       self.flag_F, self.flag_d)
+        else:
+            raise ValueError("unknown case")
 
-    def __repr__(self):
-        return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A, self.flag_r,
-                                                                   self.flag_l, self.flag_C, self.flag_t, self.flag_P,
-                                                                   self.flag_e, self.flag_F, self.flag_d)
+    def __repr__(self, case: str = 'paired'):
+        if case == 'single':
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                                  self.flag_l, self.flag_C, self.flag_t,
+                                                                                  self.flag_e, self.flag_F, self.flag_d)
+        elif case == 'paired':
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                       self.flag_l, self.flag_r, self.flag_C,
+                                                                       self.flag_t, self.flag_P, self.flag_e,
+                                                                       self.flag_F, self.flag_d)
+        else:
+            raise ValueError("unknown case")
 
 class Alignment(Script):
-    __cwd = os.getcwd()
 
     pass
 
 
 class MergeBams(Script):
-    __cwd = os.getcwd()
     pass
 
 
 class DeDup(Script):
-    __cwd = os.getcwd()
     pass
 
 
 class Realignment(Script):
-    __cwd = os.getcwd()
     pass
 
 
 class BQSR(Script):
-    __cwd = os.getcwd()
     pass
 
 
 class Haplotyper(Script):
-    __cwd = os.getcwd()
     pass
 
 
 class VQSR(Script):
-    __cwd = os.getcwd()
     pass
 
 
@@ -122,7 +124,6 @@ class TestArgs(ParameterizedTestCase):
     def setUp(self):
         pass
 
-
     def tearDown(self):
         files = glob.glob('outputs/*')
         for f in files:
@@ -130,14 +131,19 @@ class TestArgs(ParameterizedTestCase):
         files = glob.glob('WGS*')
         for f in files:
             os.remove(f)
-        pass
 
-    # @unittest.skip("Already tested")
+    def test_cutadapt_installed(self):
+        os.system("apt list cutadapt > outputs/outfile.txt 2>&1")
+        output = self.parse_output('outputs/outfile.txt')
+        output = ''.join(output)
+        self.assertTrue("[installed]" in output)
+
     def test_no_arg(self):
         os.system("/bin/bash " + self.param.name + ' > outputs/outfile.txt')
         output = self.parse_output('outputs/outfile.txt')
-        self.assertTrue('command line input: \n' in output[4])
-        self.assertTrue("No arguments passed." in output[7])
+        output = ''.join(output)
+        self.assertTrue('command line input: \n' in output)
+        self.assertTrue("No arguments passed." in output)
 
     def test_help_function(self):
         os.system("/bin/bash " + self.param.name + ' -h > outputs/outfile.txt')
@@ -149,14 +155,50 @@ class TestArgs(ParameterizedTestCase):
     def test_nonexistent_option(self):
         os.system("/bin/bash " + self.param.name + " -Q garbage > outputs/outfile.txt")
         output = self.parse_output('outputs/outfile.txt')
-        self.assertTrue('command line input: -Q garbage' in output[4])
-        self.assertTrue("Invalid option: -Q" in output[7])
+        output = ''.join(output)
+        self.assertTrue('command line input: -Q garbage' in output)
+        self.assertTrue("Invalid option: -Q" in output)
 
+    @unittest.skip("So slow")
     def test_successful_paired_end_read(self):
-        os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
+        os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/output.trimming.TBD.log')
-        self.assertTrue('START' in output[5])
-        self.assertTrue("Finished trimming adapter sequences." in output[7])
+        output = ''.join(output)
+        self.assertTrue('START' in output)
+        self.assertTrue("Finished trimming adapter sequences." in output)
+        cutadapt_log = 'outputs/output.cutadapt.log'
+        self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
+
+    @unittest.skip("So slow")
+    def test_successful_single_end_read(self):
+        os.system(self.param.__str__('single') + " > outputs/outfile.txt 2>&1")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue('START' in output)
+        self.assertTrue("Finished trimming adapter sequences." in output)
+        cutadapt_log = 'outputs/output.cutadapt.log'
+        self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
+
+    def test_options_for_script(self):
+        attributes = list(test_script.__dict__.keys())
+        attributes.remove('flag_d')
+        options = list([a for a in attributes if "flag" in a])
+        tests = ('dummy_test_blank.fq', 'dummy_test_text.fq', 'dummy_test_text_with_at.fq')
+        output_test_text = ("REASON=Input read 1 file garbage_test_files/dummy_test_blank.fq is empty or does not "
+                            "exist.", "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found "
+                            "'Lorem ipsu'", "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but "
+                            "found 'Suspendiss'")
+        for option in options:
+            for test in tests:
+                print(self.param.__dict__[option])
+                temp_flag = copy.deepcopy(self.param.__dict__[option])
+                manip_flag = self.param.__dict__[option]
+                manip_flag = manip_flag.split(' ')[0] + ' ' + test
+                self.param.__dict__[option] = manip_flag
+                print(self.param.__dict__[option])
+                pass
+                self.param.__dict__[option] = temp_flag
+                print(self.param.__dict__[option])
 
     @staticmethod
     def parse_output(file):
@@ -174,7 +216,7 @@ if __name__ == "__main__":
     except ValueError:
         print("Argument must be the script to test and the output_file/log_name to use.")
     if idx == 0:
-        test_script = Trimming('output', 20, 'true')
+        test_script = Trimming('output', 20)
     elif idx == 1:
         test_script = Alignment()
     elif idx == 2:
@@ -189,6 +231,7 @@ if __name__ == "__main__":
         test_script = Haplotyper()
     elif idx == 7:
         test_script = VQSR()
+
 
     suite = unittest.TestSuite()
     suite.addTest(ParameterizedTestCase.parameterize(TestArgs, param=test_script))
