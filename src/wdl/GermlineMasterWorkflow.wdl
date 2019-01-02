@@ -2,19 +2,19 @@
 ####              This WDL script is used to run Alignment and HaplotyperVC blocks together  ##
 ###############################################################################################
 
-import "src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
-import "src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
-import "src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
-import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runtrim_sequences.wdl" as CUTADAPTTRIM
+import "MayomicsVC/src/wdl/Alignment/TestTasks/Runalignment.wdl" as ALIGNMENT
+import "MayomicsVC/src/wdl/Alignment/Tasks/merge_aligned_bam.wdl" as MERGEBAM
+import "MayomicsVC/src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
-import "src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
+import "MayomicsVC/src/wdl/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
-import "src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
-import "src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 
-import "src/wdl/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
+import "MayomicsVC/src/wdl/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
 
 
 workflow GermlineMasterWF {

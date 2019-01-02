@@ -4,7 +4,7 @@
 
 #########################################################################################################
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGN
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGN
 
 workflow CallRealignmentTask {
 
