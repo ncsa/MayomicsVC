@@ -220,16 +220,18 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    def test_options_for_trimming(self):
+    def test_read_flags(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
+
+        # test left and right read flags
         options = ['flag_l', 'flag_r']
-        tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+        tests1 = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                  'dummy_test_text.fastq': "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found 'Lorem ipsu'",
                  'dummy_test_text_with_at.fastq': "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but found 'Suspendiss'"}
         for option in options:
-            for test in tests.keys():
+            for test in tests1.keys():
                 temp_flag = copy.deepcopy(self.param.__dict__[option])
                 manip_flag = self.param.__dict__[option]
                 manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
@@ -241,32 +243,36 @@ class TestArgs(ParameterizedTestCase):
                 log = ''.join(log)
                 with self.subTest(test=test):
                     if 'Cutadapt Read 1 and 2 failure' in output:
-                        self.assertTrue(tests[test] in log)
+                        self.assertTrue(tests1[test] in log)
                     else:
-                        self.assertTrue(tests[test] in output)
+                        self.assertTrue(tests1[test] in output)
                 self.param.__dict__[option] = temp_flag
 
-        options = ['flag_A']
+    def test_adapter_flag(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+
+        # test adapter flag
         tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                  'dummy_test_text.fastq': "At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'",
                  'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN."}
-        for option in options:
-            for test in tests.keys():
-                temp_flag = copy.deepcopy(self.param.__dict__[option])
-                manip_flag = self.param.__dict__[option]
-                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
-                self.param.__dict__[option] = manip_flag
-                os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
-                output = self.parse_output('outputs/output.trimming.TBD.log')
-                log = self.parse_output('outputs/output.cutadapt.log')
-                output = ''.join(output)
-                log = ''.join(log)
-                with self.subTest(test=test):
-                    if 'Cutadapt Read 1 and 2 failure' in output:
-                        self.assertTrue(tests[test] in log)
-                    else:
-                        self.assertTrue(tests[test] in output)
-                self.param.__dict__[option] = temp_flag
+        for test in tests.keys():
+            temp_flag = copy.deepcopy(self.param.__dict__['flag_A'])
+            manip_flag = self.param.__dict__['flag_A']
+            manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
+            self.param.__dict__['flag_A'] = manip_flag
+            os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+            output = self.parse_output('outputs/output.trimming.TBD.log')
+            log = self.parse_output('outputs/output.cutadapt.log')
+            output = ''.join(output)
+            log = ''.join(log)
+            with self.subTest(test=test):
+                if 'Cutadapt Read 1 and 2 failure' in output:
+                    self.assertTrue(tests[test] in log)
+                else:
+                    self.assertTrue(tests[test] in output)
+            self.param.__dict__['flag_A'] = temp_flag
 
     @staticmethod
     def parse_output(file):
