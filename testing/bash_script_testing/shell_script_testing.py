@@ -69,6 +69,9 @@ class Trimming(Script):
             raise ValueError("unknown case")
 
 class Alignment(Script):
+    """
+    TODO: This is currently just a copy of Trimming to test some aspects, so it needs to be properly filled out
+    """
 
     def __init__(self, output, threads):
         Script.__init__(self)
@@ -226,12 +229,12 @@ class TestArgs(ParameterizedTestCase):
 
         # test left and right read flags
         flags_to_test = ['flag_l', 'flag_r']
-        garbage_test_files = {'dummy_test_blank.fastq':
-                                  "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
-                              'dummy_test_text.fastq':
-                                  "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found 'Lorem ipsu'",
-                              'dummy_test_text_with_at.fastq':
-                                  "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but found 'Suspendiss'"}
+        garbage_test_files = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or "
+                                                        "does not exist.",
+                              'dummy_test_text.fastq': "cutadapt: error: Line 1 in FASTQ file is expected to start with"
+                                                       "'@', but found 'Lorem ipsu'",
+                              'dummy_test_text_with_at.fastq': "cutadapt: error: Line 3 in FASTQ file is expected to "
+                                                               "start with '+', but found 'Suspendiss'"}
         for flag in flags_to_test:
             for garbage_test in garbage_test_files.keys():
                 temp_flag = copy.deepcopy(self.param.__dict__[flag])
@@ -334,7 +337,68 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
                             in output)
 
+    def test_incorrect_read_options(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+        os.system("/bin/bash {} {} {} {} {} {} {} -P false {} {} {}". \
+                  format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l, self.param.flag_r,
+                         self.param.flag_C, self.param.flag_t, self.param.flag_e,
+                         self.param.flag_F, self.param.flag_d) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue("REASON=User specified Single End option, but did not set read 2 option -r to null." in output)
+        os.system("/bin/bash {} {} {} {} {} {} {} -P true {} {}". \
+                  format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l,
+                         self.param.flag_C, self.param.flag_t, self.param.flag_e,
+                         self.param.flag_F, self.param.flag_d) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue("REASON=Missing read 2 option: -r. If running a single-end job, set -r null in command." in output)
+        os.system("/bin/bash {} {} {} -l null {} {} {} -P false {} {} {}". \
+                  format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_r,
+                         self.param.flag_C, self.param.flag_t, self.param.flag_e,
+                         self.param.flag_F, self.param.flag_d) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue("REASON=Input read 1 file null is empty or does not exist." in output)
+        os.system("/bin/bash {} {} {} -r null {} {} {} {} -P true {} {}". \
+                  format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l,
+                         self.param.flag_C, self.param.flag_t, self.param.flag_e,
+                         self.param.flag_F, self.param.flag_d) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue("REASON=Input read 2 file null is empty or does not exist." in output)
 
+    def test_missing_option_values(self):
+        attributes = list(self.param.__dict__.keys())
+        attributes.remove('flag_d')
+        options = list([a for a in attributes if "flag" in a])
+        for flag in options:
+            temp_flag = copy.deepcopy(self.param.__dict__[flag])
+            manip_flag = self.param.__dict__[flag]
+            manip_flag = manip_flag.split(' ')[0]
+            self.param.__dict__[flag] = manip_flag
+            os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
+            output = self.parse_output('outputs/outfile.txt')
+            output = ''.join(output)
+            if flag != 'flag_F':
+                self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
+            else:
+                self.assertTrue("Option -F requires an argument." in output)
+            self.param.__dict__[flag] = temp_flag
+
+    def test_path_name_errors(self):
+        pass
+
+    def test_file_permissions(self):
+        pass
+
+    def test_output_permissions_set(self):
+        pass
+
+    def test_logs_are_truncated(self):
+        pass
 
 
     @staticmethod
