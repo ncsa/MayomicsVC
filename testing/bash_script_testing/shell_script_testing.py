@@ -249,6 +249,9 @@ class TestArgs(ParameterizedTestCase):
                 self.param.__dict__[option] = temp_flag
 
     def test_adapter_flag(self):
+        """
+        TODO: Figure out why it's creating random files
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
