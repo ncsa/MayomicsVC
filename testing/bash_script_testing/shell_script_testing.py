@@ -88,27 +88,25 @@ class Alignment(Script):
 
     def __str__(self, case: str = 'paired'):
         if case == 'single':
-            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
-                                                                                  self.flag_l, self.flag_C, self.flag_t,
-                                                                                  self.flag_e, self.flag_F, self.flag_d)
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".\
+                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_C, self.flag_t, self.flag_e,
+                       self.flag_F, self.flag_d)
         elif case == 'paired':
-            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
-                                                                       self.flag_l, self.flag_r, self.flag_C,
-                                                                       self.flag_t, self.flag_P, self.flag_e,
-                                                                       self.flag_F, self.flag_d)
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".\
+                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_r, self.flag_C, self.flag_t,
+                       self.flag_P, self.flag_e, self.flag_F, self.flag_d)
         else:
             raise ValueError("unknown case")
 
     def __repr__(self, case: str = 'paired'):
         if case == 'single':
-            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
-                                                                                  self.flag_l, self.flag_C, self.flag_t,
-                                                                                  self.flag_e, self.flag_F, self.flag_d)
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".\
+                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_C, self.flag_t, self.flag_e,
+                       self.flag_F, self.flag_d)
         elif case == 'paired':
-            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
-                                                                       self.flag_l, self.flag_r, self.flag_C,
-                                                                       self.flag_t, self.flag_P, self.flag_e,
-                                                                       self.flag_F, self.flag_d)
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".\
+                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_r, self.flag_C, self.flag_t,
+                       self.flag_P, self.flag_e, self.flag_F, self.flag_d)
         else:
             raise ValueError("unknown case")
 
@@ -220,43 +218,47 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    def test_read_flags(self):
+    @unittest.skip("So slow")
+    def test_read_flags_with_bad_input(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
 
         # test left and right read flags
-        options = ['flag_l', 'flag_r']
-        tests1 = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
-                 'dummy_test_text.fastq': "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found 'Lorem ipsu'",
-                 'dummy_test_text_with_at.fastq': "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but found 'Suspendiss'"}
-        for option in options:
-            for test in tests1.keys():
-                temp_flag = copy.deepcopy(self.param.__dict__[option])
-                manip_flag = self.param.__dict__[option]
-                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
-                self.param.__dict__[option] = manip_flag
-                os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+        flags_to_test = ['flag_l', 'flag_r']
+        garbage_test_files = {'dummy_test_blank.fastq':
+                                  "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+                              'dummy_test_text.fastq':
+                                  "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found 'Lorem ipsu'",
+                              'dummy_test_text_with_at.fastq':
+                                  "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but found 'Suspendiss'"}
+        for flag in flags_to_test:
+            for garbage_test in garbage_test_files.keys():
+                temp_flag = copy.deepcopy(self.param.__dict__[flag])
+                manip_flag = self.param.__dict__[flag]
+                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + garbage_test
+                self.param.__dict__[flag] = manip_flag
+                os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
                 output = self.parse_output('outputs/output.trimming.TBD.log')
                 log = self.parse_output('outputs/output.cutadapt.log')
                 output = ''.join(output)
                 log = ''.join(log)
-                with self.subTest(test=test):
-                    if 'Cutadapt Read 1 and 2 failure' in output:
-                        self.assertTrue(tests1[test] in log)
-                    else:
-                        self.assertTrue(tests1[test] in output)
-                self.param.__dict__[option] = temp_flag
+                if 'Cutadapt Read 1 and 2 failure' in output:
+                    self.assertTrue(garbage_test_files[garbage_test] in log)
+                else:
+                    self.assertTrue(garbage_test_files[garbage_test] in output)
+                self.param.__dict__[flag] = temp_flag
+                try:
+                    os.remove(garbage_test)
+                except OSError:
+                    pass
 
-    def test_adapter_flag(self):
-        """
-        TODO: Figure out why it's creating random files
-        """
+    @unittest.skip("So slow")
+    def test_garbage_adapters(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
 
-        # test adapter flag
         tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                  'dummy_test_text.fastq': "At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'",
                  'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN."}
@@ -276,6 +278,64 @@ class TestArgs(ParameterizedTestCase):
                 else:
                     self.assertTrue(tests[test] in output)
             self.param.__dict__['flag_A'] = temp_flag
+            try:
+                os.remove(test)
+            except OSError:
+                pass
+
+    @unittest.skip("So slow")
+    def test_bad_cutadapt_path(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+
+        # Test bad cutadapt path
+        os.system("/bin/bash {} {} {} {} {} -C /usr/win {} {} {} {} {} > outputs/outfile.txt 2>&1".
+                  format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l, self.param.flag_r,
+                         self.param.flag_t, self.param.flag_P, self.param.flag_e, self.param.flag_F, self.param.flag_d))
+        output = self.parse_output('outputs/output.trimming.TBD.log')
+        output = ''.join(output)
+        self.assertTrue("REASON=Cutadapt directory /usr/win is not a directory or does not exist." in output)
+
+    @unittest.skip("So slow")
+    def test_bad_thread_options(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+
+        values = [321, 3299, 12322]
+        for number in values:
+            os.system("/bin/bash {} {} {} {} {} {} {} {} {} {}".\
+                format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l, self.param.flag_r,
+                       self.param.flag_C, self.param.flag_P, self.param.flag_e, self.param.flag_F, self.param.flag_d)
+                      + " -t " + str(number) + " > outputs/outfile.txt 2>&1")
+            output = self.parse_output('outputs/output.trimming.TBD.log')
+            log = self.parse_output('outputs/output.cutadapt.log')
+            output = ''.join(output)
+            log = ''.join(log)
+            if 'Finished trimming adapter sequences.' in output:
+                self.assertTrue(True)
+            else:
+                self.assertTrue('Cutadapt Read 1 and 2 failure.' in output)
+
+    def test_paired_options(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+
+        tests = ['True', 'T', 'False', "F"]
+        for test in tests:
+            os.system("/bin/bash {} {} {} {} {} {} {} {} {} {}".\
+                format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l, self.param.flag_r,
+                       self.param.flag_C, self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
+                      ' -P ' + test + " > outputs/outfile.txt 2>&1 ")
+            output = self.parse_output('outputs/output.trimming.TBD.log')
+            output = ''.join(output)
+            self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
+                            in output)
+
+
+
 
     @staticmethod
     def parse_output(file):
