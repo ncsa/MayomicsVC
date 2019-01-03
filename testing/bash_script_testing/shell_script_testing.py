@@ -40,6 +40,7 @@ class Trimming(Script):
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/trim_sequences.sh'.format(self.path)
+        self.type = 'trim_sequences.sh'
 
     def __str__(self, case: str = 'paired'):
         if case == 'single':
@@ -69,7 +70,47 @@ class Trimming(Script):
 
 class Alignment(Script):
 
-    pass
+    def __init__(self, output, threads):
+        Script.__init__(self)
+        self.flag_s = "-s outputs/{}".format(output)
+        self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
+        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
+        # self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
+        self.flag_C = '-C /usr/bin' # for local testing
+        self.flag_t = '-t {}'.format(threads)
+        self.flag_P = '-P true'
+        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_d = '-d'
+        self.name = '{}/trim_sequences.sh'.format(self.path)
+        self.type = 'alignment.sh'
+
+    def __str__(self, case: str = 'paired'):
+        if case == 'single':
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                                  self.flag_l, self.flag_C, self.flag_t,
+                                                                                  self.flag_e, self.flag_F, self.flag_d)
+        elif case == 'paired':
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                       self.flag_l, self.flag_r, self.flag_C,
+                                                                       self.flag_t, self.flag_P, self.flag_e,
+                                                                       self.flag_F, self.flag_d)
+        else:
+            raise ValueError("unknown case")
+
+    def __repr__(self, case: str = 'paired'):
+        if case == 'single':
+            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                                  self.flag_l, self.flag_C, self.flag_t,
+                                                                                  self.flag_e, self.flag_F, self.flag_d)
+        elif case == 'paired':
+            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".format(self.name, self.flag_s, self.flag_A,
+                                                                       self.flag_l, self.flag_r, self.flag_C,
+                                                                       self.flag_t, self.flag_P, self.flag_e,
+                                                                       self.flag_F, self.flag_d)
+        else:
+            raise ValueError("unknown case")
 
 
 class MergeBams(Script):
@@ -179,26 +220,53 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    def test_options_for_script(self):
-        attributes = list(test_script.__dict__.keys())
-        attributes.remove('flag_d')
-        options = list([a for a in attributes if "flag" in a])
-        tests = ('dummy_test_blank.fq', 'dummy_test_text.fq', 'dummy_test_text_with_at.fq')
-        output_test_text = ("REASON=Input read 1 file garbage_test_files/dummy_test_blank.fq is empty or does not "
-                            "exist.", "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found "
-                            "'Lorem ipsu'", "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but "
-                            "found 'Suspendiss'")
+    def test_options_for_trimming(self):
+        if self.param.type != 'trim_sequences.sh':
+            print("Only valid for trim sequences")
+            return unittest.skip("Only valid for trim_sequences")
+        options = ['flag_l', 'flag_r']
+        tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+                 'dummy_test_text.fastq': "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found 'Lorem ipsu'",
+                 'dummy_test_text_with_at.fastq': "cutadapt: error: Line 3 in FASTQ file is expected to start with '+', but found 'Suspendiss'"}
         for option in options:
-            for test in tests:
-                print(self.param.__dict__[option])
+            for test in tests.keys():
                 temp_flag = copy.deepcopy(self.param.__dict__[option])
                 manip_flag = self.param.__dict__[option]
-                manip_flag = manip_flag.split(' ')[0] + ' ' + test
+                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
                 self.param.__dict__[option] = manip_flag
-                print(self.param.__dict__[option])
-                pass
+                os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+                output = self.parse_output('outputs/output.trimming.TBD.log')
+                log = self.parse_output('outputs/output.cutadapt.log')
+                output = ''.join(output)
+                log = ''.join(log)
+                with self.subTest(test=test):
+                    if 'Cutadapt Read 1 and 2 failure' in output:
+                        self.assertTrue(tests[test] in log)
+                    else:
+                        self.assertTrue(tests[test] in output)
                 self.param.__dict__[option] = temp_flag
-                print(self.param.__dict__[option])
+
+        options = ['flag_A']
+        tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+                 'dummy_test_text.fastq': "At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'",
+                 'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN."}
+        for option in options:
+            for test in tests.keys():
+                temp_flag = copy.deepcopy(self.param.__dict__[option])
+                manip_flag = self.param.__dict__[option]
+                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
+                self.param.__dict__[option] = manip_flag
+                os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+                output = self.parse_output('outputs/output.trimming.TBD.log')
+                log = self.parse_output('outputs/output.cutadapt.log')
+                output = ''.join(output)
+                log = ''.join(log)
+                with self.subTest(test=test):
+                    if 'Cutadapt Read 1 and 2 failure' in output:
+                        self.assertTrue(tests[test] in log)
+                    else:
+                        self.assertTrue(tests[test] in output)
+                self.param.__dict__[option] = temp_flag
 
     @staticmethod
     def parse_output(file):
@@ -212,13 +280,13 @@ if __name__ == "__main__":
     scripts = ["trim_sequences.sh", 'alignment.sh', 'merge_bams.sh', 'dedup.sh',
                'realignment.sh', 'bqsr.sh', 'haplotyper.sh', 'vqsr.sh']
     try:
-        idx = scripts.index(sys.argv[1]+".sh")
+        idx = scripts.index(sys.argv[1])
     except ValueError:
         print("Argument must be the script to test and the output_file/log_name to use.")
     if idx == 0:
-        test_script = Trimming('output', 20)
+        test_script = Trimming('output', 0)
     elif idx == 1:
-        test_script = Alignment()
+        test_script = Alignment('output', 20)
     elif idx == 2:
         test_script = MergeBams()
     elif idx == 3:
