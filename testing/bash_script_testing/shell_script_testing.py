@@ -221,7 +221,7 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_read_flags_with_bad_input(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
@@ -229,17 +229,24 @@ class TestArgs(ParameterizedTestCase):
 
         # test left and right read flags
         flags_to_test = ['flag_l', 'flag_r']
-        garbage_test_files = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or "
-                                                        "does not exist.",
-                              'dummy_test_text.fastq': "cutadapt: error: Line 1 in FASTQ file is expected to start with"
-                                                       "'@', but found 'Lorem ipsu'",
-                              'dummy_test_text_with_at.fastq': "cutadapt: error: Line 3 in FASTQ file is expected to "
-                                                               "start with '+', but found 'Suspendiss'"}
+        garbage_test_files = {'dummy_test_blank.fastq':
+                              "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+                              'dummy_test_text.fastq':
+                                  "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found "
+                                  "'Lorem ipsu'",
+                              'dummy_test_text_with_at.fastq':
+                                  "cutadapt: error: Line 3 in FASTQ file is expected to "
+                                  "start with '+', but found 'Suspendiss'",
+                              'WGS_chr1_5X_E0.005_L1_read1.fastq.':
+                                  'WGS_chr1_5X_E0.005_L1_read1.fastq. is empty or does not exist'}
         for flag in flags_to_test:
             for garbage_test in garbage_test_files.keys():
                 temp_flag = copy.deepcopy(self.param.__dict__[flag])
                 manip_flag = self.param.__dict__[flag]
-                manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + garbage_test
+                if "dummy" in garbage_test:
+                    manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + garbage_test
+                else:
+                    manip_flag = manip_flag.split(' ')[0] + ' ../../../Inputs/' + garbage_test
                 self.param.__dict__[flag] = manip_flag
                 os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
                 output = self.parse_output('outputs/output.trimming.TBD.log')
@@ -256,7 +263,7 @@ class TestArgs(ParameterizedTestCase):
                 except OSError:
                     pass
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_garbage_adapters(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
@@ -264,7 +271,8 @@ class TestArgs(ParameterizedTestCase):
 
         tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                  'dummy_test_text.fastq': "At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'",
-                 'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN."}
+                 'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN.",
+                 'TruSeqAdapters.fasta': "TruSeqAdapters.fasta is empty or does not exist"}
         for test in tests.keys():
             temp_flag = copy.deepcopy(self.param.__dict__['flag_A'])
             manip_flag = self.param.__dict__['flag_A']
@@ -286,19 +294,33 @@ class TestArgs(ParameterizedTestCase):
             except OSError:
                 pass
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
+    def test_bad_env_file(self):
+        tests = {'envprof_fake.file': "No such file or directory"}
+        for test in tests.keys():
+            temp_flag = copy.deepcopy(self.param.__dict__['flag_e'])
+            manip_flag = self.param.__dict__['flag_e']
+            manip_flag = manip_flag.split(' ')[0] + ' ' + test
+            self.param.__dict__['flag_e'] = manip_flag
+            os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+            output = self.parse_output('outputs/outfile.txt')
+            output = ''.join(output)
+            self.assertTrue(tests[test] in output)
+            self.param.__dict__['flag_e'] = temp_flag
+
+    # @unittest.skip("So slow")
     def test_bad_cutadapt_path(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
 
         # Test bad cutadapt path
-        os.system("/bin/bash {} {} {} {} {} -C /usr/win {} {} {} {} {} > outputs/outfile.txt 2>&1".
+        os.system("/bin/bash {} {} {} {} {} -C /usr/fake {} {} {} {} {} > outputs/outfile.txt 2>&1".
                   format(self.param.name, self.param.flag_s, self.param.flag_A, self.param.flag_l, self.param.flag_r,
                          self.param.flag_t, self.param.flag_P, self.param.flag_e, self.param.flag_F, self.param.flag_d))
         output = self.parse_output('outputs/output.trimming.TBD.log')
         output = ''.join(output)
-        self.assertTrue("REASON=Cutadapt directory /usr/win is not a directory or does not exist." in output)
+        self.assertTrue("REASON=Cutadapt directory /usr/fake is not a directory or does not exist." in output)
 
     @unittest.skip("So slow")
     def test_bad_thread_options(self):
@@ -321,6 +343,7 @@ class TestArgs(ParameterizedTestCase):
             else:
                 self.assertTrue('Cutadapt Read 1 and 2 failure.' in output)
 
+    # @unittest.skip("Testing")
     def test_paired_options(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
@@ -337,6 +360,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
                             in output)
 
+    # @unittest.skip("Testing")
     def test_incorrect_read_options(self):
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
@@ -370,6 +394,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Input read 2 file null is empty or does not exist." in output)
 
+    # @unittest.skip('Test')
     def test_missing_option_values(self):
         attributes = list(self.param.__dict__.keys())
         attributes.remove('flag_d')
@@ -382,19 +407,34 @@ class TestArgs(ParameterizedTestCase):
             os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
             output = self.parse_output('outputs/outfile.txt')
             output = ''.join(output)
-            if flag != 'flag_F':
-                self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
-            else:
-                self.assertTrue("Option -F requires an argument." in output)
+            self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
             self.param.__dict__[flag] = temp_flag
 
-    def test_path_name_errors(self):
-        pass
-
+    # @unittest.skip('testing')
     def test_file_permissions(self):
-        pass
+        os.system('chmod 000 ../../../Inputs')
+        os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/outfile.txt')
+        output = ''.join(output)
+        self.assertTrue('is empty or does not exist' in output)
+        os.system('chmod 755 ../../../Inputs')
 
-    def test_output_permissions_set(self):
+        os.system('chmod 000 outputs')
+        os.system(str(self.param) + " > outfile.txt 2>&1 ")
+        output = self.parse_output('outfile.txt')
+        output = ''.join(output)
+        self.assertTrue('Permission denied' in output)
+        os.remove('outfile.txt')
+        os.system('chmod 755 outputs')
+
+        os.system('chmod 000 ' + self.param.path)
+        os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
+        output = self.parse_output('outputs/outfile.txt')
+        output = ''.join(output)
+        self.assertTrue('Permission denied' in output)
+        os.system('chmod 755 ' + self.param.path)
+
+    def test_output_permissions_set_properly(self):
         pass
 
     def test_logs_are_truncated(self):
