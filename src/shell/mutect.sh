@@ -45,7 +45,7 @@ read -r -d '' DOCS << DOCS
                    
 EXAMPLES:
 mutect.sh -h
-mutect.sh -s sample_name -N normal.bam -T tumor.bam -g reference_genome.fa -v output.vcf -G path/to/GATK.jar -J /path/to/java -j "-xms2G -Xmx8G" -B /path/to/BCFTools -Z /path/to/bgzip -S /path/to/samtools -F path/to/shared_functions -e /path/to/environment_vars -D /path/to/fixDP.pl -o option
+mutect.sh -s sample_name -N normal.bam -T tumor.bam -g reference_genome.fa -v output.vcf -G path/to/GATK.jar -J /path/to/java -j "'-Xms2G -Xmx8G'" -B /path/to/BCFTools -Z /path/to/bgzip -S /path/to/samtools -F path/to/shared_functions -e /path/to/environment_vars -D /path/to/fixDP.pl -o "'option'"
 
 NOTES: 
 
