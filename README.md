@@ -4,7 +4,7 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 
 
 
-# GenomeGPS in Cromwell/WDL: Table of Contents   
+# Table of Contents   
 
    * [Objective](#objective)
    * [Design principles](#design-principles)
@@ -38,7 +38,7 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 
 # Objective
 
-Recreate the GenomeGPS workflow in Cromwell/WDL instead of Bash/Perl.
+Recreate the workflow in Cromwell/WDL instead of Bash/Perl.
 
 
 # Design principles
