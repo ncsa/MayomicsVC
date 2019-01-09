@@ -181,6 +181,9 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue("[installed]" in output)
 
     def test_no_arg(self):
+        """
+
+        """
         os.system("/bin/bash " + self.param.name + ' > outputs/outfile.txt')
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
@@ -188,6 +191,11 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue("No arguments passed." in output)
 
     def test_help_function(self):
+        """
+        While this theoretically works for all, the tricky part is that each script has a unique help output,
+        since each takes a different set of inputs. It'll take a bit of modification to get it to compare
+        the correct files. It'll also require building and maintaining a desired help-file database
+        """
         os.system("/bin/bash " + self.param.name + ' -h > outputs/outfile.txt')
         desired_help = self.parse_output('Verification_files/desired_help_output.txt')
         output = self.parse_output('outputs/outfile.txt')
@@ -195,6 +203,9 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue(desired_help[i-4] == output[i])
 
     def test_nonexistent_option(self):
+        """
+        Test a flag that doesn't exist with a garbage test option. This should work for all as is.
+        """
         os.system("/bin/bash " + self.param.name + " -Q garbage > outputs/outfile.txt")
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
@@ -202,17 +213,51 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue("Invalid option: -Q" in output)
 
     @unittest.skip("So slow")
-    def test_successful_paired_end_read(self):
+    def test_successful_paired_end_read_and_permissions(self):
+        """
+        This is simply a successful run of the tool and should be generalizable. I'm including a
+        check for file permissions to avoid having to duplicate code later.
+        """
         os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/output.trimming.TBD.log')
         output = ''.join(output)
+        # check that it started and ended properly
         self.assertTrue('START' in output)
         self.assertTrue("Finished trimming adapter sequences." in output)
-        cutadapt_log = 'outputs/output.cutadapt.log'
-        self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
+        cutadapt_output = 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+
+        # Check that it created a non-zero output
+        self.assertTrue(os.path.exists(cutadapt_output) and os.path.getsize(cutadapt_output) > 0)
+
+        # check that permissions have been set properly
+        perm_check_log = subprocess.Popen(['ls', '-l', 'outputs/output.trimming.TBD.log'], stdout=subprocess.PIPE,
+                                          stderr=subprocess.STDOUT)
+        stdout_log, stderr_log = perm_check_log.communicate()
+        self.assertTrue("-rw-r--r--" in str(stdout_log))
+        perm_check_read1 = subprocess.Popen(['ls', '-l', 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'],
+                                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout_read1, stderr_read1 = perm_check_read1.communicate()
+        self.assertTrue("-rw-r--r--" in str(stdout_read1))
+        perm_check_read2 = subprocess.Popen(['ls', '-l', 'WGS_chr1_5X_E0.005_L1_read2.fastq.gz'],
+                                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout_read2, stderr_read2 = perm_check_read2.communicate()
+        self.assertTrue("-rw-r--r--" in str(stdout_read2))
+
+        # Test minimal permissions on the output files
+        os.chmod('WGS_chr1_5X_E0.005_L1_read1.fastq.gz', 0o200)
+        os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+        self.assertTrue(oct(os.stat('WGS_chr1_5X_E0.005_L1_read2.fastq.gz').st_mode)[-3:][1] == '4')
+
+        os.chmod('WGS_chr1_5X_E0.005_L1_read2.fastq.gz', 0o200)
+        os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
+        self.assertTrue(oct(os.stat('WGS_chr1_5X_E0.005_L1_read2.fastq.gz').st_mode)[-3:][1] == '4')
+
 
     @unittest.skip("So slow")
     def test_successful_single_end_read(self):
+        """
+        This is simply a successful run of the tool and should be generalizable
+        """
         os.system(self.param.__str__('single') + " > outputs/outfile.txt 2>&1")
         output = self.parse_output('outputs/output.trimming.TBD.log')
         output = ''.join(output)
@@ -223,6 +268,11 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("So slow")
     def test_read_flags_with_bad_input(self):
+        """
+        Most of the scripts have some sort of input, so this will probably be generalizable to a degree.
+        It simply tries some dummy/garbage files for read inputs to make sure the tool isn't trying to align
+        text that isn't genomic.
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -265,6 +315,10 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("So slow")
     def test_garbage_adapters(self):
+        """
+        This tests trim_sequences call for the adapter files. This may be generalizabale, since other scripts
+        will call in outside files as well.
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -296,6 +350,9 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("So slow")
     def test_bad_env_file(self):
+        """
+        This simply uses a non-existant environmental file to test that the script checks for this.
+        """
         tests = {'envprof_fake.file': "No such file or directory"}
         for test in tests.keys():
             temp_flag = copy.deepcopy(self.param.__dict__['flag_e'])
@@ -310,6 +367,10 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("So slow")
     def test_bad_cutadapt_path(self):
+        """
+        Trim_sequences is the only one that uses cutadapt, though I may be able to generalize this script
+        to 'test bad tool path' once I get rolling on the others.
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -324,6 +385,10 @@ class TestArgs(ParameterizedTestCase):
 
     @unittest.skip("So slow")
     def test_bad_thread_options(self):
+        """
+        This tests trim_sequences thread option. It should return errors for having too high a thread count,
+        though this may vary by machine.
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -345,6 +410,9 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("Testing")
     def test_paired_options(self):
+        """
+        Not every script will have a true/false/read value to test; this only works with ones that do
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -362,6 +430,9 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip("Testing")
     def test_incorrect_read_options(self):
+        """
+        Not every script will have a true/false/read value to test; this only works with ones that do
+        """
         if self.param.type != 'trim_sequences.sh':
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
@@ -396,6 +467,10 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip('Test')
     def test_missing_option_values(self):
+        """
+        Should work with any of the scripts. Note that -d flag is ommitted since it does not have a value
+        already
+        """
         attributes = list(self.param.__dict__.keys())
         attributes.remove('flag_d')
         options = list([a for a in attributes if "flag" in a])
@@ -412,12 +487,15 @@ class TestArgs(ParameterizedTestCase):
 
     # @unittest.skip('testing')
     def test_file_permissions(self):
-        os.system('chmod 000 ../../../Inputs')
+        """
+        Should work with any of the scripts
+        """
+        os.chmod('../../../Inputs', 0o000)
         os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
         self.assertTrue('is empty or does not exist' in output)
-        os.system('chmod 755 ../../../Inputs')
+        os.chmod('../../../Inputs', 0o755)
 
         os.system('chmod 000 outputs')
         os.system(str(self.param) + " > outfile.txt 2>&1 ")
@@ -425,21 +503,45 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue('Permission denied' in output)
         os.remove('outfile.txt')
-        os.system('chmod 755 outputs')
+        os.chmod('outputs', 0o755)
 
-        os.system('chmod 000 ' + self.param.path)
+        os.chmod(self.param.path, 0o000)
         os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
         self.assertTrue('Permission denied' in output)
-        os.system('chmod 755 ' + self.param.path)
-
-    def test_output_permissions_set_properly(self):
-        pass
+        os.chmod(self.param.path, 0o755)
 
     def test_logs_are_truncated(self):
-        pass
+        # first run creates logs
+        os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
+                  " {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
+                              self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
+                  " > outputs/outfile.txt 2>&1 ")
+        output_stdout = self.parse_output('outputs/output.trimming.TBD.log')
+        output_stdout_test = output_stdout[-2:]
+        output_stdout_test = ''.join(output_stdout_test)
+        output_stdout = ''.join(output_stdout)
+        output_cutlog = self.parse_output('outputs/output.cutadapt.log')
+        output_cutlog_test = output_cutlog[-2:]
+        output_cutlog_test = ''.join(output_cutlog_test)
+        output_cutlog = ''.join(output_cutlog)
 
+        # second run
+        os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text_with_gt.fastq {} {} {} -P true"
+                  " {} {} {} {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
+                                       self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
+                  " > outputs/outfile.txt 2>&1 ")
+        output_stdout2 = self.parse_output('outputs/output.trimming.TBD.log')
+        output_stdout2 = ''.join(output_stdout2)
+        output_cutlog2 = self.parse_output('outputs/output.cutadapt.log')
+        output_cutlog2 = ''.join(output_cutlog2)
+
+        # The logs should be different and the second log shouldn't be contained in the first
+        self.assertNotEqual(output_stdout, output_stdout2)
+        self.assertNotEqual(output_cutlog, output_cutlog2)
+        self.assertTrue(output_stdout_test not in output_stdout2)
+        self.assertTrue(output_cutlog_test not in output_cutlog2)
 
     @staticmethod
     def parse_output(file):
