@@ -26,9 +26,9 @@ class Trimming(Script):
     TODO: os.path to make tests more generic
     """
 
-    def __init__(self, output, threads):
+    def __init__(self, threads):
         Script.__init__(self)
-        self.flag_s = "-s outputs/{}".format(output)
+        self.flag_s = "-s outputs/output"
         self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
@@ -73,9 +73,9 @@ class Alignment(Script):
     TODO: This is currently just a copy of Trimming to test some aspects, so it needs to be properly filled out
     """
 
-    def __init__(self, output, threads):
+    def __init__(self, threads):
         Script.__init__(self)
-        self.flag_s = "-s outputs/{}".format(output)
+        self.flag_s = "-s outputs/output"
         self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
@@ -212,7 +212,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('command line input: -Q garbage' in output)
         self.assertTrue("Invalid option: -Q" in output)
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_successful_paired_end_read_and_permissions(self):
         """
         This is simply a successful run of the tool and should be generalizable. I'm including a
@@ -253,7 +253,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue(oct(os.stat('WGS_chr1_5X_E0.005_L1_read2.fastq.gz').st_mode)[-3:][1] == '4')
 
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_successful_single_end_read(self):
         """
         This is simply a successful run of the tool and should be generalizable
@@ -383,7 +383,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Cutadapt directory /usr/fake is not a directory or does not exist." in output)
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_bad_thread_options(self):
         """
         This tests trim_sequences thread option. It should return errors for having too high a thread count,
@@ -559,9 +559,9 @@ if __name__ == "__main__":
     except ValueError:
         print("Argument must be the script to test and the output_file/log_name to use.")
     if idx == 0:
-        test_script = Trimming('output', 0)
+        test_script = Trimming(0)
     elif idx == 1:
-        test_script = Alignment('output', 20)
+        test_script = Alignment(20)
     elif idx == 2:
         test_script = MergeBams()
     elif idx == 3:
