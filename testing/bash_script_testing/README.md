@@ -9,6 +9,7 @@ These tests as written assume you test from your cloned repo from this folder. T
 * Inputs/ This folder will contain any inputs files: fastq, bams, vcfs, as well as the TruSeqAdaptors.fast adaptor file. 
 * Delivery/ This is where the deliver_XXX scripts will deliver the final files from the workflow
 * Reference/ This will contain reference files including the human genome assembly reference and variant references
+* Jsons/ This will contain the json file that the wdl workflow manager needs in order to run, which is delivered by the deliver_XXX scripts so that the workflow can be run again. For testing purposes, it need only be non-empty
 
 ## Executing the code
 
