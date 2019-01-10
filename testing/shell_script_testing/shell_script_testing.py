@@ -538,15 +538,9 @@ class TestArgs(ParameterizedTestCase):
         for f in files:
             os.remove(f)
 
-    def test_cutadapt_installed(self):
-        os.system("apt list cutadapt > outputs/outfile.txt 2>&1")
-        output = self.parse_output('outputs/outfile.txt')
-        output = ''.join(output)
-        self.assertTrue("[installed]" in output)
-
     def test_no_arg(self):
         """
-
+        Tests the script produces help output when no argument is passed
         """
         os.system("/bin/bash " + self.param.name + ' > outputs/outfile.txt')
         output = self.parse_output('outputs/outfile.txt')
