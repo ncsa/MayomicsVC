@@ -1,7 +1,7 @@
 # Testing the Shell Scripts
 
-# Assumed folder structure
-
+Assumed folder structure
+========================
 These tests as written assume you test from your cloned repo from this folder. The python code shell_script_testing.py is intended to be run from this folder. Assuming the repo is cloned in /home/username/MyTestingSpree, you'll need the following folders in that directory:
 * MayomicsVC/ - the actua repo
   * DON'T PUT ANYTHING IN HERE ITHAT IS NOT PART OF THE ACTUAL CODE BASE
