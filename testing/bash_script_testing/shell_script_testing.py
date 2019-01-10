@@ -20,21 +20,21 @@ class Script:
 
 class Trimming(Script):
     """
-    Runs trim_sequences.sh. Contains the parts to run the code. Each attribute represents a particular flag, that way
-    we can step through the flags and perform tests on each.
+    Constructs the trim_sequences.sh commands for single and paired end reads. Each 'flag' attribute represents a
+    particular flag, that way we can step through the flags and perform tests on each.
 
     TODO: os.path to make tests more generic
     """
 
-    def __init__(self, threads):
+    def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
         self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
-        # self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
-        self.flag_C = '-C /usr/bin' # for local testing
-        self.flag_t = '-t {}'.format(threads)
+        self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
+        # self.flag_C = '-C /usr/bin' # for local testing
+        self.flag_t = '-t 8'
         self.flag_P = '-P true'
         self.flag_e = '-e ../../../Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
@@ -68,74 +68,438 @@ class Trimming(Script):
         else:
             raise ValueError("unknown case")
 
-class Alignment(Script):
-    """
-    TODO: This is currently just a copy of Trimming to test some aspects, so it needs to be properly filled out
-    """
 
-    def __init__(self, threads):
-        Script.__init__(self)
-        self.flag_s = "-s outputs/output"
-        self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
-        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
-        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
-        # self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
-        self.flag_C = '-C /usr/bin' # for local testing
-        self.flag_t = '-t {}'.format(threads)
-        self.flag_P = '-P true'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
-        self.flag_d = '-d'
-        self.name = '{}/trim_sequences.sh'.format(self.path)
-        self.type = 'alignment.sh'
-
-    def __str__(self, case: str = 'paired'):
-        if case == 'single':
-            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".\
-                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_C, self.flag_t, self.flag_e,
-                       self.flag_F, self.flag_d)
-        elif case == 'paired':
-            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".\
-                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_r, self.flag_C, self.flag_t,
-                       self.flag_P, self.flag_e, self.flag_F, self.flag_d)
-        else:
-            raise ValueError("unknown case")
-
-    def __repr__(self, case: str = 'paired'):
-        if case == 'single':
-            return "/bin/bash {} {} {} {} -r null {} {} -P false {} {} {}".\
-                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_C, self.flag_t, self.flag_e,
-                       self.flag_F, self.flag_d)
-        elif case == 'paired':
-            return "/bin/bash {} {} {} {} {} {} {} {} {} {} {}".\
-                format(self.name, self.flag_s, self.flag_A, self.flag_l, self.flag_r, self.flag_C, self.flag_t,
-                       self.flag_P, self.flag_e, self.flag_F, self.flag_d)
-        else:
-            raise ValueError("unknown case")
-
-
-class MergeBams(Script):
-    pass
-
-
-class DeDup(Script):
-    pass
-
-
-class Realignment(Script):
-    pass
-
-
-class BQSR(Script):
-    pass
-
-
-class Haplotyper(Script):
-    pass
-
-
-class VQSR(Script):
-    pass
+# class DeliverHaplotyperVC(Script):
+#     """
+#     Constructs the deliver_haplotyperVC.sh commands.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s output"
+#         self.flag_r = '-r ../../../Inputs/somaticvariants.vcf.gz'
+#         self.flag_j = "-j ../../../Jsons/SomaticMasterWorkflow.FilledIn.json"
+#         self.flag_f = '-f ../../../Delivery'  # for iforge testing
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/deliver_haplotyperVC.sh'.format(self.path)
+#         self.type = 'deliver_haplotyperVC.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_r, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_r, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#
+# class BQSR(Script):
+#     """
+#     Constructs the bqsr.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
+#         self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_t = '-t 40'
+#         self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_k = "-k ../../../Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/bqsr.sh'.format(self.path)
+#         self.type = 'bqsr.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_k,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_k,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#
+# class VQSR(Script):
+#     """
+#     Constructs the vqsr.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
+#         self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_t = '-t 40'
+#         self.flag_V = '-V ../../../Inputs/somaticvariants.vcf.gz'
+#         self.flag_r = '-r \"\'--resource /projects/bioinformatics/DataPacks/human/gatk_bundle_Oct_2017/' \
+#                       'gatk_bundle_hg38/1000G_phase1.snps.high_confidence.hg38.vcf.gz --resource_param 1000G,' \
+#                       'known=false,training=true,truth=false,prior=10.0 --resource /projects/bioinformatics/' \
+#                       'DataPacks/human/gatk_bundle_Oct_2017/gatk_bundle_hg38/1000G_omni2.5.hg38.vcf.gz ' \
+#                       '--resource_param omni,known=false,training=true,truth=false,prior=12.0 --resource /projects/' \
+#                       'bioinformatics/jallen17/Reference/dbsnp_138.hg38.vcf --resource_param dbsnp,known=true,' \
+#                       'training=false,truth=false,prior=2.0 --resource /projects/bioinformatics/DataPacks/human/' \
+#                       'gatk_bundle_Oct_2017/gatk_bundle_hg38/hapmap_3.3.hg38.vcf.gz --resource_param hapmap,known=' \
+#                       'false,training=true,truth=true,prior=15.0\'\"'
+#         self.flag_R = '-R \"\'--resource /projects/bioinformatics/jallen17/Reference/dbsnp_138.hg38.vcf ' \
+#                       '--resource_param dbsnp,known=true,training=false,truth=false,prior=2.0 --resource /projects/' \
+#                       'bioinformatics/jallen17/Reference/Mills_and_1000G_gold_standard.indels.hg38.vcf ' \
+#                       '--resource_param Mills,known=false,training=true,truth=true,prior=12.0\'\"'
+#         self.flag_a = '-a \"\'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ ' \
+#                       '--annotation MQRankSum --annotation ReadPosRankSum \'\"'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/vqsr.sh'.format(self.path)
+#         self.type = 'vqsr.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_k,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_k,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#
+# class Alignment(Script):
+#     """
+#     Constructs the alignment.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_L = "-L fake_lib"
+#         self.flag_f = "-f normal"
+#         self.flag_c = "-c NCSA"
+#         self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+#         self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
+#         self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_K = "-K 10000000"
+#         self.flag_o = "'-M'"
+#         self.flag_S = '-S /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/alignment.sh'.format(self.path)
+#         self.type = 'alignment.sh'
+#
+#     def __str__(self, case: str = 'paired'):
+#         if case == 'single':
+#             return "/bin/bash {} {} {} {} {} {} {} -r null {} {} {} {} {} -P false {} {} {}".\
+#                 format(self.name, self.flag_s, self.flag_p, self.flag_L, self.flag_f, self.flag_c, self.flag_l,
+#                        self.flag_G, self.flag_K, self.flag_o, self.flag_S, self.flag_t,
+#                        self.flag_e, self.flag_F, self.flag_d)
+#         elif case == 'paired':
+#             return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".\
+#                 format(self.name, self.flag_s, self.flag_p, self.flag_L, self.flag_f, self.flag_c, self.flag_l,
+#                        self.flag_r, self.flag_G, self.flag_K, self.flag_o, self.flag_S, self.flag_t, self.flag_P,
+#                        self.flag_e, self.flag_F, self.flag_d)
+#         else:
+#             raise ValueError("unknown case")
+#
+#     def __repr__(self, case: str = 'paired'):
+#         if case == 'single':
+#             return "/bin/bash {} {} {} {} {} {} {} -r null {} {} {} {} {} -P false {} {} {}".\
+#                 format(self.name, self.flag_s, self.flag_p, self.flag_L, self.flag_f, self.flag_c, self.flag_l,
+#                        self.flag_G, self.flag_K, self.flag_o, self.flag_S, self.flag_t,
+#                        self.flag_e, self.flag_F, self.flag_d)
+#         elif case == 'paired':
+#             return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".\
+#                 format(self.name, self.flag_s, self.flag_p, self.flag_L, self.flag_f, self.flag_c, self.flag_l,
+#                        self.flag_r, self.flag_G, self.flag_K, self.flag_o, self.flag_S, self.flag_t, self.flag_P,
+#                        self.flag_e, self.flag_F, self.flag_d)
+#         else:
+#             raise ValueError("unknown case")
+#
+#
+# class DeDup(Script):
+#     """
+#     Constructs the dedup.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/bqsr.sh'.format(self.path)
+#         self.type = 'bqsr.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_t, self.flag_e, self.flag_S, self.flag_F,
+#                    self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_t, self.flag_e, self.flag_S, self.flag_F,
+#                    self.flag_d)
+#
+#
+# class DeliverAlignment(Script):
+#     """
+#     Constructs the deliver_alignment.sh commands.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s output"
+#         self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_j = "-j ../../../Jsons/Runalignment.FilledIn.json"
+#         self.flag_f = '-f ../../../Delivery'  # for iforge testing
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/deliver_alignment.sh'.format(self.path)
+#         self.type = 'deliver_alignment.sh'
+#
+#     def __str__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#     def __repr__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#
+# class MergeBams(Script):
+#     """
+#     Constructs the merge_bams.sh commands.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.flie'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/merge_bams.sh'.format(self.path)
+#         self.type = 'merge_bams.sh'
+#
+#     def __str__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#     def __repr__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#
+# class Mutect(Script):
+#     """
+#     Constructs the mutect.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_N = '-N ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_T = '-T ../../../Inputs/WGS_chr20_21_22_tumor.bam'
+#         self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_G = '-G /usr/local/apps/bioapps/gatk/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef'
+#         self.flag_J = '-J /usr/local/apps/bioapps/java/java-1.8-64bit/bin'
+#         self.flag_j = '-j \"\'-Xms2G -Xmx8G\'\"'
+#         self.flag_B = '-B /usr/local/apps/bioapps/bcftools/bcftools-1.5'
+#         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
+#         self.flag_S = '-S /usr/local/apps/bioapps/samtools/samtools-1.5'
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_D = '-D {]/../perl/fixDP.pl'.format(self.path)
+#         self.flag_o = '-o \"\'--dbsnp /projects/bioinformatics/jallen1 /Reference/dbsnp_138.hg38.vcf\'\"'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/mutect.sh'.format(self.path)
+#         self.type = 'mutect.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_N, self.flag_T, self.flag_g, self.flag_G, self.flag_J,
+#                    self.flag_j, self.flag_B, self.flag_Z, self.flag_S, self.flag_t, self.flag_e, self.flag_D,
+#                    self.flag_o, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_N, self.flag_T, self.flag_g, self.flag_G, self.flag_J,
+#                    self.flag_j, self.flag_B, self.flag_Z, self.flag_S, self.flag_t, self.flag_e, self.flag_D,
+#                    self.flag_o, self.flag_F, self.flag_d)
+#
+#
+# class Realignment(Script):
+#     """
+#     Constructs the realignment.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_k = "-k ../../../Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/realignment.sh'.format(self.path)
+#         self.type = 'realignment.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_G, self.flag_k, self.flag_S, self.flag_t,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_b, self.flag_G, self.flag_k, self.flag_S, self.flag_t,
+#                    self.flag_e, self.flag_F, self.flag_d)
+#
+#
+# class Strelka(Script):
+#     """
+#     Constructs the strelka.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_N = '-N ../../../Inputs/WGS_chr20_21_22_normal.bam'
+#         self.flag_T = '-T ../../../Inputs/WGS_chr20_21_22_tumor.bam'
+#         self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_B = '-B /usr/local/apps/bioapps/bcftools/bcftools-1.5'
+#         self.flag_I = '-I /usr/local/apps/bioapps/strelka/strelka-2.9.2.centos6_x86_64/bin'
+#         self.flag_S = '-S /usr/local/apps/bioapps/samtools/samtools-1.5'
+#         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_i = '-i ../../src/perl/fixStrelka_GT_indels.pl'.format(self.path)
+#         self.flag_p = '-p ../../src/perl/fixStrelka_GT_snvs.pl'.format(self.path)
+#         self.flag_o = '-o \"\'--outputCallableRegions\'\"'
+#         self.flag_O = '-O \"\'-m any --force-sample\'\"'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/strelka.sh'.format(self.path)
+#         self.type = 'strelka.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_N, self.flag_T, self.flag_g, self.flag_B, self.flag_I,
+#                    self.flag_S, self.flag_Z, self.flag_t, self.flag_e, self.flag_i, self.flag_p, self.flag_o,
+#                    self.flag_O, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_N, self.flag_T, self.flag_g, self.flag_B, self.flag_I,
+#                    self.flag_S, self.flag_Z, self.flag_t, self.flag_e, self.flag_i, self.flag_p, self.flag_o,
+#                    self.flag_O, self.flag_F, self.flag_d)
+#
+#
+# class CombineVariants(Script):
+#     """
+#     Constructs the strelka.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_S = '-S ../../../Inputs/strelka.vcf.bgz'
+#         self.flag_T = '-T ../../../Inputs/mutect.vcf.bgz'
+#         self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_G = '-G /usr/local/apps/bioapps/gatk/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef'
+#         self.flag_J = '-J /usr/local/apps/bioapps/java/java-1.8-64bit/bin'
+#         self.flag_B = '-B /usr/local/apps/bioapps/bcftools/bcftools-1.5'
+#         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
+#         self.flag_t = '-t 40'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_o = '-o \"\' \'\"'
+#         self.flag_p = '-p \"\'strelka,mutect\'\"'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/strelka.sh'.format(self.path)
+#         self.type = 'strelka.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_T, self.flag_g, self.flag_G, self.flag_J,
+#                    self.flag_B, self.flag_Z, self.flag_t, self.flag_e, self.flag_o, self.flag_p, self.flag_F,
+#                    self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_T, self.flag_g, self.flag_G, self.flag_J,
+#                    self.flag_B, self.flag_Z, self.flag_t, self.flag_e, self.flag_o, self.flag_p, self.flag_F,
+#                    self.flag_d)
+#
+#
+# class DeliverSomaticVC(Script):
+#     """
+#     Constructs the deliver_haplotyperVC.sh commands.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s output"
+#         self.flag_r = '-r ../../../Inputs/somaticvariants.vcf.gz'
+#         self.flag_j = "-j ../../../Jsons/SomaticMasterWorkflow.FilledIn.json"
+#         self.flag_f = '-f ../../../Delivery'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/deliver_somaticVC.sh'.format(self.path)
+#         self.type = 'deliver_somaticVC.sh'
+#
+#     def __str__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_r, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#     def __repr__(self, case: str = 'paired'):
+#         return "/bin/bash {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_r, self.flag_j, self.flag_f, self.flag_F, self.flag_d)
+#
+#
+# class Haplotyper(Script):
+#     """
+#     Constructs the haplotyper.sh commands for single or paired end reads.
+#     """
+#
+#     def __init__(self):
+#         Script.__init__(self)
+#         self.flag_s = "-s outputs/output"
+#         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'
+#         self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+#         self.flag_t = '-t 40'
+#         self.flag_b = '-b ../../../Inputs/sample.bam'
+#         self.flag_D = '-D ../../../Reference/dbsnp_138.hg38.vcf'
+#         self.flag_r = '-r ../../../Inputs/bqsr.recal_data.table'
+#         self.flag_o = '-o \"\' \'\"'
+#         self.flag_e = '-e ../../../Config/EnvProfile.file'
+#         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+#         self.flag_d = '-d'
+#         self.name = '{}/haplotyper.sh'.format(self.path)
+#         self.type = 'haplotyper.sh'
+#
+#     def __str__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_D,
+#                    self.flag_r, self.flag_o, self.flag_e, self.flag_F, self.flag_d)
+#
+#     def __repr__(self):
+#         return "/bin/bash {} {} {} {} {} {} {} {} {} {} {} {}". \
+#             format(self.name, self.flag_s, self.flag_S, self.flag_G, self.flag_t, self.flag_b, self.flag_D,
+#                    self.flag_r, self.flag_o, self.flag_e, self.flag_F, self.flag_d)
 
 
 class ParameterizedTestCase(unittest.TestCase):
@@ -552,31 +916,46 @@ class TestArgs(ParameterizedTestCase):
 
 
 if __name__ == "__main__":
-    scripts = ["trim_sequences.sh", 'alignment.sh', 'merge_bams.sh', 'dedup.sh',
-               'realignment.sh', 'bqsr.sh', 'haplotyper.sh', 'vqsr.sh']
+    scripts = ["trim_sequences.sh", 'deliver_haplotyperVC.sh', 'bqsr.sh', 'vqsr.sh', 'alignment.sh', 'dedup.sh',
+               'deliver_alignment.sh', 'merge_bams.sh', 'mutect.sh', 'realignment.sh', 'strelka.sh',
+               'combine_variants.sh', 'deliver_somaticVC.sh', 'haplotyper.sh']
     try:
         idx = scripts.index(sys.argv[1])
     except ValueError:
         print("Argument must be the script to test and the output_file/log_name to use.")
     if idx == 0:
-        test_script = Trimming(0)
-    elif idx == 1:
-        test_script = Alignment(20)
-    elif idx == 2:
-        test_script = MergeBams()
-    elif idx == 3:
-        test_script = DeDup()
-    elif idx == 4:
-        test_script = Realignment()
-    elif idx == 5:
-        test_script = BQSR()
-    elif idx == 6:
-        test_script = Haplotyper()
-    elif idx == 7:
-        test_script = VQSR()
-
+        test_script = Trimming()
+    # elif idx == 1:
+    #     test_script = DeliverHaplotyperVC()
+    # elif idx == 2:
+    #     test_script = BQSR()
+    # elif idx == 3:
+    #     test_script = VQSR()
+    # elif idx == 4:
+    #     test_script = Alignment()
+    # elif idx == 5:
+    #     test_script = DeDup()
+    # elif idx == 6:
+    #     test_script = DeliverAlignment()
+    # elif idx == 7:
+    #     test_script = MergeBams()
+    # elif idx == 8:
+    #     test_script = Mutect()
+    # elif idx == 9:
+    #     test_script = Realignment()
+    # elif idx == 10:
+    #     test_script = Strelka()
+    # elif idx == 11:
+    #     test_script = CombineVariants()
+    # elif idx == 12:
+    #     test_script = DeliverSomaticVC()
+    # elif idx == 13:
+    #     test_script = Haplotyper()
 
     suite = unittest.TestSuite()
     suite.addTest(ParameterizedTestCase.parameterize(TestArgs, param=test_script))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
+
+
+
