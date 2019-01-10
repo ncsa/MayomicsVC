@@ -204,15 +204,6 @@ The /src folder is broken up by stages. Inside the folder for each stage (i.e. A
 <img src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="800"> 
 
 
-
-## Special modules
-
-We implemented the initial QC on executables and input data in a separate module that could be invoked from any workflow that is part of this package. A prototype of that module is currently here: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/PreExec_QC.wdl.
-
-Additionally, there is prototype of a module to notify the user of failure at the end of any workflow: https://github.com/ncsa/Genomics_MGC_GenomeGPS_CromwelWDL/blob/dev/src/AlignmentStage_WDL/Tasks/EndofBlock_Notify.wdl.
-
-
-
 ## Naming conventions
 
 The naming convention used to name tasks, workflows and files is fairly straightforward. The bullets points below should provide a clear understanding how the files are named in this repository.
