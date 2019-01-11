@@ -700,9 +700,9 @@ class TestArgs(ParameterizedTestCase):
             output = self.parse_output('outputs/output.trimming.TBD.log')
             log = self.parse_output('outputs/output.cutadapt.log')
             output = ''.join(output)
-            print("output: " + output)
+            print("\n\noutput: " + output + "\n\n")
             log = ''.join(log)
-            print("log: " + log)
+            print("\n\nlog: " + log + "\n\n")
             with self.subTest(test=test):
                 if 'Cutadapt Read 1 and 2 failure' in output:
                     self.assertTrue(tests[test] in log)
