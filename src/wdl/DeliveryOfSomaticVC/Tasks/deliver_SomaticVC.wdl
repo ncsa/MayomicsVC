@@ -6,8 +6,8 @@
 
 task deliverSomaticVCTask {
 
-   File InputVcf                          # VCF File
-   File InputVcfIdx                       # VCF.IDX File
+   File InputVcfGz                        # VCF File
+   File InputVcfGzTbi                     # VCF.IDX File
 
    String SampleName                      # Name of the Sample
 
