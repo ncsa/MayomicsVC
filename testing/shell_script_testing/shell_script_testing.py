@@ -540,6 +540,7 @@ class TestArgs(ParameterizedTestCase):
         for f in files:
             os.remove(f)
 
+    @unittest.skip("Testing")
     def test_no_arg(self):
         """
         Tests the script produces help output when no argument is passed
@@ -550,6 +551,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('command line input: \n' in output)
         self.assertTrue("No arguments passed." in output)
 
+    @unittest.skip("Testing")
     def test_help_function(self):
         """
         While this theoretically works for all, the tricky part is that each script has a unique help output,
@@ -562,6 +564,7 @@ class TestArgs(ParameterizedTestCase):
         for i in range(4, len(output)-1):
             self.assertTrue(desired_help[i-4] == output[i])
 
+    @unittest.skip("Testing")
     def test_nonexistent_option(self):
         """
         Test a flag that doesn't exist with a garbage test option. This should work for all as is.
@@ -572,7 +575,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('command line input: -Q garbage' in output)
         self.assertTrue("Invalid option: -Q" in output)
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_successful_paired_end_read_and_permissions(self):
         """
         This is simply a successful run of the tool and should be generalizable. I'm including a
@@ -613,7 +616,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue(oct(os.stat('WGS_chr1_5X_E0.005_L1_read2.fastq.gz').st_mode)[-3:][1] == '4')
 
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_successful_single_end_read(self):
         """
         This is simply a successful run of the tool and should be generalizable
@@ -626,7 +629,7 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_read_flags_with_bad_input(self):
         """
         Most of the scripts have some sort of input, so this will probably be generalizable to a degree.
@@ -674,7 +677,7 @@ class TestArgs(ParameterizedTestCase):
                 except OSError:
                     pass
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_garbage_adapters(self):
         """
         This tests trim_sequences call for the adapter files. This may be generalizabale, since other scripts
@@ -709,7 +712,7 @@ class TestArgs(ParameterizedTestCase):
             except OSError:
                 pass
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_env_file(self):
         """
         This simply uses a non-existant environmental file to test that the script checks for this.
@@ -726,7 +729,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue(tests[test] in output)
             self.param.__dict__['flag_e'] = temp_flag
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_cutadapt_path(self):
         """
         Trim_sequences is the only one that uses cutadapt, though I may be able to generalize this script
@@ -744,7 +747,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Cutadapt directory /usr/fake is not a directory or does not exist." in output)
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_thread_options(self):
         """
         This tests trim_sequences thread option. It should return errors for having too high a thread count,
@@ -769,7 +772,7 @@ class TestArgs(ParameterizedTestCase):
             else:
                 self.assertTrue('Cutadapt Read 1 and 2 failure.' in output)
 
-    # @unittest.skip("Testing")
+    @unittest.skip("Testing")
     def test_paired_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
@@ -789,7 +792,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
                             in output)
 
-    # @unittest.skip("Testing")
+    @unittest.skip("Testing")
     def test_incorrect_read_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
@@ -826,7 +829,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Input read 2 file null is empty or does not exist." in output)
 
-    # @unittest.skip('Test')
+    @unittest.skip('Test')
     def test_missing_option_values(self):
         """
         Should work with any of the scripts. Note that -d flag is ommitted since it does not have a value
@@ -846,7 +849,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
             self.param.__dict__[flag] = temp_flag
 
-    # @unittest.skip('testing')
+    @unittest.skip('testing')
     def test_file_permissions(self):
         """
         Should work with any of the scripts
@@ -873,6 +876,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('Permission denied' in output)
         os.chmod(self.param.shell_path, 0o755)
 
+    @unittest.skip("Testing")
     def test_logs_are_truncated(self):
         # first run creates logs
         os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
