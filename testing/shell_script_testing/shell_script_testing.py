@@ -617,7 +617,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue(oct(os.stat('WGS_chr1_5X_E0.005_L1_read2.fastq.gz').st_mode)[-3:][1] == '4')
 
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_successful_single_end_read(self):
         """
         This is simply a successful run of the tool and should be generalizable
