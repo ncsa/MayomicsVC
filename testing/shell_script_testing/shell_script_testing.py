@@ -15,7 +15,7 @@ class Script:
     __cwd = os.getcwd()
 
     def __init__(self):
-        self.path = '{}/../../src/shell'.format(self.__cwd)
+        self.path = '{}/MayomicsVC/src/shell'.format(self.__cwd)
 
 
 class Trimming(Script):
@@ -29,14 +29,14 @@ class Trimming(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_A = '-A ../../../Inputs/TruSeqAdaptors.fasta'
-        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
-        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
+        self.flag_A = '-A Inputs/TruSeqAdaptors.fasta'
+        self.flag_l = '-l Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+        self.flag_r = '-r Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
         self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
         # self.flag_C = '-C /usr/bin' # for local testing
         self.flag_t = '-t 8'
         self.flag_P = '-P true'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/trim_sequences.sh'.format(self.path)
@@ -77,9 +77,9 @@ class DeliverHaplotyperVC(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s output"
-        self.flag_r = '-r ../../../Inputs/somaticvariants.vcf.gz'
-        self.flag_j = "-j ../../../Jsons/SomaticMasterWorkflow.FilledIn.json"
-        self.flag_f = '-f ../../../Delivery'  # for iforge testing
+        self.flag_r = '-r Inputs/somaticvariants.vcf.gz'
+        self.flag_j = "-j Jsons/SomaticMasterWorkflow.FilledIn.json"
+        self.flag_f = '-f Delivery'  # for iforge testing
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/deliver_haplotyperVC.sh'.format(self.path)
@@ -103,11 +103,11 @@ class BQSR(Script):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
-        self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
         self.flag_t = '-t 40'
-        self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
-        self.flag_k = "-k ../../../Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_k = "-k Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/bqsr.sh'.format(self.path)
@@ -133,9 +133,9 @@ class VQSR(Script):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
-        self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
         self.flag_t = '-t 40'
-        self.flag_V = '-V ../../../Inputs/somaticvariants.vcf.gz'
+        self.flag_V = '-V Inputs/somaticvariants.vcf.gz'
         self.flag_r = '-r \"\'--resource /projects/bioinformatics/DataPacks/human/gatk_bundle_Oct_2017/' \
                       'gatk_bundle_hg38/1000G_phase1.snps.high_confidence.hg38.vcf.gz --resource_param 1000G,' \
                       'known=false,training=true,truth=false,prior=10.0 --resource /projects/bioinformatics/' \
@@ -151,7 +151,7 @@ class VQSR(Script):
                       '--resource_param Mills,known=false,training=true,truth=true,prior=12.0\'\"'
         self.flag_a = '-a \"\'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ ' \
                       '--annotation MQRankSum --annotation ReadPosRankSum \'\"'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/vqsr.sh'.format(self.path)
@@ -179,14 +179,14 @@ class Alignment(Script):
         self.flag_L = "-L fake_lib"
         self.flag_f = "-f normal"
         self.flag_c = "-c NCSA"
-        self.flag_l = '-l ../../../Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
-        self.flag_r = '-r ../../../Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
+        self.flag_l = '-l Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
+        self.flag_r = '-r Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
         self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
         self.flag_K = "-K 10000000"
         self.flag_o = "'-M'"
         self.flag_S = '-S /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/alignment.sh'.format(self.path)
@@ -229,9 +229,9 @@ class DeDup(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
@@ -257,9 +257,9 @@ class DeliverAlignment(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s output"
-        self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
-        self.flag_j = "-j ../../../Jsons/Runalignment.FilledIn.json"
-        self.flag_f = '-f ../../../Delivery'  # for iforge testing
+        self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_j = "-j Jsons/Runalignment.FilledIn.json"
+        self.flag_f = '-f Delivery'  # for iforge testing
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/deliver_alignment.sh'.format(self.path)
@@ -282,10 +282,10 @@ class MergeBams(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.flie'
+        self.flag_e = '-e Config/EnvProfile.flie'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/merge_bams.sh'.format(self.path)
@@ -308,9 +308,9 @@ class Mutect(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_N = '-N ../../../Inputs/WGS_chr20_21_22_normal.bam'
-        self.flag_T = '-T ../../../Inputs/WGS_chr20_21_22_tumor.bam'
-        self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_N = '-N Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_T = '-T Inputs/WGS_chr20_21_22_tumor.bam'
+        self.flag_g = "-g Reference/Homo_sapiens_assembly38.fasta"
         self.flag_G = '-G /usr/local/apps/bioapps/gatk/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef'
         self.flag_J = '-J /usr/local/apps/bioapps/java/java-1.8-64bit/bin'
         self.flag_j = '-j \"\'-Xms2G -Xmx8G\'\"'
@@ -318,7 +318,7 @@ class Mutect(Script):
         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
         self.flag_S = '-S /usr/local/apps/bioapps/samtools/samtools-1.5'
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_D = '-D {]/../perl/fixDP.pl'.format(self.path)
         self.flag_o = '-o \"\'--dbsnp /projects/bioinformatics/jallen1 /Reference/dbsnp_138.hg38.vcf\'\"'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
@@ -347,12 +347,12 @@ class Realignment(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_b = '-b ../../../Inputs/WGS_chr20_21_22_normal.bam'
-        self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
-        self.flag_k = "-k ../../../Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
+        self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_k = "-k Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/realignment.sh'.format(self.path)
@@ -377,17 +377,17 @@ class Strelka(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_N = '-N ../../../Inputs/WGS_chr20_21_22_normal.bam'
-        self.flag_T = '-T ../../../Inputs/WGS_chr20_21_22_tumor.bam'
-        self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_N = '-N Inputs/WGS_chr20_21_22_normal.bam'
+        self.flag_T = '-T Inputs/WGS_chr20_21_22_tumor.bam'
+        self.flag_g = "-g Reference/Homo_sapiens_assembly38.fasta"
         self.flag_B = '-B /usr/local/apps/bioapps/bcftools/bcftools-1.5'
         self.flag_I = '-I /usr/local/apps/bioapps/strelka/strelka-2.9.2.centos6_x86_64/bin'
         self.flag_S = '-S /usr/local/apps/bioapps/samtools/samtools-1.5'
         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
-        self.flag_i = '-i ../../src/perl/fixStrelka_GT_indels.pl'.format(self.path)
-        self.flag_p = '-p ../../src/perl/fixStrelka_GT_snvs.pl'.format(self.path)
+        self.flag_e = '-e Config/EnvProfile.file'
+        self.flag_i = '-i MayomicsVC/src/perl/fixStrelka_GT_indels.pl'
+        self.flag_p = '-p MayomicsVC/src/perl/fixStrelka_GT_snvs.pl'
         self.flag_o = '-o \"\'--outputCallableRegions\'\"'
         self.flag_O = '-O \"\'-m any --force-sample\'\"'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
@@ -416,15 +416,15 @@ class CombineVariants(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
-        self.flag_S = '-S ../../../Inputs/strelka.vcf.bgz'
-        self.flag_T = '-T ../../../Inputs/mutect.vcf.bgz'
-        self.flag_g = "-g ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_S = '-S Inputs/strelka.vcf.bgz'
+        self.flag_T = '-T Inputs/mutect.vcf.bgz'
+        self.flag_g = "-g Reference/Homo_sapiens_assembly38.fasta"
         self.flag_G = '-G /usr/local/apps/bioapps/gatk/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef'
         self.flag_J = '-J /usr/local/apps/bioapps/java/java-1.8-64bit/bin'
         self.flag_B = '-B /usr/local/apps/bioapps/bcftools/bcftools-1.5'
         self.flag_Z = '-Z /usr/local/apps/bioapps/bcftools/htslib-1.3.1/bin'
         self.flag_t = '-t 40'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_o = '-o \"\' \'\"'
         self.flag_p = '-p \"\'strelka,mutect\'\"'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
@@ -453,9 +453,9 @@ class DeliverSomaticVC(Script):
     def __init__(self):
         Script.__init__(self)
         self.flag_s = "-s output"
-        self.flag_r = '-r ../../../Inputs/somaticvariants.vcf.gz'
-        self.flag_j = "-j ../../../Jsons/SomaticMasterWorkflow.FilledIn.json"
-        self.flag_f = '-f ../../../Delivery'
+        self.flag_r = '-r Inputs/somaticvariants.vcf.gz'
+        self.flag_j = "-j Jsons/SomaticMasterWorkflow.FilledIn.json"
+        self.flag_f = '-f Delivery'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/deliver_somaticVC.sh'.format(self.path)
@@ -479,13 +479,13 @@ class Haplotyper(Script):
         Script.__init__(self)
         self.flag_s = "-s outputs/output"
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'
-        self.flag_G = "-G ../../../Reference/Homo_sapiens_assembly38.fasta"
+        self.flag_G = "-G Reference/Homo_sapiens_assembly38.fasta"
         self.flag_t = '-t 40'
-        self.flag_b = '-b ../../../Inputs/sample.bam'
-        self.flag_D = '-D ../../../Reference/dbsnp_138.hg38.vcf'
-        self.flag_r = '-r ../../../Inputs/bqsr.recal_data.table'
+        self.flag_b = '-b Inputs/sample.bam'
+        self.flag_D = '-D Reference/dbsnp_138.hg38.vcf'
+        self.flag_r = '-r Inputs/bqsr.recal_data.table'
         self.flag_o = '-o \"\' \'\"'
-        self.flag_e = '-e ../../../Config/EnvProfile.file'
+        self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
         self.flag_d = '-d'
         self.name = '{}/haplotyper.sh'.format(self.path)
@@ -656,7 +656,7 @@ class TestArgs(ParameterizedTestCase):
                 if "dummy" in garbage_test:
                     manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + garbage_test
                 else:
-                    manip_flag = manip_flag.split(' ')[0] + ' ../../../Inputs/' + garbage_test
+                    manip_flag = manip_flag.split(' ')[0] + ' Inputs/' + garbage_test
                 self.param.__dict__[flag] = manip_flag
                 os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
                 output = self.parse_output('outputs/output.trimming.TBD.log')
@@ -850,12 +850,12 @@ class TestArgs(ParameterizedTestCase):
         """
         Should work with any of the scripts
         """
-        os.chmod('../../../Inputs', 0o000)
+        os.chmod('Inputs', 0o000)
         os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
         self.assertTrue('is empty or does not exist' in output)
-        os.chmod('../../../Inputs', 0o755)
+        os.chmod('Inputs', 0o755)
 
         os.system('chmod 000 outputs')
         os.system(str(self.param) + " > outfile.txt 2>&1 ")
