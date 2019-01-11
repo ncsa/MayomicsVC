@@ -596,6 +596,7 @@ class TestArgs(ParameterizedTestCase):
         perm_check_log = subprocess.Popen(['ls', '-l', 'outputs/output.trimming.TBD.log'], stdout=subprocess.PIPE,
                                           stderr=subprocess.STDOUT)
         stdout_log, stderr_log = perm_check_log.communicate()
+        print(stdout_log)
         self.assertTrue("-rw-r--r--" in str(stdout_log))
         perm_check_read1 = subprocess.Popen(['ls', '-l', 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'],
                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
