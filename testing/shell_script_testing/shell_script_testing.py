@@ -597,15 +597,15 @@ class TestArgs(ParameterizedTestCase):
                                           stderr=subprocess.STDOUT)
         stdout_log, stderr_log = perm_check_log.communicate()
         print(stdout_log)
-        self.assertTrue("-rw-r--r--" in str(stdout_log))
+        self.assertTrue("-rw-r-----" in str(stdout_log))
         perm_check_read1 = subprocess.Popen(['ls', '-l', 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'],
                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout_read1, stderr_read1 = perm_check_read1.communicate()
-        self.assertTrue("-rw-r--r--" in str(stdout_read1))
+        self.assertTrue("-rw-r-----" in str(stdout_read1))
         perm_check_read2 = subprocess.Popen(['ls', '-l', 'WGS_chr1_5X_E0.005_L1_read2.fastq.gz'],
                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout_read2, stderr_read2 = perm_check_read2.communicate()
-        self.assertTrue("-rw-r--r--" in str(stdout_read2))
+        self.assertTrue("-rw-r-----" in str(stdout_read2))
 
         # Test minimal permissions on the output files
         os.chmod('WGS_chr1_5X_E0.005_L1_read1.fastq.gz', 0o200)
