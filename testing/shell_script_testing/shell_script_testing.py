@@ -15,7 +15,8 @@ class Script:
     __cwd = os.getcwd()
 
     def __init__(self):
-        self.path = '{}/MayomicsVC/src/shell'.format(self.__cwd)
+        self.shell_path = '{}/MayomicsVC/src/shell'.format(self.__cwd)
+        self.test_path = '{}/MayomicsVC/testing/shell_script_testing'.format(self.__cwd)
 
 
 class Trimming(Script):
@@ -37,9 +38,9 @@ class Trimming(Script):
         self.flag_t = '-t 8'
         self.flag_P = '-P true'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/trim_sequences.sh'.format(self.path)
+        self.name = '{}/trim_sequences.sh'.format(self.shell_path)
         self.type = 'trim_sequences.sh'
 
     def __str__(self, case: str = 'paired'):
@@ -80,9 +81,9 @@ class DeliverHaplotyperVC(Script):
         self.flag_r = '-r Inputs/somaticvariants.vcf.gz'
         self.flag_j = "-j Jsons/SomaticMasterWorkflow.FilledIn.json"
         self.flag_f = '-f Delivery'  # for iforge testing
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/deliver_haplotyperVC.sh'.format(self.path)
+        self.name = '{}/deliver_haplotyperVC.sh'.format(self.shell_path)
         self.type = 'deliver_haplotyperVC.sh'
 
     def __str__(self):
@@ -108,9 +109,9 @@ class BQSR(Script):
         self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
         self.flag_k = "-k Reference/Mills_and_1000G_gold_standard.inders.hg38.vcf"
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/bqsr.sh'.format(self.path)
+        self.name = '{}/bqsr.sh'.format(self.shell_path)
         self.type = 'bqsr.sh'
 
     def __str__(self):
@@ -152,9 +153,9 @@ class VQSR(Script):
         self.flag_a = '-a \"\'--annotation DP --annotation QD --annotation FS --annotation SOR --annotation MQ ' \
                       '--annotation MQRankSum --annotation ReadPosRankSum \'\"'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/vqsr.sh'.format(self.path)
+        self.name = '{}/vqsr.sh'.format(self.shell_path)
         self.type = 'vqsr.sh'
 
     def __str__(self):
@@ -187,9 +188,9 @@ class Alignment(Script):
         self.flag_S = '-S /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
         self.flag_t = '-t 40'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/alignment.sh'.format(self.path)
+        self.name = '{}/alignment.sh'.format(self.shell_path)
         self.type = 'alignment.sh'
 
     def __str__(self, case: str = 'paired'):
@@ -233,9 +234,9 @@ class DeDup(Script):
         self.flag_t = '-t 40'
         self.flag_e = '-e Config/EnvProfile.file'
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/bqsr.sh'.format(self.path)
+        self.name = '{}/bqsr.sh'.format(self.shell_path)
         self.type = 'bqsr.sh'
 
     def __str__(self):
@@ -260,9 +261,9 @@ class DeliverAlignment(Script):
         self.flag_b = '-b Inputs/WGS_chr20_21_22_normal.bam'
         self.flag_j = "-j Jsons/Runalignment.FilledIn.json"
         self.flag_f = '-f Delivery'  # for iforge testing
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/deliver_alignment.sh'.format(self.path)
+        self.name = '{}/deliver_alignment.sh'.format(self.shell_path)
         self.type = 'deliver_alignment.sh'
 
     def __str__(self, case: str = 'paired'):
@@ -286,9 +287,9 @@ class MergeBams(Script):
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'  # for iforge testing
         self.flag_t = '-t 40'
         self.flag_e = '-e Config/EnvProfile.flie'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/merge_bams.sh'.format(self.path)
+        self.name = '{}/merge_bams.sh'.format(self.shell_path)
         self.type = 'merge_bams.sh'
 
     def __str__(self, case: str = 'paired'):
@@ -319,11 +320,11 @@ class Mutect(Script):
         self.flag_S = '-S /usr/local/apps/bioapps/samtools/samtools-1.5'
         self.flag_t = '-t 40'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_D = '-D {]/../perl/fixDP.pl'.format(self.path)
+        self.flag_D = '-D {]/../perl/fixDP.pl'.format(self.shell_path)
         self.flag_o = '-o \"\'--dbsnp /projects/bioinformatics/jallen1 /Reference/dbsnp_138.hg38.vcf\'\"'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/mutect.sh'.format(self.path)
+        self.name = '{}/mutect.sh'.format(self.shell_path)
         self.type = 'mutect.sh'
 
     def __str__(self):
@@ -353,9 +354,9 @@ class Realignment(Script):
         self.flag_S = '-S /usr/local/apps/bioapps/sentieon/sentieon-genomics-201808'
         self.flag_t = '-t 40'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/realignment.sh'.format(self.path)
+        self.name = '{}/realignment.sh'.format(self.shell_path)
         self.type = 'realignment.sh'
 
     def __str__(self):
@@ -390,9 +391,9 @@ class Strelka(Script):
         self.flag_p = '-p MayomicsVC/src/perl/fixStrelka_GT_snvs.pl'
         self.flag_o = '-o \"\'--outputCallableRegions\'\"'
         self.flag_O = '-O \"\'-m any --force-sample\'\"'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/strelka.sh'.format(self.path)
+        self.name = '{}/strelka.sh'.format(self.shell_path)
         self.type = 'strelka.sh'
 
     def __str__(self):
@@ -427,9 +428,9 @@ class CombineVariants(Script):
         self.flag_e = '-e Config/EnvProfile.file'
         self.flag_o = '-o \"\' \'\"'
         self.flag_p = '-p \"\'strelka,mutect\'\"'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/strelka.sh'.format(self.path)
+        self.name = '{}/strelka.sh'.format(self.shell_path)
         self.type = 'strelka.sh'
 
     def __str__(self):
@@ -456,9 +457,9 @@ class DeliverSomaticVC(Script):
         self.flag_r = '-r Inputs/somaticvariants.vcf.gz'
         self.flag_j = "-j Jsons/SomaticMasterWorkflow.FilledIn.json"
         self.flag_f = '-f Delivery'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/deliver_somaticVC.sh'.format(self.path)
+        self.name = '{}/deliver_somaticVC.sh'.format(self.shell_path)
         self.type = 'deliver_somaticVC.sh'
 
     def __str__(self, case: str = 'paired'):
@@ -486,9 +487,9 @@ class Haplotyper(Script):
         self.flag_r = '-r Inputs/bqsr.recal_data.table'
         self.flag_o = '-o \"\' \'\"'
         self.flag_e = '-e Config/EnvProfile.file'
-        self.flag_F = '-F {}/shared_functions.sh'.format(self.path)
+        self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
         self.flag_d = '-d'
-        self.name = '{}/haplotyper.sh'.format(self.path)
+        self.name = '{}/haplotyper.sh'.format(self.shell_path)
         self.type = 'haplotyper.sh'
 
     def __str__(self):
@@ -654,7 +655,8 @@ class TestArgs(ParameterizedTestCase):
                 temp_flag = copy.deepcopy(self.param.__dict__[flag])
                 manip_flag = self.param.__dict__[flag]
                 if "dummy" in garbage_test:
-                    manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + garbage_test
+                    manip_flag = manip_flag.split(' ')[0] + ' {}/garbage_test_files/'.format(self.param.test_path) \
+                                 + garbage_test
                 else:
                     manip_flag = manip_flag.split(' ')[0] + ' Inputs/' + garbage_test
                 self.param.__dict__[flag] = manip_flag
@@ -690,7 +692,7 @@ class TestArgs(ParameterizedTestCase):
         for test in tests.keys():
             temp_flag = copy.deepcopy(self.param.__dict__['flag_A'])
             manip_flag = self.param.__dict__['flag_A']
-            manip_flag = manip_flag.split(' ')[0] + ' garbage_test_files/' + test
+            manip_flag = manip_flag.split(' ')[0] + ' {}/garbage_test_files/'.format(self.param.test_path) + test
             self.param.__dict__['flag_A'] = manip_flag
             os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
             output = self.parse_output('outputs/output.trimming.TBD.log')
