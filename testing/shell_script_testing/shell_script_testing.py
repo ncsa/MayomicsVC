@@ -698,9 +698,11 @@ class TestArgs(ParameterizedTestCase):
             self.param.__dict__['flag_A'] = manip_flag
             os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
             output = self.parse_output('outputs/output.trimming.TBD.log')
+            print("output: " + output)
             log = self.parse_output('outputs/output.cutadapt.log')
             output = ''.join(output)
             log = ''.join(log)
+            print("log: " + log)
             with self.subTest(test=test):
                 if 'Cutadapt Read 1 and 2 failure' in output:
                     self.assertTrue(tests[test] in log)
