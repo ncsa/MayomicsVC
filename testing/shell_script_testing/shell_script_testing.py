@@ -687,7 +687,7 @@ class TestArgs(ParameterizedTestCase):
             print("Only valid for trim sequences")
             return unittest.skip("Only valid for trim_sequences")
 
-        tests = {'dummy_test_blank.fastq': "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+        tests = {'dummy_test_blank.fastq': "garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                  'dummy_test_text.fastq': "At line 1: Expected '>' at beginning of FASTA record, but got 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'",
                  'dummy_test_text_with_gt.fastq': "is not a valid IUPAC code. Use only characters XACGTURYSWKMBDHVN.",
                  'TruSeqAdapters.fasta': "TruSeqAdapters.fasta is empty or does not exist"}
@@ -700,9 +700,7 @@ class TestArgs(ParameterizedTestCase):
             output = self.parse_output('outputs/output.trimming.TBD.log')
             log = self.parse_output('outputs/output.cutadapt.log')
             output = ''.join(output)
-            print("\n\noutput: " + output + "\n\n")
             log = ''.join(log)
-            print("\n\nlog: " + log + "\n\n")
             with self.subTest(test=test):
                 if 'Cutadapt Read 1 and 2 failure' in output:
                     self.assertTrue(tests[test] in log)
