@@ -158,8 +158,8 @@ workflow SomaticMasterWF {
 
    call DELIVER_SomaticVC.deliverSomaticVCTask as DSVC {
       input:
-         InputVcf = merge_somatic_vcf.OutputVcfGz,
-         InputVcfIdx = merge_somatic_vcf.OutputVcfGzTbi
+         InputVcfGz = merge_somatic_vcf.OutputVcfGz,
+         InputVcfGzTbi = merge_somatic_vcf.OutputVcfGzTbi
    } 
 
 }
