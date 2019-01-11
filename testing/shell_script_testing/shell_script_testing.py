@@ -581,10 +581,8 @@ class TestArgs(ParameterizedTestCase):
         os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/output.trimming.TBD.log')
         output = ''.join(output)
-        print(output)
         # check that it started and ended properly
         self.assertTrue('START' in output)
-        print(output)
         self.assertTrue("Finished trimming adapter sequences." in output)
         cutadapt_output = 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
 
