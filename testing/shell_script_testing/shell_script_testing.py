@@ -34,7 +34,7 @@ class Trimming(Script):
         self.flag_A = '-A Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
-        self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin' # for iforge testing
+        self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin'  # for iforge testing
         # self.flag_C = '-C /usr/bin' # for local testing
         self.flag_t = '-t 8'
         self.flag_P = '-P true'
@@ -557,7 +557,7 @@ class TestArgs(ParameterizedTestCase):
         the correct files. It'll also require building and maintaining a desired help-file database
         """
         os.system("/bin/bash " + self.param.name + ' -h > outputs/outfile.txt')
-        desired_help = self.parse_output('Verification_files/desired_help_output.txt')
+        desired_help = self.parse_output('{}/Verification_files/desired_help_output.txt'.format(self.param.test_path))
         output = self.parse_output('outputs/outfile.txt')
         for i in range(4, len(output)-1):
             self.assertTrue(desired_help[i-4] == output[i])
@@ -640,7 +640,7 @@ class TestArgs(ParameterizedTestCase):
         # test left and right read flags
         flags_to_test = ['flag_l', 'flag_r']
         garbage_test_files = {'dummy_test_blank.fastq':
-                              "file garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
+                              "garbage_test_files/dummy_test_blank.fastq is empty or does not exist.",
                               'dummy_test_text.fastq':
                                   "cutadapt: error: Line 1 in FASTQ file is expected to start with '@', but found "
                                   "'Lorem ipsu'",
