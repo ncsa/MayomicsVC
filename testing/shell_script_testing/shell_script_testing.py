@@ -868,12 +868,12 @@ class TestArgs(ParameterizedTestCase):
         os.remove('outfile.txt')
         os.chmod('outputs', 0o755)
 
-        os.chmod(self.param.path, 0o000)
+        os.chmod(self.param.shell_path, 0o000)
         os.system(str(self.param) + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/outfile.txt')
         output = ''.join(output)
         self.assertTrue('Permission denied' in output)
-        os.chmod(self.param.path, 0o755)
+        os.chmod(self.param.shell_path, 0o755)
 
     def test_logs_are_truncated(self):
         # first run creates logs
