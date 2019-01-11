@@ -874,7 +874,7 @@ class TestArgs(ParameterizedTestCase):
         # first run creates logs
         os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
                   " {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
-                               self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_D) +
+                               self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
                   " > outputs/outfile.txt 2>&1 ")
         output_stdout = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout_test = output_stdout[-2:]
