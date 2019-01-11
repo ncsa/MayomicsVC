@@ -582,6 +582,7 @@ class TestArgs(ParameterizedTestCase):
         print(output)
         # check that it started and ended properly
         self.assertTrue('START' in output)
+        print(output)
         self.assertTrue("Finished trimming adapter sequences." in output)
         cutadapt_output = 'WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
 
