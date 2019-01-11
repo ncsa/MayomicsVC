@@ -579,6 +579,7 @@ class TestArgs(ParameterizedTestCase):
         os.system(self.param.__str__('paired') + " > outputs/outfile.txt 2>&1 ")
         output = self.parse_output('outputs/output.trimming.TBD.log')
         output = ''.join(output)
+        print(output)
         # check that it started and ended properly
         self.assertTrue('START' in output)
         self.assertTrue("Finished trimming adapter sequences." in output)
@@ -879,12 +880,10 @@ class TestArgs(ParameterizedTestCase):
         output_stdout = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout_test = output_stdout[-2:]
         output_stdout_test = ''.join(output_stdout_test)
-        print('First run: ' + output_stdout_test)
         output_stdout = ''.join(output_stdout)
         output_cutlog = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog_test = output_cutlog[-2:]
         output_cutlog_test = ''.join(output_cutlog_test)
-        print('first run cutlog: ' + output_cutlog_test)
         output_cutlog = ''.join(output_cutlog)
 
         # second run
@@ -895,10 +894,8 @@ class TestArgs(ParameterizedTestCase):
                   " > outputs/outfile.txt 2>&1 ")
         output_stdout2 = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout2 = ''.join(output_stdout2)
-        print('second run: ' + output_stdout2)
         output_cutlog2 = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog2 = ''.join(output_cutlog2)
-        print('second run cutlog: ' + output_cutlog2)
 
         # The logs should be different and the second log shouldn't be contained in the first
         self.assertNotEqual(output_stdout, output_stdout2)
