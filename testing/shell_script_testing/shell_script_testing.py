@@ -15,6 +15,7 @@ class Script:
     __cwd = os.getcwd()
 
     def __init__(self):
+        self.path = self.__cwd
         self.shell_path = '{}/MayomicsVC/src/shell'.format(self.__cwd)
         self.test_path = '{}/MayomicsVC/testing/shell_script_testing'.format(self.__cwd)
 
@@ -29,7 +30,7 @@ class Trimming(Script):
 
     def __init__(self):
         Script.__init__(self)
-        self.flag_s = "-s outputs/output"
+        self.flag_s = "-s {}/outputs/output".format(self.param.path)
         self.flag_A = '-A Inputs/TruSeqAdaptors.fasta'
         self.flag_l = '-l Inputs/WGS_chr1_5X_E0.005_L1_read1.fastq.gz'
         self.flag_r = '-r Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
