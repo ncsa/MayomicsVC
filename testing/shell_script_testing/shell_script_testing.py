@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 import unittest
-from subprocess import Popen, PIPE
+import time
 import glob
 import copy
 
@@ -888,6 +888,7 @@ class TestArgs(ParameterizedTestCase):
         output_cutlog = ''.join(output_cutlog)
 
         # second run
+        time.sleep(5)
         os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text_with_gt.fastq {} {} {} -P true"
                   " {} {} {} {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
                                         self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
