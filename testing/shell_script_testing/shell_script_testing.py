@@ -540,7 +540,7 @@ class TestArgs(ParameterizedTestCase):
         for f in files:
             os.remove(f)
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_no_arg(self):
         """
         Tests the script produces help output when no argument is passed
@@ -551,7 +551,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('command line input: \n' in output)
         self.assertTrue("No arguments passed." in output)
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_help_function(self):
         """
         While this theoretically works for all, the tricky part is that each script has a unique help output,
@@ -564,7 +564,7 @@ class TestArgs(ParameterizedTestCase):
         for i in range(4, len(output)-1):
             self.assertTrue(desired_help[i-4] == output[i])
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_nonexistent_option(self):
         """
         Test a flag that doesn't exist with a garbage test option. This should work for all as is.
@@ -575,7 +575,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('command line input: -Q garbage' in output)
         self.assertTrue("Invalid option: -Q" in output)
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_successful_paired_end_read_and_permissions(self):
         """
         This is simply a successful run of the tool and should be generalizable. I'm including a
