@@ -879,12 +879,10 @@ class TestArgs(ParameterizedTestCase):
         output_stdout = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout_test = output_stdout[-2:]
         output_stdout_test = ''.join(output_stdout_test)
-        print('First run: ' + output_stdout_test)
         output_stdout = ''.join(output_stdout)
         output_cutlog = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog_test = output_cutlog[-2:]
         output_cutlog_test = ''.join(output_cutlog_test)
-        print('first run cutlog: ' + output_cutlog_test)
         output_cutlog = ''.join(output_cutlog)
 
         # second run
