@@ -747,7 +747,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Cutadapt directory /usr/fake is not a directory or does not exist." in output)
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_thread_options(self):
         """
         This tests trim_sequences thread option. It should return errors for having too high a thread count,
@@ -772,7 +772,7 @@ class TestArgs(ParameterizedTestCase):
             else:
                 self.assertTrue('Cutadapt Read 1 and 2 failure.' in output)
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_paired_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
