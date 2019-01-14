@@ -887,6 +887,7 @@ class TestArgs(ParameterizedTestCase):
         output_stdout_test = output_stdout[-2:]
         output_stdout_test = ''.join(output_stdout_test)
         output_stdout = ''.join(output_stdout)
+        print(output_stdout)
         output_cutlog = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog_test = output_cutlog[-2:]
         output_cutlog_test = ''.join(output_cutlog_test)
@@ -901,6 +902,7 @@ class TestArgs(ParameterizedTestCase):
                   " > outputs/outfile.txt 2>&1 ")
         output_stdout2 = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout2 = ''.join(output_stdout2)
+        print(output_stdout2)
         output_cutlog2 = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog2 = ''.join(output_cutlog2)
         print(output_cutlog2)
