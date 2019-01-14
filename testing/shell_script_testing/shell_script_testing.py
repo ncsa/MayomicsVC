@@ -36,7 +36,7 @@ class Trimming(Script):
         self.flag_r = '-r Inputs/WGS_chr1_5X_E0.005_L1_read2.fastq.gz'
         self.flag_C = '-C /usr/local/apps/bioapps/python/Python-3.6.1/bin'  # for iforge testing
         # self.flag_C = '-C /usr/bin' # for local testing
-        self.flag_t = '-t 8'
+        self.flag_t = '-t 0'
         self.flag_P = '-P true'
         self.flag_e = '-e Config/EnvProfile.file'
         self.flag_F = '-F {}/shared_functions.sh'.format(self.shell_path)
