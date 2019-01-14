@@ -184,7 +184,7 @@ makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Created the SomaticVC block delivery folder."
 
 
@@ -207,8 +207,10 @@ cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz
 EXITCODE=$?
 trap - INT TERM EXIT
 
+
 checkExitcode ${EXITCODE}
 logInfo "[DELIVERY] Recalibrated VCF.GZ delivered."
+
 
 
 TRAP_LINE=$(($LINENO + 1))
@@ -217,8 +219,10 @@ cp ${VCF}.tbi ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz.tbi
 EXITCODE=$?
 trap - INT TERM EXIT
 
+
 checkExitcode ${EXITCODE}
 logInfo "[DELIVERY] Recalibrated VCF.GZ.TBI delivered."
+
 
 
 ## Copy the JSON over
@@ -228,7 +232,7 @@ cp ${JSON} ${DELIVERY_FOLDER}
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE}
+checkExitcode ${EXITCODE} $LINENO
 logInfo "[DELIVERY] Workflow JSON delivered."
 
 
