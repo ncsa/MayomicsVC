@@ -629,7 +629,7 @@ class TestArgs(ParameterizedTestCase):
         cutadapt_log = 'outputs/output.cutadapt.log'
         self.assertTrue(os.path.exists(cutadapt_log) and os.path.getsize(cutadapt_log) > 0)
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_read_flags_with_bad_input(self):
         """
         Most of the scripts have some sort of input, so this will probably be generalizable to a degree.
@@ -677,7 +677,7 @@ class TestArgs(ParameterizedTestCase):
                 except OSError:
                     pass
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_garbage_adapters(self):
         """
         This tests trim_sequences call for the adapter files. This may be generalizabale, since other scripts
