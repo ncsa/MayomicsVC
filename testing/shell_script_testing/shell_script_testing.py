@@ -879,33 +879,33 @@ class TestArgs(ParameterizedTestCase):
     # @unittest.skip("Testing")
     def test_logs_are_truncated(self):
         # first run creates logs
-        os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
-                  " {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
+        os.system("/bin/bash {} -s outputs/output -A {}/garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
+                  " {}".format(self.param.name, self.param.test_path, self.param.flag_r, self.param.flag_l, self.param.flag_C,
                                self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
                   " > outputs/outfile.txt 2>&1 ")
         output_stdout = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout_test = output_stdout[-2:]
         output_stdout_test = ''.join(output_stdout_test)
         output_stdout = ''.join(output_stdout)
-        print(output_stdout)
+        print("stdout: "+ output_stdout)
         output_cutlog = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog_test = output_cutlog[-2:]
         output_cutlog_test = ''.join(output_cutlog_test)
         output_cutlog = ''.join(output_cutlog)
-        print(output_cutlog)
+        print("cutlog: " + output_cutlog)
 
         # second run
         time.sleep(2)
-        os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text_with_gt.fastq {} {} {} -P true"
-                  " {} {} {} {}".format(self.param.name, self.param.flag_r, self.param.flag_l, self.param.flag_C,
+        os.system("/bin/bash {} -s outputs/output -A {}/garbage_test_files/dummy_test_text_with_gt.fastq {} {} {} -P true"
+                  " {} {} {} {}".format(self.param.name, self.param.test_path, self.param.flag_r, self.param.flag_l, self.param.flag_C,
                                         self.param.flag_t, self.param.flag_e, self.param.flag_F, self.param.flag_d) +
                   " > outputs/outfile.txt 2>&1 ")
         output_stdout2 = self.parse_output('outputs/output.trimming.TBD.log')
         output_stdout2 = ''.join(output_stdout2)
-        print(output_stdout2)
+        print("stdout: " +output_stdout2)
         output_cutlog2 = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog2 = ''.join(output_cutlog2)
-        print(output_cutlog2)
+        print("cutlog: " + output_cutlog2)
 
         # The logs should be different and the second log shouldn't be contained in the first
         self.assertNotEqual(output_stdout, output_stdout2)
