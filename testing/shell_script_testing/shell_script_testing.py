@@ -849,7 +849,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
             self.param.__dict__[flag] = temp_flag
 
-    # @unittest.skip('testing')
+    @unittest.skip('testing')
     def test_file_permissions(self):
         """
         Should work with any of the scripts
@@ -876,7 +876,7 @@ class TestArgs(ParameterizedTestCase):
         self.assertTrue('Permission denied' in output)
         os.chmod(self.param.shell_path, 0o755)
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_logs_are_truncated(self):
         # first run creates logs
         os.system("/bin/bash {} -s outputs/output -A garbage_test_files/dummy_test_text.fastq {} {} {} -P true {} {} {}"
