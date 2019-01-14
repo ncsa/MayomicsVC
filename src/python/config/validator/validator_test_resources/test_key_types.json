@@ -1,0 +1,10 @@
+{
+  "test_string": "String",
+  "test_integer": "Integer",
+  "test_decimal": "Decimal",
+  "test_boolean": "Boolean",
+  "test_boolean_array": "[Boolean]",
+  "test_boolean_nested_array": "[Boolean]",
+  "DebugMode": "DebugMode",
+  "mem": "MemoryString"
+}

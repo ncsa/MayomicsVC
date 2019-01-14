@@ -127,7 +127,6 @@ The workflow should be able to port smoothly among the following four kinds of s
 * MS Azure.
 
 
-
 ## Development and test automation 
 
 The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
@@ -136,8 +135,10 @@ The workflow should be constructed in such a way as to support multiple levels o
 * Integration testing for the main (i.e. most used) codepath in the workflow
 * Regression testing on all of the above.
 
+## Source directory structure
 
-
+Under `src`, the directories are separated by language (wdl, shell, python) instead of by feature. Because Python cannot import scripts from a directory higher than the script being executed (the "__main__" script), all executable Python scripts must be located within the `src/python` folder, and never nested within sub-directories/Python packages. Imports in all other Python files within the python directory must have their import statements relative to the `src/python` directory. Once this assumption is made, it allows all of the MayomicsVC Python scripts to import local modules correctly, without the use of the PYTHONPATH environment variable.
+ 
 # Implementation
 
 ## Implementing modularity
@@ -490,11 +491,19 @@ A list of all the failed samples sent as one email will prevent flooding of the 
 Input Parsing and Type Validation
 ============
 
+## Parser
+
 Although the workflow takes input in a JSON formatted file, it is more convenient to save input variables in a flat key="value" formatted file. The config_parser.py script (located in src/config) takes these flat configuration files and fills in a JSON file template provided by Cromwell/WDL.
 
 (The template JSON file for a workflow can be created with the command `java -jar wdltool.jar inputs myWorkflow.wdl > myWorkflow_inputs.json`)
 
+<img src=./media/Figures/ParserDiagram.png width="900">
+
+## Validator
+
 After parsing, the key_validation.py script (located in src/config) can be used to verify the types of the input arguments where possible. For example, the validator can verify that a key called "NumberOfThreads" was passed an integer as its value. The validator gets the type information for each key from a key types file (the workflow type information file is src/config/key_types.json) and confirms that the key's values match what is expected. However, for some types, such as strings, no pre-flight validation can be done.
+
+<img src=./media/Figures/ValidatorDiagram.png width="800">
 
 Single Sample Workflow
 ======================
