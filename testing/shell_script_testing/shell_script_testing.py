@@ -712,7 +712,7 @@ class TestArgs(ParameterizedTestCase):
             except OSError:
                 pass
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_env_file(self):
         """
         This simply uses a non-existant environmental file to test that the script checks for this.
@@ -729,7 +729,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue(tests[test] in output)
             self.param.__dict__['flag_e'] = temp_flag
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_bad_cutadapt_path(self):
         """
         Trim_sequences is the only one that uses cutadapt, though I may be able to generalize this script
