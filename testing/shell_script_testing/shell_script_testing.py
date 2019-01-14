@@ -677,7 +677,7 @@ class TestArgs(ParameterizedTestCase):
                 except OSError:
                     pass
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_garbage_adapters(self):
         """
         This tests trim_sequences call for the adapter files. This may be generalizabale, since other scripts
@@ -712,7 +712,7 @@ class TestArgs(ParameterizedTestCase):
             except OSError:
                 pass
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_bad_env_file(self):
         """
         This simply uses a non-existant environmental file to test that the script checks for this.
