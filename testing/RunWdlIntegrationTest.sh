@@ -46,9 +46,9 @@ module load python/python-3.6.1;
 
 #### JSON STUFF ##########################
 # create JSON template
-cd "./MayomicsVC/"; 
-java -jar ${WOMTOOL} inputs ${WorkflowBeingTested} > ../Jsons/${BaseNameOfWorkflowBeingTested}.json;
-cd ../;
+#cd "./MayomicsVC/"; 
+java -jar ${WOMTOOL} inputs ${WorkflowBeingTested} > Jsons/${BaseNameOfWorkflowBeingTested}.json;
+#cd ../;
 
 #populate the JSON template
 python MayomicsVC/src/python/config_parser.py ${ConfigsBeingUsed} --jsonTemplate Jsons/${BaseNameOfWorkflowBeingTested}.json -o Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json;
@@ -60,17 +60,18 @@ python MayomicsVC/src/python/key_validator.py -i Jsons/${BaseNameOfWorkflowBeing
 
 
 #####    create the zip file ##############
-cd MayomicsVC ; 
-zip -r MayomicsVC.zip ./ ;
-mv MayomicsVC.zip ../ ;
-cd ../ ;
+#cd MayomicsVC ; 
+rm ./MayomicsVC.zip;
+zip -r MayomicsVC.zip ./MayomicsVC/src;
+#mv MayomicsVC.zip ../ ;
+#cd ../ ;
 
 
 
 
 ##### RUN THE WORKFLOW #############
 
-java -jar ${CROMWELL} run ./MayomicsVC/${WorkflowBeingTested} -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json -p MayomicsVC.zip ;
+java -jar ${CROMWELL} run ${WorkflowBeingTested} -i Jsons/${BaseNameOfWorkflowBeingTested}.FilledIn.json -p MayomicsVC.zip ;
 
 
 

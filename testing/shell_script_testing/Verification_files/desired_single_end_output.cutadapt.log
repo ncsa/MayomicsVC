@@ -1,0 +1,36 @@
+
+=== Summary ===
+
+Total reads processed:                 306,871
+Reads with adapters:                     7,551 (2.5%)
+Reads written (passing filters):       306,871 (100.0%)
+
+Total basepairs processed:    30,993,971 bp
+Total written (filtered):     30,969,292 bp (99.9%)
+
+=== Adapter adaprot1 ===
+
+Sequence: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC; Type: regular 3'; Length: 34; Trimmed: 7551 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-34 bp: 3
+
+Bases preceding removed adapters:
+  A: 24.6%
+  C: 29.8%
+  G: 30.9%
+  T: 14.7%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+3	6022	4794.9	0	6022
+4	1193	1198.7	0	1193
+5	272	299.7	0	272
+6	35	74.9	0	35
+7	7	18.7	0	7
+9	6	1.2	0	2 4
+10	10	0.3	1	0 10
+11	5	0.1	1	0 5
+13	1	0.0	1	0 1
+

@@ -185,7 +185,7 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 ## Defining file names
 SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.aligned.sorted.deduped.bam
+OUT=${SAMPLE}.bam
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 
 

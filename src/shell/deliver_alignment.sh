@@ -38,7 +38,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  deliver_alignment.sh -h     # get help message
- deliver_alignment.sh -s sample_name -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ deliver_alignment.sh -s sample_name -T <sample_type> -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -91,7 +91,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:j:f:F:d" OPT
+while getopts ":hs:T:b:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 

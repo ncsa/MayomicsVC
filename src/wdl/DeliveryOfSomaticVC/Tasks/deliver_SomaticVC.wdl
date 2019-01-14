@@ -6,8 +6,8 @@
 
 task deliverSomaticVCTask {
 
-   File InputVcf                          # VCF File
-   File InputVcfIdx                       # VCF.IDX File
+   File InputVcfGz                        # VCF File
+   File InputVcfGzTbi                     # VCF.IDX File
 
    String SampleName                      # Name of the Sample
 
@@ -22,7 +22,7 @@ task deliverSomaticVCTask {
 
    command {
       source ${BashPreamble}
-      /bin/bash ${DeliverySomaticVC_Script} -s ${SampleName} -r ${InputVcf} -j ${WorkflowJson} -f ${DeliveryFolder_SomaticVC} -F ${BashSharedFunctions} ${DebugMode}
+      /bin/bash ${DeliverySomaticVC_Script} -s ${SampleName} -r ${InputVcfGz} -j ${WorkflowJson} -f ${DeliveryFolder_SomaticVC} -F ${BashSharedFunctions} ${DebugMode}
    }
 
 }

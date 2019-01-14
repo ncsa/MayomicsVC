@@ -158,7 +158,8 @@ echo "${MANIFEST}" >> "${ERRLOG}"
 ## Check if input files, directories, and variables are non-zero
 checkVar ${VCF} "Missing VCF option: -r" $LINENO
 checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
-checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
+checkFile ${VCF}.tbi "Input VCF index file ${VCF}.tbi is empty or does not exist" $LINENO
+#checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
 
 checkVar ${JSON} "Missing JSON option: -j" $LINENO
 checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
@@ -201,23 +202,27 @@ logInfo "[DELIVERY] Copying SomaticVC block outputs into Delivery folder."
 
 ## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
-cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.GZ into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF delivered."
+
+checkExitcode ${EXITCODE}
+logInfo "[DELIVERY] Recalibrated VCF.GZ delivered."
+
 
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
-cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.GZ.TBI into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.tbi ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz.tbi
 EXITCODE=$?
 trap - INT TERM EXIT
 
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+
+checkExitcode ${EXITCODE}
+logInfo "[DELIVERY] Recalibrated VCF.GZ.TBI delivered."
+
 
 
 ## Copy the JSON over
@@ -237,14 +242,14 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz "Delivered merged VCF.GZ file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz.tbi "Delivered merged VCF.GZ.TBI index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz.tbi is empty." $LINENO
 
 JSON_FILENAME=`basename ${JSON}`
 checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
 
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.gz.tbi
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
 logInfo "[DELIVERY] SomaticVC block delivered. Have a nice day."

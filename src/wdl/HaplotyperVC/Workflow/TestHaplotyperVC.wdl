@@ -2,10 +2,10 @@
 ####              This WDL script is used to run the  steps as individual modules              ##
 ##########################################################################################################
 
-import "src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
-import "src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
-import "src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
-import "src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
+import "MayomicsVC/src/wdl/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 
 workflow CallHaplotyperVCTasks {
    

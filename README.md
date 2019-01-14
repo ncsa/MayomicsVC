@@ -244,31 +244,19 @@ We created a zip of the entire src/ folder tree and put it at the same folder le
 
 ### Workflows of workflows
 
-We would prefer to implement each stage of the BAM cleaning in GenomeGPS as a separate WDL workflow, and then use a global workflow to invoke the subworkflows (Alignment and Real/Recal). Thus the outputs of the last step of the previous workflow have to feed as the input to the first step of the next workflow. This introduces complexities because Cromwell generates its own output folder structure during runtime. In order to access these folders we would need a wrapper program which will parse out the run ID from the logs, traverse the respective output folder tree, find the output files and feed them to the next block. The workflow management system should be able to do that for us, but at present we do not see how. It is a TO-DO item.
+QSUB Script Flow:
+1.	Runs Parser
+2.	Validator
+3.	Starts Cromwell
 
-Another issue with declaring subworkflows exists when there is a dependency between two tasks that belong to two separate workflows. A workflow which is included as a subworkflow inside another workflow will have issues with accessing variables from tasks in the imported workflow.
+Now calling all workflow units from within Master workflow
+•	Trimming and alignment will be called as Workflows Runtrim_sequences.wdl and Runalignment.wdl
+•	This is because of multilane support
+•	Remaining blocks will be called directly as Tasks
 
-These issues can be resolved by specifying `output` block at the end of each component workflow. Then the master workflow can use those output variables to specify inputs to the downstream components. - Testing this functionality is a TO-DO item.
+After starting Cromwell:
 
-The example below will help explain how workflow of workflows(WOWs) are implemented. 
-
-Consider two scripts: 
-  1. A script which performs BWA mem and Samtools. This script has a task (Task1) 
-     where the BWA and Samtools commands are specified. It also contains a workflow
-     (WorkFlow1) whose output block has the "aligned.bam" output file.
-  2. The second script which performs Novosort. This script also has a task (Task2)
-     which where the Novosort commands are spcified. This script contains a workflow
-     (WorkFlow2). The first script is imported into the second script and this is
-     how workflow of workflows are created.
-
-There are certain constraints that are to be followed while writing workflows-of-workflows (WOWs). All the variables that were declared in Task1 have to be a part of WorkFlow1. Inside WorkFlow1 the call to Task1 is made and in the input section of the call, Workflow1 variables are equated to Task1 variables. This is done because Script1 is imported into Script2 and when Script2 is compiled, then these variables from WorkFlow1 will be listed during the creation of the input json file. Inside WorkFlow2 is where we declare the TSV file which has Input Reads and the scatter block which creates multiple instances of the tasks for every sample. Inside WorkFlow2, calls to WorkFlow1 and the Novosort Task are made. WorkFlow1 is called inside WorkFlow2 for two reasons. One, because the Input Read files and the samplename are provided as input which in turns become the input to Task1. Second, the output of WorkFlow1 is input for the Novosort Task and by calling WorkFlow1, its output variable can be accessed.
-
-The example scripts and its json input file are in the folder `/WOWScripts`.
-
-----------------------
-
-
-
+![githubimages](https://user-images.githubusercontent.com/43070131/47879465-a8474c80-ddee-11e8-838a-61d0bcb95799.png)
 
 
 # Testing

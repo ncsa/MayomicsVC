@@ -4,7 +4,7 @@
 
 #########################################################################
 
-import "src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
+import "MayomicsVC/src/wdl/Alignment/Tasks/dedup.wdl" as DEDUP
 
 workflow CalldedupTask {
 
