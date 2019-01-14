@@ -729,7 +729,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue(tests[test] in output)
             self.param.__dict__['flag_e'] = temp_flag
 
-    # @unittest.skip("So slow")
+    @unittest.skip("So slow")
     def test_bad_cutadapt_path(self):
         """
         Trim_sequences is the only one that uses cutadapt, though I may be able to generalize this script
@@ -747,7 +747,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Cutadapt directory /usr/fake is not a directory or does not exist." in output)
 
-    @unittest.skip("So slow")
+    # @unittest.skip("So slow")
     def test_bad_thread_options(self):
         """
         This tests trim_sequences thread option. It should return errors for having too high a thread count,
