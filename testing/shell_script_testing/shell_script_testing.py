@@ -829,7 +829,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Input read 2 file null is empty or does not exist." in output)
 
-    # @unittest.skip('Test')
+    @unittest.skip('Test')
     def test_missing_option_values(self):
         """
         Should work with any of the scripts. Note that -d flag is ommitted since it does not have a value
@@ -849,7 +849,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("Error with option " + manip_flag + " in command. Option passed incorrectly or without argument." in output)
             self.param.__dict__[flag] = temp_flag
 
-    @unittest.skip('testing')
+    # @unittest.skip('testing')
     def test_file_permissions(self):
         """
         Should work with any of the scripts
