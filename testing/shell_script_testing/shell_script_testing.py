@@ -666,9 +666,7 @@ class TestArgs(ParameterizedTestCase):
                 output = self.parse_output('outputs/output.trimming.TBD.log')
                 log = self.parse_output('outputs/output.cutadapt.log')
                 output = ''.join(output)
-                print("output: {}".format(output))
                 log = ''.join(log)
-                print('log: {}'.format(log))
                 if 'Cutadapt Read 1 and 2 failure' in output:
                     self.assertTrue(garbage_test_files[garbage_test] in log)
                 else:
