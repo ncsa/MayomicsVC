@@ -891,6 +891,7 @@ class TestArgs(ParameterizedTestCase):
         output_cutlog_test = output_cutlog[-2:]
         output_cutlog_test = ''.join(output_cutlog_test)
         output_cutlog = ''.join(output_cutlog)
+        print(output_cutlog)
 
         # second run
         time.sleep(2)
@@ -902,6 +903,7 @@ class TestArgs(ParameterizedTestCase):
         output_stdout2 = ''.join(output_stdout2)
         output_cutlog2 = self.parse_output('outputs/output.cutadapt.log')
         output_cutlog2 = ''.join(output_cutlog2)
+        print(output_cutlog2)
 
         # The logs should be different and the second log shouldn't be contained in the first
         self.assertNotEqual(output_stdout, output_stdout2)
