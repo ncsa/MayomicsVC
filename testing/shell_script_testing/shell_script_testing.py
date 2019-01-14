@@ -792,7 +792,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
                             in output)
 
-    # @unittest.skip("Testing")
+    @unittest.skip("Testing")
     def test_incorrect_read_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
@@ -829,7 +829,7 @@ class TestArgs(ParameterizedTestCase):
         output = ''.join(output)
         self.assertTrue("REASON=Input read 2 file null is empty or does not exist." in output)
 
-    @unittest.skip('Test')
+    # @unittest.skip('Test')
     def test_missing_option_values(self):
         """
         Should work with any of the scripts. Note that -d flag is ommitted since it does not have a value
