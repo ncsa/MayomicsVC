@@ -772,7 +772,7 @@ class TestArgs(ParameterizedTestCase):
             else:
                 self.assertTrue('Cutadapt Read 1 and 2 failure.' in output)
 
-    # @unittest.skip("Testing")
+    @unittest.skip("Testing")
     def test_paired_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
@@ -792,7 +792,7 @@ class TestArgs(ParameterizedTestCase):
             self.assertTrue("REASON=Incorrect argument for paired-end option -P. Must be set to true or false."
                             in output)
 
-    @unittest.skip("Testing")
+    # @unittest.skip("Testing")
     def test_incorrect_read_options(self):
         """
         Not every script will have a true/false/read value to test; this only works with ones that do
