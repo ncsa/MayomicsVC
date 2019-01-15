@@ -46,12 +46,12 @@ Recreate the workflow in Cromwell/WDL instead of Bash/Perl.
 ## Modularity
 
 This workflow is modular by design, with each bioinformatics task in its own module. 
-WDL makes this easy by defining "tasks" and "workflows." [Tasks](#workflow-architecture)
+WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case will wrap individual bioinformatics steps comprising the workflow.
 Tasks can be run individually and also strung together into workflows.
 
 The variant calling workflow is complex, so we break it up into smaller subworkflows, or 
-[stages](#workflow-architecture) that are easier to develop and maintain. 
+stages that are easier to develop and maintain. 
 Stages can be run individually and also called sequentially to execute the workflow fully or partially. 
 
 Reasons for modular design:
