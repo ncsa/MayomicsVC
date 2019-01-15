@@ -124,8 +124,6 @@ The workflow should be able to port smoothly among the following four kinds of s
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
-* MS Azure.
-
 
 ## Development and test automation 
 
@@ -133,7 +131,6 @@ The workflow should be constructed in such a way as to support multiple levels o
 * Unit testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
-* Regression testing on all of the above.
 
 ## Source directory structure
 
