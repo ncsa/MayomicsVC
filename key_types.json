@@ -113,7 +113,7 @@
     "CombineVariantsThreads": "String",
     "IndelGtFixPerlScript": "File",
     "SnpGtFixPerlScript": "File",
-    "PrioritizationOptionString": "String"
+    "PrioritizationOptionString": "String",
     "VqsrSoftMemLimit": "MemoryString",
     "WorkflowJson": "File"
 
