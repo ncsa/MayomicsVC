@@ -241,7 +241,7 @@ Below given are the steps to run the workflow:
   <summary> 
     1. Clone the repository and load the necessary modules
   </summary>
-  Visit the MayomicsVC Repository
+  1. Visit the MayomicsVC Repository
  </details>
 2. Create configuration files
 3. Create environmental profile files
