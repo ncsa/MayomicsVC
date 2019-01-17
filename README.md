@@ -366,8 +366,8 @@ Go to MayomicsVC and run the following bash command
 
 ```
  python src/python/config_parser.py -i ~/Config/run_info.txt -i ~/Config/sample_info.txt -i ~/Config/tool_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
-</details>
 ```
+</details>
 
 <details>
 <summary>
@@ -414,6 +414,7 @@ GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.vcf NEAT_synthetic.
 vcf.idx
 ```
 </details>
+
 <details>
 <summary>
   9. Running the script </summary>
