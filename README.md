@@ -237,7 +237,12 @@ We created a zip of the entire src/ folder tree and put it at the same folder le
 ### Workflow Running
 
 Below given are the steps to run the workflow:
-1. Clone the repository and load the necessary modules
+<details>
+  <summary> 
+    1. Clone the repository and load the necessary modules
+  </summary>
+  Visit the MayomicsVC Repository
+ </details>
 2. Create configuration files
 3. Create environmental profile files
 4. Use WOM tool to create JSON
