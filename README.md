@@ -406,7 +406,7 @@ vcf.idx
 
 <details>
 <summary>
-  9. Running the script </summary>
+9. Running the script </summary>
   
 ```  
 java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
