@@ -241,12 +241,27 @@ Below given are the steps to run the workflow:
   <summary> 
     1. Clone the repository and load the necessary modules
   </summary>
-  1. Visit the MayomicsVC Repository
+  a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
+  
   ``` 
   ## Current working directory
      pwd
     /projects/abv/mken/variant_calling_demo
- ```
+  ```
+   ```
+   ## Clone the repo
+    ## Most up to date branch is currently dev
+    git clone -b dev https://github.com/ncsa/MayomicsVC.git
+  ```
+  a. Load the necessary modules
+  This workflow requires the cromwell execution engine and Java run
+  
+  ```
+  module load /usr/local/apps/bioapps/modules/java/java-1.8
+  module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34
+  module load /usr/local/apps/bioapps/modules/python/python-3.6.1
+  ```
+  
  </details>
 2. Create configuration files
 3. Create environmental profile files
