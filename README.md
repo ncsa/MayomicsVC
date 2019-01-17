@@ -293,13 +293,134 @@ Below given are the steps to run the workflow:
   <summary>
 3. Create environmental profile files
   </summary>
-Senteion requires a license to run. This liscense is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. The user defined the names of these files in the tool_info.txt config file. For organization purposes, these files should be in the Config directory that was created earlier. The liscense on iForge is used in this example. I
+  
+Senteion requires a license to run. This liscense is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. The user defined the names of these files in the tool_info.txt config file. For organization purposes, these files should be in the Config directory that was created earlier. The liscense on iForge is used in this example. Following are the necessary environmental profiles in the Config dir:
+
+ls Config/ | grep Profile
+
+AlignEnvProfile.file
+BqsrEnvProfile.file
+DedupEnvProfile.file
+HaplotyperEnvProfile.file
+RealignEnvProfile.file
+TrimEnvProfile.file
+VqsrEnvProfile.file
+
+Each file contains the same thing:
+
+cat Config/AlignEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat BqsrEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat DedupEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat HaplotyperEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat RealignEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat TrimEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
+cat VqsrEnvProfile.file
+export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
+
 </details>
 
+<details>
+<summary>
 4. Use WOM tool to create JSON
+</summary>
+  
+WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
+
+```
+mkdir Jsons
+cd MayomicsVC
+java -jar ${WOMTOOL} inputs src/wdl/GermlineMasterWorkflow.wdl > ../Jsons
+/GermlineMasterWorkflow.json
+```
+The JSON needs to be filled in with the below commands
+
+```
+cat ../Jsons/GermlineMasterWorkflow.json
+{
+"GermlineMasterWF.realign.RealignSoftMemLimit": "String",
+"GermlineMasterWF.bqsr.DebugMode": "String",
+....
+"GermlineMasterWF.dedup.DedupSoftMemLimit": "String",
+"GermlineMasterWF.merge.BashSharedFunctions": "File"
+}
+```
+</details>  
+<details>
+<summary>
 5. Run parser to populate JSON
+</summary>
+
+Go to MayomicsVC and run the following bash command
+ python src/python/config_parser.py -i ~/Config/run_info.txt -i ~/Config/sample_info.txt -i ~/Config/tool_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
+</details>
+
+<details>
+<summary>
 6. Run validator to validate entries in JSON
-7. Run cromwell
+</summary>
+In order for the workflow to run successfully, the variable types of the input variables must be what the Cromwell expects from the WDL code. We have writted another python script to ensure that this is the case.Pass in the newly filled in json file, and the key_types file from the repository:
+  
+```
+python MayomicsVC/src/python/key_validator.py -i Jsons
+/GermlineMasterWorkflow.FilledIn.json --KeyTypeFile MayomicsVC/key_types.
+json
+```
+
+</details>
+
+<details>
+<summary>
+ 7. Zip source code </summary>
+  
+When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow.
+This is done by passing in a zip archive containing all the scripts in there respective directories with the -p option when running the workflow (This archive will be used when executing the whole workflow later). Since the WDL code is written with the known locations of the task scripts in the repository, you can simply zip the files within the MayomicsVS. Make sure to cd into the directory before zipping though, or else the file pahts will not be corect.The workflow won't run correctly if the zip file is created in the wrong directory.
+
+```
+cd MayomicsVC
+zip -r MayomicsVC.zip ./
+mv MayomicsVC.zip ../
+cd ../
+```
+</details>
+
+<details>
+<summary>
+8. Viewing Outputs
+</summary>
+  
+The outputs are in the delivery folders. From the Alignment Block, a BAM is produced, and from the HaplotyperVC block, a VCF and index is produced:
+
+```
+ls Delivery/Alignment/
+GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.bam NEAT_synthetic.
+bam.bai
+ls Delivery/HaplotyperVC/
+GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.vcf NEAT_synthetic.
+vcf.idx
+```
+<details>
+<summary>
+  9. Running the script </summary>
+  
+```  
+java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
+java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
+java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
+```
+
+</details>
 
 # Testing
 
