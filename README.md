@@ -140,7 +140,7 @@ Under `src`, the directories are separated by language (wdl, shell, python) inst
 
 ## Implementing modularity
 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34808679-108a8432-f656-11e7-856a-3542018692a0.png" alt="Image of Folder Structure" width="550">
+
 
 From the five component workflows, each workflow may contain higher-level [modules](#modularity), which we call stages. For example, in BAM cleaning we have two stages: Alignment and Realignment/Recalibration.
 
@@ -149,7 +149,6 @@ From the five component workflows, each workflow may contain higher-level [modul
 
 
 
-<img align="right" src="https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png" alt="BAM cleaning with stages" height="850">
 
 Each *stage* consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the [figure](https://user-images.githubusercontent.com/4040442/34805599-9179e4aa-f644-11e7-993e-c0e9ece4f015.png) on the right), such as alignment against a reference or deduplication of aligned BAMs. Tasks are written as .wdl scripts:
 
