@@ -241,6 +241,7 @@ Below given are the steps to run the workflow:
   <summary> 
     1. Clone the repository and load the necessary modules
   </summary>
+  
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
   
   ``` 
@@ -263,8 +264,38 @@ Below given are the steps to run the workflow:
   ```
   
  </details>
+ <details>
+ <summary>
 2. Create configuration files
+  </summary>
+  
+  The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
+  ```
+  ## make a config directory
+  mkdir Config
+  cd Config
+  
+  ## input parameters
+  touch run_info.txt
+  
+  ## file/software paths and options
+  touch tool_info.txt
+  
+  ## sample names
+  touch sample_info.txt
+    
+  ## memory info
+  touch memory_info.txt
+  ```
+  </details>
+  
+  <details>
+  <summary>
 3. Create environmental profile files
+  </summary>
+Senteion requires a license to run. This liscense is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. The user defined the names of these files in the tool_info.txt config file. For organization purposes, these files should be in the Config directory that was created earlier. The liscense on iForge is used in this example. I
+</details>
+
 4. Use WOM tool to create JSON
 5. Run parser to populate JSON
 6. Run validator to validate entries in JSON
