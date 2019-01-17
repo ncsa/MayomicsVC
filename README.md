@@ -107,17 +107,6 @@ To prevent avoidable failures and resource waste, the workflow should:
 * after running each module, check that output was actualy produced and has nonzero size
 * perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
-[User notification](#email-notifications) of success/failure will be implemented by capturing exit codes, 
-writing error messages into failure logs, and notifying the analyst of the success/failure status 
-via email or another notification system. We envision three levels of granularity for user 
-notification:
-* total dump of success/failure messages at the end of the workflow
-* notification at the end of a stage
-* notification at the end of a task.
-
-The level of granularity will be specified by users as an option in the runfile.
-
-
 ## Portability
 
 The workflow should be able to port smoothly among the following four kinds of systems:
