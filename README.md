@@ -234,22 +234,14 @@ In non-server mode, one can still invoke Cromwell with the -p option, and it wil
 We created a zip of the entire src/ folder tree and put it at the same folder level as the src/ folder, for download with the repository (via `git pull`). We are working on implementing automatic creation of this zip archive during nightly integration tests. When running Cromwell, use the -p option and specify the full path to the zip archive on your filesystem.
 
 
-### Workflows of workflows
+### Workflow Running
 
-QSUB Script Flow:
-1.	Runs Parser
-2.	Validator
-3.	Starts Cromwell
-
-Now calling all workflow units from within Master workflow
-•	Trimming and alignment will be called as Workflows Runtrim_sequences.wdl and Runalignment.wdl
-•	This is because of multilane support
-•	Remaining blocks will be called directly as Tasks
-
-After starting Cromwell:
-
-![githubimages](https://user-images.githubusercontent.com/43070131/47879465-a8474c80-ddee-11e8-838a-61d0bcb95799.png)
-
+Below given are the steps to run the workflow:
+1. Create Configuration Files
+2. Use WOM tool to create JSON
+3. Run Parser to populate JSON
+4. Run Validator to validate entries in JSON
+5. Run Cromwell
 
 # Testing
 
