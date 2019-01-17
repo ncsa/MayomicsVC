@@ -237,11 +237,13 @@ We created a zip of the entire src/ folder tree and put it at the same folder le
 ### Workflow Running
 
 Below given are the steps to run the workflow:
-1. Create Configuration Files
-2. Use WOM tool to create JSON
-3. Run Parser to populate JSON
-4. Run Validator to validate entries in JSON
-5. Run Cromwell
+1. Clone the repository and load the necessary modules
+2. Create configuration files
+3. Create environmental profile files
+4. Use WOM tool to create JSON
+5. Run parser to populate JSON
+6. Run validator to validate entries in JSON
+7. Run cromwell
 
 # Testing
 
