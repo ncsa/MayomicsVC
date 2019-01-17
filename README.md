@@ -24,7 +24,7 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
          * [Calling of tasks](#calling-of-tasks)
          * [Workflows of workflows](#workflows-of-workflows)
    * [Testing](#testing)
-      * [Unit testing](#unit-testing)
+      * [Individual Task Testing](#Individual-Task-Testing)
          * [Pre-flight QC](#pre-flight-qc)
          * [Workflow](#workflow)
       * [Integration testing](#integration-testing)
