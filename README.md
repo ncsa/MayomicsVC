@@ -117,7 +117,7 @@ The workflow should be able to port smoothly among the following four kinds of s
 ## Development and test automation 
 
 The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
-* Unit testing on each task
+* Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
 
@@ -423,21 +423,21 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 
 ### Individual task testing of the code under parser and validator
 
-To conduct unit tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
+To conduct individual task tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
 ```
 python3 -m unittest discover
 ```
-This will automatically detect all unit testing files and run their tests, but only if you are in the config directory.
+This will automatically detect all individual task testing files and run their tests, but only if you are in the config directory.
 
 ### Workflow 
 
-Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/wdl/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
+Every task is independant, and is tested by running as its own workflow. These task tests can be found in `src/wdl/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform testing on individual tasks using Cromwell:
 
-1. Create and Download the zip file and the workflow script of the task which is to be checked. The unit test scripts are located in `src/wdl/{Name}Stage_WDL/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "TestBWAMemSamtoolView.wdl." 
+1. Create and Download the zip file and the workflow script of the task which is to be checked. The  test scripts are located in `src/wdl/{Name}Stage_WDL/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "TestBWAMemSamtoolView.wdl." 
 
 2. To execute a wdl script using Cromwell we need two inputs:
 
-   a) The wdl script to perform Unit Testing on (e.g. "TestBWAMemSamtoolView.wdl")
+   a) The wdl script to perform  individual task testing on (e.g. "TestBWAMemSamtoolView.wdl")
 
    b) The json input files that specify where the executables are located for the tools used. The json input files for our workflow are located in the folder `json_inputs` (e.g. json_inputs/BWAMemSamtoolView_inputs.json). If the user wants to create json input files of their own, the following link provides information on how to do so: 
    https://software.broadinstitute.org/wdl/documentation/article?id=6751.
