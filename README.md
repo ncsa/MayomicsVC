@@ -226,7 +226,7 @@ The command block in each task specifies the series of bash commands that will b
 2. The Bash dollar sign for variables cannot be escaped. Therefore, the "dollar" has to be defined at the top of each .wdl script: `String dollar = "$"`.
 
 
-### Calling of tasks 
+### Task Calling
 
 When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This makes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow with the -p flag. Running the server in an HPC cluster environment poses some security challenges (running as root, having access to all files on the filesystem without group restrictions). A udocker can be used for running the server version of Cromwell at the user level and thus circumventing the security issues.
 
