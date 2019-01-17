@@ -184,7 +184,7 @@ workflow CallReadMappingTask {
 
 ## Organization of the code
 
-The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) Shell - The folder shell consists of all the shell scripts that calls the bioinformatics software. The shell script is called biowdl which is the workflow management. (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness.
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) Shell - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) WDL - The shell script is called by WDL which are the scripts of the workflow management.
 
 <img src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="800"> 
 
