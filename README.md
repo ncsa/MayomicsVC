@@ -196,8 +196,7 @@ workflow CallReadMappingTask {
 
 ## Organization of the code
 
-The /src folder is broken up by stages. Inside the folder for each stage (i.e. AlignmentStage_WDL/) we have three subfolders that contain: (1) the library of tasks (Tasks/), (2) the suite of unit tests, one for each task (TestTasks/), and (3) the resultant workflow stage (Workflows/), which can be used for testing the integration of individual tasks into workflows. The files are named as per the function that they perform.  
-
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) Shell - The folder shell consists of all the shell scripts that calls the bioinformatics software. The shell script is called biowdl which is the workflow management. (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness.
 
 <img src="https://user-images.githubusercontent.com/4040442/34808799-cd56402e-f656-11e7-960a-7cb5803b1d0e.png" alt="Modularity implementation" width="800"> 
 
