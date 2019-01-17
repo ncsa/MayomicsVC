@@ -419,9 +419,9 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 
 # Testing
 
-## Unit testing (Testing each individual task in the workflow)
+## Individual Task Testing
 
-### Unit testing of the code under parser and validator
+### Individual task testing of the code under parser and validator
 
 To conduct unit tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
 ```
