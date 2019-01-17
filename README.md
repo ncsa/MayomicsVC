@@ -430,9 +430,9 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 
 # Testing
 
-## Unit testing
+## Unit testing (Testing each individual task in the workflow)
 
-### Pre-flight QC
+### Unit testing of the code under parser and validator
 
 To conduct unit tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
 ```
@@ -442,9 +442,9 @@ This will automatically detect all unit testing files and run their tests, but o
 
 ### Workflow 
 
-Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
+Every task is a unit, and is tested by running as its own workflow. These unit tests can be found in `src/wdl/{Name}Stage_WDL/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform Unit Testing on individual tasks using Cromwell:
 
-1. Download `source.zip` and the workflow script of the task which is to be checked. The unit test scripts are located in `src/{Name}Stage_WDL/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "TestBWAMemSamtoolView.wdl." 
+1. Create and Download the zip file and the workflow script of the task which is to be checked. The unit test scripts are located in `src/wdl/{Name}Stage_WDL/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "TestBWAMemSamtoolView.wdl." 
 
 2. To execute a wdl script using Cromwell we need two inputs:
 
@@ -457,12 +457,12 @@ Every task is a unit, and is tested by running as its own workflow. These unit t
 
 4. The Cromwell command used to execute a wdl script is as follows:-
 
-   `java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p source.zip`
+   `java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p "Zip File"`
 
-   `For eg: java -jar cromwell.jar run BWAMemSamtoolView.wdl -i BWAMemSamtoolView_inputs.json -p source.zip`
+   `For eg: java -jar cromwell.jar run BWAMemSamtoolView.wdl -i BWAMemSamtoolView_inputs.json -p "Zip File"`
    
-   In the above command, "run" mode will execute a single workflow, and exit when the workflow completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
-   The "-p" flag points to a directory or zipfile to search for workflow imports. In the case of our workflow, use of the "-p" flag is mandatory. It specifies that source.zip is where the scripts to individual tasks are located. Information on how to execute a wdl script using cromwell can be found on the following link: 
+In the above command, "run" mode will execute a single workflow, and exit when the workflow completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
+The "-p" flag points to a directory or zipfile to search for workflow imports. In the case of our workflow, use of the "-p" flag is mandatory. It specifies that source.zip is where the scripts to individual tasks are located. Information on how to execute a wdl script using cromwell can be found on the following link: 
    https://software.broadinstitute.org/wdl/documentation/execution.
 
 
@@ -649,16 +649,6 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
   |  |  |  |-tmp.kbVcdk
   |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
 ```
-
-Email Notifications
-====================
-
-It's good practice to notify the analyst of failures in the workflow. Failure notifications can be emailed to the analyst. Analysts can be notified at each step as and when a sample fails, or a list of all the samples that have failed a step can be collected at the end of the step and that information can be emailed to the user.  
-
-If notifications are sent for every sample, the analyst will be able to figure out that something is wrong and tend to the errors. On the other hand he/she ends up receiving numerous emails for all the samples that have failed a certain step. For example, if there are 1000 samples that run on a workflow and a majority of samples fail at the first step, the analyst can quickly look at the logs and figure out why the samples have failed that particular step. The disadvantage is that an email will be sent out for each sample, flooding the analyst's inbox.
-
-A list of all the failed samples sent as one email will prevent flooding of the inbox. However, the analyst will have to wait for the end of the step to find out which samples have failed, which could take multiple hours (depending on the step of the workflow). These are some trade-offs which have to considered while designing the workflow.
-
 
 Input Parsing and Type Validation
 ============
