@@ -242,11 +242,11 @@ Below given are the steps to run the workflow:
     1. Clone the repository and load the necessary modules
   </summary>
   1. Visit the MayomicsVC Repository
-  ''' 
+  ``` 
   ## Current working directory
      pwd
     /projects/abv/mken/variant_calling_demo
-  ''' 
+ ```
  </details>
 2. Create configuration files
 3. Create environmental profile files
