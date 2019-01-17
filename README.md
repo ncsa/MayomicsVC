@@ -410,6 +410,7 @@ ls Delivery/HaplotyperVC/
 GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.vcf NEAT_synthetic.
 vcf.idx
 ```
+</details>
 <details>
 <summary>
   9. Running the script </summary>
@@ -421,6 +422,7 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 ```
 
 </details>
+
 
 # Testing
 
