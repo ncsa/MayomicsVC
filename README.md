@@ -522,114 +522,50 @@ Cromwell creates a nested output folder structure, one for each tool, and for ea
 * The example below shows how the entire directory tree and how the folders are created every time the cromwell excution engine executes a wdl program.
 
 ```
-  |
-  |-call-Samtools
-  |  |-shard-2
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-mgc
-  |  |  |  |  |  |-Project_1
-  |  |  |  |  |  |  |-ram
-  |  |  |  |  |  |  |  |-CromwellWDL
-  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
-  |  |  |  |  |  |  |  |  |  |-cromwell-executions
-  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
-  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
-  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-2
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-8fbfe7a84f921347caf0a4408578e296
-  |  |  |-execution
-  |  |  |  |-tmp.Jh4vIo
-  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
-  |  |-shard-0
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-mgc
-  |  |  |  |  |  |-Project_1
-  |  |  |  |  |  |  |-ram
-  |  |  |  |  |  |  |  |-CromwellWDL
-  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
-  |  |  |  |  |  |  |  |  |  |-cromwell-executions
-  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
-  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
-  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-0
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-e2984cba736e7acdf7c0536378232fca
-  |  |  |-execution
-  |  |  |  |-tmp.JOg8Ce
-  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
-  |  |-shard-1
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-mgc
-  |  |  |  |  |  |-Project_1
-  |  |  |  |  |  |  |-ram
-  |  |  |  |  |  |  |  |-CromwellWDL
-  |  |  |  |  |  |  |  |  |-MultiSampleMultiStepVC
-  |  |  |  |  |  |  |  |  |  |-cromwell-executions
-  |  |  |  |  |  |  |  |  |  |  |-BWA_Mem_Run
-  |  |  |  |  |  |  |  |  |  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
-  |  |  |  |  |  |  |  |  |  |  |  |  |-call-BWA_Mem
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |-shard-1
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-execution
-  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
-  |  |  |-execution
-  |  |  |  |-glob-e04fb83eeaea0b4b8fdde6282d30506c
-  |  |  |  |-tmp.yCh857
-  |-call-BWA_Mem
-  |  |-shard-2
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-bioinformatics
-  |  |  |  |  |  |-DataPacks
-  |  |  |  |  |  |  |-human
-  |  |  |  |  |  |  |  |-EllensSyntheticData
-  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
-  |  |  |  |  |  |  |  |  |  |-Chunks
-  |  |  |  |  |  |-TestData
-  |  |  |  |  |  |  |-HG19
-  |  |  |  |  |  |  |  |-gatk_bundle_2.8
-  |  |  |  |  |  |  |  |  |-2.8
-  |  |  |  |  |  |  |  |  |  |-hg19
-  |  |  |-execution
-  |  |  |  |-glob-8fbfe7a84f921347caf0a4408578e296
-  |  |  |  |-tmp.OWyZa0
-  |  |-shard-0
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-bioinformatics
-  |  |  |  |  |  |-DataPacks
-  |  |  |  |  |  |  |-human
-  |  |  |  |  |  |  |  |-EllensSyntheticData
-  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
-  |  |  |  |  |  |  |  |  |  |-Chunks
-  |  |  |  |  |  |-TestData
-  |  |  |  |  |  |  |-HG19
-  |  |  |  |  |  |  |  |-gatk_bundle_2.8
-  |  |  |  |  |  |  |  |  |-2.8
-  |  |  |  |  |  |  |  |  |  |-hg19
-  |  |  |-execution
-  |  |  |  |-glob-e2984cba736e7acdf7c0536378232fca
-  |  |  |  |-tmp.rrJiKx
-  |  |-shard-1
-  |  |  |-inputs
-  |  |  |  |-projects
-  |  |  |  |  |-bioinformatics
-  |  |  |  |  |  |-DataPacks
-  |  |  |  |  |  |  |-human
-  |  |  |  |  |  |  |  |-EllensSyntheticData
-  |  |  |  |  |  |  |  |  |-WGS_chr1_5X_E0.005
-  |  |  |  |  |  |  |  |  |  |-Chunks
-  |  |  |  |  |  |-TestData
-  |  |  |  |  |  |  |-HG19
-  |  |  |  |  |  |  |  |-gatk_bundle_2.8
-  |  |  |  |  |  |  |  |  |-2.8
-  |  |  |  |  |  |  |  |  |  |-hg19
-  |  |  |-execution
-  |  |  |  |-tmp.kbVcdk
-  |  |  |  |-glob-1b331778c20fad9525cbbad0d5f04486
+|-GermlineMasterWF
+ |  |-3ff6643d-8d8c-4ecc-a2f5-b43d6fc42108
+ |  |  |-call-align
+ |  |  |  |-RunAlignmentTask
+ |  |  |  |  |-a3f71bc0-6ac7-44c0-bf27-c0d1283a9d38
+ |  |  |  |  |  |-call-ALIGN_paired
+ |  |  |  |  |  |  |-shard-0
+ |  |  |  |  |  |  |  |-inputs
+ |  |  |  |  |  |  |  |  |--2078663058
+ |  |  |  |  |  |  |  |  |--1443091791
+ |  |  |  |  |  |  |  |  |--1930155525
+ |  |  |  |  |  |  |  |  |-1537754199
+ |  |  |  |  |  |  |  |-tmp.fae1bd5c
+ |  |  |  |  |  |  |  |-execution
+ |  |  |-call-realign
+ |  |  |  |-tmp.467abc6d
+ |  |  |  |-inputs
+ |  |  |  |  |--2078663058
+ |  |  |  |  |--966729936
+ |  |  |  |  |--1443091791
+ |  |  |  |  |-1537754199
+ |  |  |  |-execution
+ |  |  |-call-merge
+ |  |  |  |-inputs
+ |  |  |  |  |--2078663058
+ |  |  |  |  |--724253911
+ |  |  |  |  |-1537754199
+ |  |  |  |-tmp.653c5ba7
+ |  |  |  |-execution
+ |  |  |-call-bqsr
+ |  |  |  |-inputs
+ |  |  |  |  |--2078663058
+ |  |  |  |  |--847688854
+ |  |  |  |  |--1443091791
+ |  |  |  |  |-1537754199
+ |  |  |  |-tmp.14495f5e
+ |  |  |  |-execution
+ |  |  |-call-DAB
+ |  |  |  |-inputs
+ |  |  |  |  |-1303115990
+ |  |  |  |  |--2078663058
+ |  |  |  |  |--966729936
+ |  |  |  |-execution
+ |  |  |  |-tmp.e54eb293
 ```
 
 Input Parsing and Type Validation
