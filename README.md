@@ -131,8 +131,7 @@ Under `src`, the directories are separated by language (wdl, shell, python) inst
 
 
 
-The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.
-Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps, such as alignment against a reference or deduplication of aligned BAMs. Tasks are written as .wdl scripts:
+The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below (https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG)), such as alignment against a reference or deduplication of aligned BAMs. Tasks are written as .wdl scripts that is exemplified below the detailed workflow architecture:
 
 ```WDL
 #BWAMemSamtoolView.wdl
