@@ -38,7 +38,7 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 
 # Objective
 
-Recreate the workflow in Cromwell/WDL instead of Bash/Perl.
+Create the best practices Genomic variant calling workflow using the workflow management system Cromwell/WDL.
 
 
 # Design principles
