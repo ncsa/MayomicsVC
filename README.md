@@ -39,20 +39,17 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 # Objective
 
 Create the best practices Genomic variant calling workflow using the workflow management system Cromwell/WDL.
+Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
 
 
 # Design principles
 
 ## Modularity
 
-This workflow is modular by design, with each bioinformatics task in its own module. 
+The variant calling workflow is complex, so we break it up into modules to make it as easy to develop and maintain as possible.
+Thus, each bioinformatics step in its own module. 
 WDL makes this easy by defining "tasks" and "workflows." Tasks
-in our case will wrap individual bioinformatics steps comprising the workflow.
-Tasks can be run individually and also strung together into workflows.
-
-The variant calling workflow is complex, so we break it up into smaller subworkflows, or 
-stages that are easier to develop and maintain. 
-Stages can be run individually and also called sequentially to execute the workflow fully or partially. 
+in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
 Reasons for modular design:
 * flexibility: can execute any part of the workflow 
@@ -62,23 +59,18 @@ Reasons for modular design:
 * maintainability: can edit modules without breaking the rest of the workflow 
     * modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places in the workflow
 
+Sections below explain in detial the implementation and benefits of our approach.
 
 ## Data parallelism and scalability
 
-The workflow should run as a single multi-node job, handling the placement of tasks 
-across the nodes using embedded parallel mechanisms. Support is required for:
-* running one sample per node 
-* running multiple samples per node on clusters with and without node sharing.
-
-The workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
+Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
 * splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per sample for sorting and deduplication
 * splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
-
-The workflow should scale well with the number of samples - although that is a function 
-of the Cromwell execution engine. We will be benchmarking this feature (see Testing section below).
-
-
+This is because GATK3 was not fast enough to work on a whole human genome without chunking.
+GATK4 already runs faster without chunking the data and will be faster still in the future.
+Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.
+We do not chunk the input fastq. The workflow is implemented on a per sample basis.Trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
 
 ## Real-time logging and monitoring, data provenance tracking
 
@@ -86,12 +78,12 @@ The workflow should have a good system for logging and monitoring progress of th
 At any moment during the run, the analyst should be able to assess: 
 * which stage of the workflow is running for every sample batch 
 * which samples may have failed and why 
-* which nodes the analyses are running on, and their health status. 
 
 Additionally, a well-structured post-analysis record of all events 
 executed on each sample is necessary to ensure reproducibility of 
 the analysis. 
 
+Cromwell provides for most of these vi the output folder structure and logs. we have added an extra layer of logging and error reporting, described below in implementation.
 
 ## Fault tolerance and error handling
 
