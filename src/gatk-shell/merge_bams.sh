@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## deliver_haplotyperVC.sh MANIFEST, USAGE DOCS, SET CHECKS
+## merge_bams.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -19,26 +19,29 @@ echo -e "${MANIFEST}"
 
 
 
+
+
+
 read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deliver results of HaplotyperVC block: vcf for snps and indels, their index files, and workflow JSON. 
-# Part of the MayomicsVC Workflow.
+# Merge bams produced in alignment 
 # 
 #############################################################################
 
  USAGE:
- deliver_haplotyperVC.sh  -s           <sample_name>
-                          -r           <RecalibratedVcf> 
-                          -j           <WorkflowJSONfile>
-                          -f           </path/to/delivery_folder>
-                          -F           </path/to/shared_functions.sh>
-                          -d           turn on debug mode
+ merge_bams.sh     -s           <sample_name> 
+                   -b		<lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
+                   -S           </path/to/sentieon> 
+                   -t           <threads> 
+                   -e           </path/to/env_profile_file>
+                   -F           </path/to/shared_functions.sh>
+                   -d           turn on debug mode
 
  EXAMPLES:
- deliver_haplotyperVC.sh -h
- deliver_haplotyperVC.sh -s sample_name -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ merge_bams.sh -h
+ merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -48,15 +51,14 @@ DOCS
 
 
 
+
 set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=deliver_haplotyperVC.sh
-SGE_JOB_ID=TBD   # placeholder until we parse job ID
+SCRIPT_NAME=merge_bams.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-
-
 
 
 
@@ -91,27 +93,31 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:r:j:f:F:d" OPT
+while getopts ":hs:b:S:t:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-                s )  # Sample name
-                        SAMPLE=${OPTARG}
+		s )  # Sample name
+			SAMPLE=${OPTARG}
+			checkArg
+			;;
+                b )  # Full path to the input BAM or list of BAMS
+                        INPUTBAM=${OPTARG}
 			checkArg
                         ;;
-                r )  # Full path to the recalibrated VCF file
-                        VCF=${OPTARG}
-                        checkArg
+                S )  # Full path to sentieon directory
+                        SENTIEON=${OPTARG}
+			checkArg
                         ;;
-                j )  # Full path to the workflow JSON file
-                        JSON=${OPTARG}
-                        checkArg
+                t )  # Number of threads available
+                        THR=${OPTARG}
+			checkArg
                         ;;
-                f)   # Path to delivery folder
-                        DELIVERY_FOLDER=${OPTARG}
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -137,6 +143,7 @@ done
 
 
 
+
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -145,47 +152,42 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar ${SAMPLE} "Missing sample name option: -s" $LINENO
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.merge_bams.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
+truncate -s 0 ${SAMPLE}.merge_bams_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
+
 ## Check if input files, directories, and variables are non-zero
-checkVar ${VCF} "Missing VCF option: -r" $LINENO
-checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
-checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
-
-checkVar ${JSON} "Missing JSON option: -j" $LINENO
-checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
-
-checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f" $LINENO
+checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
+for LANE in $(echo ${INPUTBAM} | sed "s/,/ /g")
+do
+        checkFile ${LANE} "Input sorted BAM file ${LANE} is empty or does not exist." $LINENO
+        checkFile ${LANE}.bai "Input sorted BAM index file ${LANE}.bai is empty or does not exist." $LINENO
+done
+checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
+checkDir ${SENTIEON} "REASON=Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## MAKE DELIVERY FOLDER
+## FILENAME PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Record start time
-logInfo "[DELIVERY] Creating the Delivery folder."
-
-## Make delivery folder
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
-makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
-
+## Defining file names
+BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
+MERGED_BAM=${SAMPLE}.bam
 
 
 
@@ -193,42 +195,23 @@ logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## DELIVERY
+## BAM Merging
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
+logInfo "[SENTIEON] Merging BAMs if list was given."
 
-## Copy the snp files over
+## Locus Collector command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
-cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM merging error. " ' INT TERM EXIT
+${SENTIEON}/bin/sentieon driver -t ${THR} -i ${BAMS} --algo ReadWriter ${MERGED_BAM} >> ${SAMPLE}.merge_bams_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF delivered."
+logInfo "[SENTIEON] BAM merging complete."
 
 
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
-cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
-
-
-## Copy the JSON over
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
-cp ${JSON} ${DELIVERY_FOLDER}
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
@@ -236,20 +219,17 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
+## Check for creation of output BAM and index. Open read permissions to the user group
+checkFile ${MERGED_BAM} "Output merged BAM file ${MERGED_BAM} is empty." $LINENO
+checkFile ${MERGED_BAM}.bai "Output merged BAM index file ${MERGED_BAM} is empty." $LINENO
 
-JSON_FILENAME=`basename ${JSON}`
-checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
-
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
-chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
-
-logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
+chmod g+r ${MERGED_BAM}
+chmod g+r ${MERGED_BAM}.bai
 
 
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------

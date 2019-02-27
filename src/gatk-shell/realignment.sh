@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## deliver_alignment.sh MANIFEST, USAGE DOCS, SET CHECKS
+## realignment.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -13,7 +13,9 @@ command line input: ${@}
 *****************************************************************************
 
 MANIFEST
-echo -e "${MANIFEST}"
+echo -e "\n${MANIFEST}"
+
+
 
 
 
@@ -23,22 +25,24 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deliver results of Design Block 1: trim-seq, align, sort, dedup. 
-# Part of the MayomicsVC Workflow.
+# Realign reads using Sentieon Realigner. Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- deliver_alignment.sh     -s           <sample_name>
-                          -b           <aligned.sorted.deduped.bam>
-                          -j           <WorkflowJSONfile>
-                          -f           </path/to/delivery_folder>
-                          -F           </path/to/shared_functions.sh>
-                          -d           turn on debug mode
+ realignment.sh    -s           <sample_name> 
+                   -b           <sorted.deduped.bam>
+                   -G		<reference_genome>
+                   -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
+                   -S           </path/to/sentieon> 
+                   -t           <threads> 
+                   -e           </path/to/env_profile_file>
+                   -F           </path/to/shared_functions.sh>
+                   -d           turn on debug mode
 
  EXAMPLES:
- deliver_alignment.sh -h     # get help message
- deliver_alignment.sh -s sample_name -T <sample_type> -b aligned.sorted.deduped.bam -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ realignment.sh -h
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -48,15 +52,14 @@ DOCS
 
 
 
+
 set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=deliver_alignment.sh
-SGE_JOB_ID=TBD   # placeholder until we parse job ID
+SCRIPT_NAME=realignment.sh
+SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-
-
 
 
 
@@ -91,27 +94,39 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:T:b:j:f:F:d" OPT
+while getopts ":hs:b:G:k:S:t:e:F:d" OPT
 do
         case ${OPT} in
-                h )  # Flag to display usage 
+                h )  # Flag to display usage
                         echo -e "\n${DOCS}\n"
-			exit 0
-                        ;;
+                        exit 0
+			;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
-                        checkArg
-                        ;;
-                b )  # Full path to the input BAM file
-                        BAM=${OPTARG}
 			checkArg
                         ;;
-                j )  # Full path to the workflow JSON file
-                        JSON=${OPTARG}
-                        checkArg
+		b )  # Full path to the input deduped BAM
+			INPUTBAM=${OPTARG}
+			checkArg
+			;;
+                G )  # Full path to reference genome fasta file
+                        REFGEN=${OPTARG}
+			checkArg
                         ;;
-                f )  # Path to delivery folder
-                        DELIVERY_FOLDER=${OPTARG}
+		k )  # Full path to known sites files
+			KNOWN=${OPTARG}
+			checkArg
+			;;
+                S )  # Full path to sentieon directory
+                        SENTIEON=${OPTARG}
+			checkArg
+                        ;;
+                t )  # Number of threads available
+                        THR=${OPTARG}
+			checkArg
+                        ;;
+                e )  # Path to file with environmental profile variables
+                        ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -119,19 +134,20 @@ do
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
-                        echo -e "\nDebug mode is ON.\n"
+			echo -e "\nDebug mode is ON.\n"
 			set -x
                         ;;
 		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
-                : )  # Check for missing arguments, print usage and exit.
+		: )  # Check for missing arguments, print usage and exit.
                         echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
         esac
 done
+
 
 
 
@@ -148,86 +164,66 @@ source ${SHARED_FUNCTIONS}
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.deliver_alignment.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.realignment.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.deliver_alignment.log
+truncate -s 0 ${SAMPLE}.realign_sentieon.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
+## source the file with environmental profile variables
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
+
 ## Check if input files, directories, and variables are non-zero
-checkVar "${BAM+x}" "Missing BAM option: -b" $LINENO
-checkFile ${BAM} "Input BAM file ${BAM} is empty or does not exist." $LINENO
-checkFile ${BAM}.bai "Input BAM index file ${BAM}.bai is empty or does not exist." $LINENO
+checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
+checkFile ${INPUTBAM} "Input sorted BAM file ${INPUTBAM} is empty or does not exist." $LINENO
+checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty or does not exist." $LINENO
 
-checkVar "${JSON+x}" "Missing JSON option: -j" $LINENO
-checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
+checkVar "${REFGEN+x}" "Missing reference genome option: -G" $LINENO
+checkFile ${REFGEN} "Reference genome file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${DELIVERY_FOLDER+x}" "Missing delivery folder option: -f" $LINENO
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## MAKE DELIVERY FOLDER
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Record start time
-logInfo "[DELIVERY] Creating the Delivery folder."
-
-## Make delivery folder
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Creating Design Block 1 delivery folder. " ' INT TERM EXIT
-makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" ${TRAP_LINE}
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Created the Design Block 1 delivery folder."
-
-
+checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
+checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
+checkDir ${SENTIEON} "Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## DELIVERY
+## FILENAME AND OPTION PARSING
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Parse known sites list of multiple files. Create multiple -k flags for sentieon
+SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
+echo ${SPLITKNOWN}
+
+## Parse filenames without full path
+OUT=${SAMPLE}.bam
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## REALIGNMENT STAGE
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[DELIVERY] Copying Design Block 1 outputs into Delivery folder."
+logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
 
-## Copy the files over
+## Sentieon Realigner command.
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM into delivery folder. " ' INT TERM EXIT
-cp ${BAM} ${DELIVERY_FOLDER}/${SAMPLE}.bam
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
+${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Aligned sorted deduped BAM delivered."
+logInfo "[Realigner] Realigned reads ${SAMPLE} to reference ${REFGEN}. Realigned BAM located at ${OUT}."
 
 
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying BAM.BAI into delivery folder. " ' INT TERM EXIT
-cp ${BAM}.bai ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Aligned sorted deduped BAM index delivered."
-
-## Copy the JSON over
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}: Copying JSON into delivery folder. " ' INT TERM EXIT
-cp ${JSON} ${DELIVERY_FOLDER}
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
@@ -236,20 +232,20 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam "Delivered BAM file ${DELIVERY_FOLDER}/${SAMPLE}.bam is empty" $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai "Delivered BAM index file ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai is empty" $LINENO
+## Check for creation of realigned BAM and index. Open read permissions to the user group
+checkFile ${OUT} "Realigned BAM file ${OUT} is empty." $LINENO
+checkFile ${OUT}.bai "Realigned BAM index file ${OUT}.bai is empty." $LINENO
 
-JSON_FILENAME=`basename ${JSON}` 
-checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
-
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.bam.bai
-chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
-
-logInfo "[DELIVERY] Alignment block delivered. Have a nice day."
+chmod g+r ${OUT}
+chmod g+r ${OUT}.bai
 
 
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## mutect.sh MANIFEST, USAGE DOCS, SET CHECKS
+## strelka.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 read -r -d '' MANIFEST << MANIFEST
 
@@ -20,32 +20,32 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Script to run MuTect2 on a normal and tumor bam file
+# Script to run Strelka on a normal and tumor bam file
 # 
 #############################################################################
  USAGE:
- mutect.sh        
+ strelka.sh        
 		   -s		<sample_name>
-		   -N           <normal_bam>
+		   -N           <normal_bam> 
                    -T		<tumor_bam>
 		   -g		<reference_genome_fasta>
-                   -G           <GATK_jar_path>
-                   -J		<Java_path>
-                   -j           <Java_memory_options_string>
                    -B           <BCFTools_path>
-                   -Z           <bgzip_path>
+                   -I           <strelka_install_path>
                    -S           <Samtools_path>
+                   -Z           <bgzip_path>
 		   -t		<threads>
-		   -F		<shared_functions>
                    -e           <environmental_profile>
-                   -D           <fix_DP_field_script>
-	           -o		<additonal options>
+		   -F		<shared_functions>
+	           -i           <indel_GT_fix_perl_script>
+                   -p           <snp_GT_fix_perl_script>
+                   -o		<additonal strelka options>
+                   -O		<additonal bcf options>
 		   -d		Turn on debug mode
                    -h           Display this usage/help text(No arg)
                    
 EXAMPLES:
-mutect.sh -h
-mutect.sh -s sample_name -N normal.bam -T tumor.bam -g reference_genome.fa -v output.vcf -G path/to/GATK.jar -J /path/to/java -j "'-Xms2G -Xmx8G'" -B /path/to/BCFTools -Z /path/to/bgzip -S /path/to/samtools -F path/to/shared_functions -e /path/to/environment_vars -D /path/to/fixDP.pl -o "'option'"
+strelka.sh -h
+strelka.sh -N normal.fastq -T tumor.fastq -g reference_genome.fasta -I /path/to/strelka/install -B /path/to/BCFTools -S /path/to/samtools -Z /path/to/bgzip -e /path/to/envprofile.file -F /path/to/MayomicsVC/shared_functions.sh -i /path/to/fix_indels.pl -p /path/to/fix_snps.pl -o "'--extra_option'" -O "'extra_bcf_options'"
 
 NOTES: 
 
@@ -58,7 +58,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=mutect.sh
+SCRIPT_NAME=strelka.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -90,6 +90,7 @@ function checkArg()
 
 
 
+
 #-------------------------------------------------------------------------------------------------------------------------------
 ## GETOPTS ARGUMENT PARSER
 #------------------------------------------------------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:N:T:g:G:J:j:B:Z:S:t:e:D:F:o:d" OPT
+while getopts ":hs:N:T:g:I:B:S:Z:t:e:F:i:p:o:O:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to dispay help message
@@ -124,48 +125,48 @@ do
                         REFGEN=${OPTARG}
                         checkArg
                         ;;
-		G )  # GATK jar path
-			GATK=${OPTARG}
+		I )  # Install path
+			INSTALL=${OPTARG}
 			checkArg
 			;;
-		J )  # Java path
-			JAVA=${OPTARG}
-			checkArg
-			;;
-                j )  # Java memory options string
-                        JAVA_MEMORY_OPTIONS=${OPTARG}
-                        checkArg
-                        ;;
 		B )  # BCF Tools path
 			BCF=${OPTARG}
-			checkArg
-			;;
-		Z )  # bgzip path
-			BGZIP=${OPTARG}
 			checkArg
 			;;
 		S )  # Samtools path
 			SAMTOOLS=${OPTARG}
 			checkArg
 			;;
+		Z )  # bgzip path
+			BGZIP=${OPTARG}
+			checkArg
+			;;
 	        t )  # Number of threads
                         THR=${OPTARG}
                         checkArg
 			;;
-                e )  # Path to file with environmental profile variables       
+                e )  # Path to file with environmental profile variables
                         ENV_PROFILE=${OPTARG}
                         checkArg
                         ;;
-		D )  # Path to fix DP field perl script
-			FIX_DP=${OPTARG}
-			checkArg
-			;;
 		F )  # Shared functions 
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
                         ;;
-		o )  # Extra options
-                        OPTIONS=${OPTARG}
+		i )  # Path to fixStrelka_GT_indels.pl
+			FIX_INDEL_GT=${OPTARG}
+			checkArg
+			;;
+		p )  # Path to fixStrelka_GT_snvs.pl
+			FIX_SNV_GT=${OPTARG}
+			checkArg
+			;;
+		o )  # Extra strelka options
+                        STRELKA_OPTIONS=${OPTARG}
+                        checkArg
+                        ;;
+                O )  # Extra bcf tools options
+                        BCFTOOLS_OPTIONS=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
@@ -202,18 +203,17 @@ source "${SHARED_FUNCTIONS}"
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script and tool
-ERRLOG=${SAMPLE}.mutect_variant_calling.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.strelka_variant_calling.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=${SAMPLE}.mutect.log
+TOOL_LOG=${SAMPLE}.strelka.log                                                                                                            
 truncate -s 0 ${TOOL_LOG}
 
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO                                                           
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
 source ${ENV_PROFILE}
-
 
 
 ## Check if input files, directories, and variables are non-zero
@@ -226,95 +226,80 @@ checkFile ${TUMOR} "Input tumor BAM file ${TUMOR} is empty or does not exist." $
 checkVar "${REFGEN+x}" "Missing reference genome option: -g" $LINENO
 checkFile ${REFGEN} "Input tumor BAM file ${REFGEN} is empty or does not exist." $LINENO
 
-checkVar "${GATK+x}" "Missing GATK directory path option: -G" $LINENO
-checkDir ${GATK} "Reason= GATK directory ${GATK} is not a directory or does not exist." $LINENO
-
-checkVar "${JAVA+x}" "Missing Java directory option: -J" $LINENO
-checkDir ${JAVA} "Reason= Java directory ${JAVA} is not a directory or does not exist." $LINENO
-
-checkVar "${JAVA_MEMORY_OPTIONS+x}" "Missing Java memory option: -j" $LINENO
+checkVar "${INSTALL+x}" "Missing install directory option: -I" $LINENO
+checkDir ${INSTALL} "Reason= directory ${INSTALL} is not a directory or does not exist." $LINENO
 
 checkVar "${BCF+x}" "Missing BCFTools directory option: -M" $LINENO
 checkDir ${BCF} "Reason= BCFTools directory ${BCF} is not a directory or does not exist." $LINENO
 
-checkVar "${BGZIP+x}" "Missing bgzip directory option: -Z" $LINENO
-checkDir ${BGZIP} "Reason= bgzip directory ${BGZIP} is not a directory or does not exist." $LINENO
-
-checkVar "${SAMTOOLS+x}" "Missing samtools directory option: -S" $LINENO
+checkVar "${SAMTOOLS+x}" "Missing Samtools directory option: -S" $LINENO
 checkDir ${SAMTOOLS} "Reason= Samtools directory ${SAMTOOLS} is not a directory or does not exist." $LINENO
 
-checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
+checkVar "${BGZIP+x}" "Missing bgzip directory option: -Z" $LINENO
+checkDir ${BGZIP} "Reason= Bgzip directory ${BGZIP} is not a directory or does not exist." $LINENO
 
-checkVar "${FIX_DP+x}" "Missing fix DP field script option: -D" $LINENO
-checkFile ${FIX_DP} "Fix DP field script ${FIX_DP} is empty or does not exist." $LINENO
+#checkVar "${CONFIG+x}" "Missing python configuration file: -c" $LINENO
+#checkFile ${CONFIG} "Python configuration file ${CONFIG} is empty or does not exist." $LINENO
+
+checkVar "${THR+x}" "Missing number of threads option: -t" $LINENO
 
 checkVar "${SHARED_FUNCTIONS+x}" "Missing shared functions option: -F" $LINENO
 checkFile ${SHARED_FUNCTIONS} "Shared functions file ${SHARED_FUNCTIONS} is empty or does not exist." $LINENO
 
-checkVar "${OPTIONS}" "Missing additional options option: -o" $LINENO
+checkVar "${FIX_INDEL_GT+x}" "Missing Fix GT Indel perl script option: -i" $LINENO
+checkFile ${FIX_INDEL_GT} "Fix GT INDEL perl script ${FIX_INDEL_GT} is empty or does not exist." $LINENO
+
+checkVar "${FIX_SNV_GT+x}" "Missing Fix GT SNV perl script option: -p" $LINENO
+checkFile ${FIX_SNV_GT} "Fix GT SNV perl script ${FIX_SNV_GT} is empty or does not exist." $LINENO
+
+checkVar "${STRELKA_OPTIONS}" "Missing additional strelka options option: -o" $LINENO
+checkVar "${BCFTOOLS_OPTIONS}" "Missing additional bcftools options option: -o" $LINENO
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
-## Extra options
-MUTECT_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${OPTIONS}`
-JAVA_MEMORY_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${JAVA_MEMORY_OPTIONS}`
+## Parsing extra options string
+STRELKA_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${STRELKA_OPTIONS}`
+BCFTOOLS_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${BCFTOOLS_OPTIONS}`
 
 
-
-## Define output VCF name
-OUTVCF=${SAMPLE}.vcf
 
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-## Perform MuTect variant calling
+## Perform Strelka variant calling
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 ## Record start time
-logInfo "[MuTect] START."
+logInfo "[Strelka] START."
 
-## first configure the MuTect run
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. MuTect2 error. Check tool log ${TOOL_LOG}. " ' INT TERM EXIT
-${JAVA}/java ${JAVA_MEMORY_OPTIONS_PARSED} -jar ${GATK}/GenomeAnalysisTK.jar \
-	-T MuTect2 \
-	-R ${REFGEN} \
-	-I:tumor ${TUMOR} \
-	-I:normal ${NORMAL} \
-	-nct ${THR} \
-	-o ${OUTVCF} >> ${TOOL_LOG} 2>&1
-EXITCODE=$?  # Capture exit code
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-
-checkFile ${OUTVCF} "Output somatic variant file failed to create." $LINENO
-
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------------
-## Post-Processing
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------------
-## Add DP field to output VCF
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
+## first configure the strelka run
 TRAP_LINE=$(($LINENO+1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution fix DP field script. " ' INT TERM EXIT
-cat ${OUTVCF} | perl ${FIX_DP} > ${OUTVCF}.fixed 2>> ${TOOL_LOG}
-#${BGZIP}/bgzip -c somatic.snvs.fixed.vcf > somatic.snvs.fixed.vcf.bgz 2>> ${TOOL_LOG}
-#${BCF}/bcftools tabix -f -p vcf somatic.snvs.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in configuring Strelka somatic workflow.  " ' INT TERM EXIT
+${INSTALL}/configureStrelkaSomaticWorkflow.py \
+    --tumorBam=${TUMOR} \
+    --normalBam=${NORMAL} \
+    --referenceFasta=${REFGEN} \
+    --runDir=./strelka \
+    $STRELKA_OPTIONS_PARSED >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
 
 
+## Run the strelka workflow. We choose local so it will not spawn new jobs on the cluster
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution of runWorkflow.py. " ' INT TERM EXIT
+./strelka/runWorkflow.py -m local -j ${THR} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[strelka] Finished running strelka workflow successfully for ${SAMPLE}"
+
+checkFile ./strelka/results/variants/somatic.indels.vcf.gz "Output somatic indels file failed to create." $LINENO
+checkFile ./strelka/results/variants/somatic.snvs.vcf.gz "Output somatic SNV file failed to create." $LINENO
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -322,12 +307,56 @@ checkExitcode ${EXITCODE} $LINENO
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-## Post-Processing: Sample Name Fix
+## Reformat SNV and Indel Genotypes
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+## Clean up strelka indel output
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution of fix Indel GT script. " ' INT TERM EXIT
+zcat ./strelka/results/variants/somatic.indels.vcf.gz | perl ${FIX_INDEL_GT} > somatic.indels.fixed.vcf 2>> ${TOOL_LOG} 
+${BGZIP}/bgzip -c somatic.indels.fixed.vcf > somatic.indels.fixed.vcf.bgz 2>> ${TOOL_LOG}
+${BCF}/bcftools tabix -f -p vcf somatic.indels.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+
+## Clean up strelka snv output
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in execution fix SNV GT script. " ' INT TERM EXIT
+zcat ./strelka/results/variants/somatic.snvs.vcf.gz | perl ${FIX_SNV_GT} > somatic.snvs.fixed.vcf 2>> ${TOOL_LOG} 
+${BGZIP}/bgzip -c somatic.snvs.fixed.vcf > somatic.snvs.fixed.vcf.bgz 2>> ${TOOL_LOG}
+${BCF}/bcftools tabix -f -p vcf somatic.snvs.fixed.vcf.bgz >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+## Post-Processing: VCF Merge
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Replace sample names
 normal_sample_name=`${SAMTOOLS}/samtools view ${NORMAL} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
 tumor_sample_name=`${SAMTOOLS}/samtools view ${TUMOR} -H | awk '/@RG/ { for (i=1;i<=NF;i++) { if ($i ~ /SM:/) { sub("SM:","",$i); print $i; exit; } } }'`
+
+## Combine vcfs into single output
+logInfo "[BCFTools] Merging strelka output VCFs."
+
+TRAP_LINE=$(($LINENO+1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools merge error. " ' INT TERM EXIT
+${BCF}/bcftools merge ${BCFTOOLS_OPTIONS_PARSED} ./*fixed.vcf.bgz > ${SAMPLE}.vcf 2>> ${TOOL_LOG}
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+
+logInfo "[BCFTools] Finished VCF merge."
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -339,20 +368,25 @@ tumor_sample_name=`${SAMTOOLS}/samtools view ${TUMOR} -H | awk '/@RG/ { for (i=1
 ## Post-Processing: bgzip and tabix
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-cat ${OUTVCF}.fixed | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>>${TOOL_LOG}
+cat ${SAMPLE}.vcf | sed -e "/^#CHROM/ s/NORMAL/$normal_sample_name/g" -e "/^#CHROM/ s/TUMOR/$tumor_sample_name/g" > ${SAMPLE}.vcf.tmp 2>> ${TOOL_LOG}
+
+
+
 
 ## BGZip merged vcf
-logInfo "[bgzip] Zipping output VCF."
+logInfo "[bgzip] Zipping merged VCF."
 
 TRAP_LINE=$(($LINENO+1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. BGZIP error. " ' INT TERM EXIT
-${BGZIP}/bgzip -c ${SAMPLE}.vcf.tmp > ${SAMPLE}.vcf.bgz 2>>${TOOL_LOG}
+${BGZIP}/bgzip -c ${SAMPLE}.vcf.tmp > ${SAMPLE}.vcf.bgz 2>> ${TOOL_LOG}
 EXITCODE=$?
 trap - INT TERM EXIT
-
 checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[bgzip] Finished VCF zipping."
+
+
+
 
 ## Generate Tabix index
 logInfo "[tabix] Creating Tabix index."
@@ -362,19 +396,14 @@ trap 'logError " $0 stopped at line ${TRAP_LINE}. BCFtools tabix error. " ' INT 
 ${BCF}/bcftools tabix -f -p vcf ${SAMPLE}.vcf.bgz >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
-
 checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[tabix] Finished index generation."
+
 #Not sure what this does -> | ${BCF}/bcftools plugin fill-AN-AC | ${BCF}/bcftools filter -i 'SUM(AC)>1' > ${SAMPLE}.vcf.gz
-
-rm ${OUTVCF}.fixed
-rm ${SAMPLE}.vcf.tmp
-
-checkFile ${OUTVCF}.bgz "Output somatic variant file failed to create." $LINENO
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-logInfo "MuTect workflow completed."
+logInfo "Strelka workflow completed."
 
 #----------------------------------------------------------------------------------------------------------------------------------------------

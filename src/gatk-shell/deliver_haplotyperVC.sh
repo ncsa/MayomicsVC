@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## dedup.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_haplotyperVC.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -19,29 +19,26 @@ echo -e "${MANIFEST}"
 
 
 
-
-
-
 read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deduplicate BAMs with Sentieon. Part of the MayomicsVC Workflow.
+# Deliver results of HaplotyperVC block: vcf for snps and indels, their index files, and workflow JSON. 
+# Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- dedup.sh          -s           <sample_name> 
-                   -b		<aligned_sorted_merged.bam>
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
-                   -F           </path/to/shared_functions.sh>
-                   -d           turn on debug mode
+ deliver_haplotyperVC.sh  -s           <sample_name>
+                          -r           <RecalibratedVcf> 
+                          -j           <WorkflowJSONfile>
+                          -f           </path/to/delivery_folder>
+                          -F           </path/to/shared_functions.sh>
+                          -d           turn on debug mode
 
  EXAMPLES:
- dedup.sh -h
- dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
+ deliver_haplotyperVC.sh -h
+ deliver_haplotyperVC.sh -s sample_name -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -51,14 +48,15 @@ DOCS
 
 
 
-
 set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=dedup.sh
-SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SCRIPT_NAME=deliver_haplotyperVC.sh
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+
 
 
 
@@ -93,31 +91,27 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:t:e:F:d" OPT
+while getopts ":hs:r:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
 			exit 0
                         ;;
-		s )  # Sample name
-			SAMPLE=${OPTARG}
-			checkArg
-			;;
-                b )  # Full path to the input BAM
-                        INPUTBAM=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
 			checkArg
                         ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
+                r )  # Full path to the recalibrated VCF file
+                        VCF=${OPTARG}
+                        checkArg
                         ;;
-                t )  # Number of threads available
-                        THR=${OPTARG}
-			checkArg
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
+                        checkArg
                         ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                f)   # Path to delivery folder
+                        DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -143,7 +137,6 @@ done
 
 
 
-
 #-------------------------------------------------------------------------------------------------------------------------------
 ## PRECHECK FOR INPUTS AND OPTIONS
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -152,76 +145,90 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Check if Sample Name variable exists
-checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+checkVar ${SAMPLE} "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup_sentieon.log
+truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
-
 ## Check if input files, directories, and variables are non-zero
-checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
-checkFile ${INPUTBAM} "Input sorted BAM file ${INPUTBAM} is empty or does not exist." $LINENO
-checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty or does not exist." $LINENO
+checkVar ${VCF} "Missing VCF option: -r" $LINENO
+checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
+checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
 
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
-checkDir ${SENTIEON} "REASON=BWA directory ${SENTIEON} is not a directory or does not exist." $LINENO
-checkVar "${THR+x}" "Missing threads option: -t" $LINENO
+checkVar ${JSON} "Missing JSON option: -j" $LINENO
+checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
 
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
-#-------------------------------------------------------------------------------------------------------------------------------
-
-## Defining file names
-SCORETXT=${SAMPLE}.deduped.score.txt
-OUT=${SAMPLE}.bam
-DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
-
+checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f" $LINENO
 
 
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## DEDUPLICATION
+## MAKE DELIVERY FOLDER
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
+logInfo "[DELIVERY] Creating the Delivery folder."
 
-## Locus Collector command
+## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
+makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
+logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
 
-## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DELIVERY
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
+
+## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
+cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
+logInfo "[DELIVERY] Recalibrated VCF delivered."
 
 
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+EXITCODE=$?
+trap - INT TERM EXIT
 
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
@@ -229,20 +236,20 @@ logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output BAM and index. Open read permissions to the user group
-checkFile ${OUT} "Output deduplicated BAM file ${OUT} is empty." $LINENO
-checkFile ${OUT}.bai "Output deduplicated BAM index file ${OUT}.bai is empty." $LINENO
+## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
 
-chmod g+r ${OUT}
-chmod g+r ${OUT}.bai
-chmod g+r ${DEDUPMETRICS}
-chmod g+r ${SCORETXT}
+JSON_FILENAME=`basename ${JSON}`
+checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
+
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
+
+logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
 
 
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## alignment.sh MANIFEST, USAGE DOCS, SET CHECKS
@@ -26,7 +26,7 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Align sequences using BWA-MEM. Part of the MayomicsVC Workflow.
+# Align sequences using Sentieon/BWA-MEM. Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
