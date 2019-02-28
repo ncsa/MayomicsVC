@@ -104,7 +104,16 @@ function checkVar()
 	fi
 }
 
-
+#check for an Int variable
+function checkVarInt()
+{
+	Int='^[0-9]+$'
+    if ! [[ $1 =~ $Int ]] 
+	then
+		EXITCODE=1
+		logError "$0 stopped at line $3. \nREASON=$2"
+	fi
+}
 
 
 #check for the existence of a directory
@@ -151,6 +160,18 @@ function makeDir()
 function checkFile()
 {
 	if [[ ! -s $1 ]]
+	then
+        	EXITCODE=1
+        	logError "$0 stopped at line $3. \nREASON=$2"
+	fi
+}
+
+#check a file is executable
+#pass in the reason as the second parameter
+function checkFileExe()
+{
+    echo $1
+    if [[ ! ( -f $1 && -x $1 ) ]]
 	then
         	EXITCODE=1
         	logError "$0 stopped at line $3. \nREASON=$2"
