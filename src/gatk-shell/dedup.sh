@@ -26,22 +26,24 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Deduplicate BAMs with Sentieon. Part of the MayomicsVC Workflow.
+# Deduplicate BAMs with Picard. Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
  dedup.sh          -s           <sample_name> 
-                   -b		<aligned_sorted_merged.bam>
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
+                   -b           <aligned_sorted_merged.bam>
+                   -S           </path/to/gatk/executable> 
+                   -t           <threads_mooted_option> 
+                   -e           <java_options>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
+ dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -t 12 -e "'-Xmx8G'" -F /path/to/shared_functions.sh -d
+
+ NOTES: In order for getops to read in a string arguments for -e (java_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
 
@@ -98,26 +100,26 @@ do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
-			exit 0
+                        exit 0
                         ;;
-		s )  # Sample name
-			SAMPLE=${OPTARG}
-			checkArg
-			;;
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
+                        checkArg
+                        ;;
                 b )  # Full path to the input BAM
                         INPUTBAM=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
+                S )  # Full path to gatk executable
+                        GATKEXE=${OPTARG}
+                        checkArg
                         ;;
-                t )  # Number of threads available
+                t )  # Number of threads available- useless with Picard, but kept for compliance with existing wdl codebase (for now)
                         THR=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                e )  # JAVA options to pass into the gatk command
+                        JAVA_OPTS=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -126,9 +128,9 @@ do
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
-			set -x
+                        set -x
                         ;;
-		\? )  # Check for unsupported flag, print usage and exit.
+               \? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -162,19 +164,16 @@ truncate -s 0 ${SAMPLE}.dedup_sentieon.log
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
 checkFile ${INPUTBAM} "Input sorted BAM file ${INPUTBAM} is empty or does not exist." $LINENO
 checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty or does not exist." $LINENO
 
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
-checkDir ${SENTIEON} "REASON=BWA directory ${SENTIEON} is not a directory or does not exist." $LINENO
-checkVar "${THR+x}" "Missing threads option: -t" $LINENO
-
+checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
+checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
+#checkVar "${THR+x}" "Missing threads option: -t" $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing java options: -e" $LINENO
 
 
 
@@ -184,10 +183,12 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Defining file names
-SCORETXT=${SAMPLE}.deduped.score.txt
 OUT=${SAMPLE}.bam
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
+TOOL_LOG=${SAMPLE}.dedup_picard.log
 
+## Parse java options
+JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS}`
 
 
 
@@ -198,27 +199,16 @@ DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Collecting info to deduplicate BAM with Locus Collector."
+logInfo "[PICARD] Deduplicating BAM."
 
-## Locus Collector command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon LocusCollector error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo LocusCollector --fun score_info ${SCORETXT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard Deduplication error. " ' INT TERM EXIT
+${GATKEXE} --java-options ${JAVA_OPTS_PARSED} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] Locus Collector finished; starting Dedup."
-
-## Dedup command (Note: optional --rmdup flag will remove duplicates; without, duplicates are marked but not removed)
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Deduplication error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${INPUTBAM} --algo Dedup --score_info ${SCORETXT} --metrics ${DEDUPMETRICS} ${OUT} >> ${SAMPLE}.dedup_sentieon.log 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] Deduplication Finished. Deduplicated BAM found at ${OUT}"
+logInfo "[PICARD] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 
 
 
@@ -236,7 +226,6 @@ checkFile ${OUT}.bai "Output deduplicated BAM index file ${OUT}.bai is empty." $
 chmod g+r ${OUT}
 chmod g+r ${OUT}.bai
 chmod g+r ${DEDUPMETRICS}
-chmod g+r ${SCORETXT}
 
 
 

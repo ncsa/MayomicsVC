@@ -38,12 +38,12 @@ read -r -d '' DOCS << DOCS
                    -c           <sequencing_center>
                    -l           <read1.fq> 
                    -r           <read2.fq>
-                   -G		    <reference_genome>
-                   -K		    <chunk_size_in_bases> 
-                   -o		    <additional_bwa_options>
+                   -G           <reference_genome>
+                   -K           <chunk_size_in_bases> 
+                   -o           <additional_bwa_options>
                    -S           </path/to/samtools/executable>
                    -t           <threads> 
-                   -P		    paired-end reads (true/false)
+                   -P           paired-end reads (true/false)
                    -e           </path/to/bwa/executable>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
