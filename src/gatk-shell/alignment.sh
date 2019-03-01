@@ -41,15 +41,16 @@ read -r -d '' DOCS << DOCS
                    -G		    <reference_genome>
                    -K		    <chunk_size_in_bases> 
                    -o		    <additional_bwa_options>
-                   -S           </path/to/sentieon> 
+                   -S           </path/to/samtools/executable>
                    -t           <threads> 
                    -P		    paired-end reads (true/false)
+                   -e           </path/to/bwa/executable>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/sentieon_directory -t 12 -P true -F /path/to/shared_functions.sh -d
+ alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/samtools/executable -t 12 -P true -e /path/to/bwa/executable -F /path/to/shared_functions.sh -d
 
  NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
         In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
@@ -104,7 +105,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:F:d" OPT
+while getopts ":hs:p:L:f:c:l:r:G:K:o:S:t:P:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage
@@ -151,8 +152,8 @@ do
 		            	BWA_OPTS=${OPTARG}
             			checkArg
 			            ;;
-        		S )  # Full path to sentieon directory
-                        BWAEXE=${OPTARG}
+        		S )  # Full path to SAMTOOLSEXE
+                        SAMTOOLSEXE=${OPTARG}
 		            	checkArg
                         ;;
                 t )  # Number of threads available
@@ -162,6 +163,10 @@ do
                 P )  # Is this a paired-end process? [true/false] Invoked with -P
                         IS_PAIRED_END=${OPTARG}
 			            checkArg
+                        ;;
+        		e )  # Full path to BWAEXE
+                        BWAEXE=${OPTARG}
+		            	checkArg
                         ;;
                 F )  # Path to shared_functions.sh
                         SHARED_FUNCTIONS=${OPTARG}
@@ -249,13 +254,13 @@ checkVar "${PLATFORM+x}" "Missing platform/sequencing technology option: -p" $LI
 checkVar "${PLATFORM_UNIT+x}" "Missing platform unit / flowcell ID option: -f" $LINENO
 checkVar "${CENTER_NAME+x}" "Missing sequencing center name option: -c" $LINENO
 checkVar "${BWA_OPTS+x}" "Missing additional BWA MEM options option: -O" $LINENO
-checkVar "${BWAEXE+x}" "Missing BWAEXE path option: -S" $LINENO
-checkFile ${BWAEXE} "REASON=BWA file ${BWAEXE} is not an executable or does not exist." $LINENO
+checkVar "${BWAEXE+x}" "Missing BWAEXE path option: -e" $LINENO
 checkFileExe ${BWAEXE} "REASON=BWA file ${BWAEXE} is not an executable or does not exist." $LINENO
+checkVar "${SAMTOOLSEXE+x}" "Missing SAMTOOLSEXE path option: -S" $LINENO
+checkFileExe ${SAMTOOLSEXE} "REASON=SAMTOOLS file ${SAMTOOLSEXE} is not an executable or does not exist." $LINENO
 checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 checkVarInt "${THR}" "Not integer value for number of threads: -t" $LINENO
 
-: <<'comment'
 
 
 
@@ -297,8 +302,8 @@ logInfo "[BWA-MEM] START."
 if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	TRAP_LINE=$(($LINENO + 1))
-	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -306,8 +311,8 @@ then
 else 
         # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
-	trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE}/bin/bwa mem ${BWA_OPTS_PARSED} -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -327,17 +332,36 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Convert SAM to BAM and sort
-logInfo "[SENTIEON] Converting SAM to BAM..."
+logInfo "[SAMTOOLS] Converting SAM to BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM conversion and sorting error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon util sort -t ${THR} --sam2bam -i ${OUT} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Samtools BAM conversion and sorting error. " ' INT TERM EXIT
+${SAMTOOLSEXE} view -@ ${THR} -bS ${OUT} | ${SAMTOOLSEXE} sort -@ ${THR} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] Converted output to BAM format and sorted."
+logInfo "[SAMTOOLS] Converted output to BAM format and sorted."
 
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM INDEXONG 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Index BAM 
+logInfo "[SAMTOOLS] Indexing BAM..."
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Samtools BAM indexing error. " ' INT TERM EXIT
+${SAMTOOLSEXE} index -b ${SORTBAM} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[SAMTOOLS] Indexed BAM output."
 
 
 
@@ -369,5 +393,3 @@ rm ${OUT}
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------
 exit 0;
-
-comment
