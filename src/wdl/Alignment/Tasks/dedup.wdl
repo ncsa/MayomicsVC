@@ -24,7 +24,7 @@ task dedupTask {
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e "'${DedupEnvProfile}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {

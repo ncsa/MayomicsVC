@@ -159,7 +159,7 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.dedup.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.dedup_sentieon.log
+truncate -s 0 ${SAMPLE}.dedup_picard.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
@@ -211,6 +211,23 @@ checkExitcode ${EXITCODE} $LINENO
 logInfo "[PICARD] Deduplication Finished. Deduplicated BAM found at ${OUT}"
 
 
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM INDEXONG 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Index BAM 
+logInfo "[PICARD] Indexing BAM..."
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
+${GATKEXE} --java-options ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[PICARD] Indexed BAM output."
 
 
 
