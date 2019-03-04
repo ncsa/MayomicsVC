@@ -20,7 +20,7 @@ task dedupTask {
    File BashSharedFunctions        # Bash script with shared functions
 
    File DedupScript                # Bash script that is called inside the WDL script
-   String DedupEnvProfile            # File containing the environmental profile variables
+   String DedupEnvProfile          # String containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
