@@ -32,16 +32,18 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  merge_bams.sh     -s           <sample_name> 
-                   -b		<lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
-                   -S           </path/to/sentieon> 
-                   -t           <threads> 
-                   -e           </path/to/env_profile_file>
+                   -b           <lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
+                   -S           </path/to/samtools/executive> 
+                   -t           <threads_mooted_option> 
+                   -e           <another/mooted/option>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  merge_bams.sh -h
- merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
+ merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/samtools/executive -t 12 -e another/mooted/option -F /path/to/shared_functions.sh -d
+
+  NOTES: In order for getops to read in values for mooted options (-e and -t here), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
 
@@ -98,27 +100,23 @@ do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
-			exit 0
+                        exit 0
                         ;;
-		s )  # Sample name
-			SAMPLE=${OPTARG}
-			checkArg
-			;;
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
+                        checkArg
+                        ;;
                 b )  # Full path to the input BAM or list of BAMS
                         INPUTBAM=${OPTARG}
-			checkArg
-                        ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
-			checkArg
-                        ;;
-                t )  # Number of threads available
-                        THR=${OPTARG}
-			checkArg
-                        ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
                         checkArg
+                        ;;
+                S )  # Full path to samtools executive 
+                        SAMTOOLSEXE=${OPTARG}
+                        checkArg
+                        ;;
+                t )  # Number of threads available- also mooted
+                        ;;
+                e )  # A mooted option for compatability with Sentieon-based shell scripts 
                         ;;
                 F )  # Path to shared_functions.sh
                         SHARED_FUNCTIONS=${OPTARG}
@@ -126,9 +124,9 @@ do
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
-			set -x
+                        set -x
                         ;;
-		\? )  # Check for unsupported flag, print usage and exit.
+                \? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -136,7 +134,7 @@ do
                         echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
-        esac
+                esac
 done
 
 
@@ -157,14 +155,10 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.merge_bams.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.merge_bams_sentieon.log
+truncate -s 0 ${SAMPLE}.merge_bams_samtools.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
-
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
@@ -173,9 +167,8 @@ do
         checkFile ${LANE} "Input sorted BAM file ${LANE} is empty or does not exist." $LINENO
         checkFile ${LANE}.bai "Input sorted BAM index file ${LANE}.bai is empty or does not exist." $LINENO
 done
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
-checkDir ${SENTIEON} "REASON=Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
-checkVar "${THR+x}" "Missing threads option: -t" $LINENO
+checkVar "${SAMTOOLSEXE+x}" "Missing SAMTOOLSEXE path option: -S" $LINENO
+checkFileExe ${SAMTOOLSEXE} "REASON=SAMTOOLS file ${SAMTOOLSEXE} is not an executable or does not exist." $LINENO
 
 
 
@@ -188,7 +181,7 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 ## Defining file names
 BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
 MERGED_BAM=${SAMPLE}.bam
-
+TOOL_LOG=${SAMPLE}.merge_bams_samtools.log
 
 
 
@@ -199,17 +192,38 @@ MERGED_BAM=${SAMPLE}.bam
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[SENTIEON] Merging BAMs if list was given."
+logInfo "[SAMTOOLSEXE] Merging BAMs if list was given."
 
-## Locus Collector command
+## samtools merge command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon BAM merging error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -i ${BAMS} --algo ReadWriter ${MERGED_BAM} >> ${SAMPLE}.merge_bams_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. SAMTOOLS BAM merging error. " ' INT TERM EXIT
+${SAMTOOLSEXE} merge -f ${MERGED_BAM} ${BAMS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SENTIEON] BAM merging complete."
+logInfo "[SAMTOOLSEXE] BAM merging complete."
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM INDEXONG 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Index BAM 
+logInfo "[SAMTOOLS] Indexing BAM..."
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
+${SAMTOOLSEXE} index -b ${MERGED_BAM} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[SAMTOOLS] Indexed BAM output."
+
 
 
 

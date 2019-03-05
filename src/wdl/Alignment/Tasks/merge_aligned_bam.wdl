@@ -21,7 +21,7 @@ task mergebamTask {
    File BashPreamble               # Bash script that helps control zombie processes
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    File MergeBamScript             # Bash script that is called inside the WDL script
-   File MergeBamEnvProfile         # File containing the environmental profile variables
+   String MergeBamEnvProfile       # File containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
