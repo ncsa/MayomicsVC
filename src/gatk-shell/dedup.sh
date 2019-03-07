@@ -43,8 +43,6 @@ read -r -d '' DOCS << DOCS
  dedup.sh -h
  dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -t 12 -e "'-Xmx8G'" -F /path/to/shared_functions.sh -d
 
- NOTES: In order for getops to read in a string arguments for -e (java_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
-
 #############################################################################
 
 DOCS
@@ -115,8 +113,6 @@ do
                         checkArg
                         ;;
                 t )  # Number of threads available- useless with Picard, but kept for compliance with existing wdl codebase (for now)
-                        THR=${OPTARG}
-                        checkArg
                         ;;
                 e )  # JAVA options to pass into the gatk command
                         JAVA_OPTS=${OPTARG}
@@ -172,7 +168,6 @@ checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty 
 
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
-#checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 checkVar "${JAVA_OPTS+x}" "Missing java options: -e" $LINENO
 
 

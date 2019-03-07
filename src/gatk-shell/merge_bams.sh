@@ -43,8 +43,6 @@ read -r -d '' DOCS << DOCS
  merge_bams.sh -h
  merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/samtools/executive -t 12 -e another/mooted/option -F /path/to/shared_functions.sh -d
 
-  NOTES: In order for getops to read in values for mooted options (-e and -t here), the argument needs to be quoted with a double quote (") followed by a single quote (').
-
 #############################################################################
 
 DOCS
