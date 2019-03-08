@@ -1,3 +1,12 @@
+
+This branch is based-off the `master` branch, with the intention of defining a GATK based pipeline. 
+
+Points to keep in mind:
+1. All code remains the same, with a new folder defined for the new gatk shell wrappers defined in: `src/gatk-shell`
+2. While defining new wrapper scripts, maintain the same inputs as the the `Sentieon`  shell wrappers. Comment on moot options; and document options that are now different. 
+3. Do NOT use piping between bash commands, for maximum robustness
+
+
 # Acknowledgements
 
 This work was a product of the Mayo Clinic and Illinois Strategic Alliance for Technology-Based Healthcare. Special thanks for the funding provided by the Mayo Clinic Center for Individualized Medicine and the Todd and Karen Wanek Program for Hypoplastic Left Heart Syndrome. We also thank the Interdisciplinary Health Sciences Institute, UIUC Institute for Genomic Biology and the National Center for Supercomputing Applications for their generous support and access to resources. We particularly acknowledge the support of Keith Stewart, M.B., Ch.B., Mayo Clinic/Illinois Grand Challenge Sponsor and Director of the Mayo Clinic Center for Individualized Medicine. Many thanks to the Sentieon team for consultation and advice on the Sentieon variant calling software.
