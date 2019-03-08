@@ -269,7 +269,8 @@ checkVarInt "${THR}" "Not integer value for number of threads: -t" $LINENO
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
-OUT=${SAMPLE}.sam
+OUTSAM=${SAMPLE}.sam
+OUTBAM=${SAMPLE}-unsorted.bam
 SORTBAM=${SAMPLE}.bam
 SORTBAMIDX=${SAMPLE}.bam.bai
 TOOL_LOG=${SAMPLE}.align_bwa.log
@@ -303,7 +304,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUT} 2>>${TOOL_LOG}
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUTSAM} 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -312,14 +313,14 @@ else
         # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUT} 2>>${TOOL_LOG} 
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUTSAM} 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
         checkExitcode ${EXITCODE} $LINENO
 fi
 
-checkFile ${OUT} "Output SAM ${OUT} is empty." $LINENO
+checkFile ${OUTSAM} "Output SAM ${OUTSAM} is empty." $LINENO
 logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 
@@ -328,23 +329,40 @@ logInfo "[BWA-MEM] Aligned reads ${SAMPLE} to reference ${REFGEN}."
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## BAM CONVERSION AND SORTING
+## BAM CONVERSION
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Convert SAM to BAM and sort
+## Convert SAM to BAM
 logInfo "[SAMTOOLS] Converting SAM to BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Samtools BAM conversion and sorting error. " ' INT TERM EXIT
-${SAMTOOLSEXE} view -@ ${THR} -bS ${OUT} | ${SAMTOOLSEXE} sort -@ ${THR} -o ${SORTBAM} >> ${TOOL_LOG} 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Samtools BAM conversion error. " ' INT TERM EXIT
+${SAMTOOLSEXE} view -@ ${THR} -bS ${OUTSAM} -o ${OUTBAM} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[SAMTOOLS] Converted output to BAM format and sorted."
+logInfo "[SAMTOOLS] Converted output to BAM format."
 
 
 
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM SORTING
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Sort BAM
+logInfo "[SAMTOOLS] Sorting BAM..."
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Samtools BAM sorting error. " ' INT TERM EXIT
+${SAMTOOLSEXE} sort -@ ${THR} -o ${SORTBAM} ${OUTBAM} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[SAMTOOLS] Sorted output BAM."
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -375,13 +393,14 @@ logInfo "[SAMTOOLS] Indexed BAM output."
 checkFile ${SORTBAM} "Output sorted BAM ${SORTBAM} is empty." $LINENO
 checkFile ${SORTBAMIDX} "Output sorted BAM ${SORTBAMIDX} is empty." $LINENO
 
-chmod g+r ${OUT}
+chmod g+r ${OUTSAM}
+chmod g+r ${OUTBAM}
 chmod g+r ${SORTBAM}
 chmod g+r ${SORTBAMIDX}
 
 logInfo "[BWA-MEM] Finished alignment. Aligned reads found in BAM format at ${SORTBAM}."
 
-rm ${OUT}
+rm ${OUTSAM} ${OUTBAM}
 
 #-------------------------------------------------------------------------------------------------------------------------------
 
