@@ -115,7 +115,7 @@ do
                 t )  # Number of threads available- useless with Picard, but kept for compliance with existing wdl codebase (for now)
                         ;;
                 e )  # JAVA options to pass into the gatk command
-                        JAVA_OPTS=${OPTARG}
+                        JAVA_OPTS_FILE=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -161,6 +161,14 @@ truncate -s 0 ${SAMPLE}.dedup_picard.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 
+## source the file with java path and options variables
+checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
+source ${JAVA_OPTS_FILE}
+checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
+checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
+
+
 ## Check if input files, directories, and variables are non-zero
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
 checkFile ${INPUTBAM} "Input sorted BAM file ${INPUTBAM} is empty or does not exist." $LINENO
@@ -168,7 +176,7 @@ checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty 
 
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing java options: -e" $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing java options paramete: -e" $LINENO
 
 
 
@@ -198,7 +206,7 @@ logInfo "[PICARD] Deduplicating BAM."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard Deduplication error. " ' INT TERM EXIT
-${GATKEXE} --java-options ${JAVA_OPTS_PARSED} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
+${GATKEXE} ${JAVA_OPTS} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -217,7 +225,7 @@ logInfo "[PICARD] Indexing BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
-${GATKEXE} --java-options ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
