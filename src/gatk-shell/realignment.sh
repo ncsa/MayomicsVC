@@ -25,24 +25,24 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Realign reads using Sentieon Realigner. Part of the MayomicsVC Workflow.
+# Realign reads using GATK Realigner. Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
  realignment.sh    -s           <sample_name> 
                    -b           <sorted.deduped.bam>
-                   -G		<reference_genome>
-                   -k		<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
-                   -S           </path/to/sentieon> 
+                   -G           <reference_genome>
+                   -k           <known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf) 
+                   -S           </path/to/gatk/executable> 
                    -t           <threads> 
-                   -e           </path/to/env_profile_file>
+                   -e           </path/to/file/containing/java_options>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  realignment.sh -h
- realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/sentieon_directory -t 12 -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
+ realignment.sh -s sample -b sorted.deduped.bam -G reference.fa -k known1.vcf,known2.vcf,...knownN.vcf -S /path/to/gatk/executable -t 12 -e /path/to/file/containing/java/options -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -100,30 +100,30 @@ do
                 h )  # Flag to display usage
                         echo -e "\n${DOCS}\n"
                         exit 0
-			;;
+                        ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
-		b )  # Full path to the input deduped BAM
-			INPUTBAM=${OPTARG}
-			checkArg
-			;;
+        		b )  # Full path to the input deduped BAM
+                        INPUTBAM=${OPTARG}
+                        checkArg
+                        ;;
                 G )  # Full path to reference genome fasta file
                         REFGEN=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
-		k )  # Full path to known sites files
-			KNOWN=${OPTARG}
-			checkArg
-			;;
+        		k )  # Full path to known sites files
+                        KNOWN=${OPTARG}
+                        checkArg
+                        ;;
                 S )  # Full path to sentieon directory
                         SENTIEON=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
                 t )  # Number of threads available
                         THR=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
                 e )  # Path to file with environmental profile variables
                         ENV_PROFILE=${OPTARG}
@@ -134,14 +134,14 @@ do
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
-			echo -e "\nDebug mode is ON.\n"
-			set -x
+                        echo -e "\nDebug mode is ON.\n"
+                        set -x
                         ;;
-		\? )  # Check for unsupported flag, print usage and exit.
+        		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
-		: )  # Check for missing arguments, print usage and exit.
+		        : )  # Check for missing arguments, print usage and exit.
                         echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -184,8 +184,8 @@ checkVar "${REFGEN+x}" "Missing reference genome option: -G" $LINENO
 checkFile ${REFGEN} "Reference genome file ${REFGEN} is empty or does not exist." $LINENO
 
 checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
-checkDir ${SENTIEON} "Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar "${SENTIEON+x}" "Missing GATK path option: -S" $LINENO
+checkDir ${SENTIEON} "GATK directory ${SENTIEON} is not a directory or does not exist." $LINENO
 checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
@@ -213,9 +213,9 @@ OUT=${SAMPLE}.bam
 ## Record start time
 logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN} ."
 
-## Sentieon Realigner command.
+## GATK Realigner command.
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Sentieon Realignment error. " ' INT TERM EXIT
+trap 'logError " $0 stopped at line ${TRAP_LINE}. GATK Realignment error. " ' INT TERM EXIT
 ${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT

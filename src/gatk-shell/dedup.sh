@@ -114,7 +114,7 @@ do
                         ;;
                 t )  # Number of threads available- useless with Picard, but kept for compliance with existing wdl codebase (for now)
                         ;;
-                e )  # JAVA options to pass into the gatk command
+                e )  # Path to file containing JAVA options to pass into the gatk command
                         JAVA_OPTS_FILE=${OPTARG}
                         checkArg
                         ;;
