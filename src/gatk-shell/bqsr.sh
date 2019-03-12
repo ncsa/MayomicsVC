@@ -31,18 +31,18 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  bqsr.sh -s 	<sample_name>
-	 -S 	</path/to/sentieon> 
-	 -G 	<reference_genome>
-	 -t 	<threads>
-	 -b 	<sorted.deduped.realigned.bam>
-	 -k 	<known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
-         -e     </path/to/env_profile_file>
-	 -F     </path/to/shared_functions.sh>
-	 -d	turn on debug mode	
+         -S 	</path/to/gatk/executable> 
+         -G 	<reference_genome>
+         -t 	<threads>
+         -b 	<sorted.deduped.bam>
+         -k 	<comma,seperated,list,of,paths,to,known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
+         -e     </path/to/java_options_file>
+         -F     </path/to/shared_functions.sh>
+         -d     turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d 
+ bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -d 
 
 ############################################################################################################################
 
@@ -101,8 +101,8 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to Sentieon
-			SENTIEON=${OPTARG}
+		S ) # Full path to gatk executable 
+			GATKEXE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to reference fasta
@@ -121,10 +121,10 @@ do
 			KNOWN=${OPTARG}
 			checkArg
 			;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
-                        checkArg
-                        ;;
+        e )  # Path to file containing JAVA options to pass into the gatk command 
+             JAVA_OPTS_FILE=${OPTARG}
+             checkArg
+             ;;
 		F )  # Path to shared_functions.sh
 			SHARED_FUNCTIONS=${OPTARG}
 			checkArg
@@ -167,21 +167,24 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.bqsr.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.bqsr_sentieon.log
+truncate -s 0 ${SAMPLE}.bqsr_gatk.log
 
 
 ## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
+## source the file with java path and options variables
+checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
+source ${JAVA_OPTS_FILE}
+checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
+checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
-## Check if the Sentieon executable option was passed in.
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
+## Check if the GATK executable option was passed in.
+checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 
-## Check if the Sentieon executable is present.
-checkDir ${SENTIEON} "Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO 
+## Check if the GATK executable is present.
+checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO 
 
 #Check if the number of threads is present.
 checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
@@ -202,29 +205,26 @@ checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exis
 ## Check if the known sites file option is present.
 checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
 
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 
 
 
 
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 ## FILENAME AND OPTION PARSING
-#---------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 
-## Parse known sites list of multiple files. Create multiple -k flags for sentieon
-SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
+## Parse known sites list of multiple files. Create multiple -k flags for gatk
+KNOWNSITES=$( echo --known-sites ${KNOWN} | sed "s/,/ --known-sites /g" | tr "\n" " " )
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
+## Defining file names
+TOOL_LOG=${SAMPLE}.bqsr_gatk.log
 
 
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------
-## Perform bqsr with Sention
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+## Perform bqsr with GATK 
+#---------------------------------------------------------------------------------------------------------------------------
 
 
 ## Record start time
@@ -234,43 +234,53 @@ logInfo "[bqsr] START. Performing bqsr on the input BAM to produce bqsr table."
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table >> ${SAMPLE}.bqsr_sentieon.log 2>&1
+${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
+logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
 
+
+
+
+
+:<<Replace_with_AnalyzeCovariates_pipeline_from_GATK
 #Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${SPLITKNOWN} ${SAMPLE}.recal_data.table.post >> ${SAMPLE}.bqsr_sentieon.log 2>&1
+${GATKEXE}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${KNOWNSITES} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
+logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
 
 #Create data for plotting
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step3: Create data for plotting. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${SAMPLE}.bqsr_sentieon.log 2>&1
+${GATKEXE}/bin/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
+logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
 
 #Plot the calibration data tables, both pre and post, into graphs in a pdf
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError "$0 stopped at line ${TRAP_LINE}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon plot QualCal -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${SAMPLE}.bqsr_sentieon.log 2>&1
+${GATKEXE}/bin/sentieon plot QualCal -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
 
 logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
-#------------------------------------------------------------------------------------------------------------------------------------
+Replace_with_AnalyzeCovariates_pipeline_from_GATK
 
 
 
-#------------------------------------------------------------------------------------------------------------------------------------
+
+
+#---------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
-#------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 
 # Check for the creation of the recal_data.table necessary for input to Haplotyper. Open read permissions for the group.
 # The other files created in BQSR are not necessary for the workflow to run, so I am not performing checks on them.
@@ -279,16 +289,15 @@ checkFile ${SAMPLE}.recal_data.table "Recal data table ${SAMPLE}.recal_data.tabl
 
 chmod g+r ${SAMPLE}.recal_data.table
 
-#-----------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 
 
 
 
 
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 ## END
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 exit 0;
-
