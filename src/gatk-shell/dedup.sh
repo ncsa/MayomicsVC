@@ -35,13 +35,13 @@ read -r -d '' DOCS << DOCS
                    -b           <aligned_sorted_merged.bam>
                    -S           </path/to/gatk/executable> 
                    -t           <threads_mooted_option> 
-                   -e           <java_options>
+                   -e           </path/to/file/containing/java_options>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -t 12 -e "'-Xmx8G'" -F /path/to/shared_functions.sh -d
+ dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -t 12 -e /path/to/file/containing/java_options -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
