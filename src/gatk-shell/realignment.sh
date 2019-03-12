@@ -117,16 +117,16 @@ do
                         KNOWN=${OPTARG}
                         checkArg
                         ;;
-                S )  # Full path to sentieon directory
-                        SENTIEON=${OPTARG}
+                S )  # Full path to gatk executable 
+                        GATKEXE=${OPTARG}
                         checkArg
                         ;;
                 t )  # Number of threads available
                         THR=${OPTARG}
                         checkArg
                         ;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
+                e )  # Path to file containing JAVA options to pass into the gatk command
+                        JAVA_OPTS_FILE=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -166,14 +166,17 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 ## Create log for JOB_ID/script
 ERRLOG=${SAMPLE}.realignment.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.realign_sentieon.log
+truncate -s 0 ${SAMPLE}.realign_gatk.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
+## source the file with java path and options variables
+checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
+source ${JAVA_OPTS_FILE}
+checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
+checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
 ## Check if input files, directories, and variables are non-zero
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
@@ -184,8 +187,8 @@ checkVar "${REFGEN+x}" "Missing reference genome option: -G" $LINENO
 checkFile ${REFGEN} "Reference genome file ${REFGEN} is empty or does not exist." $LINENO
 
 checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
-checkVar "${SENTIEON+x}" "Missing GATK path option: -S" $LINENO
-checkDir ${SENTIEON} "GATK directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
+checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
 checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 
 
@@ -196,12 +199,14 @@ checkVar "${THR+x}" "Missing threads option: -t" $LINENO
 ## FILENAME AND OPTION PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Parse known sites list of multiple files. Create multiple -k flags for sentieon
+## Parse known sites list of multiple files. Create multiple -k flags for gatk
 SPLITKNOWN=`sed -e 's/,/ -k /g' <<< ${KNOWN}`
 echo ${SPLITKNOWN}
 
 ## Parse filenames without full path
 OUT=${SAMPLE}.bam
+TOOL_LOG=${SAMPLE}.
+
 
 
 
@@ -216,7 +221,7 @@ logInfo "[Realigner] START. Realigning deduped BAM. Using known sites at ${KNOWN
 ## GATK Realigner command.
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. GATK Realignment error. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_sentieon.log 2>&1
+${GATKEXE}/bin/gatk driver -t ${THR} -r ${REFGEN} -i ${INPUTBAM} --algo Realigner -k ${SPLITKNOWN} ${OUT} >> ${SAMPLE}.realign_gatk.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 

@@ -176,7 +176,6 @@ checkFile ${INPUTBAM}.bai "Input sorted BAM index file ${INPUTBAM}.bai is empty 
 
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing java options paramete: -e" $LINENO
 
 
 
@@ -189,9 +188,6 @@ checkVar "${JAVA_OPTS+x}" "Missing java options paramete: -e" $LINENO
 OUT=${SAMPLE}.bam
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 TOOL_LOG=${SAMPLE}.dedup_picard.log
-
-## Parse java options
-JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS}`
 
 
 
