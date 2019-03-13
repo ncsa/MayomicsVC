@@ -1,10 +1,15 @@
+TL;DR
+> This branch is based-off the `master` branch, with the intention of defining a GATK based pipeline. 
+> To run the pipeline, go to (Workflow Running)[#workflow-running]
 
-This branch is based-off the `master` branch, with the intention of defining a GATK based pipeline. 
-
-Points to keep in mind:
-1. All code remains the same, with a new folder defined for the new gatk shell wrappers defined in: `src/gatk-shell`
-2. While defining new wrapper scripts, maintain the same inputs as the the `Sentieon`  shell wrappers. Comment on moot options; and document options that are now different. 
-3. Do NOT use piping between bash commands, for maximum robustness
+Development notes:
+2. The GATK pipeline uses: `bwa, samtools and gatk4`
+1. GATK shell scripts may require different set of inputs than Sentieon. >> create seperate folders within `wdl` and `shell` folders for them 
+3. Only germline calling is considered
+4. Functional equivalence guideliness are followed:
+ 1. No realignment (it is not recommended, and requires invocation from a GATK3 jar)
+ 2. BQSR produces no bam; and does no plotting
+ 
 
 
 # Acknowledgements

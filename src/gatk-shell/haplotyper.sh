@@ -23,34 +23,34 @@ echo -e "\n${MANIFEST}"
 read -r -d '' DOCS << DOCS
 
 
-#######################################################################################################################################################
+###########################################################################################################################
 #
-# Perform Sentieon's Haplotyper variant caller on the bam produced in the Deduplication stage of the Mayomics workflow.
+# Perform GATK's HaplotypeCaller variant caller on the bam produced in the Deduplication stage of the Mayomics workflow.
 # bqsr.sh must be run before to this stage to calculate the required modification of the quality scores.
 # Step 2/3 in Single Sample Variant Calling.
 #
-########################################################################################################################################################
+###########################################################################################################################
 
  USAGE:
- Haplotyper.sh     -s 	<sample_name>
-		   -S	</path/to/sentieon>
-		   -G	<reference_genome>
-		   -t	<threads>
-		   -b	<sorted.deduped.realigned.bam>
-		   -D	<dbsnp.vcf>
-		   -r	<recal_data.table>
-		   -o	<extra_haplotyper_options>
-                   -e   </path/to/env_profile_file>
+ haplotyper.sh     -s 	<sample_name>
+                   -S	</path/to/gatk/executable>
+                   -G	<reference_genome>
+                   -t	<threads>
+                   -b	<sorted.deduped.bam>
+                   -D	<dbsnp.vcf>
+                   -r	<recal_data.table>
+                   -o	<extra_haplotyper_options>
+                   -e   </path/to/java_options_file>
                    -F   </path/to/shared_functions.sh>
-           -V   VCF Source Field (default: Sentieon)
-		   -d   turn on debug mode
+                   -V   VCF Source Field (default: Sentieon)
+                   -d   turn on debug mode
 
  EXAMPLES:
- Haplotyper.sh -h
- Haplotyper.sh -s sample -S /path/to/sentieon_directory -G reference.fa -t 12 -b sorted.deduped.realigned.recalibrated.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/env_profile_file -F </path/to/shared_functions.sh> -d 
+ haplotyper.sh -h
+ haplotyper.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -D dbsnp.vcf -r recal_data.table -o "'--emit_mode variant --gq_bands 1-60,60-99/19,99 --min_base_qual 10 --pcr_indel_model CONSERVATIVE --phasing 1 --ploidy 2 --prune_factor 2'" -e /path/to/java_options_file -F </path/to/shared_functions.sh> -d 
 
 NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
-##########################################################################################################################################################
+###########################################################################################################################
 
 
 DOCS
@@ -59,7 +59,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=Haplotyper.sh
+SCRIPT_NAME=haplotyper.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 SOURCE_FIELD="Sentieon"
@@ -108,8 +108,8 @@ do
 			SAMPLE=${OPTARG}
 			checkArg
 			;;
-		S ) # Full path to sentieon directory
-			SENTIEON=${OPTARG}
+		S ) # Full path to gatk executable 
+			GATKEXE=${OPTARG}
 			checkArg
 			;;
 		G ) # Full path to referance genome fasta file
@@ -136,10 +136,10 @@ do
 			HAPLOTYPER_OPTIONS=${OPTARG}
 			checkArg
 			;;
-                e )  # Path to file with environmental profile variables
-                        ENV_PROFILE=${OPTARG}
-                        checkArg
-                        ;;
+        e )  # Path to file containing JAVA options to pass into the gatk command 
+            JAVA_OPTS_FILE=${OPTARG}
+            checkArg
+            ;;
 		F ) # Path to shared_functions.sh
 			SHARED_FUNCTIONS=${OPTARG}
 			checkArg
@@ -152,13 +152,13 @@ do
 	        SOURCE_FIELD=${OPTARG}
 	        ;;
 		\? )  # Check for unsupported flag, print usage and exit.
-                        echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
-                        exit 1
-                        ;;
-                : )  # Check for missing arguments, print usage and exit.
-                        echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
-                        exit 1
-                        ;;
+                echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
+                exit 1
+                ;;
+        : )  # Check for missing arguments, print usage and exit.
+             echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
+             exit 1
+             ;;
 	esac
 done
 #---------------------------------------------------------------------------------------------------------------------------
@@ -182,16 +182,19 @@ checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.haplotyper.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.haplotype_sentieon.log
+truncate -s 0 ${SAMPLE}.haplotype_gatk.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
+## source the file with java path and options variables
+checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
+source ${JAVA_OPTS_FILE}
+checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
+checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
+checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
-checkVar "${SENTIEON+x}" "Missing Sentieon path option: -S" $LINENO
-checkDir ${SENTIEON} "REASON=Sentieon directory ${SENTIEON} is not a directory or does not exist." $LINENO
+checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
+checkDir ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
 
 checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
 
@@ -224,7 +227,7 @@ fi
 checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
 
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
 
 
@@ -236,26 +239,26 @@ HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
 
 
 
-#--------------------------------------------------------------------------------------------------------------------------------------------------
-## Perform Haplotyper with Sentieon.
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------
+## Perform HaplotypeCaller with GATK.
+#-------------------------------------------------------------------------------------------------------------------------
 
 
 ## Record start time
-logInfo "[Haplotyper] START."
+logInfo "[HaplotypeCaller] START."
 
 
-#Execute Sentieon with the Haplotyper algorithm
+#Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper. " ' INT TERM EXIT
-${SENTIEON}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} ${RECAL_OPTION} --algo Haplotyper ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_sentieon.log 2>&1
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
+${GATKEXE}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} ${RECAL_OPTION} --algo HaplotypeCaller ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_gatk.log 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
-#------------------------------------------------------------------------------------------------------------------------------------
+logInfo "[HaplotypeCaller] Finished running successfully. Output: ${SAMPLE}.vcf"
+#-------------------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
@@ -265,9 +268,9 @@ logInfo "[Haplotyper] Finished running successfully. Output: ${SAMPLE}.vcf"
 
 rm -f ${SAMPLE}.vcf.idx
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in Sentieon Haplotyper (vcfindex). " ' INT TERM EXIT
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller (vcfindex). " ' INT TERM EXIT
 sed -i "2i##source=${SOURCE_FIELD}" ${SAMPLE}.vcf
-${SENTIEON}/bin/sentieon util vcfindex ${SAMPLE}.vcf 2>&1
+${GATKEXE}/bin/sentieon util vcfindex ${SAMPLE}.vcf 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
