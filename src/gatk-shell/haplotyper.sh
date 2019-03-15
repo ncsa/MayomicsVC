@@ -97,7 +97,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:r:o:e:F:dV:" OPT
+while getopts ":hs:S:G:t:b:D:o:e:F:dV:" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -126,10 +126,6 @@ do
 			;;
 		D ) # Full path to DBSNP file
 			DBSNP=${OPTARG}
-			checkArg
-			;;
-		r ) #Full path to the recal_data.table created in the BQSR step
-			RECAL=${OPTARG}
 			checkArg
 			;;
 		o ) #Extra options and arguments to haplotyper, input as a long string, can be empty if desired
@@ -194,7 +190,7 @@ checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does 
 checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
-checkDir ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
+checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
 
 checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
 
@@ -209,28 +205,13 @@ checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
 checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
 
-RECAL_OPTION=""
-if [[ ! -z ${RECAL+x} ]] # if unset return null, if null or set, return x
-then
-	## Check if the Recal_data.table file produced in BQSR is present
-	if [[ ! -s ${RECAL} ]]
-	then
-		EXITCODE=1
-		logError "$0 stopped at line $LINENO. \nREASON=RECAL_DATA.TABLE ${RECAL} is empty or does not exist." 
-	fi
-RECAL_OPTION="-q ${RECAL}"
-fi
-
-#checkVar "${RECAL+x}" "Missing RECAL_DATA.TABLE option: -r" $LINENO
-#checkFile ${RECAL} "Recal table from BQSR ${RECAL} is empty or does not exist." $LINENO
-
 checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
 
 #--------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
 
-
+TOOL_LOG=${SAMPLE}.haplotype_gatk.log
 
 
 
@@ -251,40 +232,32 @@ logInfo "[HaplotypeCaller] START."
 #Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
-${GATKEXE}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} ${RECAL_OPTION} --algo HaplotypeCaller ${HAPLOTYPER_OPTIONS_PARSED} -d ${DBSNP} ${SAMPLE}.vcf >> ${SAMPLE}.haplotype_gatk.log 2>&1
+${GATKEXE} HaplotypeCaller --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.g.vcf --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF -A Coverage -A FisherStrand -A StrandOddsRatio -A MappingQualityRankSumTest -A QualByDepth -A RMSMappingQuality -A ReadPosRankSumTest >> ${TOOL_LOG} 2>&1
+
 EXITCODE=$?
 trap - INT TERM EXIT
 
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[HaplotypeCaller] Finished running successfully. Output: ${SAMPLE}.vcf"
+logInfo "[HaplotypeCaller] Finished running successfully. Output: ${SAMPLE}.g.vcf"
 #-------------------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Inject Source Field into VCF Header (2nd row) and reindex
-
-rm -f ${SAMPLE}.vcf.idx
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller (vcfindex). " ' INT TERM EXIT
-sed -i "2i##source=${SOURCE_FIELD}" ${SAMPLE}.vcf
-${GATKEXE}/bin/sentieon util vcfindex ${SAMPLE}.vcf 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
 
 ## Check for the creation of the output VCF file
-checkFile ${SAMPLE}.vcf "Output VCF is empty." $LINENO
+checkFile ${SAMPLE}.g.vcf "Output VCF is empty." $LINENO
 
 ## Open read permissions to the user group
-chmod g+r ${SAMPLE}.vcf
+chmod g+r ${SAMPLE}.g.vcf
 
 ## Check for the creation of the output VCF index file 
-checkFile ${SAMPLE}.vcf.idx "Output VCF index is empty." $LINENO
+checkFile ${SAMPLE}.g.vcf.idx "Output VCF index is empty." $LINENO
 
 ## Open read permissions to the user group
-chmod g+r ${SAMPLE}.vcf.idx
+chmod g+r ${SAMPLE}.g.vcf.idx
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
