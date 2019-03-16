@@ -33,15 +33,13 @@ read -r -d '' DOCS << DOCS
  USAGE:
  merge_bams.sh     -s           <sample_name> 
                    -b           <lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
-                   -S           </path/to/samtools/executive> 
-                   -t           <threads_mooted_option> 
-                   -e           <another/mooted/option>
+                   -S           </path/to/samtools/executable> 
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  merge_bams.sh -h
- merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/samtools/executive -t 12 -e another/mooted/option -F /path/to/shared_functions.sh -d
+ merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/samtools/executable -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -93,7 +91,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:t:e:F:d" OPT
+while getopts ":hs:b:S:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -111,10 +109,6 @@ do
                 S )  # Full path to samtools executive 
                         SAMTOOLSEXE=${OPTARG}
                         checkArg
-                        ;;
-                t )  # Number of threads available- also mooted
-                        ;;
-                e )  # A mooted option for compatability with Sentieon-based shell scripts 
                         ;;
                 F )  # Path to shared_functions.sh
                         SHARED_FUNCTIONS=${OPTARG}

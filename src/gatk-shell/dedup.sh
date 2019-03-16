@@ -34,14 +34,13 @@ read -r -d '' DOCS << DOCS
  dedup.sh          -s           <sample_name> 
                    -b           <aligned_sorted_merged.bam>
                    -S           </path/to/gatk/executable> 
-                   -t           <threads_mooted_option> 
                    -e           </path/to/file/containing/java_options>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -t 12 -e /path/to/file/containing/java_options -F /path/to/shared_functions.sh -d
+ dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -e /path/to/file/containing/java_options -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -93,7 +92,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:t:e:F:d" OPT
+while getopts ":hs:b:S:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -111,8 +110,6 @@ do
                 S )  # Full path to gatk executable
                         GATKEXE=${OPTARG}
                         checkArg
-                        ;;
-                t )  # Number of threads available- useless with Picard, but kept for compliance with existing wdl codebase (for now)
                         ;;
                 e )  # Path to file containing JAVA options to pass into the gatk command
                         JAVA_OPTS_FILE=${OPTARG}

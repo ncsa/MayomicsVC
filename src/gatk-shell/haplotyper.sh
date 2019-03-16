@@ -41,7 +41,6 @@ read -r -d '' DOCS << DOCS
                    -o	<extra_haplotyper_options>
                    -e   </path/to/java_options_file>
                    -F   </path/to/shared_functions.sh>
-                   -V   VCF Source Field (default: Sentieon)
                    -d   turn on debug mode
 
  EXAMPLES:
@@ -61,7 +60,6 @@ set -o nounset
 SCRIPT_NAME=haplotyper.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
-SOURCE_FIELD="Sentieon"
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -96,7 +94,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:o:e:F:dV:" OPT
+while getopts ":hs:S:G:t:b:D:o:e:F:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -143,9 +141,6 @@ do
 			echo -e "\nDebug mode is ON.\n"
 			set -x
 			;;
-	    V ) # Set the source field overriding 'Sentieon'
-	        SOURCE_FIELD=${OPTARG}
-	        ;;
 		\? )  # Check for unsupported flag, print usage and exit.
                 echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                 exit 1

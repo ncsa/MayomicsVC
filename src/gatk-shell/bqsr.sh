@@ -33,16 +33,18 @@ read -r -d '' DOCS << DOCS
  bqsr.sh -s 	<sample_name>
          -S 	</path/to/gatk/executable> 
          -G 	<reference_genome>
-         -t 	<threads>
          -b 	<sorted.deduped.bam>
          -k 	<comma,seperated,list,of,paths,to,known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
          -e     </path/to/java_options_file>
          -F     </path/to/shared_functions.sh>
+         -o     <extra_ApplyBQSR_options>
          -d     turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -d 
+ bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -o "''" -d 
+
+ NOTE: In order for getops to read in a string arguments for -o (extra_ApplyBQSR_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 
 ############################################################################################################################
 
@@ -90,7 +92,7 @@ then
 fi
 
 
-while getopts ":hs:S:G:t:b:k:e:F:d" OPT
+while getopts ":hs:S:G:b:k:e:F:o:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -109,10 +111,6 @@ do
 			REF=${OPTARG}
 			checkArg
 			;;
-		t ) # Number of threads available
-			NTHREADS=${OPTARG}
-			checkArg
-			;;
 		b ) # Full path to DeDuped BAM used as input
 			INPUTBAM=${OPTARG}
 			checkArg
@@ -126,9 +124,13 @@ do
              checkArg
              ;;
 		F )  # Path to shared_functions.sh
-			SHARED_FUNCTIONS=${OPTARG}
-			checkArg
+		     SHARED_FUNCTIONS=${OPTARG}
+			 checkArg
 			;;
+        o ) # Extra options and arguments to ApplyBQSR, input as a long string, can be empty if desired
+              APPLYBQSR_OPTIONS=${OPTARG}
+              checkArg
+              ;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -186,9 +188,6 @@ checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 ## Check if the GATK executable is present.
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO 
 
-#Check if the number of threads is present.
-checkVar "${NTHREADS+x}" "Missing threads option: -t" $LINENO
-
 ## Check if the reference option was passed in
 checkVar "${REF+x}" "Missing reference genome option: -G" $LINENO
 
@@ -205,6 +204,7 @@ checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exis
 ## Check if the known sites file option is present.
 checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
 
+checkVar "${APPLYBQSR_OPTIONS+x}" "Missing extra ApplyBQSR options option: -o" $LINENO
 #---------------------------------------------------------------------------------------------------------------------------
 
 
@@ -247,45 +247,11 @@ logInfo "[bqsr] START. Generate the bqsr'd bam file"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table ${APPLYBQSR_OPTIONS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
 logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.bam" 
-
-
-
-
-
-:<<Replace_with_AnalyzeCovariates_pipeline_from_GATK
-#Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Apply the recalibration to calculate the post calibration data table and additionally apply the recalibration on the BAM file. " ' INT TERM EXIT
-${GATKEXE}/bin/sentieon driver -t ${NTHREADS} -r ${REF} -i ${INPUTBAM} -q ${SAMPLE}.recal_data.table --algo QualCal -k ${KNOWNSITES} ${SAMPLE}.recal_data.table.post >> ${TOOL_LOG} 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
-
-#Create data for plotting
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step3: Create data for plotting. " ' INT TERM EXIT
-${GATKEXE}/bin/sentieon driver -t ${NTHREADS} --algo QualCal --plot --before ${SAMPLE}.recal_data.table --after ${SAMPLE}.recal_data.table.post ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
-
-#Plot the calibration data tables, both pre and post, into graphs in a pdf
-TRAP_LINE=$(($LINENO + 1))
-trap 'logError "$0 stopped at line ${TRAP_LINE}. Error in bqsr Step4: Plot the calibration data tables, both pre and post, into graphs in a pdf. " ' INT TERM EXIT
-${GATKEXE}/bin/sentieon plot QualCal -o ${SAMPLE}.recal_plots.pdf ${SAMPLE}.recal.csv >> ${TOOL_LOG} 2>&1
-EXITCODE=$?
-trap - INT TERM EXIT
-checkExitcode ${EXITCODE} $LINENO
-
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
-Replace_with_AnalyzeCovariates_pipeline_from_GATK
 
 
 

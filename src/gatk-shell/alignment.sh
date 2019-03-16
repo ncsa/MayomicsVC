@@ -52,7 +52,7 @@ read -r -d '' DOCS << DOCS
  alignment.sh -h
  alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/samtools/executable -t 12 -P true -e /path/to/bwa/executable -F /path/to/shared_functions.sh -d
 
- NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the Sentieon manual.
+ NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the functional equivalence guidelines (Regier et al 2018).
         In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
 
 #############################################################################
@@ -148,7 +148,7 @@ do
 		            	CHUNK_SIZE=${OPTARG}
             			checkArg
 			            ;;
-        		o )  # Additional BWA MEM options to pass into the Sentieon command
+        		o )  # Additional BWA MEM options
 		            	BWA_OPTS=${OPTARG}
             			checkArg
 			            ;;

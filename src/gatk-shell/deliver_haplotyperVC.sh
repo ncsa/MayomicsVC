@@ -30,7 +30,7 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  deliver_haplotyperVC.sh  -s           <sample_name>
-                          -r           <RecalibratedVcf> 
+                          -r           <OutputGVCF> 
                           -j           <WorkflowJSONfile>
                           -f           </path/to/delivery_folder>
                           -F           </path/to/shared_functions.sh>
@@ -38,7 +38,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  deliver_haplotyperVC.sh -h
- deliver_haplotyperVC.sh -s sample_name -r Recalibrated.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
+ deliver_haplotyperVC.sh -s sample_name -r Output.g.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -96,14 +96,14 @@ do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
-			exit 0
+                        exit 0
                         ;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
-			checkArg
+                        checkArg
                         ;;
-                r )  # Full path to the recalibrated VCF file
-                        VCF=${OPTARG}
+                r )  # Full path to the GVCF file
+                        GVCF=${OPTARG}
                         checkArg
                         ;;
                 j )  # Full path to the workflow JSON file
@@ -120,9 +120,9 @@ do
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
-			set -x
+                        set -x
                         ;;
-		\? )  # Check for unsupported flag, print usage and exit.
+        		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -156,9 +156,9 @@ truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar ${VCF} "Missing VCF option: -r" $LINENO
-checkFile ${VCF} "Input VCF file ${VCF} is empty or does not exist" $LINENO
-checkFile ${VCF}.idx "Input VCF index file ${VCF}.idx is empty or does not exist" $LINENO
+checkVar ${GVCF} "Missing GVCF option: -r" $LINENO
+checkFile ${GVCF} "Input GVCF file ${GVCF} is empty or does not exist" $LINENO
+checkFile ${GVCF}.idx "Input GVCF index file ${GVCF}.idx is empty or does not exist" $LINENO
 
 checkVar ${JSON} "Missing JSON option: -j" $LINENO
 checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
@@ -201,23 +201,23 @@ logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
 
 ## Copy the snp files over
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF into delivery folder. " ' INT TERM EXIT
-cp ${VCF} ${DELIVERY_FOLDER}/${SAMPLE}.vcf
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying GVCF into delivery folder. " ' INT TERM EXIT
+cp ${GVCF} ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF delivered."
+logInfo "[DELIVERY] GVCF delivered."
 
 
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying VCF.IDX into delivery folder. " ' INT TERM EXIT
-cp ${VCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying GVCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${GVCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[DELIVERY] Recalibrated VCF.IDX delivered."
+logInfo "[DELIVERY] GVCF.IDX delivered."
 
 
 ## Copy the JSON over
@@ -236,15 +236,15 @@ logInfo "[DELIVERY] Workflow JSON delivered."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output VCF and index, and JSON. Open read permissions to the user group
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf "Delivered recalibrated VCF file ${DELIVERY_FOLDER}/${SAMPLE}.vcf is empty." $LINENO
-checkFile ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx "Delivered recalibrated VCF index file ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx is empty." $LINENO
+## Check for creation of output GVCF and index, and JSON. Open read permissions to the user group
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf "Delivered the GVCF file ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx "Delivered the GVCF index file ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx is empty." $LINENO
 
 JSON_FILENAME=`basename ${JSON}`
 checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
 
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf
-chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.vcf.idx
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx
 chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
 
 logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
