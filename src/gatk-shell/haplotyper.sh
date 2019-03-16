@@ -127,7 +127,7 @@ do
 			DBSNP=${OPTARG}
 			checkArg
 			;;
-		o ) #Extra options and arguments to haplotyper, input as a long string, can be empty if desired
+		o ) # Extra options and arguments to haplotyper, input as a long string, can be empty if desired
 			HAPLOTYPER_OPTIONS=${OPTARG}
 			checkArg
 			;;
