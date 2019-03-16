@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## genotypegvcf.sh MANIFEST, USAGE DOCS, SET CHECKS
+## aggregate_gvcfs.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -26,25 +26,23 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Jointly call from g.vcfs produced from the haplotypecaller (or haplotyper) 
+# Aggregate gvcf files produced from the haplotypecaller for joint calling
+# with GenotypeGVCFs
 # 
 #############################################################################
 
  USAGE:
- genotypegvcf.sh     -b           <sample1.g.vcf[,sample2.g.vcf,...]>
-                     -S           </path/to/gatk/executable>
-                     -G           <reference_genome>
-                     -D           <dbsnp.vcf>
-                     -o           <extra_genotypegvcf_options>
-                     -e           </path/to/java_options_file>
-                     -F           </path/to/shared_functions.sh>
-                     -d           turn on debug mode
+aggregate_gvcfs.sh    -b           <sample1.g.vcf[,sample2.g.vcf,...]>
+                      -S           </path/to/gatk/executable>
+                      -e           </path/to/java_options_file>
+                      -F           </path/to/shared_functions.sh>
+                      -I           <genomic_intervals>
+                      -d           turn on debug mode
 
  EXAMPLES:
- genotypegvcf.sh -h
- genotypegvcf.sh -b sample1.g.vcf,sample2.g.vcf,sample3.g.vcf -S /path/to/gatk/executable -G reference.fa -D dbsnp.vcf -o "'--sample_ploidy 2 --useNewAFCalculator'"  -e /path/to/java_options_file -F /path/to/shared_functions.sh -d
+aggregate_gvcfs.sh -h
+aggregate_gvcfs.sh -b sample1.g.vcf,sample2.g.vcf,sample3.g.vcf -S /path/to/gatk/executable  -e /path/to/java_options_file -F /path/to/shared_functions.sh -I chr20 -d
 
- NOTE: In order for getops to read in a string arguments for -o (extra_genotypegvcf_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 #############################################################################
 
 DOCS
@@ -58,7 +56,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=genotypegvcf.sh
+SCRIPT_NAME=aggregate_gvcfs.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -95,7 +93,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hb:S:G:D:o:e:F:d" OPT
+while getopts ":hb:S:e:F:I:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -110,18 +108,6 @@ do
                         GATKEXE=${OPTARG}
                         checkArg
                         ;;
-                G )  # Full path to referance genome fasta file
-                        REF=${OPTARG} 
-                        checkArg
-                        ;;
-                D ) # Full path to DBSNP file
-                        DBSNP=${OPTARG}
-                        checkArg
-                        ;;
-                o ) # Extra options and arguments to haplotyper, input as a long string, can be empty if desired
-                        GENOTYPEGVCF_OPTIONS=${OPTARG}
-                        checkArg
-                        ;;
                 e )  # Path to file containing JAVA options to pass into the gatk command 
                         JAVA_OPTS_FILE=${OPTARG}
                         checkArg
@@ -130,7 +116,11 @@ do
                         SHARED_FUNCTIONS=${OPTARG}
                         checkArg
                         ;;
-                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
+                I )  # Genomic intervals overwhich to operate
+                        INTERVALS=${OPTARG}
+                        checkArg
+                        ;;
+               d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
                         set -x
                         ;;
@@ -158,9 +148,9 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Create log for JOB_ID/script
-ERRLOG=genotypegvcf.${SGE_JOB_ID}.log
+ERRLOG=gvcfs.aggregation.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=genotypegvcf_gatk.log
+TOOL_LOG=gvcfs.aggregate_gatk.log
 truncate -s 0 ${TOOL_LOG}
 
 ## Write manifest to log
@@ -183,15 +173,7 @@ checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
 checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
 checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
-checkVar "${REF+x}" "Missing reference genome option: -G" $LINENO
-checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LINENO
-
-checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
-checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
-
-
-checkVar "${GENOTYPEGVCF_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
-
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${JAVA_OPTS_FILE}" $LINENO
 
 
 
@@ -199,7 +181,6 @@ checkVar "${GENOTYPEGVCF_OPTIONS+x}" "Missing extra haplotyper options option: -
 #-------------------------------------------------------------------------------------------------------------------------------
 ## FILENAME PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
-GENOTYPEGVCF_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${GENOTYPEGVCF_OPTIONS}`
 
 
 
@@ -208,9 +189,9 @@ GENOTYPEGVCF_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${GENOTYPEGVCF_OPTIONS}`
 
 ## Defining file names
 VARIANTS=$( echo ${INPUTGVCF} | sed "s/,/ --variant /g" | tr "\n" " " )
-OUTVCF=germlinevariants.vcf
+OUTDB=variantsDB
 
-
+rm -rf ${OUTDB}
 
 
 
@@ -219,31 +200,39 @@ OUTVCF=germlinevariants.vcf
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[GATKEXE] Joint calling via GenotypeGVCFs"
+logInfo "[GATKEXE] Aggregating the per sample variants files"
 
 ## gatk genotypegvcf command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. SAMTOOLS BAM merging error. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} GenotypeGVCFs --reference ${REF} --output ${OUTVCF} --variant ${VARIANTS} --dbsnp ${DBSNP} ${GENOTYPEGVCF_OPTIONS_PARSED} >> ${TOOL_LOG} 2>&1 
+trap 'logError " $0 stopped at line ${TRAP_LINE}. GenomicsDBImport aggregation error. " ' INT TERM EXIT
+# Memory setting based on GATK's recommendation here: https://github.com/gatk-workflows/broad-prod-wgs-germline-snps-indels/blob/master/JointGenotypingWf.wdl#L313
+${GATKEXE} --java-options "-Xmx4g -Xms4g" GenomicsDBImport --genomicsdb-workspace-path ${OUTDB} --intervals ${INTERVALS} --batch-size 50 --consolidate true --variant ${VARIANTS} --reader-threads 5 -ip 500 >> ${TOOL_LOG} 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[GATKEXE] Joint calling via GenotypeGVCFs complete."
+logInfo "[GATKEXE] Aggregation of input GVCFs complete."
 
 
 
+
+logInfo "[GATKEXE] Tarring the GVCFs Databse"
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Database tar error. " ' INT TERM EXIT
+tar -cf ${OUTDB}.tar ${OUTDB}
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[GATKEXE] GVCFs database tarring complete."
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output VCF and its index. Open read permissions to the user group
-checkFile ${OUTVCF} "Output variants file ${OUTVCF} is empty." $LINENO
-checkFile ${OUTVCF}.idx "Output variants index file is empty." $LINENO
+## Check for creation of output Database and its index. Open read permissions to the user group
+checkFile ${OUTDB}.tar "Output variants file ${OUTDB}.tar is empty." $LINENO
 
-chmod g+r ${OUTVCF}
-chmod g+r ${OUTVCF}.idx
+chmod g+r ${OUTDB}.tar
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
