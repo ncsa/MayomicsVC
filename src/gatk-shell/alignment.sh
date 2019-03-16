@@ -391,7 +391,7 @@ logInfo "[SAMTOOLS] Indexed BAM output."
 
 ## Check if BAM and index were created. Open read permissions to the user group
 checkFile ${SORTBAM} "Output sorted BAM ${SORTBAM} is empty." $LINENO
-checkFile ${SORTBAMIDX} "Output sorted BAM ${SORTBAMIDX} is empty." $LINENO
+checkFile ${SORTBAMIDX} "Output index for the sorted BAM ${SORTBAMIDX} is empty." $LINENO
 
 chmod g+r ${OUTSAM}
 chmod g+r ${OUTBAM}

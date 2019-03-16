@@ -228,7 +228,7 @@ TOOL_LOG=${SAMPLE}.bqsr_gatk.log
 
 
 ## Record start time
-logInfo "[bqsr] START. Performing bqsr on the input BAM to produce bqsr table."
+logInfo "[bqsr] START. Generating the bqsr model"
 
 
 #Calculate required modification of the quality scores in the BAM
@@ -238,7 +238,20 @@ ${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} 
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished running successfully for ${SAMPLE}" 
+logInfo "[bqsr] Finished generating the bqsr table for ${SAMPLE}" 
+
+## Record start time
+logInfo "[bqsr] START. Generate the bqsr'd bam file"
+
+
+#Calculate required modification of the quality scores in the BAM
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
+${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+EXITCODE=$?
+trap - INT TERM EXIT
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.bam" 
 
 
 
@@ -282,12 +295,12 @@ Replace_with_AnalyzeCovariates_pipeline_from_GATK
 ## POST-PROCESSING
 #---------------------------------------------------------------------------------------------------------------------------
 
-# Check for the creation of the recal_data.table necessary for input to Haplotyper. Open read permissions for the group.
-# The other files created in BQSR are not necessary for the workflow to run, so I am not performing checks on them.
+# Check for the creation of the bam file for input to Haplotyper. Open read permissions for the group.
 
-checkFile ${SAMPLE}.recal_data.table "Recal data table ${SAMPLE}.recal_data.table is empty." $LINENO
-
-chmod g+r ${SAMPLE}.recal_data.table
+checkFile ${SAMPLE}.bam "Recalibrated file ${SAMPLE}.bam is empty." $LINENO
+checkFile ${SAMPLE}.bai "Output recalibrated BAM index ${SAMPLE}.bam is empty." ${LINENO}
+chmod g+r ${SAMPLE}.bam
+chmod g+r ${SAMPLE}.bai
 
 #---------------------------------------------------------------------------------------------------------------------------
 
