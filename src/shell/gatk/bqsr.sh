@@ -38,11 +38,12 @@ read -r -d '' DOCS << DOCS
          -e     </path/to/java_options_file>
          -F     </path/to/shared_functions.sh>
          -o     <extra_ApplyBQSR_options>
+         -I     <genomic_intervals>
          -d     turn on debug mode	
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -o "''" -d 
+ bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -o "''" -I chr20 -d 
 
  NOTE: In order for getops to read in a string arguments for -o (extra_ApplyBQSR_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 
@@ -92,7 +93,7 @@ then
 fi
 
 
-while getopts ":hs:S:G:b:k:e:F:o:d" OPT
+while getopts ":hs:S:G:b:k:e:F:o:I:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -129,6 +130,10 @@ do
 			;;
         o ) # Extra options and arguments to ApplyBQSR, input as a long string, can be empty if desired
               APPLYBQSR_OPTIONS=${OPTARG}
+              checkArg
+              ;;
+        I )  # Genomic intervals overwhich to operate
+              INTERVALS=${OPTARG}
               checkArg
               ;;
 		d ) # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d.
@@ -205,6 +210,9 @@ checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exis
 checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
 
 checkVar "${APPLYBQSR_OPTIONS+x}" "Missing extra ApplyBQSR options option: -o" $LINENO
+
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
+
 #---------------------------------------------------------------------------------------------------------------------------
 
 
@@ -234,7 +242,7 @@ logInfo "[bqsr] START. Generating the bqsr model"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.recal_data.table >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
@@ -247,7 +255,7 @@ logInfo "[bqsr] START. Generate the bqsr'd bam file"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table ${APPLYBQSR_OPTIONS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table ${APPLYBQSR_OPTIONS} --intervals ${INTERVALS}   >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO

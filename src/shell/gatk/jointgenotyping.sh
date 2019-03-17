@@ -39,6 +39,7 @@ read -r -d '' DOCS << DOCS
                       -o           <extra_genotypegvcf_options>
                       -e           </path/to/java_options_file>
                       -F           </path/to/shared_functions.sh>
+                      -I           <genomic_intervals>
                       -d           turn on debug mode
 
  EXAMPLES:
@@ -96,7 +97,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hb:S:G:D:o:e:F:d" OPT
+while getopts ":hb:S:G:D:o:e:F:I:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -129,6 +130,10 @@ do
                         ;;
                 F )  # Path to shared_functions.sh
                         SHARED_FUNCTIONS=${OPTARG}
+                        checkArg
+                        ;;
+                I )  # Genomic intervals overwhich to operate
+                        INTERVALS=${OPTARG}
                         checkArg
                         ;;
                 d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
@@ -197,7 +202,7 @@ checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
 checkVar "${GENOTYPEGVCF_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
-
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 
 
 
@@ -229,7 +234,7 @@ logInfo "[GATKEXE] Joint calling via GenotypeGVCFs"
 ## gatk genotypegvcf command
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. GenotypeGVCFs joint calling error. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} GenotypeGVCFs --reference ${REF} --output ${OUTVCF} ${VARIANTS_OPTION} --dbsnp ${DBSNP} ${GENOTYPEGVCF_OPTIONS_PARSED} >> ${TOOL_LOG} 2>&1 
+${GATKEXE} ${JAVA_OPTS} GenotypeGVCFs --reference ${REF} --output ${OUTVCF} ${VARIANTS_OPTION} --dbsnp ${DBSNP} ${GENOTYPEGVCF_OPTIONS_PARSED}--intervals ${INTERVALS}  >> ${TOOL_LOG} 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 

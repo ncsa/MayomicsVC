@@ -120,7 +120,7 @@ do
                         INTERVALS=${OPTARG}
                         checkArg
                         ;;
-               d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
+                d )  # Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
                         echo -e "\nDebug mode is ON.\n"
                         set -x
                         ;;
@@ -173,7 +173,7 @@ checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
 checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
 checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
 
-checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${JAVA_OPTS_FILE}" $LINENO
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 
 
 

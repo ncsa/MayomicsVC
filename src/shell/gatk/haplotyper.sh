@@ -41,11 +41,12 @@ read -r -d '' DOCS << DOCS
                    -o	<extra_haplotyper_options>
                    -e   </path/to/java_options_file>
                    -F   </path/to/shared_functions.sh>
+                   -I   <genomic_intervals>
                    -d   turn on debug mode
 
  EXAMPLES:
  haplotyper.sh -h
- haplotyper.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -D dbsnp.vcf -o "'--sample-ploidy 2 -A Coverage -A FisherStrand -A StrandOddsRatio -A HaplotypeScore -A MappingQualityRankSumTest -A QualByDepth -A RMSMappingQuality -A ReadPosRankSumTest '" -e /path/to/java_options_file -F </path/to/shared_functions.sh> -d 
+ haplotyper.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -D dbsnp.vcf -o "'--sample-ploidy 2 -A Coverage -A FisherStrand -A StrandOddsRatio -A HaplotypeScore -A MappingQualityRankSumTest -A QualByDepth -A RMSMappingQuality -A ReadPosRankSumTest '" -e /path/to/java_options_file -F </path/to/shared_functions.sh> -I chr20 -d 
 
 NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ###########################################################################################################################
@@ -94,7 +95,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:o:e:F:d" OPT
+while getopts ":hs:S:G:t:b:D:o:e:F:I:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -137,6 +138,10 @@ do
 			SHARED_FUNCTIONS=${OPTARG}
 			checkArg
 			;;
+        I )  # Genomic intervals overwhich to operate
+            INTERVALS=${OPTARG}
+            checkArg
+            ;;
 		d ) # Turn on debug mode. Turn on debug mode. Initiates 'set -x' to print all text. Invoked with -d
 			echo -e "\nDebug mode is ON.\n"
 			set -x
@@ -201,7 +206,7 @@ checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
 checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
-
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 #--------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
 
@@ -226,7 +231,7 @@ logInfo "[HaplotypeCaller] START."
 #Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
-${GATKEXE} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.g.vcf --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF >> ${TOOL_LOG} 2>&1
+${GATKEXE} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.g.vcf --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 
 EXITCODE=$?
 trap - INT TERM EXIT
