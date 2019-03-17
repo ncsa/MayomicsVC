@@ -32,7 +32,7 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
-aggregate_gvcfs.sh    -b           <sample1.g.vcf[,sample2.g.vcf,...]>
+ aggregate_gvcfs.sh   -b           <sample1.g.vcf[,sample2.g.vcf,...]>
                       -S           </path/to/gatk/executable>
                       -e           </path/to/java_options_file>
                       -F           </path/to/shared_functions.sh>
@@ -40,8 +40,8 @@ aggregate_gvcfs.sh    -b           <sample1.g.vcf[,sample2.g.vcf,...]>
                       -d           turn on debug mode
 
  EXAMPLES:
-aggregate_gvcfs.sh -h
-aggregate_gvcfs.sh -b sample1.g.vcf,sample2.g.vcf,sample3.g.vcf -S /path/to/gatk/executable  -e /path/to/java_options_file -F /path/to/shared_functions.sh -I chr20 -d
+ aggregate_gvcfs.sh -h
+ aggregate_gvcfs.sh -b sample1.g.vcf,sample2.g.vcf,sample3.g.vcf -S /path/to/gatk/executable  -e /path/to/java_options_file -F /path/to/shared_functions.sh -I chr20 -d
 
 #############################################################################
 
@@ -101,7 +101,7 @@ do
                         exit 0
                         ;;
                 b )  # Full path to the input gvcfs or list of gvcfs
-                        INPUTGVCF=${OPTARG}
+                        INPUTGVCFS=${OPTARG}
                         checkArg
                         ;;
                 S )  # Full path to gatk executable
@@ -148,17 +148,17 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Create log for JOB_ID/script
-ERRLOG=gvcfs.aggregation.${SGE_JOB_ID}.log
+ERRLOG=${INTERVALS}.aggregation.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=gvcfs.aggregate_gatk.log
+TOOL_LOG=${INTERVALS}.aggregate_gatk.log
 truncate -s 0 ${TOOL_LOG}
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar "${INPUTGVCF+x}" "Missing input gvcf option: -b" $LINENO
-for GVCF in $(echo ${INPUTGVCF} | sed "s/,/ /g")
+checkVar "${INPUTGVCFS+x}" "Missing input gvcf option: -b" $LINENO
+for GVCF in $(echo ${INPUTGVCFS} | sed "s/,/ /g")
 do
         checkFile ${GVCF} "Input variants file ${GVCF} is empty or does not exist." $LINENO
         checkFile ${GVCF}.idx "Input variants index file ${GVCF}.idx is empty or does not exist." $LINENO
@@ -183,13 +183,9 @@ checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
 ## Defining file names
-VARIANTS=$( echo ${INPUTGVCF} | sed "s/,/ --variant /g" | tr "\n" " " )
-OUTDB=variantsDB
+VARIANTS=$( echo ${INPUTGVCFS} | sed "s/,/ --variant /g" | tr "\n" " " )
+OUTDB=${INTERVALS}.DB
 
 rm -rf ${OUTDB}
 
@@ -200,9 +196,9 @@ rm -rf ${OUTDB}
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[GATKEXE] Aggregating the per sample variants files"
+logInfo "[GATKEXE] Aggregating per sample variants across interval: ${INTERVALS}"
 
-## gatk genotypegvcf command
+## gatk GenomicsDBImport command
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. GenomicsDBImport aggregation error. " ' INT TERM EXIT
 # Memory setting based on GATK's recommendation here: https://github.com/gatk-workflows/broad-prod-wgs-germline-snps-indels/blob/master/JointGenotypingWf.wdl#L313

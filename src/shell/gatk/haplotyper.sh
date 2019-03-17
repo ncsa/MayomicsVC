@@ -173,11 +173,12 @@ source ${SHARED_FUNCTIONS}
 
 ## Check if sample name is set
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 
 ## Send Manifest to log
-ERRLOG=${SAMPLE}.haplotyper.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.${INTERVALS}.haplotyper.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-truncate -s 0 ${SAMPLE}.haplotype_gatk.log
+truncate -s 0 ${SAMPLE}.${INTERVALS}.haplotype_gatk.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
@@ -206,12 +207,11 @@ checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
 
 checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o" $LINENO
 
-checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 #--------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
 
-TOOL_LOG=${SAMPLE}.haplotype_gatk.log
-
+TOOL_LOG=${SAMPLE}.${INTERVALS}.haplotype_gatk.log
+OUTGVCF= ${SAMPLE}.${INTERVALS}.g.vcf
 
 
 
@@ -231,14 +231,14 @@ logInfo "[HaplotypeCaller] START."
 #Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
-${GATKEXE} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.g.vcf --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${OUTGVCF} --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 
 EXITCODE=$?
 trap - INT TERM EXIT
 
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[HaplotypeCaller] Finished running successfully. Output: ${SAMPLE}.g.vcf"
+logInfo "[HaplotypeCaller] Finished running successfully. Output: ${OUTGVCF}"
 #-------------------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -246,17 +246,17 @@ logInfo "[HaplotypeCaller] Finished running successfully. Output: ${SAMPLE}.g.vc
 #-------------------------------------------------------------------------------------------------------------------------------
 
 
-## Check for the creation of the output VCF file
-checkFile ${SAMPLE}.g.vcf "Output VCF is empty." $LINENO
+## Check for the creation of the output GVCF file
+checkFile ${OUTGVCF} "Output GVCF is empty." $LINENO
 
 ## Open read permissions to the user group
-chmod g+r ${SAMPLE}.g.vcf
+chmod g+r ${OUTGVCF}
 
-## Check for the creation of the output VCF index file 
-checkFile ${SAMPLE}.g.vcf.idx "Output VCF index is empty." $LINENO
+## Check for the creation of the output GVCF index file 
+checkFile ${OUTGVCF}.idx "Output GVCF index is empty." $LINENO
 
 ## Open read permissions to the user group
-chmod g+r ${SAMPLE}.g.vcf.idx
+chmod g+r ${OUTGVCF}.idx
 
 
 #-------------------------------------------------------------------------------------------------------------------------------

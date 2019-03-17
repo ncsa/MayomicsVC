@@ -44,7 +44,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  jointgenotyping.sh -h
- jointgenotyping.sh -b input.g.vcf -S /path/to/gatk/executable -G reference.fa -D dbsnp.vcf -o "'--sample_ploidy 2 --useNewAFCalculator'"  -e /path/to/java_options_file -F /path/to/shared_functions.sh -d
+ jointgenotyping.sh -b input.g.vcf -S /path/to/gatk/executable -G reference.fa -D dbsnp.vcf -o "'--sample_ploidy 2 --useNewAFCalculator'"  -e /path/to/java_options_file -F /path/to/shared_functions.sh -I chr20 -d
 
  NOTE: In order for getops to read in a string arguments for -o (extra_genotypegvcf_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 #############################################################################
@@ -164,9 +164,9 @@ done
 source ${SHARED_FUNCTIONS}
 
 ## Create log for JOB_ID/script
-ERRLOG=gvcfs.jointgenotyping.${SGE_JOB_ID}.log
+ERRLOG=${INTERVALS}.jointgenotyping.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=gvcfs.jointgenotyping_gatk.log
+TOOL_LOG=${INTERVALS}.jointgenotyping_gatk.log
 truncate -s 0 ${TOOL_LOG}
 
 ## Write manifest to log
@@ -217,7 +217,7 @@ GENOTYPEGVCF_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${GENOTYPEGVCF_OPTIONS}`
 
 
 ## Defining file names
-OUTVCF=germlinevariants.vcf
+OUTVCF=${INTERVALS}.vcf
 
 
 
