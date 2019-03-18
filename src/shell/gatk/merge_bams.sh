@@ -171,7 +171,7 @@ checkFileExe ${SAMTOOLSEXE} "REASON=SAMTOOLS file ${SAMTOOLSEXE} is not an execu
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Defining file names
-BAMS=`sed -e 's/,/ -i /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
+BAMS=`sed -e 's/,/ /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
 MERGED_BAM=${SAMPLE}.bam
 TOOL_LOG=${SAMPLE}.merge_bams_samtools.log
 

@@ -242,11 +242,11 @@ logInfo "[bqsr] START. Generating the bqsr model"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.${INTERVALS}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished generating the bqsr table for ${SAMPLE}" 
+logInfo "[bqsr] Finished generating the bqsr table for ${SAMPLE}.${INTERVALS}" 
 
 ## Record start time
 logInfo "[bqsr] START. Generate the bqsr'd bam file"
@@ -255,11 +255,11 @@ logInfo "[bqsr] START. Generate the bqsr'd bam file"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.bam -bqsr ${SAMPLE}.recal_data.table ${APPLYBQSR_OPTIONS} --intervals ${INTERVALS}   >> ${TOOL_LOG} 2>&1
+${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.${INTERVALS}.bam -bqsr ${SAMPLE}.${INTERVALS}.recal_data.table ${APPLYBQSR_OPTIONS} --intervals ${INTERVALS}   >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.bam" 
+logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.${INTERVALS}.bam" 
 
 
 
@@ -271,10 +271,10 @@ logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.ba
 
 # Check for the creation of the bam file for input to Haplotyper. Open read permissions for the group.
 
-checkFile ${SAMPLE}.bam "Recalibrated file ${SAMPLE}.bam is empty." $LINENO
-checkFile ${SAMPLE}.bai "Output recalibrated BAM index ${SAMPLE}.bam is empty." ${LINENO}
-chmod g+r ${SAMPLE}.bam
-chmod g+r ${SAMPLE}.bai
+checkFile ${SAMPLE}.${INTERVALS}.bam "Recalibrated file ${SAMPLE}.${INTERVALS}.bam is empty." $LINENO
+checkFile ${SAMPLE}.${INTERVALS}.bai "Output recalibrated BAM index ${SAMPLE}.${INTERVALS}.bam.bai is empty." ${LINENO}
+chmod g+r ${SAMPLE}.${INTERVALS}.bam
+chmod g+r ${SAMPLE}.${INTERVALS}.bai
 
 #---------------------------------------------------------------------------------------------------------------------------
 
