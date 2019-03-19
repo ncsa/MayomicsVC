@@ -25,8 +25,8 @@ read -r -d '' DOCS << DOCS
 
 ###########################################################################################################################
 #
-# Perform GATK's HaplotypeCaller variant caller on the bam produced in the Deduplication stage of the Mayomics workflow.
-# bqsr.sh must be run before to this stage to calculate the required modification of the quality scores.
+# Perform GATK's HaplotypeCaller variant caller on the bam produced in the Deduplication stage of the Mayomics workflow,
+# or the cram produced from "bqsr.sh" 
 # Step 2/3 in Single Sample Variant Calling.
 #
 ###########################################################################################################################
@@ -39,16 +39,17 @@ read -r -d '' DOCS << DOCS
                    -b	<sorted.deduped.bam>
                    -D	<dbsnp.vcf>
                    -o	<extra_haplotyper_options>
-                   -e   </path/to/java_options_file>
+                   -J   </path/to/java8_executable>
+                   -e   <java_vm_options>
                    -F   </path/to/shared_functions.sh>
                    -I   <genomic_intervals>
                    -d   turn on debug mode
 
  EXAMPLES:
  haplotyper.sh -h
- haplotyper.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -D dbsnp.vcf -o "'--sample-ploidy 2 -A Coverage -A FisherStrand -A StrandOddsRatio -A HaplotypeScore -A MappingQualityRankSumTest -A QualByDepth -A RMSMappingQuality -A ReadPosRankSumTest '" -e /path/to/java_options_file -F </path/to/shared_functions.sh> -I chr20 -d 
+ haplotyper.sh -s sample -S /path/to/gatk/executable -G reference.fa -t 12 -b sorted.deduped.bam -D dbsnp.vcf -o "'--interval_padding 500  --sample-ploidy 2 -A Coverage -A FisherStrand -A StrandOddsRatio -A HaplotypeScore -A MappingQualityRankSumTest -A QualByDepth -A RMSMappingQuality -A ReadPosRankSumTest '" -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -F </path/to/shared_functions.sh> -I chr20 -d 
 
-NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
+ NOTE: In order for getops to read in a string arguments for -o (extra_haplotyper_options) or -e (java_vm_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 ###########################################################################################################################
 
 
@@ -95,7 +96,7 @@ then
         exit 1
 fi
 
-while getopts ":hs:S:G:t:b:D:o:e:F:I:d" OPT
+while getopts ":hs:S:G:t:b:D:o:J:e:F:I:d" OPT
 do
 	case ${OPT} in 
 		h ) # flag to display help message
@@ -130,8 +131,12 @@ do
 			HAPLOTYPER_OPTIONS=${OPTARG}
 			checkArg
 			;;
-        e )  # Path to file containing JAVA options to pass into the gatk command 
-            JAVA_OPTS_FILE=${OPTARG}
+        J ) # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variable 
+            java=${OPTARG}
+            checkArg
+            ;;
+        e ) # JAVA options string to pass into the gatk command 
+            JAVA_OPTS_STRING=${OPTARG}
             checkArg
             ;;
 		F ) # Path to shared_functions.sh
@@ -173,7 +178,7 @@ source ${SHARED_FUNCTIONS}
 
 ## Check if sample name is set
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
-checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I" $LINENO
 
 ## Send Manifest to log
 ERRLOG=${SAMPLE}.${INTERVALS}.haplotyper.${SGE_JOB_ID}.log
@@ -182,12 +187,10 @@ truncate -s 0 ${SAMPLE}.${INTERVALS}.haplotype_gatk.log
 
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with java path and options variables
-checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
-source ${JAVA_OPTS_FILE}
-checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
-checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
+## Check java8 path and options 
+checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
+checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
+checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not executable or does not exist." $LINENO
@@ -209,9 +212,10 @@ checkVar "${HAPLOTYPER_OPTIONS+x}" "Missing extra haplotyper options option: -o"
 
 #--------------------------------------------------------------------------------------------------------------------------
 HAPLOTYPER_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${HAPLOTYPER_OPTIONS}`
+JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
 
 TOOL_LOG=${SAMPLE}.${INTERVALS}.haplotype_gatk.log
-OUTGVCF= ${SAMPLE}.${INTERVALS}.g.vcf
+OUTGVCF=${SAMPLE}.${INTERVALS}.g.vcf
 
 
 
@@ -231,7 +235,7 @@ logInfo "[HaplotypeCaller] START."
 #Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
-${GATKEXE} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${OUTGVCF} --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${OUTGVCF} --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 
 EXITCODE=$?
 trap - INT TERM EXIT

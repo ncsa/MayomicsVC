@@ -125,7 +125,7 @@ do
              java=${OPTARG}
              checkArg
              ;;
-        e )  # Path to file containing JAVA options to pass into the gatk command 
+        e )  # JAVA options string to pass into the gatk command 
              JAVA_OPTS_STRING=${OPTARG}
              checkArg
              ;;
@@ -185,7 +185,7 @@ truncate -s 0 ${SAMPLE}.bqsr_gatk.log
 ## Send Manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with java path and options variables
+## Check java path and options 
 checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
 checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
 checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
