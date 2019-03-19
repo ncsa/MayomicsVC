@@ -170,7 +170,6 @@ function checkFile()
 #pass in the reason as the second parameter
 function checkFileExe()
 {
-    echo $1
     if [[ ! ( -f $1 && -x $1 ) ]]
 	then
         	EXITCODE=1

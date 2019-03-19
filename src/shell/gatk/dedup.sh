@@ -34,13 +34,14 @@ read -r -d '' DOCS << DOCS
  dedup.sh          -s           <sample_name> 
                    -b           <aligned_sorted_merged.bam>
                    -S           </path/to/gatk/executable> 
-                   -e           </path/to/file/containing/java_options>
+                   -J           </path/to/java8_executable>
+                   -e           <java_vm_options>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
  EXAMPLES:
  dedup.sh -h
- dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -e /path/to/file/containing/java_options -F /path/to/shared_functions.sh -d
+ dedup.sh -s sample -b aligned_sorted_merged.bam -S /path/to/gatk/executable -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -92,7 +93,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:e:F:d" OPT
+while getopts ":hs:b:S:J:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -111,8 +112,12 @@ do
                         GATKEXE=${OPTARG}
                         checkArg
                         ;;
-                e )  # Path to file containing JAVA options to pass into the gatk command
-                        JAVA_OPTS_FILE=${OPTARG}
+                J ) # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variabl
+                        java=${OPTARG}
+                        checkArg
+                        ;;
+                e ) # JAVA options string to pass into the gatk command 
+                        JAVA_OPTS_STRING=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -158,12 +163,10 @@ truncate -s 0 ${SAMPLE}.dedup_picard.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 
-## source the file with java path and options variables
-checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
-source ${JAVA_OPTS_FILE}
-checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
-checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
+## Check java8 path and options 
+checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
+checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
+checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 
 ## Check if input files, directories, and variables are non-zero
@@ -186,6 +189,7 @@ OUT=${SAMPLE}.bam
 DEDUPMETRICS=${SAMPLE}.dedup_metrics.txt
 TOOL_LOG=${SAMPLE}.dedup_picard.log
 
+JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
 
 
 
@@ -199,7 +203,7 @@ logInfo "[PICARD] Deduplicating BAM."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard Deduplication error. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -218,7 +222,7 @@ logInfo "[PICARD] Indexing BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
