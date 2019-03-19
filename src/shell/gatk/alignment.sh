@@ -32,7 +32,6 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  alignment.sh      -s           <sample_name> 
-                   -g           <lane_number>
                    -p	    	<platform>
                    -L           <library>
                    -f           <flowcell_ID/platform_unit>
@@ -51,7 +50,7 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  alignment.sh -h
- alignment.sh -s sample -g 5 -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/samtools/executable -t 12 -P true -e /path/to/bwa/executable -F /path/to/shared_functions.sh -d
+ alignment.sh -s sample -p platform -L library -f flowcell_ID -c center_name -l read1.fq -r read2.fq -G reference.fa -K 10000000 -o "'-M'" -S /path/to/samtools/executable -t 12 -P true -e /path/to/bwa/executable -F /path/to/shared_functions.sh -d
 
  NOTES: To prevent different results due to thread count, set -K to 10000000 as recommended by the functional equivalence guidelines (Regier et al 2018).
         In order for getops to read in a string arguments for -o (additional_bwa_options), the argument needs to be quoted with a double quote (") followed by a single quote (').
@@ -115,10 +114,6 @@ do
             			;;
                 s )  # Sample name
                         SAMPLE=${OPTARG}
-		            	checkArg
-                        ;;
-                g )  # Lane name or number
-                        LANE=${OPTARG}
 		            	checkArg
                         ;;
                 p )  # Sequencing platform
@@ -274,11 +269,11 @@ checkVarInt "${THR}" "Not integer value for number of threads: -t" $LINENO
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Set output file names
-OUTSAM=${SAMPLE}.${LANE}.sam
-OUTBAM=${SAMPLE}.${LANE}-unsorted.bam
-SORTBAM=${SAMPLE}.${LANE}.bam
-SORTBAMIDX=${SAMPLE}.${LANE}.bam.bai
-TOOL_LOG=${SAMPLE}.${LANE}.align_bwa.log
+OUTSAM=${SAMPLE}.sam
+OUTBAM=${SAMPLE}-unsorted.bam
+SORTBAM=${SAMPLE}.bam
+SORTBAMIDX=${SAMPLE}.bam.bai
+TOOL_LOG=${SAMPLE}.align_bwa.log
 
 ## Parse extra options if specified
 BWA_OPTS_PARSED=`sed -e "s/'//g" <<< ${BWA_OPTS}`

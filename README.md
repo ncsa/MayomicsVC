@@ -6,9 +6,7 @@ Development notes:
 2. The GATK pipeline uses: `bwa, samtools and gatk4`
 1. GATK shell scripts may require different set of inputs than Sentieon. >> create seperate folders within `wdl` and `shell` folders for them 
 3. Only germline calling is considered
-4. Functional equivalence guideliness are followed:
- 1. No realignment (it is not recommended, and requires invocation from a GATK3 jar)
- 2. BQSR produces no bam; and does no plotting
+4. Functional equivalence recommendations are hard coded into the pipeline; except that a BAM (as opposed to CRAM file) is produced as output
  
 
 

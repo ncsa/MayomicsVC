@@ -35,7 +35,8 @@ read -r -d '' DOCS << DOCS
          -G 	<reference_genome>
          -b 	<sorted.deduped.bam>
          -k 	<comma,seperated,list,of,paths,to,known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
-         -e     </path/to/java_options_file>
+         -J     </path/to/java8_executable>
+         -e     <java_vm_options>
          -F     </path/to/shared_functions.sh>
          -o     <extra_ApplyBQSR_options>
          -I     <genomic_intervals>
@@ -43,9 +44,9 @@ read -r -d '' DOCS << DOCS
 
  EXAMPLES:
  bqsr.sh -h
- bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -e /path/to/java_options_file -F /path/to/shared_functions.sh -o "''" -I chr20 -d 
+ bqsr.sh -s sample -S /path/to/gatk/executable -G reference.fa -b sorted.deduped.bam -k known1.vcf,known2.vcf,...knownN.vcf -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -F /path/to/shared_functions.sh -o "'--createOutputBamMD5  --useOriginalQualities'" -I chr20 -d 
 
- NOTE: In order for getops to read in a string arguments for -o (extra_ApplyBQSR_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
+ NOTE: In order for getops to read in a string arguments for -o (extra_ApplyBQSR_options) or -e (java_vm_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 
 ############################################################################################################################
 
@@ -93,7 +94,7 @@ then
 fi
 
 
-while getopts ":hs:S:G:b:k:e:F:o:I:d" OPT
+while getopts ":hs:S:G:b:k:J:e:F:o:I:d" OPT
 do
 	case ${OPT} in
 		h ) # flag to display help message
@@ -120,8 +121,12 @@ do
 			KNOWN=${OPTARG}
 			checkArg
 			;;
+        J )  # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variable 
+             java=${OPTARG}
+             checkArg
+             ;;
         e )  # Path to file containing JAVA options to pass into the gatk command 
-             JAVA_OPTS_FILE=${OPTARG}
+             JAVA_OPTS_STRING=${OPTARG}
              checkArg
              ;;
 		F )  # Path to shared_functions.sh
@@ -181,11 +186,9 @@ truncate -s 0 ${SAMPLE}.bqsr_gatk.log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## source the file with java path and options variables
-checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
-source ${JAVA_OPTS_FILE}
-checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
-checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
+checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
+checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
+checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 ## Check if the GATK executable option was passed in.
 checkVar "${GATKEXE+x}" "Missing GATK path option: -S" $LINENO
@@ -207,11 +210,11 @@ checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINEN
 checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exist." $LINENO
 
 ## Check if the known sites file option is present.
-checkVar "${KNOWN+x}" "Missing known sites option ${KNOWN}: -k" $LINENO
+checkVar "${KNOWN+x}" "Missing known sites option: -k" $LINENO
 
 checkVar "${APPLYBQSR_OPTIONS+x}" "Missing extra ApplyBQSR options option: -o" $LINENO
 
-checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
+checkVar "${INTERVALS+x}" "Missing Intervals option: -I" $LINENO
 
 #---------------------------------------------------------------------------------------------------------------------------
 
@@ -225,6 +228,10 @@ checkVar "${INTERVALS+x}" "Missing Intervals option: -I ${INTERVALS}" $LINENO
 
 ## Parse known sites list of multiple files. Create multiple -k flags for gatk
 KNOWNSITES=$( echo --known-sites ${KNOWN} | sed "s/,/ --known-sites /g" | tr "\n" " " )
+
+## Extra options
+APPLYBQSR_OPTIONS_PARSED=`sed -e "s/'//g" <<< ${APPLYBQSR_OPTIONS}`
+JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
 
 ## Defining file names
 TOOL_LOG=${SAMPLE}.bqsr_gatk.log
@@ -242,24 +249,24 @@ logInfo "[bqsr] START. Generating the bqsr model"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.${INTERVALS}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.${INTERVALS}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
 logInfo "[bqsr] Finished generating the bqsr table for ${SAMPLE}.${INTERVALS}" 
 
 ## Record start time
-logInfo "[bqsr] START. Generate the bqsr'd bam file"
+logInfo "[bqsr] START. Generate the bqsr'd cram file"
 
 
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.${INTERVALS}.bam -bqsr ${SAMPLE}.${INTERVALS}.recal_data.table ${APPLYBQSR_OPTIONS} --intervals ${INTERVALS}   >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options ${JAVA_OPTS_PARSED} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.${INTERVALS}.cram -bqsr ${SAMPLE}.${INTERVALS}.recal_data.table ${APPLYBQSR_OPTIONS_PARSED} --intervals ${INTERVALS} --static-quantized-quals 10 --static-quantized-quals 20 --static-quantized-quals 30  >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.${INTERVALS}.bam" 
+logInfo "[bqsr] Finished running successfully and generated the cram file ${SAMPLE}.${INTERVALS}.cram" 
 
 
 
@@ -269,12 +276,12 @@ logInfo "[bqsr] Finished running successfully and generated the bam ${SAMPLE}.${
 ## POST-PROCESSING
 #---------------------------------------------------------------------------------------------------------------------------
 
-# Check for the creation of the bam file for input to Haplotyper. Open read permissions for the group.
+# Check for the creation of the cram file for input to Haplotyper. Open read permissions for the group.
 
-checkFile ${SAMPLE}.${INTERVALS}.bam "Recalibrated file ${SAMPLE}.${INTERVALS}.bam is empty." $LINENO
-checkFile ${SAMPLE}.${INTERVALS}.bai "Output recalibrated BAM index ${SAMPLE}.${INTERVALS}.bam.bai is empty." ${LINENO}
-chmod g+r ${SAMPLE}.${INTERVALS}.bam
-chmod g+r ${SAMPLE}.${INTERVALS}.bai
+checkFile ${SAMPLE}.${INTERVALS}.cram "Recalibrated file ${SAMPLE}.${INTERVALS}.cram is empty." $LINENO
+checkFile ${SAMPLE}.${INTERVALS}.cram.bai "Output recalibrated BAM index ${SAMPLE}.${INTERVALS}.cram.bai is empty." ${LINENO}
+chmod g+r ${SAMPLE}.${INTERVALS}.cram
+chmod g+r ${SAMPLE}.${INTERVALS}.cram.bai
 
 #---------------------------------------------------------------------------------------------------------------------------
 
