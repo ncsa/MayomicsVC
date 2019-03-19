@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## gathergvcfs.sh MANIFEST, USAGE DOCS, SET CHECKS
+## merge_gvcfs.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -31,16 +31,19 @@ read -r -d '' DOCS << DOCS
 #############################################################################
 
  USAGE:
- gathergvcfs.sh       -s           <sample_name>
+ merge_gvcfs.sh       -s           <sample_name>
                       -b           <chr1.vcf[,chr2.vcf,...]>
                       -S           </path/to/gatk/executable>
-                      -e           </path/to/java_options_file>
+                      -J           </path/to/java8_executable>
+                      -e           <java_vm_options>
                       -F           </path/to/shared_functions.sh>
                       -d           turn on debug mode
 
  EXAMPLES:
- gathergvcfs.sh -h
- gathergvcfs.sh -s sample -b chr1.vcf,chr2.vcf,chr3.vcf -S /path/to/gatk/executable  -e /path/to/java_options_file -F /path/to/shared_functions.sh -d
+ merge_gvcfs.sh -h
+ merge_gvcfs.sh -s sample -b chr1.vcf,chr2.vcf,chr3.vcf -S /path/to/gatk/executable -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -F /path/to/shared_functions.sh -d
+
+ NOTE: In order for getops to read in a string arguments for -e (java_vm_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
 
 #############################################################################
 
@@ -55,7 +58,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=gathergvcfs.sh
+SCRIPT_NAME=merge_gvcfs.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -92,7 +95,7 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hs:b:S:e:F:d" OPT
+while getopts ":hs:b:S:J:e:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
@@ -111,8 +114,12 @@ do
                         GATKEXE=${OPTARG}
                         checkArg
                         ;;
-                e )  # Path to file containing JAVA options to pass into the gatk command 
-                        JAVA_OPTS_FILE=${OPTARG}
+                J ) # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variable
+                        java=${OPTARG}
+                        checkArg
+                        ;;
+                e ) # JAVA options string to pass into the gatk command 
+                        JAVA_OPTS_STRING=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -150,9 +157,9 @@ source ${SHARED_FUNCTIONS}
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
 
 ## Create log for JOB_ID/script
-ERRLOG=${SAMPLE}.gathergvcfs.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.merge_gvcfs.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=${SAMPLE}.gathergvcfs_gatk.log
+TOOL_LOG=${SAMPLE}.merge_gvcfs_gatk.log
 truncate -s 0 ${TOOL_LOG}
 
 ## Write manifest to log
@@ -169,11 +176,10 @@ done
 checkVar "${GATKEXE+x}" "Missing GATKEXE path option: -S" $LINENO
 checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not an executable or does not exist." $LINENO
 
-checkVar "${JAVA_OPTS_FILE+x}" "Missing file of JAVA path and options: -e" $LINENO
-source ${JAVA_OPTS_FILE}
-checkVar "${JAVA_PATH+x}" "Missing JAVA path from: -e ${JAVA_OPTS_FILE}" $LINENO
-checkDir ${JAVA_PATH} "REASON=JAVA path ${JAVA_PATH} is not a directory or does not exist." $LINENO
-checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LINENO
+## Check java8 path and options 
+checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
+checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
+checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 
 
@@ -181,6 +187,7 @@ checkVar "${JAVA_OPTS+x}" "Missing JAVA options from: -e ${JAVA_OPTS_FILE}" $LIN
 ## FILENAME PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
+JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
 
 ## Defining file names
 GVCFS=$( echo ${INPUTGVCFS} | sed "s/,/ --INPUT /g" | tr "\n" " " )
@@ -190,16 +197,16 @@ OUTGVCF=${SAMPLE}.g.vcf
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## Gathers multiple VCF files from a scatter operation into a single VCF file. 
+## Merge multiple gVCF files from a scatter operation into a single gVCF file. 
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[GATKEXE] Gathering gvcf variants files across a sample"
+logInfo "[GATKEXE] Merging gvcf variants files across a sample"
 
 ## gatk/picard MergeVcfs command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. GatherVcfs aggregation error. " ' INT TERM EXIT
-${GATKEXE} ${JAVA_OPTS} MergeVcfs --INPUT ${GVCFs} --OUTPUT ${OUTGVCF} >> ${TOOL_LOG} 2>&1 
+trap 'logError " $0 stopped at line ${TRAP_LINE}. MergeVcfs aggregation error. " ' INT TERM EXIT
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} MergeVcfs --INPUT ${GVCFS} --OUTPUT ${OUTGVCF} >> ${TOOL_LOG} 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 
