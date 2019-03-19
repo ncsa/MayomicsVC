@@ -222,7 +222,7 @@ logInfo "[PICARD] Indexing BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${OUT}.bai >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${SAMPLE}.bai >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
@@ -238,10 +238,10 @@ logInfo "[PICARD] Indexed BAM output."
 
 ## Check for creation of output BAM and index. Open read permissions to the user group
 checkFile ${OUT} "Output deduplicated BAM file ${OUT} is empty." $LINENO
-checkFile ${OUT}.bai "Output deduplicated BAM index file ${OUT}.bai is empty." $LINENO
+checkFile ${SAMPLE}.bai "Output deduplicated BAM index file ${SAMPLE}.bai is empty." $LINENO
 
 chmod g+r ${OUT}
-chmod g+r ${OUT}.bai
+chmod g+r ${SAMPLE}.bai
 chmod g+r ${DEDUPMETRICS}
 
 

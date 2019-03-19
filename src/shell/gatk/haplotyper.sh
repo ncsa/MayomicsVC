@@ -26,7 +26,7 @@ read -r -d '' DOCS << DOCS
 ###########################################################################################################################
 #
 # Perform GATK's HaplotypeCaller variant caller on the bam produced in the Deduplication stage of the Mayomics workflow,
-# or the cram produced from "bqsr.sh" 
+# or the bam produced from "bqsr.sh" 
 # Step 2/3 in Single Sample Variant Calling.
 #
 ###########################################################################################################################
@@ -202,7 +202,7 @@ checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LIN
 
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
 checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINENO
-checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM} is empty or does not exist." $LINENO
+checkFile `basename ${INPUTBAM} .bam`.bai "Input BAM index `basename ${INPUTBAM} .bam`.bai is empty or does not exist." $LINENO
 
 checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
 checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO
