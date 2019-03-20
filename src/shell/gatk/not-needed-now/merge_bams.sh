@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## gathervcfs.sh MANIFEST, USAGE DOCS, SET CHECKS
+## merge_bams.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -26,23 +26,20 @@ read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Gathers/Aggregates vcf files (from Picard tools)
+# Merge bams produced in alignment 
 # 
 #############################################################################
 
  USAGE:
- gathervcfs.sh        -b           <chr1.vcf[,chr2.vcf,...]>
-                      -S           </path/to/gatk/executable>
-                      -F           </path/to/shared_functions.sh>
-                      -J           </path/to/java8_executable>
-                      -e           <java_vm_options>
-                      -d           turn on debug mode
+ merge_bams.sh     -s           <sample_name> 
+                   -b           <lane1_aligned.sorted.bam[,lane2_aligned.sorted.bam,...]>
+                   -S           </path/to/samtools/executable> 
+                   -F           </path/to/shared_functions.sh>
+                   -d           turn on debug mode
 
  EXAMPLES:
- gathervcfs.sh -h
- gathervcfs.sh -b chr1.vcf,chr2.vcf,chr3.vcf -S /path/to/gatk/executable -F /path/to/shared_functions.sh -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -d
-
- NOTE: In order for getops to read in a string arguments for -e (java_vm_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
+ merge_bams.sh -h
+ merge_bams.sh -s sample -b lane1.aligned.sorted.bam,lane2.aligned.sorted.bam,lane3.aligned.sorted.bam -S /path/to/samtools/executable -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -57,7 +54,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=gathervcfs.sh
+SCRIPT_NAME=merge_bams.sh
 SGE_JOB_ID=TBD  # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 
@@ -94,27 +91,23 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hb:S:J:e:F:d" OPT
+while getopts ":hs:b:S:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
                         exit 0
                         ;;
-                b )  # Full path to the input gvcfs or list of gvcfs
-                        INPUTVCFS=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
                         checkArg
                         ;;
-                S )  # Full path to gatk executable
-                        GATKEXE=${OPTARG}
+                b )  # Full path to the input BAM or list of BAMS
+                        INPUTBAM=${OPTARG}
                         checkArg
                         ;;
-                J ) # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variabl 
-                        java=${OPTARG}
-                        checkArg
-                        ;;
-                e ) # JAVA options string to pass into the gatk command 
-                        JAVA_OPTS_STRING=${OPTARG}
+                S )  # Full path to samtools executive 
+                        SAMTOOLSEXE=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -148,61 +141,82 @@ done
 
 source ${SHARED_FUNCTIONS}
 
+## Check if Sample Name variable exists
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+
 ## Create log for JOB_ID/script
-ERRLOG=vcfs.gather.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.merge_bams.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=vcfs.gather_gatk.log
-truncate -s 0 ${TOOL_LOG}
+truncate -s 0 ${SAMPLE}.merge_bams_samtools.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar "${INPUTVCFS+x}" "Missing input gvcf option: -b" $LINENO
-for VCF in $(echo ${INPUTVCFS} | sed "s/,/ /g")
+checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
+for LANE in $(echo ${INPUTBAM} | sed "s/,/ /g")
 do
-        checkFile ${VCF} "Input variants file ${VCF} is empty or does not exist." $LINENO
-        checkFile ${VCF}.idx "Input variants index file ${VCF}.idx is empty or does not exist." $LINENO
+        checkFile ${LANE} "Input sorted BAM file ${LANE} is empty or does not exist." $LINENO
+        checkFile ${LANE}.bai "Input sorted BAM index file ${LANE}.bai is empty or does not exist." $LINENO
 done
+checkVar "${SAMTOOLSEXE+x}" "Missing SAMTOOLSEXE path option: -S" $LINENO
+checkFileExe ${SAMTOOLSEXE} "REASON=SAMTOOLS file ${SAMTOOLSEXE} is not an executable or does not exist." $LINENO
 
-checkVar "${GATKEXE+x}" "Missing GATKEXE path option: -S" $LINENO
-checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not an executable or does not exist." $LINENO
 
-## Check java8 path and options 
-checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
-checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
-checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
 ## FILENAME PARSING
 #-------------------------------------------------------------------------------------------------------------------------------
-JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
 
 ## Defining file names
-VCFS=$( echo ${INPUTVCFS} | sed "s/,/ --INPUT /g" | tr "\n" " " )
-OUTVCF=GenomicGermlineVariants.vcf
+BAMS=`sed -e 's/,/ /g' <<< ${INPUTBAM}`  ## Replace commas with spaces
+MERGED_BAM=${SAMPLE}.bam
+TOOL_LOG=${SAMPLE}.merge_bams_samtools.log
+
 
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## Gathers multiple VCF files from a scatter operation into a single VCF file. 
+## BAM Merging
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[GATKEXE] Gathering the per interval variants files across samples"
+logInfo "[SAMTOOLSEXE] Merging BAMs if list was given."
 
-## gatk/picard GatherVcfs command
+## samtools merge command
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. GatherVcfs aggregation error. " ' INT TERM EXIT
-${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" GatherVcfs --INPUT ${VCFS} --OUTPUT ${OUTVCF} >> ${TOOL_LOG} 2>&1 
+trap 'logError " $0 stopped at line ${TRAP_LINE}. SAMTOOLS BAM merging error. " ' INT TERM EXIT
+${SAMTOOLSEXE} merge -f ${MERGED_BAM} ${BAMS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[GATKEXE] Gathering of input VCFs complete."
+logInfo "[SAMTOOLSEXE] BAM merging complete."
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## BAM INDEXONG 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Index BAM 
+logInfo "[SAMTOOLS] Indexing BAM..."
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
+${SAMTOOLSEXE} index -b ${MERGED_BAM} >> ${TOOL_LOG} 2>&1
+EXITCODE=$?  # Capture exit code
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[SAMTOOLS] Indexed BAM output."
+
+
 
 
 
@@ -211,10 +225,13 @@ logInfo "[GATKEXE] Gathering of input VCFs complete."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output vcf. Open read permissions to the user group
-checkFile ${OUTVCF} "Output variants file ${OUTVCF} is empty." $LINENO
+## Check for creation of output BAM and index. Open read permissions to the user group
+checkFile ${MERGED_BAM} "Output merged BAM file ${MERGED_BAM} is empty." $LINENO
+checkFile ${MERGED_BAM}.bai "Output merged BAM index file ${MERGED_BAM} is empty." $LINENO
 
-chmod g+r ${OUTVCF}
+chmod g+r ${MERGED_BAM}
+chmod g+r ${MERGED_BAM}.bai
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------

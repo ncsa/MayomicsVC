@@ -249,7 +249,7 @@ logInfo "[bqsr] START. Generating the bqsr model"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step1: Calculate required modification of the quality scores in the BAM. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.${INTERVALS}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" BaseRecalibrator --reference ${REF} --input ${INPUTBAM} ${KNOWNSITES} --output ${SAMPLE}.${INTERVALS}.recal_data.table --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO
@@ -262,7 +262,7 @@ logInfo "[bqsr] START. Generate the bqsr'd bam file"
 #Calculate required modification of the quality scores in the BAM
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in bqsr Step2: Generate a BAM with modifications of the quality scores. " ' INT TERM EXIT
-${GATKEXE} --java-options ${JAVA_OPTS_PARSED} ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.${INTERVALS}.bam -bqsr ${SAMPLE}.${INTERVALS}.recal_data.table ${APPLYBQSR_OPTIONS_PARSED} --intervals ${INTERVALS} --static-quantized-quals 10 --static-quantized-quals 20 --static-quantized-quals 30  >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" ApplyBQSR --reference ${REF} --input ${INPUTBAM} --output ${SAMPLE}.${INTERVALS}.bam -bqsr ${SAMPLE}.${INTERVALS}.recal_data.table ${APPLYBQSR_OPTIONS_PARSED} --intervals ${INTERVALS} --static-quantized-quals 10 --static-quantized-quals 20 --static-quantized-quals 30  >> ${TOOL_LOG} 2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 checkExitcode ${EXITCODE} $LINENO

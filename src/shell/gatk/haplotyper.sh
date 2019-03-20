@@ -235,7 +235,7 @@ logInfo "[HaplotypeCaller] START."
 #Execute GATK with the HaplotypeCaller algorithm
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Error in GATK HaplotypeCaller. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${OUTGVCF} --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" HaplotypeCaller --native-pair-hmm-threads ${NTHREADS} --reference ${REF} --input ${INPUTBAM} --output ${OUTGVCF} --dbsnp ${DBSNP} ${HAPLOTYPER_OPTIONS_PARSED} --emit-ref-confidence GVCF --intervals ${INTERVALS} >> ${TOOL_LOG} 2>&1
 
 EXITCODE=$?
 trap - INT TERM EXIT

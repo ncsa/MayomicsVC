@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## gathervcfs.sh MANIFEST, USAGE DOCS, SET CHECKS
+## deliver_haplotyperVC.sh MANIFEST, USAGE DOCS, SET CHECKS
 #-------------------------------------------------------------------------------------------------------------------------------
 
 read -r -d '' MANIFEST << MANIFEST
@@ -19,30 +19,26 @@ echo -e "${MANIFEST}"
 
 
 
-
-
-
 read -r -d '' DOCS << DOCS
 
 #############################################################################
 #
-# Gathers/Aggregates vcf files (from Picard tools)
+# Deliver results of HaplotyperVC block: vcf for snps and indels, their index files, and workflow JSON. 
+# Part of the MayomicsVC Workflow.
 # 
 #############################################################################
 
  USAGE:
- gathervcfs.sh        -b           <chr1.vcf[,chr2.vcf,...]>
-                      -S           </path/to/gatk/executable>
-                      -F           </path/to/shared_functions.sh>
-                      -J           </path/to/java8_executable>
-                      -e           <java_vm_options>
-                      -d           turn on debug mode
+ deliver_haplotyperVC.sh  -s           <sample_name>
+                          -r           <OutputGVCF> 
+                          -j           <WorkflowJSONfile>
+                          -f           </path/to/delivery_folder>
+                          -F           </path/to/shared_functions.sh>
+                          -d           turn on debug mode
 
  EXAMPLES:
- gathervcfs.sh -h
- gathervcfs.sh -b chr1.vcf,chr2.vcf,chr3.vcf -S /path/to/gatk/executable -F /path/to/shared_functions.sh -J /path/to/java8_executable -e "'-Xms2G -Xmx8G'" -d
-
- NOTE: In order for getops to read in a string arguments for -e (java_vm_options), the argument needs to be quoted with a double quote (") followed by a single quote ('). See the example above.
+ deliver_haplotyperVC.sh -h
+ deliver_haplotyperVC.sh -s sample_name -r Output.g.vcf -j Workflow.json -f /path/to/delivery_folder -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -52,14 +48,15 @@ DOCS
 
 
 
-
 set -o errexit
 set -o pipefail
 set -o nounset
 
-SCRIPT_NAME=gathervcfs.sh
-SGE_JOB_ID=TBD  # placeholder until we parse job ID
+SCRIPT_NAME=deliver_haplotyperVC.sh
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
+
+
 
 
 
@@ -94,27 +91,27 @@ then
 fi
 
 ## Input and Output parameters
-while getopts ":hb:S:J:e:F:d" OPT
+while getopts ":hs:r:j:f:F:d" OPT
 do
         case ${OPT} in
                 h )  # Flag to display usage 
                         echo -e "\n${DOCS}\n"
                         exit 0
                         ;;
-                b )  # Full path to the input gvcfs or list of gvcfs
-                        INPUTVCFS=${OPTARG}
+                s )  # Sample name
+                        SAMPLE=${OPTARG}
                         checkArg
                         ;;
-                S )  # Full path to gatk executable
-                        GATKEXE=${OPTARG}
+                r )  # Full path to the GVCF file
+                        GVCF=${OPTARG}
                         checkArg
                         ;;
-                J ) # Path to JAVA8 exectable. The variable needs to be small letters so as not to explicitly change the user's $PATH variabl 
-                        java=${OPTARG}
+                j )  # Full path to the workflow JSON file
+                        JSON=${OPTARG}
                         checkArg
                         ;;
-                e ) # JAVA options string to pass into the gatk command 
-                        JAVA_OPTS_STRING=${OPTARG}
+                f)   # Path to delivery folder
+                        DELIVERY_FOLDER=${OPTARG}
                         checkArg
                         ;;
                 F )  # Path to shared_functions.sh
@@ -125,7 +122,7 @@ do
                         echo -e "\nDebug mode is ON.\n"
                         set -x
                         ;;
-                \? )  # Check for unsupported flag, print usage and exit.
+        		\? )  # Check for unsupported flag, print usage and exit.
                         echo -e "\nInvalid option: -${OPTARG}\n\n${DOCS}\n"
                         exit 1
                         ;;
@@ -133,9 +130,8 @@ do
                         echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n"
                         exit 1
                         ;;
-                esac
+        esac
 done
-
 
 
 
@@ -148,62 +144,91 @@ done
 
 source ${SHARED_FUNCTIONS}
 
+## Check if Sample Name variable exists
+checkVar ${SAMPLE} "Missing sample name option: -s" $LINENO
+
 ## Create log for JOB_ID/script
-ERRLOG=vcfs.gather.${SGE_JOB_ID}.log
+ERRLOG=${SAMPLE}.deliver_haplotyperVC.${SGE_JOB_ID}.log
 truncate -s 0 "${ERRLOG}"
-TOOL_LOG=vcfs.gather_gatk.log
-truncate -s 0 ${TOOL_LOG}
+truncate -s 0 ${SAMPLE}.deliver_haplotyperVC.log
 
 ## Write manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
 ## Check if input files, directories, and variables are non-zero
-checkVar "${INPUTVCFS+x}" "Missing input gvcf option: -b" $LINENO
-for VCF in $(echo ${INPUTVCFS} | sed "s/,/ /g")
-do
-        checkFile ${VCF} "Input variants file ${VCF} is empty or does not exist." $LINENO
-        checkFile ${VCF}.idx "Input variants index file ${VCF}.idx is empty or does not exist." $LINENO
-done
+checkVar ${GVCF} "Missing GVCF option: -r" $LINENO
+checkFile ${GVCF} "Input GVCF file ${GVCF} is empty or does not exist" $LINENO
+checkFile ${GVCF}.idx "Input GVCF index file ${GVCF}.idx is empty or does not exist" $LINENO
 
-checkVar "${GATKEXE+x}" "Missing GATKEXE path option: -S" $LINENO
-checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not an executable or does not exist." $LINENO
+checkVar ${JSON} "Missing JSON option: -j" $LINENO
+checkFile ${JSON} "Input JSON file ${JSON} is empty or does not exist." $LINENO
 
-## Check java8 path and options 
-checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
-checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
-checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
+checkVar ${DELIVERY_FOLDER} "Missing delivery folder option: -f" $LINENO
 
-
-
-#-------------------------------------------------------------------------------------------------------------------------------
-## FILENAME PARSING
-#-------------------------------------------------------------------------------------------------------------------------------
-JAVA_OPTS_PARSED=`sed -e "s/'//g" <<< ${JAVA_OPTS_STRING}`
-
-## Defining file names
-VCFS=$( echo ${INPUTVCFS} | sed "s/,/ --INPUT /g" | tr "\n" " " )
-OUTVCF=GenomicGermlineVariants.vcf
 
 
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-## Gathers multiple VCF files from a scatter operation into a single VCF file. 
+## MAKE DELIVERY FOLDER
 #-------------------------------------------------------------------------------------------------------------------------------
 
 ## Record start time
-logInfo "[GATKEXE] Gathering the per interval variants files across samples"
+logInfo "[DELIVERY] Creating the Delivery folder."
 
-## gatk/picard GatherVcfs command
+## Make delivery folder
 TRAP_LINE=$(($LINENO + 1))
-trap 'logError " $0 stopped at line ${TRAP_LINE}. GatherVcfs aggregation error. " ' INT TERM EXIT
-${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" GatherVcfs --INPUT ${VCFS} --OUTPUT ${OUTVCF} >> ${TOOL_LOG} 2>&1 
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Creating HaplotyperVC block delivery folder. " ' INT TERM EXIT
+makeDir ${DELIVERY_FOLDER} "Delivery folder ${DELIVERY_FOLDER}" $LINENO
 EXITCODE=$?
 trap - INT TERM EXIT
 
 checkExitcode ${EXITCODE} $LINENO
-logInfo "[GATKEXE] Gathering of input VCFs complete."
+logInfo "[DELIVERY] Created the HaplotyperVC block delivery folder."
 
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+## DELIVERY
+#-------------------------------------------------------------------------------------------------------------------------------
+
+## Record start time
+logInfo "[DELIVERY] Copying HaplotyperVC block outputs into Delivery folder."
+
+## Copy the snp files over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying GVCF into delivery folder. " ' INT TERM EXIT
+cp ${GVCF} ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[DELIVERY] GVCF delivered."
+
+
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying GVCF.IDX into delivery folder. " ' INT TERM EXIT
+cp ${GVCF}.idx ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[DELIVERY] GVCF.IDX delivered."
+
+
+## Copy the JSON over
+TRAP_LINE=$(($LINENO + 1))
+trap 'logError " $0 stopped at line ${TRAP_LINE}. Copying JSON into delivery folder. " ' INT TERM EXIT
+cp ${JSON} ${DELIVERY_FOLDER}
+EXITCODE=$?
+trap - INT TERM EXIT
+
+checkExitcode ${EXITCODE} $LINENO
+logInfo "[DELIVERY] Workflow JSON delivered."
 
 
 
@@ -211,14 +236,20 @@ logInfo "[GATKEXE] Gathering of input VCFs complete."
 ## POST-PROCESSING
 #-------------------------------------------------------------------------------------------------------------------------------
 
-## Check for creation of output vcf. Open read permissions to the user group
-checkFile ${OUTVCF} "Output variants file ${OUTVCF} is empty." $LINENO
+## Check for creation of output GVCF and index, and JSON. Open read permissions to the user group
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf "Delivered the GVCF file ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf is empty." $LINENO
+checkFile ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx "Delivered the GVCF index file ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx is empty." $LINENO
 
-chmod g+r ${OUTVCF}
+JSON_FILENAME=`basename ${JSON}`
+checkFile ${DELIVERY_FOLDER}/${JSON_FILENAME} "Delivered workflow JSON file ${DELIVERY_FOLDER}/${JSON_FILENAME} is empty" $LINENO
+
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf
+chmod g+r ${DELIVERY_FOLDER}/${SAMPLE}.g.vcf.idx
+chmod g+r ${DELIVERY_FOLDER}/${JSON_FILENAME}
+
+logInfo "[DELIVERY] HaplotyperVC block delivered. Have a nice day."
 
 
-#-------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------
 ## END
 #-------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------

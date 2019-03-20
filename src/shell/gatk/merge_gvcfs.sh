@@ -206,7 +206,7 @@ logInfo "[GATKEXE] Merging gvcf variants files across a sample"
 ## gatk/picard MergeVcfs command
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. MergeVcfs aggregation error. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} MergeVcfs --INPUT ${GVCFS} --OUTPUT ${OUTGVCF} >> ${TOOL_LOG} 2>&1 
+${GATKEXE} --java-options  "${JAVA_OPTS_PARSED}" MergeVcfs --INPUT ${GVCFS} --OUTPUT ${OUTGVCF} >> ${TOOL_LOG} 2>&1 
 EXITCODE=$?
 trap - INT TERM EXIT
 

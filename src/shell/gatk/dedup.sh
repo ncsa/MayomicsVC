@@ -203,7 +203,7 @@ logInfo "[PICARD] Deduplicating BAM."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard Deduplication error. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
+${GATKEXE} --java-options "${JAVA_OPTS_PARSED}" MarkDuplicates --INPUT ${INPUTBAM} --METRICS_FILE ${DEDUPMETRICS} --OUTPUT ${OUT} >> ${TOOL_LOG}  2>&1
 EXITCODE=$?
 trap - INT TERM EXIT
 
@@ -222,7 +222,7 @@ logInfo "[PICARD] Indexing BAM..."
 
 TRAP_LINE=$(($LINENO + 1))
 trap 'logError " $0 stopped at line ${TRAP_LINE}. Picard BAM indexing error. " ' INT TERM EXIT
-${GATKEXE} --java-options  ${JAVA_OPTS_PARSED} BuildBamIndex --INPUT ${OUT} --OUTPUT ${SAMPLE}.bai >> ${TOOL_LOG} 2>&1
+${GATKEXE} --java-options  "${JAVA_OPTS_PARSED}" BuildBamIndex --INPUT ${OUT} --OUTPUT ${SAMPLE}.bai >> ${TOOL_LOG} 2>&1
 EXITCODE=$?  # Capture exit code
 trap - INT TERM EXIT
 
