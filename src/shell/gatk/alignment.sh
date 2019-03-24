@@ -36,15 +36,15 @@ read -r -d '' DOCS << DOCS
                    -L           <library>
                    -f           <flowcell_ID/platform_unit>
                    -c           <sequencing_center>
+                   -P           paired-end reads (true/false)
                    -l           <read1.fq> 
                    -r           <read2.fq>
                    -G           <reference_genome>
+                   -e           </path/to/bwa/executable>
                    -K           <chunk_size_in_bases> 
                    -o           <additional_bwa_options>
                    -S           </path/to/samtools/executable>
                    -t           <threads> 
-                   -P           paired-end reads (true/false)
-                   -e           </path/to/bwa/executable>
                    -F           </path/to/shared_functions.sh>
                    -d           turn on debug mode
 
