@@ -21,7 +21,7 @@ task alignmentTask {
    String ChunkSizeInBases         # The -K option for BWA MEM
    String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
    File SamtoolsExe                # Path to samtools executable
-   String Threads                  # Specifies the number of thread required per run
+   String BwaSamtoolsThreads                  # Specifies the number of thread required per run
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    String DebugMode                # Flag to enable Debug Mode
 
@@ -34,11 +34,11 @@ task alignmentTask {
 
    command <<<
       source ${BashPreamble}
-      /bin/bash ${AlignmentScript} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -G ${Ref} -e ${BWAExe} -K ${ChunkSizeInBases} -o "'${BWAExtraOptionsString}'" -S ${SamtoolsExe} -t ${Threads} -F ${BashSharedFunctions} ${DebugMode}
+      /bin/bash ${AlignmentScript} -s ${SampleName} -p ${Platform} -L ${Library} -f ${PlatformUnit} -c ${CenterName} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -G ${Ref} -e ${BWAExe} -K ${ChunkSizeInBases} -o "'${BWAExtraOptionsString}'" -S ${SamtoolsExe} -t ${BwaSamtoolsThreads} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
-      cpu: "${Threads}"
+      cpu: "${BwaSamtoolsThreads}"
       s_vmem: "${AlignSoftMemLimit}"
       h_vmem: "${AlignHardMemLimit}"
    }
