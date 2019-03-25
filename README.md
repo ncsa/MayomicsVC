@@ -310,7 +310,7 @@ Go to MayomicsVC and run the following bash command
 
 ```
  cd MayomicsVC
- python src/python/config_parser.py -i ~/Config/run_info.txt -i ~/Config/sample_info.txt -i ~/Config/tool_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
+ python MayomicsVC/src/python/config_parser.py -i Config/run_info.txt -i Config/sample_info.txt -i Config/tool_info.txt -i Config/memory_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
  cd ..
 ```
 </details>
