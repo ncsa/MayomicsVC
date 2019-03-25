@@ -275,47 +275,6 @@ Below given are the steps to run the workflow:
   ```
   </details>
   
-  <details>
-  <summary>
-3. Create environmental profile files
-  </summary>
-  
-Senteion requires a license to run. This liscense is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. The user defines the names of these files in the tool_info.txt config file. For organization purposes, these files should be in the Config directory that was created earlier. The liscense on iForge is used in this example. Following are the necessary environmental profiles in the Config dir:
-
-ls Config/ | grep Profile
-
-AlignEnvProfile.file
-BqsrEnvProfile.file
-DedupEnvProfile.file
-HaplotyperEnvProfile.file
-RealignEnvProfile.file
-TrimEnvProfile.file
-VqsrEnvProfile.file
-
-Each file contains the same thing:
-
-cat Config/AlignEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat BqsrEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat DedupEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat HaplotyperEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat RealignEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat TrimEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat VqsrEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-</details>
 
 <details>
 <summary>
