@@ -286,7 +286,8 @@ WDL will use a json file to read in the locations data. The user first generates
 ```
 cd ..
 mkdir Jsons
-java -jar ${WOMTOOL} inputs MayomicsVC/src/wdl/GermlineMasterWorkflow.wdl > Jsons/GermlineMasterWorkflow.json
+java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
+java -jar ${WOMTOOL} inputs MayomicsVC/src/wdl/GermlineMasterWorkflow.wdl > Jsons/GermlineMasterWorkflow.json.tmpl
 ```
 The JSON will be filled similar to the below snippet:
 
@@ -319,12 +320,10 @@ Go to MayomicsVC and run the following bash command
 <summary>
 6. Run validator to validate entries in JSON
 </summary>
-In order for the workflow to run successfully, the variable types of the input variables must be what the Cromwell expects from the WDL code. We have writted another python script to ensure that this is the case.Pass in the newly filled in json file, and the key_types file from the repository:
+In order for the workflow to run successfully, the variable types of the input variables must be what the Cromwell expects from the WDL code. We have writted another python script to ensure that this is the case. Pass in the newly filled in json file, and the `key_types` file from the repository (and see [here](https://github.com/ncsa/MayomicsVC/blob/ab1701f776f2f03807bb5da9473d42c9f7756877/src/python/config/validator/README.md) for more information):
   
 ```
-python MayomicsVC/src/python/key_validator.py -i Jsons
-/GermlineMasterWorkflow.FilledIn.json --KeyTypeFile MayomicsVC/key_types.
-json
+python MayomicsVC/src/python/key_validator.py -i Jsons/GermlineMasterWorkflow.FilledIn.json --KeyTypeFile MayomicsVC/key_types.json
 ```
 
 </details>
@@ -342,12 +341,24 @@ zip -r MayomicsVC.zip MayomicsVC
 ```
 </details>
 
+
+<details>
+<summary>
+9. Running the script </summary>
+  
+```  
+java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
+java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
+```
+
+</details>
+
 <details>
 <summary>
 8. Viewing Outputs
 </summary>
-  
-The outputs are in the delivery folders. From the Alignment Block, a BAM is produced, and from the HaplotyperVC block, a VCF and index is produced:
+
+Upon running a workflow like the `Germline`  workflow, the outputs will be in the delivery folders. From the Alignment Block, a BAM is produced, and from the HaplotyperVC block, a VCF and index is produced:
 
 ```
 ls Delivery/Alignment/
@@ -357,18 +368,6 @@ ls Delivery/HaplotyperVC/
 GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.vcf NEAT_synthetic.
 vcf.idx
 ```
-</details>
-
-<details>
-<summary>
-9. Running the script </summary>
-  
-```  
-java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
-java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
-java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
-```
-
 </details>
 
 
