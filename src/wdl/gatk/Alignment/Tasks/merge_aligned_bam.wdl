@@ -5,15 +5,14 @@
 #################################################################################################
 
 task mergebamTask {
+   String SampleName               # Name of the Sample
 
    Array[File] InputBams           # Input Sorted BAM File
    Array[File] InputBais           # Input Sorted Bam Index File
 
-   String SampleName               # Name of the Sample
 
-   String Sentieon                 # Variable path to Sentieon 
+   String SamtoolsExe              # Path to Samtools Executable
 
-   String SentieonThreads          # Specifies the number of thread required per run
    String DebugMode                # Variable to check whether Debud Mode is on
 
    String MergeSoftMemLimit        # Soft memory limit - nice shutdown
@@ -21,15 +20,13 @@ task mergebamTask {
    File BashPreamble               # Bash script that helps control zombie processes
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    File MergeBamScript             # Bash script that is called inside the WDL script
-   File MergeBamEnvProfile         # File containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${MergeBamScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${MergeBamEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+   	   /bin/bash ${MergeBamScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${SamtoolsExe} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
-      cpu: "${SentieonThreads}"
       s_vmem: "${MergeSoftMemLimit}"
       h_vmem: "${MergeHardMemLimit}"
    }
