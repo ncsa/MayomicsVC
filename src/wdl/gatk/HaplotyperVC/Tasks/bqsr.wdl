@@ -46,7 +46,7 @@ task bqsrTask {
 
    command <<<
        source ${BashPreamble}
-       /bin/bash ${BqsrScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${BqsrKnownSites} -I ${GenomicInterval} -S ${GATKExe} -o ${ApplyBQSRExtraOptionsString} -J ${JavaExe} -e ${JavaOptionsString} -F ${BashSharedFunctions} ${DebugMode}
+       /bin/bash ${BqsrScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -k ${BqsrKnownSites} -I ${GenomicInterval} -S ${GATKExe} -o ${ApplyBQSRExtraOptionsString} -J ${JavaExe} -e "'${JavaOptionsString}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
    
    runtime {

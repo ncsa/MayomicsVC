@@ -33,16 +33,16 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  haplotyper.sh     -s 	<sample_name>
-                   -S	</path/to/gatk/executable>
-                   -G	<reference_genome>
-                   -t	<threads>
                    -b	<sorted.deduped.bam>
+                   -G	<reference_genome>
                    -D	<dbsnp.vcf>
+                   -I   <genomic_intervals>
+                   -S	</path/to/gatk/executable>
+                   -t	<threads>
                    -o	<extra_haplotyper_options>
                    -J   </path/to/java8_executable>
                    -e   <java_vm_options>
                    -F   </path/to/shared_functions.sh>
-                   -I   <genomic_intervals>
                    -d   turn on debug mode
 
  EXAMPLES:

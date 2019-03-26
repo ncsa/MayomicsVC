@@ -19,25 +19,24 @@
 ############################################################################################
 
 task variantCallingTask {
+   String SampleName                              # Name of the Sample
 
    File InputBams                                 # Input Sorted Deduped Bam
    File InputBais                                 # Input Sorted Deduped Bam Index
-   File? RecalTable                               # Input Recal Table after BQSR step
 
    File Ref                                       # Reference Genome
    File RefFai                                    # Reference Genome index
-
-   String SampleName                              # Name of the Sample
-   String HaplotyperVCFSourceField                # SOURCE to include in VCF header
-
-   String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
+   File RefDict                                   # Reference Genome dictionary
 
    File DBSNP                                     # DBSNP file
    File DBSNPIdx                                  # Index file for the DBSNPs
+   String GenomicInterval                         # Array of chromosome names or genomic intervals for parallel analysis
 
-
-   String Sentieon                                # Path to Sentieon
-   String SentieonThreads                         # No of Threads for the Tool
+   File GATKExe                                   # Path to GATK4 executable
+   String HaplotyperThreads
+   String HaplotyperExtraOptionsString            # String of extra options for haplotyper, this can be an empty string
+   File JavaExe                                   # Path to Java8 executable
+   String JavaOptionsString                       # String of java vm options. Can NOT be empty
 
    String HaplotyperSoftMemLimit                  # Soft memory limit - nice shutdown
    String HaplotyperHardMemLimit                  # Hard memory limit - kill immediately
@@ -45,7 +44,6 @@ task variantCallingTask {
    File BashPreamble                              # bash script to source before every task
    File BashSharedFunctions                       # Bash script with shared functions
    File HaplotyperScript                          # Path to bash script called within WDL script
-   File HaplotyperEnvProfile                      # File containing the environmental profile variables
 
    String DebugMode                               # Enable or Disable Debug Mode
 
@@ -54,26 +52,27 @@ task variantCallingTask {
         source ${BashPreamble}
         /bin/bash ${HaplotyperScript} \
             -s ${SampleName} \
-            -S ${Sentieon} \
-            -G ${Ref} \
-            -t ${SentieonThreads} \
             -b ${InputBams} \
-            -D ${DBSNP} ${"-r " + RecalTable} \
+            -G ${Ref} \
+            -D ${DBSNP} \
+            -I ${GenomicInterval} \
+            -S ${GATKExe} \
+            -t ${HaplotyperThreads} \
             -o "'${HaplotyperExtraOptionsString}'" \
-            -e ${HaplotyperEnvProfile} \
-            -V ${HaplotyperVCFSourceField} \
+            -J ${JavaExe} \
+            -e "'$JavaOptionsString}'" \
             -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
-      cpu: "${SentieonThreads}"
+      cpu: "${HaplotyperThreads}"
       s_vmem: "${HaplotyperSoftMemLimit}"
       h_vmem: "${HaplotyperHardMemLimit}"
    }
 
   output {
-      File OutputVcf = "${SampleName}.vcf"
-      File OutputVcfIdx = "${SampleName}.vcf.idx"
+      File OutputVcf = "${SampleName}.${GenomicInterval}.vcf"
+      File OutputVcfIdx = "${SampleName}.${GenomicInterval}.vcf.idx"
    }
 
 }
