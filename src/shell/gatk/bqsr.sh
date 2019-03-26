@@ -31,15 +31,15 @@ read -r -d '' DOCS << DOCS
 
  USAGE:
  bqsr.sh -s 	<sample_name>
-         -S 	</path/to/gatk/executable> 
-         -G 	<reference_genome>
          -b 	<sorted.deduped.bam>
+         -G 	<reference_genome>
          -k 	<comma,seperated,list,of,paths,to,known_sites> (omni.vcf, hapmap.vcf, indels.vcf, dbSNP.vcf)
+         -I     <genomic_intervals>
+         -S 	</path/to/gatk/executable> 
+         -o     <extra_ApplyBQSR_options>
          -J     </path/to/java8_executable>
          -e     <java_vm_options>
          -F     </path/to/shared_functions.sh>
-         -o     <extra_ApplyBQSR_options>
-         -I     <genomic_intervals>
          -d     turn on debug mode	
 
  EXAMPLES:
@@ -207,7 +207,7 @@ checkVar "${INPUTBAM+x}" "REASON=Missing input BAM option: -b" $LINENO
 
 ## Check if the BAM input file is present.
 checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINENO
-checkFile `basename ${INPUTBAM} .bam`.bai "Input BAM index `basename ${INPUTBAM} .bam`.bai is empty or does not exist." $LINENO
+checkFile ${INPUTBAM}.bai "Input BAM index ${INPUTBAM}.bai is empty or does not exist." $LINENO
 
 ## Check if the known sites file option is present.
 checkVar "${KNOWN+x}" "Missing known sites option: -k" $LINENO

@@ -17,11 +17,11 @@ task alignmentTask {
    File RefBwt                     # reference file index
    File RefPac                     # reference file index
    File RefSa                      # reference file index
-   File BWAExe                     # Path to BWA executable**************
+   File BWAExe                     # Path to BWA executable
    String ChunkSizeInBases         # The -K option for BWA MEM
    String BWAExtraOptionsString    # String of extra options for BWA. This can be an empty string.
    File SamtoolsExe                # Path to samtools executable
-   String BwaSamtoolsThreads                  # Specifies the number of thread required per run
+   String BwaSamtoolsThreads       # Specifies the number of thread required per run
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    String DebugMode                # Flag to enable Debug Mode
 
