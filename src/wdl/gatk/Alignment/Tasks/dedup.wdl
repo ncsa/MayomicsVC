@@ -3,15 +3,17 @@
 ###########################################################################################
 
 task dedupTask {
+   
+   String SampleName               # Name of the Sample
 
    File InputBams                  # Input Sorted BAM File
    File InputBais                  # Input Sorted Bam Index File
 
-   String SampleName               # Name of the Sample
+   
+   File GATKExe                    # Path to GATK4 executable
+   File JavaExe                    # Path to Java8 executable
+   String JavaOptionsString        # String of java vm options, like garbage collection and maximum and minimum memory. Can NOT be empty
 
-   String Sentieon                 # Variable path to Sentieon 
-
-   String SentieonThreads          # Specifies the number of thread required per run
    String DebugMode                # Variable to check whether Debud Mode is on
 
    String DedupSoftMemLimit        # Soft memory limit - nice shutdown
@@ -20,15 +22,14 @@ task dedupTask {
    File BashSharedFunctions        # Bash script with shared functions
 
    File DedupScript                # Bash script that is called inside the WDL script
-   File DedupEnvProfile            # File containing the environmental profile variables
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${DedupScript} -b ${InputBams} -s ${SampleName} -S ${Sentieon} -t ${SentieonThreads} -e ${DedupEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+   	   /bin/bash ${DedupScript} -s ${SampleName} -b ${InputBams} -S ${GATKExe} -J ${JavaExe} -e ${JavaOptionsString} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
-      cpu: "${SentieonThreads}"
+      cpu: 1
       s_vmem: "${DedupSoftMemLimit}"
       h_vmem: "${DedupHardMemLimit}"
    }
