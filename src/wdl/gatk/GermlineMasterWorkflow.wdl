@@ -12,8 +12,8 @@ import "MayomicsVC/src/wdl/gatk/DeliveryOfAlignment/Tasks/deliver_alignment.wdl"
 import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
 import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
 
+import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/merge_gvcfs.wdl" as MERGEGVCF
 import "MayomicsVC/src/wdl/gatk/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
-
 
 workflow GermlineMasterWF {
 
@@ -83,15 +83,19 @@ workflow GermlineMasterWF {
             GenomicInterval = interval
       }
 
-      call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
-         input:
-            InputVcf = haplotype.OutputVcf,
-            InputVcfIdx = haplotype.OutputVcfIdx
-      } 
-
    }
 
-   
+   call MERGEGVCF.mergegvcfsTask as mergegvcfs {
+      input:
+         InputGvcfs = haplotype.OutputVcf,
+         InputIdxs = haplotype.OutputVcfIdx
+   }
+  
+   call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
+      input:
+         InputVcf = mergegvcfs.OutputVcf,
+         InputVcfIdx = mergegvcfs.OutputVcfIdx
+    } 
 
 
 }
