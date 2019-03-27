@@ -36,13 +36,12 @@ read -r -d '' DOCS << DOCS
                    -C 		</path/to/cutadapt> 
                    -t 		<threads> 
                    -P 		paired-end reads (true/false)
-                   -e		</path/to/env_profile_file>
                    -F           </path/to/shared_functions.sh>
                    -d 		turn on debug mode 
 
  EXAMPLES:
  trim_sequences.sh -h
- trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -e /path/to/env_profile_file -F /path/to/shared_functions.sh -d
+ trim_sequences.sh -s sample -l read1.fq -r read2.fq -A adapters.fa -C /path/to/cutadapt_directory -t 12 -P true -F /path/to/shared_functions.sh -d
 
 #############################################################################
 
@@ -93,7 +92,7 @@ then
 	exit 1
 fi
 
-while getopts ":hl:r:A:C:t:P:s:e:F:d" OPT
+while getopts ":hl:r:A:C:t:P:s:F:d" OPT
 do
 	case ${OPT} in
 		h )  # Flag to display usage
@@ -126,10 +125,6 @@ do
 			;;
 		s )  # Sample name
 			SAMPLE=${OPTARG}
-			checkArg
-			;;
-		e )  # Path to file with environmental profile variables
-			ENV_PROFILE=${OPTARG}
 			checkArg
 			;;
                 F )  # Path to shared_functions.sh
@@ -173,9 +168,6 @@ truncate -s 0 ${SAMPLE}.cutadapt.log
 ## Send manifest to log
 echo "${MANIFEST}" >> "${ERRLOG}"
 
-## source the file with environmental profile variables
-checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
-source ${ENV_PROFILE}
 
 ##  Check if input files, directories, and variables are non-zero
 checkVar "${ADAPTERS+x}" "Missing adapters file option: -A" $LINENO

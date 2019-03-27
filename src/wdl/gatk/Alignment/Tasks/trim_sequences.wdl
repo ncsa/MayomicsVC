@@ -21,7 +21,6 @@ task trimsequencesTask {
    File BashPreamble               # Bash script that helps control zombie processes
    File BashSharedFunctions        # Bash script that contains shared helpful functions
    File TrimSeqScript              # Bash script which is called inside the WDL script
-   File TrimEnvProfile             # File containing the environmental profile variables
 
    String TrimSoftMemLimit         # Soft memory limit - nice shutdown
    String TrimHardMemLimit         # Hard memory limit - kill immediately
@@ -31,7 +30,7 @@ task trimsequencesTask {
 
    command <<<
      source ${BashPreamble}
-     /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} -e ${TrimEnvProfile} -F ${BashSharedFunctions} ${DebugMode}
+     /bin/bash ${TrimSeqScript} -P ${PairedEnd} -l ${InputRead1} -r ${InputRead2} -s ${SampleName} -A ${Adapters} -C ${CutAdapt} -t ${CutAdaptThreads} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {

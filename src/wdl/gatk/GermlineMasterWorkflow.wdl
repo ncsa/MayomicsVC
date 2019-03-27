@@ -9,10 +9,8 @@ import "MayomicsVC/src/wdl/gatk/Alignment/Tasks/dedup.wdl" as DEDUP
 
 import "MayomicsVC/src/wdl/gatk/DeliveryOfAlignment/Tasks/deliver_alignment.wdl" as DELIVER_Alignment
 
-import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/realignment.wdl" as REALIGNMENT
 import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/bqsr.wdl" as BQSR
 import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/haplotyper.wdl" as HAPLOTYPER
-import "MayomicsVC/src/wdl/gatk/HaplotyperVC/Tasks/vqsr.wdl" as VQSR
 
 import "MayomicsVC/src/wdl/gatk/DeliveryOfHaplotyperVC/Tasks/deliver_HaplotyperVC.wdl" as DELIVER_HaplotyperVC
 
@@ -23,7 +21,8 @@ workflow GermlineMasterWF {
 
    Boolean Trimming
    Boolean MarkDuplicates
-   Boolean Bqsr
+   
+   Array[String] GenomicIntervals
 
    if(Trimming) {
 
@@ -68,27 +67,31 @@ workflow GermlineMasterWF {
 
 
 
-   if(Bqsr) {
+   scatter (interval in GenomicIntervals) {
 
       call BQSR.bqsrTask as bqsr {
          input:
             InputBams = DeliverAlignOutputBams,
-            InputBais = DeliverAlignOutputBais
+            InputBais = DeliverAlignOutputBais,
+            GenomicInterval = interval
       }
-   }
+   
+      call HAPLOTYPER.variantCallingTask as haplotype {
+         input:
+            InputBams = bqsr.OutputBams,
+            InputBais = bqsr.OutputBais,
+            GenomicInterval = interval
+      }
 
-   call HAPLOTYPER.variantCallingTask as haplotype {
-      input:
-         InputBams = bqsr.OutputBams,
-         InputBais = bqsr.OutputBais,
+      call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
+         input:
+            InputVcf = haplotype.OutputVcf,
+            InputVcfIdx = haplotype.OutputVcfIdx
+      } 
+
    }
 
    
 
-   call DELIVER_HaplotyperVC.deliverHaplotyperVCTask as DHVC {
-      input:
-         InputVcf = haplotype.OutputVcf,
-         InputVcfIdx = haplotype.OutputVcfIdx
-   } 
 
 }
