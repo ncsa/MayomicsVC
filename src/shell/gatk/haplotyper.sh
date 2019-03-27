@@ -202,7 +202,8 @@ checkFile ${REF} "Reference genome file ${REF} is empty or does not exist." $LIN
 
 checkVar "${INPUTBAM+x}" "Missing input BAM option: -b" $LINENO
 checkFile ${INPUTBAM} "Input BAM ${INPUTBAM} is empty or does not exist." $LINENO
-checkFile `basename ${INPUTBAM} .bam`.bai "Input BAM index `basename ${INPUTBAM} .bam`.bai is empty or does not exist." $LINENO
+INPUTPREFIX=${INPUTBAM%.*}
+checkFile ${INPUTPREFIX}.bai "Input BAM index ${INPUTPREFIX}.bai is empty or does not exist." $LINENO
 
 checkVar "${DBSNP+x}" "Missing dbSNP option: -D" $LINENO
 checkFile ${DBSNP} "DBSNP ${DBSNP} is empty or does not exist." $LINENO

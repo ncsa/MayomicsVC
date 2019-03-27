@@ -50,18 +50,7 @@ task variantCallingTask {
 
    command <<<
         source ${BashPreamble}
-        /bin/bash ${HaplotyperScript} \
-            -s ${SampleName} \
-            -b ${InputBams} \
-            -G ${Ref} \
-            -D ${DBSNP} \
-            -I ${GenomicInterval} \
-            -S ${GATKExe} \
-            -t ${HaplotyperThreads} \
-            -o "'${HaplotyperExtraOptionsString}'" \
-            -J ${JavaExe} \
-            -e "'$JavaOptionsString}'" \
-            -F ${BashSharedFunctions} ${DebugMode}
+        /bin/bash ${HaplotyperScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -D ${DBSNP} -I ${GenomicInterval} -S ${GATKExe} -t ${HaplotyperThreads} -o "'${HaplotyperExtraOptionsString}'" -J ${JavaExe} -e "'${JavaOptionsString}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
@@ -71,8 +60,8 @@ task variantCallingTask {
    }
 
   output {
-      File OutputVcf = "${SampleName}.${GenomicInterval}.vcf"
-      File OutputVcfIdx = "${SampleName}.${GenomicInterval}.vcf.idx"
+      File OutputVcf = "${SampleName}.${GenomicInterval}.g.vcf"
+      File OutputVcfIdx = "${SampleName}.${GenomicInterval}.g.vcf.idx"
    }
 
 }
