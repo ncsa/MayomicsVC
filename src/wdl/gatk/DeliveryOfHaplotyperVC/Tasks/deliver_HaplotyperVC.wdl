@@ -24,5 +24,8 @@ task deliverHaplotyperVCTask {
       source ${BashPreamble}
       /bin/bash ${DeliveryHaplotyperVC_Script} -s ${SampleName} -r ${InputVcf} -j ${WorkflowJson} -f ${DeliveryFolder_HaplotyperVC} -F ${BashSharedFunctions} ${DebugMode}
    }
+   runtime {
+      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
+   }
 
 }

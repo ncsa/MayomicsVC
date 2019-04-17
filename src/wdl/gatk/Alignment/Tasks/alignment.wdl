@@ -10,7 +10,7 @@ task alignmentTask {
    String CenterName               # Name of the sequencing center for read group
    Boolean PairedEnd               # Variable to check if single ended or not
    File InputRead1                 # Input Read File           
-   String InputRead2               # Input Read File           
+   File InputRead2	           # Input Read File           
    File Ref                        # Reference Genome
    File RefAmb                     # reference file index
    File RefAnn                     # reference file index
@@ -40,7 +40,8 @@ task alignmentTask {
    runtime {
       cpu: "${BwaSamtoolsThreads}"
       s_vmem: "${AlignSoftMemLimit}"
-      h_vmem: "${AlignHardMemLimit}"
+      memory: "${AlignHardMemLimit}"
+      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
    }
 
    output {

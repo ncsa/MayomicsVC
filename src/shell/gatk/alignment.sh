@@ -223,7 +223,7 @@ then
 fi
 if [[ "${IS_PAIRED_END}" == true ]]
 then
-        checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
+        # checkFile ${INPUT2} "Input read 2 file ${INPUT2} is empty or does not exist. If running a single-end job, set -r null in command." $LINENO
 	if [[ "${INPUT2}" == null ]]
 	then
 		EXITCODE=1
@@ -304,7 +304,7 @@ if [[ "${IS_PAIRED_END}" == false ]] # Align single read to reference genome
 then
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUTSAM} 2>>${TOOL_LOG}
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:${GROUP}\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} > ${OUTSAM} # 2>>${TOOL_LOG}
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 
@@ -313,7 +313,7 @@ else
         # Paired-end reads aligned
 	TRAP_LINE=$(($LINENO + 1))
 	trap 'logError " $0 stopped at line ${TRAP_LINE}. BWA-MEM error in read alignment. " ' INT TERM EXIT
-	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUTSAM} 2>>${TOOL_LOG} 
+	${BWAEXE} mem ${BWA_OPTS_PARSED} -Y -R "@RG\tID:$GROUP\tPU:${PLATFORM_UNIT}\tSM:${SAMPLE}\tPL:${PLATFORM}\tLB:${LIBRARY}\tCN:${CENTER_NAME}" -K ${CHUNK_SIZE} -t ${THR} ${REFGEN} ${INPUT1} ${INPUT2} > ${OUTSAM} # 2>>${TOOL_LOG} 
 	EXITCODE=$?  # Capture exit code
 	trap - INT TERM EXIT
 

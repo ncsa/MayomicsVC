@@ -31,7 +31,8 @@ task dedupTask {
    runtime {
       cpu: 1
       s_vmem: "${DedupSoftMemLimit}"
-      h_vmem: "${DedupHardMemLimit}"
+      memory: "${DedupHardMemLimit}"
+      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
    }
 
    output {

@@ -24,5 +24,8 @@ task deliverAlignmentTask {
       source ${BashPreamble}
       /bin/bash ${DeliveryAlignment_Script} -s ${SampleName} -b ${InputBams} -j ${WorkflowJson} -f ${DeliveryFolder_Alignment} -F ${BashSharedFunctions} ${DebugMode}
    }
+   runtime {
+      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
+   }
 
 }

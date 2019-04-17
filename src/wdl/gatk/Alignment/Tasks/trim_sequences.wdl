@@ -36,7 +36,8 @@ task trimsequencesTask {
    runtime {
       cpu: "${CutAdaptThreads}"
       s_vmem: "${TrimSoftMemLimit}"
-      h_vmem: "${TrimHardMemLimit}"
+      memory: "${TrimHardMemLimit}"
+      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
    }
 
    output {

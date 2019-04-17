@@ -150,7 +150,7 @@ task trimsequencesTask {
    runtime {
       cpu: "${CutAdaptThreads}"
       s_vmem: "${TrimSoftMemLimit}"
-      h_vmem: "${TrimHardMemLimit}"
+      memory: "${TrimHardMemLimit}"
    }
 
    output {
@@ -197,7 +197,7 @@ task alignmentTask {
    runtime {
       cpu: "${BwaSamtoolsThreads}"
       s_vmem: "${AlignSoftMemLimit}"
-      h_vmem: "${AlignHardMemLimit}"
+      memory: "${AlignHardMemLimit}"
    }
 
    output {
@@ -232,7 +232,7 @@ task mergebamTask {
 
    runtime {
       s_vmem: "${MergeSoftMemLimit}"
-      h_vmem: "${MergeHardMemLimit}"
+      memory: "${MergeHardMemLimit}"
    }
 
    output {
@@ -270,7 +270,7 @@ task dedupTask {
    runtime {
       cpu: 1
       s_vmem: "${DedupSoftMemLimit}"
-      h_vmem: "${DedupHardMemLimit}"
+      memory: "${DedupHardMemLimit}"
    }
 
    output {
@@ -338,7 +338,7 @@ task bqsrTask {
 
    runtime {
       s_vmem: "${BqsrSoftMemLimit}"
-      h_vmem: "${BqsrHardMemLimit}"
+      memory: "${BqsrHardMemLimit}"
    }
 
    output {
@@ -385,7 +385,7 @@ task variantCallingTask {
    runtime {
       cpu: "${HaplotyperThreads}"
       s_vmem: "${HaplotyperSoftMemLimit}"
-      h_vmem: "${HaplotyperHardMemLimit}"
+      memory: "${HaplotyperHardMemLimit}"
    }
 
   output {
@@ -422,7 +422,7 @@ task mergegvcfsTask {
 
    runtime {
       s_vmem: "${MergeSoftMemLimit}"
-      h_vmem: "${MergeHardMemLimit}"
+      memory: "${MergeHardMemLimit}"
    }
 
   output {
