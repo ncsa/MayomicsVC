@@ -31,7 +31,7 @@ task mergegvcfsTask {
    runtime {
       s_vmem: "${MergeSoftMemLimit}"
       memory: "${MergeHardMemLimit}"
-      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
+      docker : "broadinstitute/gatk:4.1.1.0"
    }
 
   output {

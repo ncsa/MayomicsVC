@@ -57,7 +57,7 @@ task variantCallingTask {
       cpu: "${HaplotyperThreads}"
       s_vmem: "${HaplotyperSoftMemLimit}"
       memory: "${HaplotyperHardMemLimit}"
-      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
+      docker : "broadinstitute/gatk:4.1.1.0"
    }
 
   output {

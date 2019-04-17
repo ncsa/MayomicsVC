@@ -32,7 +32,7 @@ task dedupTask {
       cpu: 1
       s_vmem: "${DedupSoftMemLimit}"
       memory: "${DedupHardMemLimit}"
-      docker : "broadinstitute/genomes-in-the-cloud:2.3.1-1512499786"
+      docker : "broadinstitute/gatk:4.1.1.0"
    }
 
    output {
