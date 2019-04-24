@@ -38,7 +38,7 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 
 # Objective
 
-Create the best practices Genomic variant calling workflow using the workflow management system Cromwell/WDL.
+Create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL.
 Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
 
 
