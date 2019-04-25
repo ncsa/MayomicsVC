@@ -46,31 +46,27 @@ Our main goal was to create a workflow that is trivially maintainable in a produ
 
 ## Modularity
 
-The variant calling workflow is complex, so we break it up into modules to make it as easy to develop and maintain as possible.
-Thus, each bioinformatics step is its own module. 
-WDL makes this easy by defining "tasks" and "workflows." Tasks
+Due to the complexity of the variant callinh workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
-Reasons for modular design:
-* flexibility: can execute any part of the workflow 
-    * useful for testing or after failure
-    * can swap tools in and out for every task based on user's choice
-* optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
-* maintainability: can edit modules without breaking the rest of the workflow 
-    * modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places in the workflow
-
-Sections below explain in detial the implementation and benefits of our approach.
+Below given are the reasons for a modular design:
+* Flexibility:
+    * Can execute any part of the workflow
+    * Useful for testing or after failure
+    * Can swap tools in and out for every task based on user's choice
+* Optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
+* Maintainability: 
+    * Can edit modules without breaking the rest of the workflow 
+    * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
+The sections below explain in detial the implementation and benefits of our approach.
 
 ## Data parallelism and scalability
 
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
-* splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
+* Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per sample for sorting and deduplication
-* splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
-This is because GATK3 was not fast enough to work on a whole human genome without chunking.
-GATK4 already runs faster without chunking the data and will be faster still in the future.
-Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.
-We do not chunk the input fastq. The workflow is implemented on a per sample basis.Trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
+* Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
+This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
 
 ## Real-time logging and monitoring, data provenance tracking
 
@@ -88,20 +84,20 @@ Cromwell provides for most of these vi the output folder structure and logs. we 
 ## Fault tolerance and error handling
 
 The workflow must be robust against hardware/software/data failure. It should:
-* give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
-* have the ability to move a task to a spare node in the event of hardware failure.
+* Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
+* Have the ability to move a task to a spare node in the event of hardware failure.
 
 The latter is a function of Cromwell, but the workflow should support it by requesting a few extra nodes (beyond the nodes required based on user specifications).
 
 To prevent avoidable failures and resource waste, the workflow should: 
-* check that all the sample files exist and have nonzero size before the workflow runs
-* check that all executables exist and have the right permissions before the workflow runs
-* after running each module, check that output was actualy produced and has nonzero size
-* perform QC on each output file, write results into log, give user option to continue even if QC failed.
+* Check that all the sample files exist and have nonzero size before the workflow runs
+* Check that all executables exist and have the right permissions before the workflow runs
+* After running each module, check that output was actualy produced and has nonzero size
+* Perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
 ## Portability
 
-The workflow should be able to port smoothly among the following four kinds of systems:
+The workflow should be able to port smoothly among the following three kinds of systems:
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
