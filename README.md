@@ -46,7 +46,7 @@ Our main goal was to create a workflow that is trivially maintainable in a produ
 
 ## Modularity
 
-Due to the complexity of the variant callinh workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
+Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
 Below given are the reasons for a modular design:
