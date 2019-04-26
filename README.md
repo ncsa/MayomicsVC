@@ -21,6 +21,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) She
 <img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
 
 Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing
+
 For a detailed explanation of Shell, WDL and Python specfications please refer to the Readme files in the respective folders under src
 
 # How to run the workflow
