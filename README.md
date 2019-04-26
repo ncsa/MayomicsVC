@@ -2,8 +2,6 @@
 
 This work was a product of the Mayo Clinic and Illinois Strategic Alliance for Technology-Based Healthcare. Special thanks for the funding provided by the Mayo Clinic Center for Individualized Medicine and the Todd and Karen Wanek Program for Hypoplastic Left Heart Syndrome. We also thank the Interdisciplinary Health Sciences Institute, UIUC Institute for Genomic Biology and the National Center for Supercomputing Applications for their generous support and access to resources. We particularly acknowledge the support of Keith Stewart, M.B., Ch.B., Mayo Clinic/Illinois Grand Challenge Sponsor and Director of the Mayo Clinic Center for Individualized Medicine. Many thanks to the Sentieon team for consultation and advice on the Sentieon variant calling software.
 
-
-
 # Table of Contents   
 
    * [Objective](#objective)
@@ -41,74 +39,6 @@ This work was a product of the Mayo Clinic and Illinois Strategic Alliance for T
 Create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL.
 Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
 
-
-# Design principles
-
-## Modularity
-
-Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
-in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
-
-Below given are the reasons for a modular design:
-* Flexibility:
-    * Can execute any part of the workflow
-    * Useful for testing or after failure
-    * Can swap tools in and out for every task based on user's choice
-* Optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
-* Maintainability: 
-    * Can edit modules without breaking the rest of the workflow 
-    * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
-The sections below explain in detial the implementation and benefits of our approach.
-
-## Data parallelism and scalability
-
-Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
-* Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
-and merging the aligned files per sample for sorting and deduplication
-* Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
-This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
-
-## Real-time logging and monitoring, data provenance tracking
-
-The workflow should have a good system for logging and monitoring progress of the jobs. 
-At any moment during the run, the analyst should be able to assess: 
-* which stage of the workflow is running for every sample batch 
-* which samples may have failed and why 
-
-Additionally, a well-structured post-analysis record of all events 
-executed on each sample is necessary to ensure reproducibility of 
-the analysis. 
-
-Cromwell provides for most of these vi the output folder structure and logs. we have added an extra layer of logging and error reporting, described below in implementation.
-
-## Fault tolerance and error handling
-
-The workflow must be robust against hardware/software/data failure. It should:
-* Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
-* Have the ability to move a task to a spare node in the event of hardware failure.
-
-The latter is a function of Cromwell, but the workflow should support it by requesting a few extra nodes (beyond the nodes required based on user specifications).
-
-To prevent avoidable failures and resource waste, the workflow should: 
-* Check that all the sample files exist and have nonzero size before the workflow runs
-* Check that all executables exist and have the right permissions before the workflow runs
-* After running each module, check that output was actualy produced and has nonzero size
-* Perform QC on each output file, write results into log, give user option to continue even if QC failed.
-
-## Portability
-
-The workflow should be able to port smoothly among the following three kinds of systems:
-* grid clusters with PBS Torque
-* grid clusters with OGE
-* AWS
-
-## Development and test automation 
-
-The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
-* Individual task testing on each task
-* Integration testing for each codepath in each workflow stage
-* Integration testing for the main (i.e. most used) codepath in the workflow
-
 ## Source directory structure
 
 Under `src`, the directories are separated by language (wdl, shell, python) instead of by feature. Because Python cannot import scripts from a directory higher than the script being executed (the "__main__" script), all executable Python scripts must be located within the `src/python` folder, and never nested within sub-directories/Python packages. Imports in all other Python files within the python directory must have their import statements relative to the `src/python` directory. Once this assumption is made, it allows all of the MayomicsVC Python scripts to import local modules correctly, without the use of the PYTHONPATH environment variable.
@@ -117,54 +47,11 @@ Under `src`, the directories are separated by language (wdl, shell, python) inst
 
 ## Implementing modularity
 
-
-
 The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs. Tasks are written as .wdl scripts that is exemplified below the detailed workflow architecture:
 
 <img src="https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG" alt="Detailed Workflow Architecture" width="800">
 
 Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing
-
-```WDL
-#BWAMemSamtoolView.wdl
-
-task ReadMappingTask {
-   # Define variables
-
-   command {
-      BWA mem ReferenceFasta InputRead1 InputRead2 | Samtools view -> aligned.bam
-   }
-
-   output {
-      File Aligned_Bam = "aligned.bam"
-   }
-
-   runtime {
-      continueOnReturnCode: true
-   }
-}
-```
-
-Tasks can be called from other .wdl scripts to form workflows (such as the Alignment stage) or for testing purposes:
-
-
-```WDL
-#TestBWAMemSamtoolView.wdl
-
-import "BWAMemSamtoolView.wdl" as BWAMEMSAMTOOLVIEW
-
-workflow CallReadMappingTask {
-   # Define inputs
-
-   scatter(sample in inputsamples) {
-      call BWASAMTOOLSORT.ReadMappingTask {
-         input :
-            sampleName = sample[0]
-      }
-   }
-}
-```
-
 
 ## Organization of the code
 
@@ -172,40 +59,6 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) She
 <img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
 
 Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing
-
-## Naming conventions
-
-The naming convention used to name tasks, workflows and files is fairly straightforward. The bullets points below should provide a clear understanding how the files are named in this repository.
-
-There are three types of files: 
-* Files that represent a task. These files are named in reference to the command that the script executes. Every file name represents the function of the tool/tools that are used to run the script. For example, filename "BWAMemSamtoolView.wdl" represents that this file executes BWA Mem and Samtools View commands on the input samples. 
-* Files that represent the testing of a task. These files are named in reference to the tasks they test. The name of the file starts with the word "Test" and then the name of the script it imports for testing. For example, filename "TestBWAMemSamtoolView.wdl" represents that this file imports the script "BWAMemSamtoolView.wdl" and checks the functionality of the Task defined therein.
-* Files that represent the testing of a stage. These files are named in reference to the stage in the workflow that they run. The name of the file start with the word "Test" and then the name of stage in the workflow it executes and end with the word "Stage". For example, filename "TestAlignmentStage.wdl" shows that the Alignment stage of the workflow is being tested. 
-
-* Task Names: The task modules within a file are named with respect to their functionality followed by the word "Task" (e.g. "ReadMappingTask").
-
-* TestTask Names: The names of workflows that only call a specific task or tasks start with the word "Call" and then have the name of the task(s) called. For example, "CallReadMappingTask" is the name of the workflow that calls the task "ReadMappingTask." If the workflow represents a stage, the name of the Stage is used after the word "Call" instead.
-
-* Alias Names: Each task is written as an individual script and these scripts are included into workflows which either test the functionality of each task or include multiple tasks into one workflow and test the functionality of a stage. Hence when importing these tasks into workflows, aliases have to be used in order access to the variables defined inside of the task. The alias names are the same as the name of the file being imported into the workflow except that they are all in CAPS. For example, import "BWAMemSamtoolView.wdl" as BWAMEMSAMTOOLVIEW. In this example the name of the alias is all in caps and is the same as the name of the file being imported.
-
-
-## Scripting peculiarities imposed by WDL
-
-### Bash
-
-The command block in each task specifies the series of bash commands that will be run in series on each input sample. In order to script Bash variables in legible style, we have to use two tricks:
-1. The command block needs to be delimited with `<<< >>>`, not `{ }`. This is because Bash variable names are best specified as ${variable}, not $variable, for legibility and correct syntax.
-2. The Bash dollar sign for variables cannot be escaped. Therefore, the "dollar" has to be defined at the top of each .wdl script: `String dollar = "$"`.
-
-
-### Task Calling
-
-When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. This makes the workflow entirely un-portable. This problem may be alleviated in the server version of Cromwell by invoking the workflow with the -p flag. Running the server in an HPC cluster environment poses some security challenges (running as root, having access to all files on the filesystem without group restrictions). A udocker can be used for running the server version of Cromwell at the user level and thus circumventing the security issues.
-
-In non-server mode, one can still invoke Cromwell with the -p option, and it will work, so long as it points to a zip archive containing the tasks that will be called from within the workflow. One should be able to zip up the entire folder tree for this code repository and supply it through this option. Then the task can be invoked in a workflow by specifying complete relative path to the task wdl script in the zip archive.
-
-We created a zip of the entire src/ folder tree and put it at the same folder level as the src/ folder, for download with the repository (via `git pull`). We are working on implementing automatic creation of this zip archive during nightly integration tests. When running Cromwell, use the -p option and specify the full path to the zip archive on your filesystem.
-
 
 ### Workflow Running
 
@@ -401,184 +254,70 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 </details>
 
 
-# Testing
 
-## Individual Task Testing
+# Design principles
 
-### Individual task testing of the code under parser and validator
+## Modularity
 
-To conduct individual task tests on the Python scripts that handle pre-flight QC, cd into /path/to/MayomicsVC/src/config and run
-```
-python3 -m unittest discover
-```
-This will automatically detect all individual task testing files and run their tests, but only if you are in the config directory.
+Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
+in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
-### Workflow 
+Below given are the reasons for a modular design:
+* Flexibility:
+    * Can execute any part of the workflow
+    * Useful for testing or after failure
+    * Can swap tools in and out for every task based on user's choice
+* Optimal resource utilization: can specify ideal number of nodes, walltime, etc. for every stage
+* Maintainability: 
+    * Can edit modules without breaking the rest of the workflow 
+    * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
+The sections below explain in detial the implementation and benefits of our approach.
 
-Every task is independant, and is tested by running as its own workflow. These task tests can be found in `src/wdl/{StageName}/TestTasks`. The json runfiles that specify inputs and paths to executables are provided in `json_inputs` folder. The following steps have to be followed to perform testing on individual tasks using Cromwell:
+## Data parallelism and scalability
 
-1. Create and Download the zip file and the workflow script of the task which is to be checked. The  test scripts are located in `src/wdl/{StageName}/TestTasks`. For example, if the BWAMemSamtoolView task is to be checked, then we require the workflow script which calls this task inside it, namely "Runalignment.wdl." 
+Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
+* Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
+and merging the aligned files per sample for sorting and deduplication
+* Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
+This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
 
-2. To execute a wdl script using Cromwell we need two inputs:
+## Real-time logging and monitoring, data provenance tracking
 
-   a) The wdl script to perform  individual task testing on (e.g. "Runalignment.wdl")
+The workflow should have a good system for logging and monitoring progress of the jobs. 
+At any moment during the run, the analyst should be able to assess: 
+* which stage of the workflow is running for every sample batch 
+* which samples may have failed and why 
 
-   b) The json input files that specify where the executables are located for the tools used. The json input files for our workflow are located in the folder `json_inputs` (e.g. json_inputs/Runalignment.json). If the user wants to create json input files of their own, the following link provides information on how to do so: 
-   https://software.broadinstitute.org/wdl/documentation/article?id=6751.
+Additionally, a well-structured post-analysis record of all events 
+executed on each sample is necessary to ensure reproducibility of 
+the analysis. 
 
-3. Once the json input file is created, it will contain the list of variables to which hard-coded paths are to be provided. Hence, open the .json file using a text editor and input the paths for the executables, input file paths, output file paths, etc. 
+Cromwell provides for most of these vi the output folder structure and logs. we have added an extra layer of logging and error reporting, described below in implementation.
 
-4. The Cromwell command used to execute a wdl script is as follows:-
+## Fault tolerance and error handling
 
-   `java -jar "Path to the cromwell jar" run "Input WDL file" -i "Corresponding json input file" -p "Zip File"`
+The workflow must be robust against hardware/software/data failure. It should:
+* Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
+* Have the ability to move a task to a spare node in the event of hardware failure.
 
-   `For eg: java -jar cromwell.jar run Runalignment.wdl -i Runalignment.json -p "Zip File"`
-   
-In the above command, "run" mode will execute a single workflow, and exit when the workflow completes (successfully or not). The "-i" is a flag which specifies the user to include a workflow input file.
-The "-p" flag points to a directory or zipfile to search for workflow imports. In the case of our workflow, use of the "-p" flag is mandatory. It specifies that source.zip is where the scripts to individual tasks are located. Information on how to execute a wdl script using cromwell can be found on the following link: 
-   https://software.broadinstitute.org/wdl/documentation/execution.
+The latter is a function of Cromwell, but the workflow should support it by requesting a few extra nodes (beyond the nodes required based on user specifications).
 
+To prevent avoidable failures and resource waste, the workflow should: 
+* Check that all the sample files exist and have nonzero size before the workflow runs
+* Check that all executables exist and have the right permissions before the workflow runs
+* After running each module, check that output was actualy produced and has nonzero size
+* Perform QC on each output file, write results into log, give user option to continue even if QC failed.
 
+## Portability
 
+The workflow should be able to port smoothly among the following three kinds of systems:
+* grid clusters with PBS Torque
+* grid clusters with OGE
+* AWS
 
-## Integration testing
+## Development and test automation 
 
-Every code path through the overall workflow should be tested for integration. For example, a user may choose BWA or Novoalign for alignment, and both options must be tested within the Align stage. We provide the complete set of json files specifying the various workflow configurations here: {insert path}. Thus each integration test can be invoked with the same command, just varying the json config file. 
-
-
-
-
-# Dependencies
-
-# To-Dos
-
-* As of Oct 24, 2017: Ram will work only on the bwa-mem module, to implement fully the template that could be used for other modules
-    * multiple samples in parallel
-    * all paths and parameters coded in runfile
-    * loggery, user notification
-    * error capture
-    * checking inputs and executables
-    * checking outputs
-    * QC on input FASTQ
-    * QC on outputs
-
-
-7 Output Folder Structure
-=============================
-
-Cromwell creates a nested output folder structure, one for each tool, and for each sample inside:
-
-* After every execution of a Cromwell tool, a folder named "cromwell-executions" is created in the directory from where the cromwell execution engine is run.
-* Inside the "cromwell-executions" folder, a subfolder is created and its name corresponds to the name of the workflow specified in the .wdl file. For example, if the name of the workflow in the .wdl file is BWA_Mem_Run then a subfolder is created with the same name.
-* After the workflow has successfully executed, an ID for the execution is created and this ID is unique for each run. In the example below "97cbc5de-ff36-4912-aa04-395b08702c85" is a unique ID name. 
-
-```
-  |-cromwell-executions
-  |  |-BWA_Mem_Run
-  |  |  |-97cbc5de-ff36-4912-aa04-395b08702c85
-```
-
-* Inside each folder with the unique ID name there are sub folders that represent the various tasks defined in the .wdl file.
-* The various tasks have a "call" prefix as shown below. 
-
-```
-  |
-  |-call-Samtools
-  |-call-BWA-MEM
-```
-
-* Inside the individual task, every sample has an individual folder created for it.  "shard-0" in the example below represents Sample 1, "shard-1" represents Sample 2, and so on.
-
-```
-  |-call-Samtools
-  |  |-shard-0
-  |  |-shard-1
-  |  |-shard-2
-```
-* Every shard folder contains an execution folder as seen below.
-
-```
-  |-shard-0
-  |  |-execution
-```
-
-* A "glob-" folder is present inside every execution folder and it is inside this folder that the output of our program exists. The example below shows the where the output of our program resides at.
-
-```
-  |-execution
-  |  |-glob-8fbfe7a84f921347caf0a4408578e296
-  |  |  | -aligned.bam
-```
-
-* The example below shows how the entire directory tree and how the folders are created every time the cromwell excution engine executes a wdl program.
-
-```
-|-GermlineMasterWF
- |  |-3ff6643d-8d8c-4ecc-a2f5-b43d6fc42108
- |  |  |-call-align
- |  |  |  |-RunAlignmentTask
- |  |  |  |  |-a3f71bc0-6ac7-44c0-bf27-c0d1283a9d38
- |  |  |  |  |  |-call-ALIGN_paired
- |  |  |  |  |  |  |-shard-0
- |  |  |  |  |  |  |  |-inputs
- |  |  |  |  |  |  |  |  |--2078663058
- |  |  |  |  |  |  |  |  |--1443091791
- |  |  |  |  |  |  |  |  |--1930155525
- |  |  |  |  |  |  |  |  |-1537754199
- |  |  |  |  |  |  |  |-tmp.fae1bd5c
- |  |  |  |  |  |  |  |-execution
- |  |  |-call-realign
- |  |  |  |-tmp.467abc6d
- |  |  |  |-inputs
- |  |  |  |  |--2078663058
- |  |  |  |  |--966729936
- |  |  |  |  |--1443091791
- |  |  |  |  |-1537754199
- |  |  |  |-execution
- |  |  |-call-merge
- |  |  |  |-inputs
- |  |  |  |  |--2078663058
- |  |  |  |  |--724253911
- |  |  |  |  |-1537754199
- |  |  |  |-tmp.653c5ba7
- |  |  |  |-execution
- |  |  |-call-bqsr
- |  |  |  |-inputs
- |  |  |  |  |--2078663058
- |  |  |  |  |--847688854
- |  |  |  |  |--1443091791
- |  |  |  |  |-1537754199
- |  |  |  |-tmp.14495f5e
- |  |  |  |-execution
- |  |  |-call-DAB
- |  |  |  |-inputs
- |  |  |  |  |-1303115990
- |  |  |  |  |--2078663058
- |  |  |  |  |--966729936
- |  |  |  |-execution
- |  |  |  |-tmp.e54eb293
-```
-
-Input Parsing and Type Validation
-============
-
-## Parser
-
-Although the workflow takes input in a JSON formatted file, it is more convenient to save input variables in a flat key="value" formatted file. The config_parser.py script (located in src/config) takes these flat configuration files and fills in a JSON file template provided by Cromwell/WDL.
-
-(The template JSON file for a workflow can be created with the command `java -jar wdltool.jar inputs myWorkflow.wdl > myWorkflow_inputs.json`)
-
-<img src=./media/Figures/ParserDiagram.png width="900">
-
-## Validator
-
-After parsing, the key_validation.py script (located in src/config) can be used to verify the types of the input arguments where possible. For example, the validator can verify that a key called "NumberOfThreads" was passed an integer as its value. The validator gets the type information for each key from a key types file (the workflow type information file is src/config/key_types.json) and confirms that the key's values match what is expected. However, for some types, such as strings, no pre-flight validation can be done.
-
-<img src=./media/Figures/ValidatorDiagram.png width="800">
-
-Single Sample Workflow
-======================
-
-# Design Decision
-
-The scripts for trimming sequences and alignment work on either single-ended or paired-end reads. Hence to eliminate complexities in the WDL workflow, the output for both the scripts include if checks for single-ended and paired-end reads. If the reads are single-ended then the right read is set to null. This helps remove branches in the workflow and keeps it simple. 
+The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
+* Individual task testing on each task
+* Integration testing for each codepath in each workflow stage
+* Integration testing for the main (i.e. most used) codepath in the workflow
