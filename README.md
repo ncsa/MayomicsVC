@@ -2,50 +2,12 @@
 
 This work was a product of the Mayo Clinic and Illinois Strategic Alliance for Technology-Based Healthcare. Special thanks for the funding provided by the Mayo Clinic Center for Individualized Medicine and the Todd and Karen Wanek Program for Hypoplastic Left Heart Syndrome. We also thank the Interdisciplinary Health Sciences Institute, UIUC Institute for Genomic Biology and the National Center for Supercomputing Applications for their generous support and access to resources. We particularly acknowledge the support of Keith Stewart, M.B., Ch.B., Mayo Clinic/Illinois Grand Challenge Sponsor and Director of the Mayo Clinic Center for Individualized Medicine. Many thanks to the Sentieon team for consultation and advice on the Sentieon variant calling software.
 
-# Table of Contents   
-
-   * [Objective](#objective)
-   * [Design principles](#design-principles)
-      * [Modularity](#modularity)
-      * [Data parallelism and scalability](#data-parallelism-and-scalability)
-      * [Real-time logging and monitoring, data provenance tracking](#real-time-logging-and-monitoring-data-provenance-tracking)
-      * [Fault tolerance and error handling](#fault-tolerance-and-error-handling)
-      * [Portability](#portability)
-      * [Development and test automation](#development-and-test-automation)
-   * [Implementation](#implementation)
-      * [Implementing modularity](#implementing-modularity)
-      * [Organization of the code](#organization-of-the-code)
-      * [Special modules](#special-modules)
-      * [Naming conventions](#naming-conventions)
-      * [Scripting peculiarities imposed by WDL](#scripting-peculiarities-imposed-by-wdl)
-         * [Bash](#bash)
-         * [Calling of tasks](#calling-of-tasks)
-         * [Workflows of workflows](#workflows-of-workflows)
-   * [Testing](#testing)
-      * [Individual Task Testing](#Individual-Task-Testing)
-         * [Pre-flight QC](#pre-flight-qc)
-         * [Workflow](#workflow)
-      * [Integration testing](#integration-testing)
-   * [Dependencies](#dependencies)
-   * [To-Dos](#to-dos)
-   * [7 Output Folder Structure](#7-output-folder-structure)
-   * [Email Notifications](#email-notifications)
-   * [Input Parsing and Type Validation](#input-parsing-and-type-validation)
-
-
-
 # Objective
 
 Create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL.
 Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
-
-## Source directory structure
-
-Under `src`, the directories are separated by language (wdl, shell, python) instead of by feature. Because Python cannot import scripts from a directory higher than the script being executed (the "__main__" script), all executable Python scripts must be located within the `src/python` folder, and never nested within sub-directories/Python packages. Imports in all other Python files within the python directory must have their import statements relative to the `src/python` directory. Once this assumption is made, it allows all of the MayomicsVC Python scripts to import local modules correctly, without the use of the PYTHONPATH environment variable.
  
-# Implementation
-
-## Implementing modularity
+# Variant Calling Workflow
 
 The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs. Tasks are written as .wdl scripts that is exemplified below the detailed workflow architecture:
 
@@ -60,8 +22,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) She
 
 Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing
 
-### Workflow Running
-
+### How to run the workflow
 Below given are the steps to run the workflow:
 <details>
   <summary> 
