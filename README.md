@@ -17,7 +17,7 @@ Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLU
 
 # Organization of the code
 
-The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) Shell - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) WDL - The shell script is called by WDL which are the scripts of the workflow management.
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) [Shell] (https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md) - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) WDL - The shell script is called by WDL which are the scripts of the workflow management.
 <img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
 
 Link to edit image: https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing
