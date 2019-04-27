@@ -22,4 +22,12 @@ It is a standalone executable and when invoked, ./filename.sh needs to be typed 
  ```
 read -r -d '' MANIFEST << MANIFEST
  ```
+MANIFEST is a built-in bash command. This command is essential for debugging because if the workflow was executed and variants were called, users should be able to track the history. 
  
+ ```
+ *****************************************************************************
+`readlink -m $0`
+called by: `whoami` on `date`
+command line input: ${@}
+*****************************************************************************
+ ```
