@@ -31,3 +31,4 @@ called by: `whoami` on `date`
 command line input: ${@}
 *****************************************************************************
  ```
+This command is essential for debugging because it stores the details about who ran the workflow and when
