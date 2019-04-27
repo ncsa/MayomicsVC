@@ -168,5 +168,6 @@ Precheck calls functions from the shared functions.sh file to perform the follow
 3. Sends Manifest to the Log
 4. Sources the file with environmental profile variables
 5. Check if input files, directories, and variables are non-zero
+
 In the case of adapters, if the adapters string is defined to the full path of the file than the variable is set and we do not need to check that file as it would have been checked by the parser.So, the argument to the full path to the adapter file + x ( "${ADAPTERS+x} ") will be passed into the checkVar.It will check it as the first variable of the string and will not throw an error by setting the error code not equal to 1.However, if the full path to the adapter file is not defined than string + x is passed and bash will pass the empty string as the first variable. The exit code will be set to 1 and an error will be thrown.
 </details>
