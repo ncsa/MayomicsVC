@@ -13,5 +13,15 @@ The purpose of this readme is to understand the peculiarities of the bash script
    Manifest, Usage Docs and Set Checks
   </summary>
  
-  
-</details>
+ ```
+ 
+ 
+ ```
+ | BAC
+ |-----|
+ |      |
+ |
+ |
+ </details>
+
+ 
