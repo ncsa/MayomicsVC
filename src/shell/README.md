@@ -116,3 +116,56 @@ done
  
 </details>
 </details>
+
+<details>
+<summary>
+Precheck for Input and Output
+</summary> 
+```
+ source ${SHARED_FUNCTIONS}
+ 
+checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
+  
+ERRLOG=${SAMPLE}.trimming.${SGE_JOB_ID}.log
+    ....
+    ....
+echo "${MANIFEST}" >> "${ERRLOG}"
+  
+checkVar "${ENV_PROFILE+x}" "Missing environmental profile option: -e" $LINENO
+source ${ENV_PROFILE}
+  
+checkVar "${ADAPTERS+x}" "Missing adapters file option: -A" $LINENO
+        ....
+        ....
+checkVar "${INPUT2+x}" "Missing read 2 option: -r. If running a single-end job, set -r null in command." $LINENO
+  
+checkVar "${IS_PAIRED_END+x}" "Missing paired-end option: -P" $LINENO
+  
+if [[ "${IS_PAIRED_END}" != true ]] && [[ "${IS_PAIRED_END}" != false ]]
+then
+        ....
+        ....
+fi
+if [[ "${IS_PAIRED_END}" == true ]]
+then
+        ....
+        ....
+fi
+if [[ "${IS_PAIRED_END}" == false ]]
+        ....
+        ....
+fi
+ 
+checkVar "${CUTADAPT+x}" "Missing CutAdapt software path option: -C" $LINENO
+checkDir ${CUTADAPT} "Cutadapt directory ${CUTADAPT} is not a directory or does not exist." $LINENO
+checkVar "${THR+x}" "Missing threads option: -t" $LINENO
+```
+Precheck calls functions from the shared functions.sh file to perform the following operations:
+
+1. Checks if the sample name variable exists or not
+2. Creates log for JOB_ID/script and tool
+3. Sends Manifest to the Log
+4. Sources the file with environmental profile variables
+5. Check if input files, directories, and variables are non-zero
+In the case of adapters, if the adapters string is defined to the full path of the file than the variable is set and we do not need to check that file as it would have been checked by the parser.So, the argument to the full path to the adapter file + x ( "${ADAPTERS+x} ") will be passed into the checkVar.It will check it as the first variable of the string and will not throw an error by setting the error code not equal to 1.However, if the full path to the adapter file is not defined than string + x is passed and bash will pass the empty string as the first variable. The exit code will be set to 1 and an error will be thrown.
+</details>
