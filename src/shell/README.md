@@ -57,3 +57,11 @@ SGE_JOB_ID=TBD   # placeholder until we parse job ID
 SGE_TASK_ID=TBD  # placeholder until we parse task ID
 ```
 This script records the actual Job ID’s of every bioinformatics tasks that runs on the cluster.
+
+</details>
+
+<details>
+  <summary>
+   
+  </summary>
+</details>
