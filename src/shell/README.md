@@ -7,3 +7,4 @@ The purpose of this readme is to understand the peculiarities of the bash script
 <img src="https://user-images.githubusercontent.com/43070131/56844379-0708f280-6875-11e9-9efa-7b03910e5917.PNG" width="800">
 
 # Description
+
