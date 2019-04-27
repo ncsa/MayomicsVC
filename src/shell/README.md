@@ -171,3 +171,20 @@ Precheck calls functions from the shared functions.sh file to perform the follow
 
 In the case of adapters, if the adapters string is defined to the full path of the file than the variable is set and we do not need to check that file as it would have been checked by the parser.So, the argument to the full path to the adapter file + x ( "${ADAPTERS+x} ") will be passed into the checkVar.It will check it as the first variable of the string and will not throw an error by setting the error code not equal to 1.However, if the full path to the adapter file is not defined than string + x is passed and bash will pass the empty string as the first variable. The exit code will be set to 1 and an error will be thrown.
 </details>
+
+<details>
+<summary>
+FileName Parsing
+</summary> 
+
+```
+## Parse filename without full path
+OUT1=$(basename ${INPUT1})
+if  [[ "${IS_PAIRED_END}" == false ]]  # If single-end, we do not need a second output trimmed read
+then
+               OUT2=null
+else
+               OUT2=$(basename ${INPUT2})
+fi
+```
+The filename parsing section parses the filename without the full path and the reason why it does without the full path is because  cutadapt requires the output option, -o, and hence, file name parsing is necessary.
