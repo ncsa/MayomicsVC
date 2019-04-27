@@ -32,3 +32,28 @@ command line input: ${@}
 *****************************************************************************
  ```
 This command is essential for debugging because it stores the details about who ran the workflow and when.
+
+```
+set -o errexit
+```
+This statement requires that bash scripts exit whenever there is an error.
+Usually, bash scripts continue to run even if one command failed.
+-o errexit will prevent that from happening and will quit if any error occurs at all.
+
+```
+set -o pipefail
+```
+-o pipefail sets the exit code in the pipeline to the right most command to exit with a non-zero status.
+
+```
+set -o nounset
+```
+The -o nounset is used to error out any variable that is not defined in the script.
+This requires that all variables are defined and it should not have any loose variables that are no longer needed.
+
+```
+SCRIPT_NAME=trim_sequences.sh
+SGE_JOB_ID=TBD   # placeholder until we parse job ID
+SGE_TASK_ID=TBD  # placeholder until we parse task ID
+```
+This script records the actual Job ID’s of every bioinformatics tasks that runs on the cluster.
