@@ -62,6 +62,20 @@ This script records the actual Job ID’s of every bioinformatics tasks that run
 
 <details>
   <summary>
-   
+   Logging Functions
   </summary>
+ 
+ ```
+ function checkArg()
+{
+    if [[ "${OPTARG}" == -* ]]; then
+        echo -e "\nError with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+        echo -e "\n${DOCS}\n"
+        exit 1;
+    fi
+}
+ ```
+The function checkArg() checks whether the option argument was passed correctly or not.
+If any option is passed incorrectly, than the script will display the error "Error with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+ 
 </details>
