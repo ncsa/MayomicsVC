@@ -183,4 +183,5 @@ else
                OUT2=$(basename ${INPUT2})
 fi
 ```
+
 The filename parsing section parses the filename without the full path and the reason why it does without the full path is because  cutadapt requires the output option, -o, and hence, file name parsing is necessary.
