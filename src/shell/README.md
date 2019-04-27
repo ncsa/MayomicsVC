@@ -8,3 +8,10 @@ The purpose of this readme is to understand the peculiarities of the bash script
 
 # Description
 
+<details>
+  <summary>
+   Manifest, Usage Docs and Set Checks
+  </summary>
+ 
+  
+</details>
