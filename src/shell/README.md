@@ -15,7 +15,7 @@ Standard
 
 <details>
   <summary>
-   Manifest, Usage Docs and Set Checks
+  &nbsp&nbsp&nbsp Manifest, Usage Docs and Set Checks
   </summary> 
  
  ```
