@@ -17,11 +17,11 @@ The purpose of this readme is to understand the peculiarities of the bash script
  
  
  ```
- | BAC
+ | BAC |
  |-----|
- |      |
- |
- |
+ |-----|
+ |     |
+ |     |
  </details>
 
  
