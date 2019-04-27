@@ -11,13 +11,14 @@ The purpose of this readme is to understand the peculiarities of the bash script
 <details>
   <summary>
    Manifest, Usage Docs and Set Checks
-   
   </summary> 
+ 
  ```
  #!/bin/bash
  ```
 The #!/bin/bash command is mandatory and it is best practices for script writing in bash.
 It is a standalone executable and when invoked, ./filename.sh needs to be typed and it should run.
+
  ```
 read -r -d '' MANIFEST << MANIFEST
  ```
