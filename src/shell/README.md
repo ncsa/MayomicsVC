@@ -9,11 +9,6 @@ The purpose of this readme is to understand the peculiarities of the bash script
 # Description
 
 <details>
-<summary>
-Standard
-</summary>
-
-<details>
   <summary>
   Manifest, Usage Docs and Set Checks
   </summary> 
@@ -114,7 +109,6 @@ done
 
 4. The colon at the beginning of the list turns off bash’s built-in error reporting, allowing us to handle errors with our checkArg function and the functions that follow, and allowing us to handle no arguments and bad arguments in a more meaningful way. If you pass in an option that is not recognized, the case statement will reach “/?” and it will print an invalid option statement. The final colon case is to ensure that every required option received an argument.
  
-</details>
 </details>
 
 <details>
