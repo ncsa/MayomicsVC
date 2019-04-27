@@ -15,7 +15,7 @@ The purpose of this readme is to understand the peculiarities of the bash script
   Manifest, Usage Docs and Set Checks
   </summary> 
  
- ```
+ ```bash
  #!/bin/bash
  ```
 The #!/bin/bash command is mandatory and it is best practices for script writing in bash.
