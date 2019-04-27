@@ -119,7 +119,7 @@ done
 Precheck for Input and Output
 </summary> 
  
-```
+```bash scripting
  source ${SHARED_FUNCTIONS}
  
 checkVar "${SAMPLE+x}" "Missing sample name option: -s" $LINENO
