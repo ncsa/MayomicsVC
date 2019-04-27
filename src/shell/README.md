@@ -11,9 +11,8 @@ The purpose of this readme is to understand the peculiarities of the bash script
 <details>
   <summary>
    Manifest, Usage Docs and Set Checks
-  </summary>
- 
- 
+   
+  </summary> 
  ```
  #!/bin/bash
  ```
