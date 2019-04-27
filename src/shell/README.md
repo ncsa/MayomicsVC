@@ -77,5 +77,36 @@ This script records the actual Job ID’s of every bioinformatics tasks that run
  ```
 The function checkArg() checks whether the option argument was passed correctly or not.
 If any option is passed incorrectly, than the script will display the error "Error with option -${OPT} in command. Option passed incorrectly or without argument.\n"
+
+</details>
+
+<details>
+  <summary>
+   Getopts Argument Parser
+  </summary>
+ 
+ ```
+ while getopts ":hl:r:A:C:t:P:s:e:F:d" OPT
+do
+               case ${OPT} in
+                              h )  echo -e "\n${DOCS}\n"
+                                             exit 0
+                                         ...
+                                         ...
+                                         ...
+                           : )     echo -e "\nOption -${OPTARG} requires an argument.\n\n${DOCS}\n" exit 1
+                                     
+               esac
+done
+ ```
+ Principles for the Getopts Argument Parser of the script:
+
+1. A colon after the letter means that it is mandatory and if the colon is not present, it means that it is optional.
+
+2. Hence, we prepend the list before the colon because if an invalid option is provided, than the " \? " will be called. The only reason to allow the getops fuction to land to the "/?" case is if we have invalid option to prepend the list by a colon.
+
+3. Each colon is being read separately. The getopts loop is reading consecutively. The case command assigns each argument entered to a variable and checks to make sure that a valid argument was entered for the options that require one. For example, ‘-d’ is the debug command and should never receive an argument following it. If it did, this would throw an error.
+
+4. The colon at the beginning of the list turns off bash’s built-in error reporting, allowing us to handle errors with our checkArg function and the functions that follow, and allowing us to handle no arguments and bad arguments in a more meaningful way. If you pass in an option that is not recognized, the case statement will reach “/?” and it will print an invalid option statement. The final colon case is to ensure that every required option received an argument.
  
 </details>
