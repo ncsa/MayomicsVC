@@ -1,6 +1,6 @@
 # Purpose
  
-The purpose of this readme is to understand the peculiarities of the bash scripts. The bash scripts are structured in a way that can be distinguished into two sections, standard and variable. The standard section consists of the lines that are similar across all bash scripts except for file name change, whereas, the variable section is individual to each bash script. The script used to explain the structure 
+The purpose of this readme is to understand the peculiarities of the bash scripts. The bash scripts are structured in a way that can be distinguished into two sections, standard and variable. The standard section consists of the lines that are similar across all bash scripts except for file name change, whereas, the variable section is individual to each bash script. The script used to explain the bash structure is <a href="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/trim_sequences.sh"> Trim_Sequences </a>
  
 # Bash Scripting Structure
  
