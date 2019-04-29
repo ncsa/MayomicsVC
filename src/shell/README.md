@@ -186,3 +186,45 @@ fi
 ```
 
 The filename parsing section parses the filename without the full path and the reason why it does without the full path is because  cutadapt requires the output option, -o, and hence, file name parsing is necessary.
+</details>
+
+<details>
+ <summary>
+  CutAdapt Read Trimming
+ </summary>
+ 
+ ``` Bash Scripting
+ ## Record start time
+logInfo "[CUTADAPT] START."
+## Cutadapt command, run for each fastq and each adapter sequence in the adapter FASTA file.
+## Allocates half of the available threads to each process.
+if [[ "${IS_PAIRED_END}" == false ]]  # if single-end reads file
+then
+               # Trim single-end reads
+               TRAP_LINE=$(($LINENO + 1))
+               trap 'logError " $0 stopped at line ${TRAP_LINE}. Cutadapt Read 1 failure. " ' INT TERM EXIT
+               ....
+               ....
+else
+               TRAP_LINE=$(($LINENO + 1))
+               trap 'logError " $0 stopped at line ${TRAP_LINE}. Cutadapt Read 1 and 2 failure. " ' INT TERM EXIT
+               ....
+               ....
+ 
+        checkExitcode ${EXITCODE} $LINENO
+               logInfo "[CUTADAPT] Trimmed adapters in ${ADAPTERS} from input sequences. CUTADAPT log: ${SAMPLE}.cutadapt.log"
+```
+
+The Cutadapt command runs for each fastq and each adapter sequence in the adapter fasta file. It allocates half of the available threads to each process. If the file is single-end reads than it trims the single end reads file. If the file is in paired-end mode, than trimming reads with cutadapt occurs in paired-end mode, where -a and -A specify forward and reverse adapters, respectively. -p specifies output for read2.
+
+The reason why traps are used in the cutadapt read trimming is mentioned below:
+
+The command, set -o error exit is mentioned because the script should be forced to exit whenever there is an issue. However, the error statement would not record the error to the right log and would not report the right line number. The exit error statement would force the bash to quit at the cutadapt line. So, the trap is specified in a nested way where the outer trap contains the statement that the error log would print whenever there is an interruption, termination or an exit in the workflow. The important components of traps are:
+
+1. Trap_line : Variable that refers to the line number where the error occurred
+2. Log error : Function needs to be inside the quotes for the trap to act on it
+3. Dollar zero ($0) : Refers to the name of the bash script followed by input parameters
+4. checkExitcode : checkExitcode checks whether the exit code is zero or not. It needs only two inputs, So it only needs 2 inputs, the exit code and the line number because the function needs to print the exit code with the message that is meaningful into the log and it needs to state the line number at which the exit code is non-zero.
+               
+               
+               
