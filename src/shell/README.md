@@ -225,6 +225,22 @@ The command, set -o error exit is mentioned because the script should be forced 
 2. Log error : Function needs to be inside the quotes for the trap to act on it
 3. Dollar zero ($0) : Refers to the name of the bash script followed by input parameters
 4. checkExitcode : checkExitcode checks whether the exit code is zero or not. It needs only two inputs, So it only needs 2 inputs, the exit code and the line number because the function needs to print the exit code with the message that is meaningful into the log and it needs to state the line number at which the exit code is non-zero.
-               
+</details>               
+
+
+<details>
+ <summary>
+Post Processing
+ </summary>
+ 
+ ```bash scripting
+ ## Check for file creation
+checkFile ${OUT1} "Output trimmed read 1 file ${OUT1} is empty." ${LINENO}
+if [[ "${IS_PAIRED_END}" == true ]]
+then
+        checkFile ${OUT2} "Output trimmed read 2 file ${OUT2} is empty." ${LINENO}
+fi
+```
+The post processing section checks for file creation and if the read files are empty or not
                
                
