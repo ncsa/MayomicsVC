@@ -174,7 +174,7 @@ In the case of adapters, if the adapters string is defined to the full path of t
 FileName Parsing
 </summary> 
 
-```
+```bash scripting
 ## Parse filename without full path
 OUT1=$(basename ${INPUT1})
 if  [[ "${IS_PAIRED_END}" == false ]]  # If single-end, we do not need a second output trimmed read
