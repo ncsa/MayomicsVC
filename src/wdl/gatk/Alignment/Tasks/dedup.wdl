@@ -25,7 +25,7 @@ task dedupTask {
 
    command <<<
    	   source ${BashPreamble}
-   	   /bin/bash ${DedupScript} -s ${SampleName} -b ${InputBams} -S ${GATKExe} -J ${JavaExe} -e ${JavaOptionsString} -F ${BashSharedFunctions} ${DebugMode}
+   	   /bin/bash ${DedupScript} -s ${SampleName} -b ${InputBams} -S ${GATKExe} -J ${JavaExe} -e "'${JavaOptionsString}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
    runtime {
