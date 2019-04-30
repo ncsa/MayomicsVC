@@ -12,11 +12,13 @@ The Workflow Description Language (WDL) is a way to specify data processing work
 <summary>
 Header
 </summary>
+      
 ```bash scripting
 ###########################################################################################
 ##              This WDL script performs alignment using BWA Mem                         ##
 ###########################################################################################
 ```
+
 The header clearly states what action the WDL task is supposed to perform
 </details>
 
