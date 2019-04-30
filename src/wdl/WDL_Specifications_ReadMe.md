@@ -8,7 +8,7 @@ The Workflow Description Language (WDL) is a way to specify data processing work
 
 # WDL Scripting Structure
 
-<detail>
+<details>
 <summary>
 Header
 </summary>
@@ -18,9 +18,9 @@ Header
 ###########################################################################################
 ```
 The header clearly states what action the WDL task is supposed to perform
-</detail>
+</details>
 
-<detail>
+<details>
 <summary>
 Command Block
 </summary>
@@ -42,9 +42,9 @@ command <<<
 2. The command block lists the input options with its corresponding variables and calls the shell script.
 3. WDL reads the values from the json files and passes those values through the variable names defined at the top of the script into the 
 shell script.
-</detail>
+</details>
 
-<detail>
+<details>
 <summary>
 Runtime Block      
 </summary>
@@ -57,9 +57,9 @@ runtime {
 ```
 1. We need to define the soft memory limit and the hard memory limit for every task because we have one task to one bash script and one individual bash script to one individual automatic bio informatics analysis.
 2. The reason why we choose to have one bioinformatics analysis per shell scriptand one shell script per WDL task is to avoid the complication to use different number of threads for different lines of bash scripts. 
-</detail>
+</details>
 
-<detail>
+<details>
 <summary>
 Output Block
 </summary>
@@ -73,4 +73,4 @@ output {
 } 
 ```
 We need to have the output block because the output of one task serves as the input to other
-</detail>
+</details>
