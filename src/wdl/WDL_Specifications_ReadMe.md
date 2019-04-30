@@ -6,4 +6,30 @@ The purpose of this readme is to understand the peculiarities of the WDL scripts
 
 The Workflow Description Language (WDL) is a way to specify data processing workflows with a human-readable and -writeable syntax. WDL makes it straightforward to define analysis tasks, chain them together in workflows, and parallelize their execution. The language makes common patterns simple to express, while also admitting uncommon or complicated behavior; and strives to achieve portability not only across execution platforms, but also different types of users. Whether you are an analyst, a programmer, an operator of a production system, or any other sort of user, WDL should be accessible and understandable.
 
-# 
+# WDL Scripting Structure
+
+```bash scripting
+###########################################################################################
+##              This WDL script performs alignment using BWA Mem                         ##
+###########################################################################################
+```
+The header clearly states what action the WDL task is supposed to perform
+
+```bash scripting
+command <<<
+      source ${BashPreamble}
+      /bin/bash ${AlignmentScript} -P 
+      ${PairedEnd} -l ${InputRead1} -r
+      ${InputRead2} -s ${SampleName} -p 
+      ${Platform} -L ${Library} -f 
+      ${PlatformUnit} -c ${CenterName} -G 
+      ${Ref} -o "'${BWAExtraOptionsString}'" -K
+      ${ChunkSizeInBases} -S ${Sentieon} -t 
+      ${SentieonThreads} -e ${AlignEnvProfile} 
+      -F ${BashSharedFunctions} ${DebugMode}
+   >>>
+```
+1. Bash is linked to WDL through the command block
+2. The command block lists the input options with its corresponding variables and calls the shell script.
+3. WDL reads the values from the json files and passes those values through the variable names defined at the top of the script into the shell script.
+
