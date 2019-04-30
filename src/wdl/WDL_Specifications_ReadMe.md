@@ -53,7 +53,7 @@ shell script.
 Runtime Block      
 </summary>
       
-```bash scripting
+``` bash scripting
 runtime {
       cpu: "${SentieonThreads}"
       s_vmem: "${AlignSoftMemLimit}"
@@ -70,7 +70,7 @@ runtime {
 Output Block
 </summary>
       
-```bash scripting
+``` bash scripting
 output {
       File OutputBams = "${SampleName}.bam"
       File OutputBais = "${SampleName}.bam.bai"
