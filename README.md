@@ -32,12 +32,12 @@ Below given are the steps to run the workflow:
   
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
   
-  ``` 
+  ```bash scripting
   ## Current working directory
      pwd
     /projects/abv/mken/variant_calling_demo
   ```
-   ```
+  ```bash scripting
    ## Clone the repo
     ## Most up to date branch is currently dev
     git clone -b dev https://github.com/ncsa/MayomicsVC.git
@@ -45,20 +45,20 @@ Below given are the steps to run the workflow:
   a. Load the necessary modules
   This workflow requires the cromwell execution engine and Java run
   
-  ```
+  ```bash scripting
   module load /usr/local/apps/bioapps/modules/java/java-1.8
   module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34
   module load /usr/local/apps/bioapps/modules/python/python-3.6.1
   ```
-  
  </details>
+ 
  <details>
  <summary>
 2. Create configuration files
   </summary>
   
   The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
-  ```
+  ```bash scripting
   ## make a config directory
   mkdir Config
   cd Config
