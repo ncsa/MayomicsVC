@@ -33,3 +33,13 @@ command <<<
 2. The command block lists the input options with its corresponding variables and calls the shell script.
 3. WDL reads the values from the json files and passes those values through the variable names defined at the top of the script into the shell script.
 
+```bash scripting
+runtime {
+      cpu: "${SentieonThreads}"
+      s_vmem: "${AlignSoftMemLimit}"
+      h_vmem: "${AlignHardMemLimit}"
+   }
+```
+1. We need to define the soft memory limit and the hard memory limit for every task because we have one task to one bash script and one individual bash script to one individual automatic bio informatics analysis.
+2. The reason why we choose to have one bioinformatics analysis per shell script, one shell per WDL is to avoid the complication to use
+   different number of threads for different lines of bash scripts. 
