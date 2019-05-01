@@ -270,7 +270,8 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
  </summary>
  
 The workflow should have a good system for logging and monitoring progress of the jobs. 
-At any moment during the run, the analyst should be able to assess: 
+At any moment during the run, the analyst should be able to assess:
+
 * Stage of the workflow is running for every sample batch 
 * Samples may have failed and why 
 
@@ -287,12 +288,14 @@ Cromwell provides for most of these via the output folder structure and logs. We
  </summary>
  
 The workflow must be robust against hardware/software/data failure. It should:
+
 * Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
 * Have the ability to move a task to a spare node in the event of hardware failure.
 
 The latter is a function of Cromwell, but the workflow should support it by requesting a few extra nodes (beyond the nodes required based on user specifications).
 
 To prevent avoidable failures and resource waste, the workflow should: 
+
 * Check that all the sample files exist and have nonzero size before the workflow runs
 * Check that all executables exist and have the right permissions before the workflow runs
 * After running each module, check that output was actualy produced and has nonzero size
