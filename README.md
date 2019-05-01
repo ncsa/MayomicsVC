@@ -253,7 +253,7 @@ The sections below explain in detial the implementation and benefits of our appr
 
 <details>
  <summary>
- Data parallelism and scalability
+  <b> Data parallelism and scalability: </b> Parallel execution of tasks
  </summary>
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
  
