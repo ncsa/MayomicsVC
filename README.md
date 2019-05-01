@@ -312,7 +312,7 @@ counterproductive. Hence, the workflow should be able to port smoothly among the
 <details>
  <summary>
  Development and test automation 
-<summary>
+</summary>
 The workflow should be constructed in such a way as to support multiple levels of automated testing:
 * Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
