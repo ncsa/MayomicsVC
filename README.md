@@ -256,9 +256,11 @@ The sections below explain in detial the implementation and benefits of our appr
  Data parallelism and scalability
  </summary>
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
+ 
 * Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per sample for sorting and deduplication
 * Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
+
 This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
 </details>
 
