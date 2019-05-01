@@ -234,7 +234,7 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 
 <details>
 <summary>
-Modularity
+Modularity : Subdivides the workflow into individual parts indepandant from each other
  </summary>
 Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
