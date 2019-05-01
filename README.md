@@ -232,8 +232,10 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 
 # Design principles
 
-## Modularity
-
+<details>
+<summary>
+Modularity
+ </summary>
 Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
@@ -247,17 +249,24 @@ Below given are the reasons for a modular design:
     * Can edit modules without breaking the rest of the workflow 
     * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
 The sections below explain in detial the implementation and benefits of our approach.
+</details>
 
-## Data parallelism and scalability
-
+<details>
+ <summary>
+ Data parallelism and scalability
+ </summary>
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
 * Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per sample for sorting and deduplication
 * Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
 This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
+</details>
 
-## Real-time logging and monitoring, data provenance tracking
-
+<details>
+ <summary>
+ Real-time logging and monitoring, data provenance tracking
+ </summary>
+ 
 The workflow should have a good system for logging and monitoring progress of the jobs. 
 At any moment during the run, the analyst should be able to assess: 
 * Stage of the workflow is running for every sample batch 
@@ -268,9 +277,13 @@ executed on each sample is necessary to ensure reproducibility of
 the analysis. 
 
 Cromwell provides for most of these via the output folder structure and logs. We have added an extra layer of logging and error reporting, described below in implementation.
+</details>
 
-## Fault tolerance and error handling
-
+<details>
+ <summary>
+ Fault tolerance and error handling
+ </summary>
+ 
 The workflow must be robust against hardware/software/data failure. It should:
 * Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
 * Have the ability to move a task to a spare node in the event of hardware failure.
@@ -282,19 +295,26 @@ To prevent avoidable failures and resource waste, the workflow should:
 * Check that all executables exist and have the right permissions before the workflow runs
 * After running each module, check that output was actualy produced and has nonzero size
 * Perform QC on each output file, write results into log, give user option to continue even if QC failed.
+</details>
 
-## Portability
-
+<details>
+ <summary>
+ Portability
+ </summary>
 The aim of this design principle is that a developer should be able to write a workflow once and then deploy it in many 
 environments. For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
 counterproductive. Hence, the workflow should be able to port smoothly among the following three kinds of systems:
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
+</details>
 
-## Development and test automation 
-
+<details>
+ <summary>
+ Development and test automation 
+<summary>
 The workflow should be constructed in such a way as to support multiple levels of automated testing:
 * Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
+ </details>
