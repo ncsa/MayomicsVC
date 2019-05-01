@@ -247,14 +247,14 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 
 The workflow should have a good system for logging and monitoring progress of the jobs. 
 At any moment during the run, the analyst should be able to assess: 
-* which stage of the workflow is running for every sample batch 
-* which samples may have failed and why 
+* Stage of the workflow is running for every sample batch 
+* Samples may have failed and why 
 
 Additionally, a well-structured post-analysis record of all events 
 executed on each sample is necessary to ensure reproducibility of 
 the analysis. 
 
-Cromwell provides for most of these vi the output folder structure and logs. we have added an extra layer of logging and error reporting, described below in implementation.
+Cromwell provides for most of these via the output folder structure and logs. We have added an extra layer of logging and error reporting, described below in implementation.
 
 ## Fault tolerance and error handling
 
@@ -272,14 +272,16 @@ To prevent avoidable failures and resource waste, the workflow should:
 
 ## Portability
 
-The workflow should be able to port smoothly among the following three kinds of systems:
+The aim of this design principle is that a developer should be able to write a workflow once and then deploy it in many 
+environments. For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
+counterproductive. Hence, the workflow should be able to port smoothly among the following three kinds of systems:
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
 
 ## Development and test automation 
 
-The workflow should be constructed in such a way as to support multiple levels of automated [testing](#testing):
+The workflow should be constructed in such a way as to support multiple levels of automated testing:
 * Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
