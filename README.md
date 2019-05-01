@@ -309,6 +309,7 @@ To prevent avoidable failures and resource waste, the workflow should:
 The aim of this design principle is that a developer should be able to write a workflow once and then deploy it in many 
 environments. For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
 counterproductive. Hence, the workflow should be able to port smoothly among the following three kinds of systems:
+ 
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
@@ -319,6 +320,7 @@ counterproductive. Hence, the workflow should be able to port smoothly among the
  Development and test automation 
 </summary>
 The workflow should be constructed in such a way as to support multiple levels of automated testing:
+ 
 * Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
