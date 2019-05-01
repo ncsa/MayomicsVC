@@ -15,12 +15,13 @@ The workflow has multiple components, each implemented as higher-level modules.F
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
 
 Steps:
-1. Trim Sequences: Trim the adapters from the reads obtained from the sequencer using CutAdapt
+1. Adapter Trimming: Trim the adapters from the reads obtained from the sequencer using CutAdapt
 2. Alignment: Align the reads to a reference genome using Sentieon's BWA-MEM
-3. Deduplication: Remove duplicate threads
+3. Merge: Merge's the reads
+3. Mark Duplicates: Remove duplicate threads
 4. Realignment: Realign reads using Sentieon Realigner
 5. Base Quality Score Recalibration (BQSR): Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
-6. Haplotyper: Create a VCF file containing the DNASeq variants reported for an individual
+6. Variant Caller/Haplotyper: Create a VCF file containing the DNASeq variants reported for an individual
 7. Variant Quality Score Recalibration (VQSR): Assign a well-calibrated probability score to individual variant calls and determine the probability that sites are true
 
 # Organization of the code
