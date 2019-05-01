@@ -300,12 +300,14 @@ To prevent avoidable failures and resource waste, the workflow should:
 * Check that all executables exist and have the right permissions before the workflow runs
 * After running each module, check that output was actualy produced and has nonzero size
 * Perform QC on each output file, write results into log, give user option to continue even if QC failed.
+
 </details>
 
 <details>
  <summary>
  Portability
  </summary>
+ 
 The aim of this design principle is that a developer should be able to write a workflow once and then deploy it in many 
 environments. For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
 counterproductive. Hence, the workflow should be able to port smoothly among the following three kinds of systems:
@@ -313,12 +315,14 @@ counterproductive. Hence, the workflow should be able to port smoothly among the
 * grid clusters with PBS Torque
 * grid clusters with OGE
 * AWS
+
 </details>
 
 <details>
  <summary>
  Development and test automation 
 </summary>
+ 
 The workflow should be constructed in such a way as to support multiple levels of automated testing:
  
 * Individual task testing on each task
