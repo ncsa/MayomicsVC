@@ -266,7 +266,7 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 
 <details>
  <summary>
-  <b> Real-time logging and monitoring, data provenance tracking </b>: Good system for logging and monitoring progress of jobs
+  <b> Real-time logging and monitoring, data provenance tracking </b>: Real time logging and monitoring progress of jobs in the workflow
  </summary>
 
 At any moment during the run, the analyst should be able to assess:
@@ -283,7 +283,7 @@ Cromwell provides for most of these via the output folder structure and logs. We
 
 <details>
  <summary>
- Fault tolerance and error handling : Workflow should be robust against hardware/software/data failure
+  <b> Fault tolerance and error handling </b> : Workflow should be robust against hardware/software/data failure
  </summary>
  
 The workflow should:
