@@ -273,6 +273,6 @@ The workflow should be constructed in such a way as to support the below testing
  </details>
 
 # Relevant Research Papers & Sources
-1. <a href = "https://wiki.ncsa.illinois.edu/display/LH/HPC+for+Computational+Genomics"> NCSA Genomics </a>
+1. <a href = "https://wiki.ncsa.illinois.edu/display/LH/HPC+for+Computational+Genomics"> NCSA Genomics Team</a>
 2. <a href = "https://www.biorxiv.org/content/10.1101/396325v1"> Computational performance and accuracy of Sentieon DNASeq variant calling workflow </a>
 3. <a href = "https://www.biorxiv.org/content/10.1101/348565v1"> Performance benchmarking of GATK3.8 and GATK4 </a>
