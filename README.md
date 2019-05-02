@@ -183,7 +183,7 @@ The workflow has multiple components, each implemented as higher-level modules.F
 
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
 
-Steps:
+Description:
 1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
 2. <b> Alignment</b>: Align the reads to a reference genome using Sentieon's BWA-MEM
 3. <b> Merge </b>: Merge's the reads
