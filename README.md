@@ -186,11 +186,11 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 <details>
   <summary>
   BioInformatics Tools
-    <summary>
+    </summary>
       <a href ="https://www.sentieon.com/"> <b> Sentieon </b> </a>: sentieon-genomics-201808 software package for secondary DNA analysis <br>
       <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences 
      
-      </details>
+  </details>
     
 # Design principles
 
