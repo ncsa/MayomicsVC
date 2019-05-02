@@ -35,14 +35,12 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 
 # Tools to run the workflow
 
-
 # Detailed steps to run the workflow
 <details>
   <summary> 
    Clone the repository and load the necessary modules
-  <br>
   </summary>
-  
+<p>
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
   
   ```bash scripting
@@ -56,6 +54,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
   module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34
   module load /usr/local/apps/bioapps/modules/python/python-3.6.1
   ```
+  </p>
  </details>
  
  <details>
@@ -64,7 +63,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
   <br>
   </summary>
   
-  a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
+  a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements, to be used in the workflow.
   ```bash scripting
   ## make a config directory
   mkdir Config
