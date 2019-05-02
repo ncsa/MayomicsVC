@@ -40,7 +40,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 Below given are the steps to run the workflow:
 <details>
   <summary> 
-    1. Clone the repository and load the necessary modules
+   Clone the repository and load the necessary modules
   </summary>
   
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
@@ -60,7 +60,7 @@ Below given are the steps to run the workflow:
  
  <details>
  <summary>
-2. Create configuration and environment profile files
+ Create configuration and environment profile files
   </summary>
   
   a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
@@ -81,7 +81,6 @@ Below given are the steps to run the workflow:
   ## memory info
   touch memory_info.txt
   ```
-  </details>
   
 b. Senteion requires a license to run. This license is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. Following are the necessary environmental profiles file present in the Config directory:
 
@@ -99,7 +98,7 @@ VqsrEnvProfile.file
 
 <details>
 <summary>
-4. Use WOM tool to create JSON and run parser to populate JSON
+ Use WOM tool to create JSON and run parser to populate JSON
 </summary>
   
 a. WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
