@@ -84,6 +84,7 @@ Below given are the steps to run the workflow:
   
 b. Senteion requires a license to run. This license is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. Following are the necessary environmental profiles file present in the Config directory:
 
+```bash scripting
 ls Config/ | grep Profile
 
 AlignEnvProfile.file <br>
@@ -93,6 +94,7 @@ HaplotyperEnvProfile.file <br>
 RealignEnvProfile.file <br>
 TrimEnvProfile.file <br>
 VqsrEnvProfile.file <br>
+```
 
 </details>
 
