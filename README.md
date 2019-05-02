@@ -46,16 +46,9 @@ Below given are the steps to run the workflow:
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
   
   ```bash scripting
-  ## Current working directory
-     pwd
-    /projects/abv/mken/variant_calling_demo
-  ```
-  ```bash scripting
-   ## Clone the repo
-    ## Most up to date branch is currently dev
     git clone -b dev https://github.com/ncsa/MayomicsVC.git
   ```
-  a. Load the necessary modules
+  b. Load the necessary modules
   This workflow requires the cromwell execution engine and Java run
   
   ```bash scripting
@@ -67,10 +60,10 @@ Below given are the steps to run the workflow:
  
  <details>
  <summary>
-2. Create configuration files
+2. Create configuration and environment profile files
   </summary>
   
-  The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
+  a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
   ```bash scripting
   ## make a config directory
   mkdir Config
@@ -90,12 +83,7 @@ Below given are the steps to run the workflow:
   ```
   </details>
   
-  <details>
-  <summary>
-3. Create environmental profile files
-  </summary>
-  
-Senteion requires a license to run. This license is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. The user defined the names of these files in the tool_info.txt config file. For organization purposes, these files should be in the Config directory that was created earlier. The liscense on iForge is used in this example. Following are the necessary environmental profiles in the Config dir:
+b. Senteion requires a license to run. This license is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. Following are the necessary environmental profiles file present in the Config directory:
 
 ls Config/ | grep Profile
 
@@ -107,37 +95,14 @@ RealignEnvProfile.file
 TrimEnvProfile.file
 VqsrEnvProfile.file
 
-Each file contains the same thing:
-
-cat Config/AlignEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat BqsrEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat DedupEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat HaplotyperEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat RealignEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat TrimEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
-cat VqsrEnvProfile.file
-export SENTIEON_LICENSE=bwlm3.ncsa.illinois.edu:8989
-
 </details>
 
 <details>
 <summary>
-4. Use WOM tool to create JSON
+4. Use WOM tool to create JSON and run parser to populate JSON
 </summary>
   
-WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
+a. WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
 
 ```
 mkdir Jsons
@@ -145,7 +110,7 @@ cd MayomicsVC
 java -jar ${WOMTOOL} inputs src/wdl/GermlineMasterWorkflow.wdl > ../Jsons
 /GermlineMasterWorkflow.json
 ```
-The JSON needs to be filled in with the below commands
+b. The JSON needs to be filled in with the below commands
 
 ```
 cat ../Jsons/GermlineMasterWorkflow.json
@@ -157,13 +122,8 @@ cat ../Jsons/GermlineMasterWorkflow.json
 "GermlineMasterWF.merge.BashSharedFunctions": "File"
 }
 ```
-</details>  
-<details>
-<summary>
-5. Run parser to populate JSON
-</summary>
 
-Go to MayomicsVC and run the following bash command
+c. To run the parser to populate JSON, run the following bash command
 
 ```
  python src/python/config_parser.py -i ~/Config/run_info.txt -i ~/Config/sample_info.txt -i ~/Config/tool_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
