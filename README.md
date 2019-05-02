@@ -145,10 +145,9 @@ json
 
 <details>
 <summary>
-Zip source code </summary>
+Zip source code and run the script</summary>
   
-When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow.
-This is done by passing in a zip archive containing all the scripts in there respective directories with the -p option when running the workflow (This archive will be used when executing the whole workflow later). Since the WDL code is written with the known locations of the task scripts in the repository, you can simply zip the files within the MayomicsVS. Make sure to cd into the directory before zipping though, or else the file pahts will not be corect.The workflow won't run correctly if the zip file is created in the wrong directory.
+a. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by ziping the source code.
 
 ```
 cd MayomicsVC
@@ -156,12 +155,7 @@ zip -r MayomicsVC.zip ./
 mv MayomicsVC.zip ../
 cd ../
 ```
-</details>
-
-<details>
-<summary>
-Running the script </summary>
-  
+b. To run the script, execute the below command  
 ```  
 java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
 java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
