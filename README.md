@@ -168,10 +168,8 @@ The outputs are present in the Delivery folder
   <summary>
     Workflow Management Systems 
   </summary>
-  <a href = "https://software.broadinstitute.org/wdl/"https://software.broadinstitute.org/wdl/"> Cromwell/WDL <a>
-                                                                                               
-
-   
+  <a href = "https://software.broadinstitute.org/wdl/"> Cromwell/WDL <a>
+                                                                                              
 # Objective
 
 The objective of this project was to create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL. Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
