@@ -2,7 +2,7 @@
 
 This work was a product of the Mayo Clinic and Illinois Strategic Alliance for Technology-Based Healthcare. Special thanks for the funding provided by the Mayo Clinic Center for Individualized Medicine and the Todd and Karen Wanek Program for Hypoplastic Left Heart Syndrome. We also thank the Interdisciplinary Health Sciences Institute, UIUC Institute for Genomic Biology and the National Center for Supercomputing Applications for their generous support and access to resources. We particularly acknowledge the support of Keith Stewart, M.B., Ch.B., Mayo Clinic/Illinois Grand Challenge Sponsor and Director of the Mayo Clinic Center for Individualized Medicine. Many thanks to the Sentieon team for consultation and advice on the Sentieon variant calling software.
 
-# Quick steps to run the workflow
+# Steps to run the workflow
 
 # Objective
 
@@ -17,14 +17,14 @@ The workflow has multiple components, each implemented as higher-level modules.F
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
 
 Steps:
-1. Adapter Trimming: Trim the adapters from the reads obtained from the sequencer using CutAdapt
-2. Alignment: Align the reads to a reference genome using Sentieon's BWA-MEM
-3. Merge: Merge's the reads
-3. Mark Duplicates: Remove duplicate threads
-4. Realignment: Realign reads using Sentieon Realigner
-5. Base Quality Score Recalibration (BQSR): Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
-6. Variant Caller/Haplotyper: Create a VCF file containing the DNASeq variants reported for an individual
-7. Variant Quality Score Recalibration (VQSR): Assign a well-calibrated probability score to individual variant calls and determine the probability that sites are true
+1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
+2. <b> Alignment</b>: Align the reads to a reference genome using Sentieon's BWA-MEM
+3. <b> Merge </b>: Merge's the reads
+3. <b> Mark Duplicates </b>: Remove duplicate threads
+4. <b> Realignment </b>: Realign reads using Sentieon Realigner
+5. <b> Base Quality Score Recalibration (BQSR) </b>: Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
+6. <b> Variant Caller/Haplotyper</b> : Create a VCF file containing the DNASeq variants reported for an individual
+7. <b> Variant Quality Score Recalibration (VQSR) </b>: Assign a well-calibrated probability score to individual variant calls and determine the probability that sites are true
 
 # Organization of the code
 
@@ -266,10 +266,9 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 
 <details>
  <summary>
- Real-time logging and monitoring, data provenance tracking
+  <b> Real-time logging and monitoring, data provenance tracking </b>: Good system for logging and monitoring progress of jobs
  </summary>
- 
-The workflow should have a good system for logging and monitoring progress of the jobs. 
+
 At any moment during the run, the analyst should be able to assess:
 
 * Stage of the workflow is running for every sample batch 
@@ -284,10 +283,10 @@ Cromwell provides for most of these via the output folder structure and logs. We
 
 <details>
  <summary>
- Fault tolerance and error handling
+ Fault tolerance and error handling : Workflow should be robust against hardware/software/data failure
  </summary>
  
-The workflow must be robust against hardware/software/data failure. It should:
+The workflow should:
 
 * Give the user the option to fail or continue the whole workflow when something goes wrong with one of the samples
 * Have the ability to move a task to a spare node in the event of hardware failure.
@@ -305,11 +304,10 @@ To prevent avoidable failures and resource waste, the workflow should:
 
 <details>
  <summary>
- Portability
+  <b> Portability </b> : Write the workflow once, deploy it in many environments.
  </summary>
- 
-The aim of this design principle is that a developer should be able to write a workflow once and then deploy it in many 
-environments. For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
+
+For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
 counterproductive. Hence, the workflow should be able to port smoothly among the following three kinds of systems:
  
 * grid clusters with PBS Torque
@@ -320,10 +318,10 @@ counterproductive. Hence, the workflow should be able to port smoothly among the
 
 <details>
  <summary>
- Development and test automation 
+  <b>Development and test automation </b>: Support multiple levels of automated testing
 </summary>
  
-The workflow should be constructed in such a way as to support multiple levels of automated testing:
+The workflow should be constructed in such a way as to support the below testing activities:
  
 * Individual task testing on each task
 * Integration testing for each codepath in each workflow stage
