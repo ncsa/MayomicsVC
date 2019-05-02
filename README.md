@@ -37,10 +37,10 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 
 
 # Detailed steps to run the workflow
-Below given are the steps to run the workflow:
 <details>
   <summary> 
    Clone the repository and load the necessary modules
+  
   </summary>
   
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
@@ -61,6 +61,7 @@ Below given are the steps to run the workflow:
  <details>
  <summary>
  Create configuration and environment profile files
+  
   </summary>
   
   a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
@@ -101,6 +102,7 @@ VqsrEnvProfile.file <br>
 <details>
 <summary>
  Use WOM tool to create JSON and run parser to populate JSON
+
 </summary>
   
 a. WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
@@ -134,6 +136,7 @@ c. To run the parser to populate JSON, run the following bash command
 <details>
 <summary>
 Run validator to validate entries in JSON
+
 </summary>
 Cromwell expects from the WDL file the variable types of the input variables to run the workflow successfully. Hence, we have written another python script to pass in the newly filled in json file, and the key_types file from the repository:
   
@@ -147,7 +150,9 @@ json
 
 <details>
 <summary>
-Zip source code and run the script</summary>
+Zip source code and run the script
+
+</summary>
   
 a. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by ziping the source code.
 
@@ -171,6 +176,7 @@ The outputs are present in the Delivery folder
 <details>
 <summary>
  <b>Modularity:</b> Subdivides the workflow into individual parts indepandant from each other
+ 
  </summary>
 Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
@@ -190,6 +196,7 @@ The sections below explain in detial the implementation and benefits of our appr
 <details>
  <summary>
   <b> Data parallelism and scalability: </b> Parallel execution of tasks
+ 
  </summary>
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
  
@@ -203,6 +210,7 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 <details>
  <summary>
   <b> Real-time logging, monitoring, data provenance tracking </b>: Real time logging/monitoring progress of jobs in workflow
+ 
  </summary>
 
 At any moment during the run, the analyst should be able to assess:
@@ -220,6 +228,7 @@ Cromwell provides for most of these via the output folder structure and logs. We
 <details>
  <summary>
   <b> Fault tolerance and error handling </b> : Workflow should be robust against hardware/software/data failure
+ 
  </summary>
  
 The workflow should:
@@ -241,6 +250,7 @@ To prevent avoidable failures and resource waste, the workflow should:
 <details>
  <summary>
   <b> Portability </b> : Write the workflow once, deploy it in many environments.
+ 
  </summary>
 
 For a workflow as complex as genomic variant calling, having to change and adapt for each different cluster is extremely 
@@ -255,6 +265,7 @@ counterproductive. Hence, the workflow should be able to port smoothly among the
 <details>
  <summary>
   <b>Development and test automation </b>: Support multiple levels of automated testing
+
 </summary>
  
 The workflow should be constructed in such a way as to support the below testing activities:
