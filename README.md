@@ -200,7 +200,7 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 
 <details>
  <summary>
-  <b> Real-time logging and monitoring, data provenance tracking </b>: Real time logging/monitoring progress of jobs in workflow
+  <b> Real-time logging, monitoring, data provenance tracking </b>: Real time logging/monitoring progress of jobs in workflow
  </summary>
 
 At any moment during the run, the analyst should be able to assess:
