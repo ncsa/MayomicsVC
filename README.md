@@ -86,13 +86,13 @@ b. Senteion requires a license to run. This license is a bash environmental vari
 
 ls Config/ | grep Profile
 
-AlignEnvProfile.file
-BqsrEnvProfile.file
-DedupEnvProfile.file
-HaplotyperEnvProfile.file
-RealignEnvProfile.file
-TrimEnvProfile.file
-VqsrEnvProfile.file
+AlignEnvProfile.file <br>
+BqsrEnvProfile.file <br>
+DedupEnvProfile.file <br>
+HaplotyperEnvProfile.file <br>
+RealignEnvProfile.file <br>
+TrimEnvProfile.file <br>
+VqsrEnvProfile.file <br>
 
 </details>
 
@@ -131,9 +131,9 @@ c. To run the parser to populate JSON, run the following bash command
 
 <details>
 <summary>
-6. Run validator to validate entries in JSON
+Run validator to validate entries in JSON
 </summary>
-In order for the workflow to run successfully, the variable types of the input variables must be what the Cromwell expects from the WDL code. We have writted another python script to ensure that this is the case.Pass in the newly filled in json file, and the key_types file from the repository:
+Cromwell expects from the WDL file the variable types of the input variables to run the workflow successfully. Hence, we have written another python script to pass in the newly filled in json file, and the key_types file from the repository:
   
 ```
 python MayomicsVC/src/python/key_validator.py -i Jsons
@@ -145,7 +145,7 @@ json
 
 <details>
 <summary>
- 7. Zip source code </summary>
+Zip source code </summary>
   
 When calling tasks from within workflows, one has to use the "import" statement and explicitly refer to the task using the specific folder path leading to it. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow.
 This is done by passing in a zip archive containing all the scripts in there respective directories with the -p option when running the workflow (This archive will be used when executing the whole workflow later). Since the WDL code is written with the known locations of the task scripts in the repository, you can simply zip the files within the MayomicsVS. Make sure to cd into the directory before zipping though, or else the file pahts will not be corect.The workflow won't run correctly if the zip file is created in the wrong directory.
@@ -160,34 +160,15 @@ cd ../
 
 <details>
 <summary>
-8. Viewing Outputs
-</summary>
-  
-The outputs are in the delivery folders. From the Alignment Block, a BAM is produced, and from the HaplotyperVC block, a VCF and index is produced:
-
-```
-ls Delivery/Alignment/
-GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.bam NEAT_synthetic.
-bam.bai
-ls Delivery/HaplotyperVC/
-GermlineMasterWorkflow.FilledIn.json NEAT_synthetic.vcf NEAT_synthetic.
-vcf.idx
-```
-</details>
-
-<details>
-<summary>
-9. Running the script </summary>
+Running the script </summary>
   
 ```  
 java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
 java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
 java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
 ```
-
+The outputs are present in the Delivery folder
 </details>
-
-
 
 # Design principles
 
