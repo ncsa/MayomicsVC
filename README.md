@@ -40,7 +40,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 <details>
   <summary> 
    Clone the repository and load the necessary modules
-  
+  <br>
   </summary>
   
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
@@ -61,7 +61,7 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
  <details>
  <summary>
  Create configuration and environment profile files
-  
+  <br>
   </summary>
   
   a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements,   to be used in the workflow.
@@ -102,7 +102,7 @@ VqsrEnvProfile.file <br>
 <details>
 <summary>
  Use WOM tool to create JSON and run parser to populate JSON
-
+<br>
 </summary>
   
 a. WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
@@ -136,7 +136,7 @@ c. To run the parser to populate JSON, run the following bash command
 <details>
 <summary>
 Run validator to validate entries in JSON
-
+<br>
 </summary>
 Cromwell expects from the WDL file the variable types of the input variables to run the workflow successfully. Hence, we have written another python script to pass in the newly filled in json file, and the key_types file from the repository:
   
@@ -151,7 +151,7 @@ json
 <details>
 <summary>
 Zip source code and run the script
-
+<br>
 </summary>
   
 a. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by ziping the source code.
