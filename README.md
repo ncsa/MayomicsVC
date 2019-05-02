@@ -3,39 +3,6 @@
 This work was a product of the Mayo Clinic and Illinois Strategic Alliance for Technology-Based Healthcare. Special thanks for the funding provided by the Mayo Clinic Center for Individualized Medicine and the Todd and Karen Wanek Program for Hypoplastic Left Heart Syndrome. We also thank the Interdisciplinary Health Sciences Institute, UIUC Institute for Genomic Biology and the National Center for Supercomputing Applications for their generous support and access to resources. We particularly acknowledge the support of Keith Stewart, M.B., Ch.B., Mayo Clinic/Illinois Grand Challenge Sponsor and Director of the Mayo Clinic Center for Individualized Medicine. Many thanks to the Sentieon team for consultation and advice on the Sentieon variant calling software.
 
 # Steps to run the workflow
-
-# Objective
-
-The objective of this project was to create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL. Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
- 
-# Variant Calling Workflow
-
-The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs.These tasks are written as .wdl scripts and is displayed below in the detailed workflow architecture:
-
-<img src="https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG" alt="Detailed Workflow Architecture" width="800">
-
-<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
-
-Steps:
-1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
-2. <b> Alignment</b>: Align the reads to a reference genome using Sentieon's BWA-MEM
-3. <b> Merge </b>: Merge's the reads
-3. <b> Mark Duplicates </b>: Remove duplicate threads
-4. <b> Realignment </b>: Realign reads using Sentieon Realigner
-5. <b> Base Quality Score Recalibration (BQSR) </b>: Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
-6. <b> Variant Caller/Haplotyper</b> : Create a VCF file containing the DNASeq variants reported for an individual
-7. <b> Variant Quality Score Recalibration (VQSR) </b>: Assign a well-calibrated probability score to individual variant calls and determine the probability that sites are true
-
-# Organization of the code
-
-The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) WDL - The shell script is called by WDL which are the scripts of the workflow management.
-<img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
-
-<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
-
-# Tools to run the workflow
-
-# Detailed steps to run the workflow
 <details>
   <summary> 
    Clone the repository and load the necessary modules
@@ -170,6 +137,37 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 The outputs are present in the Delivery folder
 </details>
 
+# Objective
+
+The objective of this project was to create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL. Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
+ 
+# Variant Calling Workflow
+
+The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs.These tasks are written as .wdl scripts and is displayed below in the detailed workflow architecture:
+
+<img src="https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG" alt="Detailed Workflow Architecture" width="800">
+
+<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
+
+Steps:
+1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
+2. <b> Alignment</b>: Align the reads to a reference genome using Sentieon's BWA-MEM
+3. <b> Merge </b>: Merge's the reads
+3. <b> Mark Duplicates </b>: Remove duplicate threads
+4. <b> Realignment </b>: Realign reads using Sentieon Realigner
+5. <b> Base Quality Score Recalibration (BQSR) </b>: Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
+6. <b> Variant Caller/Haplotyper</b> : Create a VCF file containing the DNASeq variants reported for an individual
+7. <b> Variant Quality Score Recalibration (VQSR) </b>: Assign a well-calibrated probability score to individual variant calls and determine the probability that sites are true
+
+# Organization of the code
+
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) WDL - The shell script is called by WDL which are the scripts of the workflow management.
+<img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
+
+<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
+
+# Tools to run the workflow
+
 # Design principles
 
 <details>
@@ -273,3 +271,8 @@ The workflow should be constructed in such a way as to support the below testing
 * Integration testing for each codepath in each workflow stage
 * Integration testing for the main (i.e. most used) codepath in the workflow
  </details>
+
+# Relevant Research Papers & Sources
+1. <a href = "https://wiki.ncsa.illinois.edu/display/LH/HPC+for+Computational+Genomics"> NCSA Genomics </a>
+2. <a href = "https://www.biorxiv.org/content/10.1101/396325v1"> Computational performance and accuracy of Sentieon DNASeq variant calling workflow </a>
+3. <a href = "https://www.biorxiv.org/content/10.1101/348565v1"> Performance benchmarking of GATK3.8 and GATK4 </a>
