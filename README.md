@@ -143,16 +143,16 @@ The outputs are present in the Delivery folder
    <summary>
      iForge - the NCSA Industry Supercomputer <br>
   </summary>
-      • Intel "Skylake" Xeon Gold 6148 <br>
-      • 20-core CPU, 2.4 GHz <br>
-      • Dual-CPU motherboard <br>
-      • Total cores: 40 <br>
-      • 192 GB RAM, 2666 MHz <br> 
-      • Storage: 4+ PB <br>
-      • IBM GPFS ver. 4 with custom metadata acceleration <br>
-      • EDR lnfiniband, 100 GB/sec bandwidth, 100 ns latency <br>
-      • WAN: 80 GB/sec <br>
-      • OS: Red Hat Enterprise Linux 6 <br>
+        • Intel "Skylake" Xeon Gold 6148 <br>
+        • 20-core CPU, 2.4 GHz <br>
+        • Dual-CPU motherboard <br>
+        • Total cores: 40 <br>
+        • 192 GB RAM, 2666 MHz <br> 
+        • Storage: 4+ PB <br>
+        • IBM GPFS ver. 4 with custom metadata acceleration <br>
+        • EDR lnfiniband, 100 GB/sec bandwidth, 100 ns latency <br>
+        • WAN: 80 GB/sec <br>
+        • OS: Red Hat Enterprise Linux 6 <br>
 </details>
 
 <details>
