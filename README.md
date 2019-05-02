@@ -169,8 +169,18 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 # Tools to run the workflow
 <details>
    <summary>
-     iForge Supercomputer
+     iForge - the NCSA Industry Supercomputer:
   </summary>
+      • Intel "Skylake" Xeon Gold 6148 
+      • 20-core CPU, 2.4 GHz 
+      • Dual-CPU motherboard 
+      • Total cores: 40 
+      • 192 GB RAM, 2666 MHz 
+      • Storage: 4+ PB
+      • IBM GPFS ver. 4 with custom metadata acceleration 
+      • EDR lnfiniband, 100 GB/sec bandwidth, 100 ns latency 
+      • WAN: 80 GB/sec 
+      • OS: Red Hat Enterprise Linux 6 
 </details>
 
 <details>
