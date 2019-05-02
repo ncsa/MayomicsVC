@@ -62,7 +62,7 @@ runtime {
 ```
 
 1. We need to define the soft memory limit and the hard memory limit for every task because we have one task to one bash script and one individual bash script to one individual automatic bio informatics analysis.
-2. The reason why we choose to have one bioinformatics analysis per shell scriptand one shell script per WDL task is to avoid the complication to use different number of threads for different lines of bash scripts. 
+2. The reason why we choose to have one bioinformatics analysis per shell script and one shell script per WDL task is to avoid the complication to use different number of threads for different lines of bash scripts. 
 </details>
 
 <details>
