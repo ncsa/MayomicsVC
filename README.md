@@ -137,6 +137,32 @@ java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_s
 The outputs are present in the Delivery folder
 </details>
 
+# Tools to run the workflow
+<details>
+   <summary>
+     iForge - the NCSA Industry Supercomputer <br>
+  </summary>
+      • Intel "Skylake" Xeon Gold 6148 <br>
+      • 20-core CPU, 2.4 GHz <br>
+      • Dual-CPU motherboard <br>
+      • Total cores: 40 <br>
+      • 192 GB RAM, 2666 MHz <br> 
+      • Storage: 4+ PB <br>
+      • IBM GPFS ver. 4 with custom metadata acceleration <br>
+      • EDR lnfiniband, 100 GB/sec bandwidth, 100 ns latency <br>
+      • WAN: 80 GB/sec <br>
+      • OS: Red Hat Enterprise Linux 6 <br>
+</details>
+
+<details>
+  <summary>
+  BioInformatics Tools
+    </summary>
+      <a href ="https://www.sentieon.com/"> <b> Sentieon </b> </a>: sentieon-genomics-201808 software package for secondary DNA analysis <br>
+      <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences 
+     
+  </details>
+    
 # Objective
 
 The objective of this project was to create the best practices genomic variant calling workflow using the workflow management system Cromwell/WDL. Our main goal was to create a workflow that is trivially maintainable in a production clinical setting or active reserach lab, so that numerous, large scale and robust analyses could be performed. Therefore, our main considerations where (1) simplicity of code, (2) robustness against misconfiguration, and (3) ease of debugging during execution.
@@ -166,32 +192,6 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
 
-# Tools to run the workflow
-<details>
-   <summary>
-     iForge - the NCSA Industry Supercomputer <br>
-  </summary>
-      • Intel "Skylake" Xeon Gold 6148 <br>
-      • 20-core CPU, 2.4 GHz <br>
-      • Dual-CPU motherboard <br>
-      • Total cores: 40 <br>
-      • 192 GB RAM, 2666 MHz <br> 
-      • Storage: 4+ PB <br>
-      • IBM GPFS ver. 4 with custom metadata acceleration <br>
-      • EDR lnfiniband, 100 GB/sec bandwidth, 100 ns latency <br>
-      • WAN: 80 GB/sec <br>
-      • OS: Red Hat Enterprise Linux 6 <br>
-</details>
-
-<details>
-  <summary>
-  BioInformatics Tools
-    </summary>
-      <a href ="https://www.sentieon.com/"> <b> Sentieon </b> </a>: sentieon-genomics-201808 software package for secondary DNA analysis <br>
-      <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences 
-     
-  </details>
-    
 # Design principles
 
 <details>
@@ -231,7 +231,6 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 <details>
  <summary>
   <b> Real-time logging, monitoring, data provenance tracking </b>: Real time logging/monitoring progress of jobs in workflow
- 
  </summary>
 
 At any moment during the run, the analyst should be able to assess:
