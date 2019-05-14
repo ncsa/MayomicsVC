@@ -77,8 +77,7 @@ a. WDL will use a json file to read in the locations data. The user first genera
 ```
 mkdir Jsons
 cd MayomicsVC
-java -jar ${WOMTOOL} inputs src/wdl/GermlineMasterWorkflow.wdl > ../Jsons
-/GermlineMasterWorkflow.json
+java -jar ${WOMTOOL} inputs MayomicsVC/src/wdl/GermlineMasterWorkflow.wdl
 ```
 b. The JSON needs to be filled in with the below commands
 
@@ -124,10 +123,7 @@ Zip source code and run the script
 a. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by ziping the source code.
 
 ```
-cd MayomicsVC
-zip -r MayomicsVC.zip ./
-mv MayomicsVC.zip ../
-cd ../
+zip -r MayomicsVC.zip MayomicsVC
 ```
 b. To run the script, execute the below command  
 ```  
