@@ -10,13 +10,13 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
   </summary>
 <p>
   <br>
-  a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
+  a. Visit the MayomicsVC Repository and clone the repository as in the example given below:
   
   ```bash scripting
     git clone -b dev https://github.com/ncsa/MayomicsVC.git
   ```
   b. Load the necessary modules
-  This workflow requires the cromwell execution engine and Java run
+  This workflow requires the cromwell execution engine and Java to run.
   
   ```bash scripting
   module load /usr/local/apps/bioapps/modules/java/java-1.8
@@ -29,6 +29,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
  <details>
  <summary>
  Create configuration and environment profile files
+  <br>
   </summary>
   <br>
   a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements, to be used in the workflow.
@@ -50,7 +51,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
   touch memory_info.txt
   ```
   
-b. Senteion requires a license to run. This license is a bash environmental variable, since the Senteion commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Senteion license environmental variable. Following are the necessary environmental profiles file present in the Config directory:
+b. Sentieon requires a license to run. This license is a bash environmental variable, since the Sentieon commands are bash commands executed from within the pipeline. An "environmental" profile file is passed in with each task in the workflow, containing the Sentieon license environmental variable. Below are the environmental profile files that need to be present in the Config directory:
 
 ```bash scripting
 ls Config/ | grep Profile
@@ -69,8 +70,9 @@ VqsrEnvProfile.file <br>
 <details>
 <summary>
  Use WOM tool to create JSON and run parser to populate JSON
+<br>
 </summary>
-  <br>
+  
 a. WDL will use a json file to read in the locations data. The user first generates a json with the necessary input keys. The values will be added later.
 
 ```
@@ -78,7 +80,7 @@ mkdir Jsons
 cd MayomicsVC
 java -jar ${WOMTOOL} inputs MayomicsVC/src/wdl/GermlineMasterWorkflow.wdl
 ```
-b. The JSON needs to be filled in with the below commands
+b. The JSON needs to be filled in with the below commands:
 
 ```
 cat ../Jsons/GermlineMasterWorkflow.json
@@ -91,7 +93,7 @@ cat ../Jsons/GermlineMasterWorkflow.json
 }
 ```
 
-c. To run the parser to populate JSON, run the following bash command
+c. To run the parser to populate the JSON, run the following bash command:
 
 ```
  python src/python/config_parser.py -i ~/Config/run_info.txt -i ~/Config/sample_info.txt -i ~/Config/tool_info.txt --jsonTemplate ~/Jsons/<test_name>.json.tmpl -o ~/Jsons/<test_name>.json
@@ -101,9 +103,9 @@ c. To run the parser to populate JSON, run the following bash command
 <details>
 <summary>
 Run validator to validate entries in JSON
+<br>
 </summary>
-  <br>
-Cromwell expects from the WDL file the variable types of the input variables to run the workflow successfully. Hence, we have written another python script to pass in the newly filled in json file, and the key_types file from the repository:
+Cromwell expects from the WDL file the variable types of the input variables in order to run the workflow successfully. Hence, we have written another python script to pass into the newly filled-in json file, and the key_types file from the repository:
   
 ```
 python MayomicsVC/src/python/key_validator.py -i Jsons
@@ -116,20 +118,21 @@ json
 <details>
 <summary>
 Zip source code and run the script
+<br>
 </summary>
-  <br>
-a. In order for Cromwell to know the paths of the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by ziping the source code.
+  
+a. In order for Cromwell to know the paths to the task scripts, it is necessary to point to the scripts when executing the entire workflow and this is done by zipping the source code.
 
 ```
 zip -r MayomicsVC.zip MayomicsVC
 ```
-b. To run the script, execute the below command  
+b. To run the script, execute the below command:  
 ```  
 java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
 java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
 java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
 ```
-The outputs are present in the Delivery folder
+The outputs will be present in the Delivery folder.
 </details>
 
 ### Tools 
@@ -171,7 +174,7 @@ The objective of this project was to create the best practices genomic variant c
  
 # Variant Calling Workflow
 
-The workflow has multiple components, each implemented as higher-level modules.For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration.Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs.These tasks are written as .wdl scripts and is displayed below in the detailed workflow architecture:
+The workflow has multiple components, each implemented as higher-level modules. For example, in BAM cleaning we have two modules: Alignment and Realignment/Recalibration. Each module consists of *tasks* - lowest complexity modules that represent meaningful bioinformatics processing steps (green boxes in the detailed workflow architecture below), such as alignment against a reference or deduplication of aligned BAMs. These tasks are written as .wdl scripts and are displayed below in the detailed workflow architecture:
 
 <img src="https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG" alt="Detailed Workflow Architecture" width="800">
 
@@ -180,7 +183,7 @@ The workflow has multiple components, each implemented as higher-level modules.F
 Description:
 1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
 2. <b> Alignment</b>: Align the reads to a reference genome using Sentieon's BWA-MEM
-3. <b> Merge </b>: Merge's the reads
+3. <b> Merge </b>: Merges the reads
 3. <b> Mark Duplicates </b>: Remove duplicate threads
 4. <b> Realignment </b>: Realign reads using Sentieon Realigner
 5. <b> Base Quality Score Recalibration (BQSR) </b>: Calculate the required modification of the quality scores on the BAM produced in the Realignment stage
@@ -189,7 +192,7 @@ Description:
 
 # Organization of the code
 
-The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - The folder shell consists of all the shell scripts that calls the bioinformatics software.  (2) Python - The python folder contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/WDL_Specifications_ReadMe.md"> WDL </a> - The shell script is called by WDL which are the scripts of the workflow management.
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - Consists of all the shell scripts that calls the bioinformatics software.  (2) Python - Contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/WDL_Specifications_ReadMe.md"> WDL </a> - The shell scripts are called by WDL scripts, which perform the workflow management.
 <img src="https://user-images.githubusercontent.com/43070131/52072925-c8042300-254b-11e9-9ea8-42fa71aaa15e.PNG" alt="Modularity implementation" width="800"> 
 
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
@@ -198,13 +201,13 @@ The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a 
 
 <details>
 <summary>
- <b>Modularity:</b> Subdivides the workflow into individual parts indepandant from each other
+ <b>Modularity:</b> Subdivides the workflow into individual parts independent from each other
  
  </summary>
-Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible.Thus, each bioinformatics step is its own module.WDL makes this easy by defining "tasks" and "workflows." Tasks
+Due to the complexity of the variant calling workflow, we break it up into modules to make it as easy to develop and maintain as possible. Thus, each bioinformatics step is its own module. WDL makes this easy by defining "tasks" and "workflows." Tasks
 in our case wrap individual bioinformatics steps. These individual tasks are strung together into a master workflow: e.g. Germline or Somatic.
 
-Below given are the reasons for a modular design:
+Below are the reasons for a modular design:
 * Flexibility:
     * Can execute any part of the workflow
     * Useful for testing or after failure
@@ -213,7 +216,7 @@ Below given are the reasons for a modular design:
 * Maintainability: 
     * Can edit modules without breaking the rest of the workflow 
     * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
-The sections below explain in detial the implementation and benefits of our approach.
+The sections below explain in detail the implementation and benefits of our approach.
 </details>
 
 <details>
@@ -225,9 +228,9 @@ Normally, the variant calling workflow must support repetitive fans and merges i
  
 * Splitting of the input sequencing data into chunks, performing alignment in parallel on all chunks, 
 and merging the aligned files per sample for sorting and deduplication
-* Splitting of aligned/dedupped BAMs for parallel realignment and recalibration per chromosome.
+* Splitting of aligned/deduped BAMs for parallel realignment and recalibration per chromosome.
 
-This is because GATK3 was not fast enough to work on a whole human genome without chunking whereas GATK4 already runs faster without chunking the data and will be faster still in the future. Additionally, the Sentieon implementation is very fast as well. Thus, we chose to keep the workflow very simple for maintainability.We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment is performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
+This is because GATK3 was not fast enough to work on a whole human genome without chunking, whereas the Sentieon variant calling implementation is very fast. Thus, we chose to keep the workflow very simple for maintainability. We do not chunk the input fastq. The workflow is implemented on a per sample basis and trimming and alignment are performed in parallel on multiple lanes. Cromwell takes care of parallelization and scalability behind the scences. We provision user control of threading and memory options for every step.
 </details>
 
 <details>
@@ -237,8 +240,8 @@ This is because GATK3 was not fast enough to work on a whole human genome withou
 
 At any moment during the run, the analyst should be able to assess:
 
-* Stage of the workflow is running for every sample batch 
-* Samples may have failed and why 
+* Which stage of the workflow is running for every sample batch 
+* Which samples may have failed and why 
 
 Additionally, a well-structured post-analysis record of all events 
 executed on each sample is necessary to ensure reproducibility of 
