@@ -9,7 +9,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
    Clone the repository and load the necessary modules
   </summary>
 <p>
-  </br>
+  <br>
   a. Visit the MayomicsVC Repository and clone the repository as the sample example given below:
   
   ```bash scripting
