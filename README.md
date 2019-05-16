@@ -213,13 +213,12 @@ Below given are the reasons for a modular design:
 * Maintainability: 
     * Can edit modules without breaking the rest of the workflow 
     * Modules like QC and user notification, which serve as plug-ins for other modules, can be changed without updating multiple places       in the workflow
-The sections below explain in detial the implementation and benefits of our approach.
+The sections below explain in detail the implementation and benefits of our approach.
 </details>
 
 <details>
  <summary>
   <b> Data parallelism and scalability: </b> Parallel execution of tasks
- 
  </summary>
 Normally, the variant calling workflow must support repetitive fans and merges in the code (conditional on user choice in the runfile):
  
