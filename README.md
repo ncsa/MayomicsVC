@@ -31,7 +31,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
  Create configuration and environment profile files
   <br>
   </summary>
-  
+  <br>
   a. The user needs to provide certain input configuration files to describe the location of the data, tools, and the memory requirements, to be used in the workflow.
   ```bash scripting
   ## make a config directory
