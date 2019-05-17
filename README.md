@@ -16,13 +16,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
   ```
   b. Load the necessary modules
   
-  This workflow requires the following tools to be installed in order to run the workflow, (1) Cromwell-34, (2) Java-1.8, and (3) Python-3.6.1
-  
-  ```
-  module load /usr/local/apps/bioapps/modules/java/java-1.8
-  module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34
-  module load /usr/local/apps/bioapps/modules/python/python-3.6.1
-  ```
+This workflow requires the following tools to be installed in order to run the workflow, (1) Cromwell-34, (2) Java-1.8, and (3) Python-3.6.1. After installation, set the respective executable tool to the environmental $PATH
 
  </details>
  
