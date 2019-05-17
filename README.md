@@ -8,7 +8,6 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
   <summary> 
    Clone the repository and load the necessary modules
   </summary>
-<p>
   <br>
   a. Visit the MayomicsVC Repository and clone the repository as in the example given below:
   
@@ -16,14 +15,8 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
     git clone -b dev https://github.com/ncsa/MayomicsVC.git
   ```
   b. Load the necessary modules
-  This workflow requires the cromwell execution engine and Java to run.
+  This workflow requires the following tools to be loaded in order to run the workflow, 1) Cromwell-34, 2) Java-1.8 3) Python-3.6.1
   
-  ```bash scripting
-  module load /usr/local/apps/bioapps/modules/java/java-1.8
-  module load /usr/local/apps/bioapps/modules/cromwell/cromwell-34
-  module load /usr/local/apps/bioapps/modules/python/python-3.6.1
-  ```
-  </p>
  </details>
  
  <details>
