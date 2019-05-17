@@ -199,7 +199,7 @@ Description:
 # Organization of the code
 
 The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - Consists of all the shell scripts that calls the bioinformatics software.  (2) <a href = "https://github.com/ncsa/MayomicsVC/blob/master/src/python/README.md"> Python </a> - Contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/README.md"> WDL </a> - The shell scripts are called by WDL scripts, which perform the workflow management.
-<img src="https://user-images.githubusercontent.com/43070131/57955258-01725b80-78bb-11e9-8826-6e18a30e2b24.png" width="800"> 
+<img src="https://user-images.githubusercontent.com/43070131/57955980-00dac480-78bd-11e9-9999-93959a270b09.png" width="800"> 
 
 <a href ="https://docs.google.com/presentation/d/1_X0hez9sOn0UnljdT6n-XDm3SqZGl3fXdCuG-41PduQ/edit#slide=id.p1">Link to edit image </a>
 
