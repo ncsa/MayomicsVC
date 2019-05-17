@@ -198,7 +198,7 @@ Description:
 
 # Organization of the code
 
-The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - Consists of all the shell scripts that calls the bioinformatics software.  (2) Python - Contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/README.md"> WDL </a> - The shell scripts are called by WDL scripts, which perform the workflow management.
+The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - Consists of all the shell scripts that calls the bioinformatics software.  (2) <a href = "https://github.com/ncsa/MayomicsVC/blob/master/src/python/README.md"> Python </a> - Contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/README.md"> WDL </a> - The shell scripts are called by WDL scripts, which perform the workflow management.
 <img src="https://user-images.githubusercontent.com/43070131/57941976-f2c57d80-7895-11e9-8bae-1b6e4e9721ae.png" alt="Modularity implementation" width="800"> 
 
 <a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
