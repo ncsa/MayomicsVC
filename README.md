@@ -158,11 +158,13 @@ The outputs will be present in the delivery folder.
  <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences 
   
   <summary>
-  Germline
+  Somatic
   </summary>
   
   Mutect 
+  
   Manta
+  
   Strelka
   
   </details>
