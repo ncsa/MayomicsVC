@@ -16,7 +16,7 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
   ```
   b. Load the necessary modules
   
-This workflow requires the following tools to be installed in order to run the same, (1) Cromwell-34, (2) Java-1.8, and (3) Python-3.6.1. After installation, add the respective executable tool to the environmental $PATH variables
+This workflow requires the following tools (minimum or higher versions) to be installed in order to run the same, (1) Cromwell-34, (2) Java-1.8, and (3) Python-3.6.1. After installation, add the respective executable tool to the environmental $PATH variables
 
  </details>
  
@@ -309,3 +309,4 @@ The workflow should be constructed in such a way as to support the below testing
 1. <a href = "https://wiki.ncsa.illinois.edu/display/LH/HPC+for+Computational+Genomics"> NCSA Genomics Team</a>
 2. <a href = "https://www.biorxiv.org/content/10.1101/396325v1"> Computational performance and accuracy of Sentieon DNASeq variant calling workflow </a>
 3. <a href = "https://www.biorxiv.org/content/10.1101/348565v1"> Performance benchmarking of GATK3.8 and GATK4 </a>
+4. <a href = "https://www.biorxiv.org/content/10.1101/524645v1"> Managing genomic variant calling workflows with Swift/T </a>
