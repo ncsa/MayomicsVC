@@ -161,6 +161,10 @@ The outputs will be present in the delivery folder.
   Germline
   </summary>
   
+  Mutect 
+  Manta
+  Strelka
+  
   </details>
  
  <details>
