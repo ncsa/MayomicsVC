@@ -184,7 +184,7 @@ The workflow has multiple components, each implemented as higher-level modules. 
 
 <img src="https://user-images.githubusercontent.com/43070131/52230023-fa7b8c00-287b-11e9-82d1-2dd6146a1f3b.PNG" alt="Detailed Workflow Architecture" width="800">
 
-<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing"> Link to edit image </a>
+<a href ="https://docs.google.com/presentation/d/1_X0hez9sOn0UnljdT6n-XDm3SqZGl3fXdCuG-41PduQ/edit#slide=id.p1"> Link to edit image </a>
 
 Description:
 1. <b> Adapter Trimming </b>: Trim the adapters from the reads obtained from the sequencer using CutAdapt
@@ -201,7 +201,7 @@ Description:
 The src/ folder is broken up by language. In src/, we have 3 subfolders, (1) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/shell/README.md"> Shell </a> - Consists of all the shell scripts that calls the bioinformatics software.  (2) <a href = "https://github.com/ncsa/MayomicsVC/blob/master/src/python/README.md"> Python </a> - Contains scripts to parse the config files for JSON and validate them for correctness. (3) <a href ="https://github.com/ncsa/MayomicsVC/blob/master/src/wdl/README.md"> WDL </a> - The shell scripts are called by WDL scripts, which perform the workflow management.
 <img src="https://user-images.githubusercontent.com/43070131/57941976-f2c57d80-7895-11e9-8bae-1b6e4e9721ae.png" alt="Modularity implementation" width="800"> 
 
-<a href ="https://drive.google.com/file/d/1KpT3hou8Sb4zK4M5HzaWF2_7RLUqtWee/view?usp=sharing">Link to edit image </a>
+<a href ="https://docs.google.com/presentation/d/1_X0hez9sOn0UnljdT6n-XDm3SqZGl3fXdCuG-41PduQ/edit#slide=id.p1">Link to edit image </a>
 
 # Design principles
 
