@@ -43,6 +43,7 @@ The data can be processed in three different ways, controlled by the PairedEnd v
 
 (3) Process single ended data as single ended: PairedEnd=false, InputRead1 variable contains left reads, InputRead2 variable is empty
 
+The other variables that are present in the WDL file are mentioned below:
 ```
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
