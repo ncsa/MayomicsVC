@@ -149,9 +149,12 @@ The outputs will be present in the delivery folder.
   <summary>
   BioInformatics Tools
     </summary>
+  <b> Tools for Germline </b>
       <a href ="https://www.sentieon.com/"> <b> Sentieon </b> </a>: sentieon-genomics-201808 software package for secondary DNA analysis <br>
       <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences 
-     
+  
+  <b> Tools for Somatic </b>
+  
   </details>
  
  <details>
