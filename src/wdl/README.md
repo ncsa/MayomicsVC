@@ -31,19 +31,16 @@ Variables
    File InputRead1                 # Input Read File           
    String InputRead2               # Input Read File           
    String SampleName               # Name of the Sample
-   String Platform                 # sequencing platform for read group
-   String Library                  # Sequencing library for read group
-   String PlatformUnit             # Platform unit / flowcell ID for read group
-   String CenterName               # Name of the sequencing center for read group
+      ...
    Boolean PairedEnd               # Variable to check if single ended or not
+```
+File InputRead1 and String InputRead2 are mentioned because they sometimes have paired ended fastqs and single ended fastqs. However, we default to single ended fastq’s. That is why the left reads are always present and Cromwell checks every variable that is a file and it will check whether that file exists or not. InputRead2 is stored as a string because we don’t want Cromwell to check it at all, in case there is no InputRead2. 
+The data can be processed in three different ways, controlled by the PairedEnd variable and format of the InputRead2 variable; there are three cases:
+Process paired ended data as paired ended: PairedEnd=true, InputRead1 variable contains left reads, InputRead2 variable contains right reads; assume they are in correct order of lanes and files that belong to the same pair are at the same position in each list
+Process paired ended data as single ended: PairedEnd=false, InputRead1 variable contains left and right reads, InputRead2 variable is empty
+Process single ended data as single ended: PairedEnd=false, InputRead1 variable contains left reads, InputRead2 variable is empty
 
-   File Ref                        # Reference Genome
-   File RefAmb                     # reference file index
-   File RefAnn                     # reference file index
-   File RefBwt                     # reference file index
-   File RefPac                     # reference file index
-   File RefSa                      # reference file index
-
+```
    String Sentieon                 # Path to Sentieon
    String SentieonThreads          # Specifies the number of thread required per run
 
@@ -59,7 +56,6 @@ Variables
 
    String DebugMode                # Flag to enable Debug Mode
  ```
-     
 </details>      
 
 <details>
