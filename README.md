@@ -15,7 +15,8 @@ The <a href = "https://individualizedmedicineblog.mayoclinic.org/2017/08/31/the-
     git clone -b dev https://github.com/ncsa/MayomicsVC.git
   ```
   b. Load the necessary modules
-  This workflow requires the following tools to be loaded in order to run the workflow, 1) Cromwell-34, 2) Java-1.8 3) Python-3.6.1
+  
+  This workflow requires the following tools to be loaded in order to run the workflow, (1) Cromwell-34, (2) Java-1.8 (3) Python-3.6.1
   
  </details>
  
