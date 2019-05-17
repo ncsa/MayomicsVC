@@ -157,7 +157,7 @@ The outputs will be present in the delivery folder.
   
   • <a href ="https://cutadapt.readthedocs.io/en/stable/"> <b> Cutadapt </b> </a>: software to remove adapter sequences
   
-  • <a href = "https://software.broadinstitute.org/gatk/"> <b> GATK </b> </a> 
+  • <a href = "https://software.broadinstitute.org/gatk/"> <b> GATK </b> </a>
   
   <summary>
   <b> Somatic </b>
