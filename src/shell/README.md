@@ -105,11 +105,9 @@ done
 
 1. A colon after the letter means that it is mandatory and if the colon is not present, it means that it is optional.
 
-2. Hence, we prepend the list before the colon because if an invalid option is provided, than the " \? " will be called. The only reason to allow the getops fuction to land to the "/?" case is if we have invalid option to prepend the list by a colon.
+2. Each colon is being read separately. The getopts loop is reading consecutively. The case command assigns each argument entered to a variable and checks to make sure that a valid argument was entered for the options that require one. For example, ‘-d’ is the debug command and should never receive an argument following it. If it did, this would throw an error.
 
-3. Each colon is being read separately. The getopts loop is reading consecutively. The case command assigns each argument entered to a variable and checks to make sure that a valid argument was entered for the options that require one. For example, ‘-d’ is the debug command and should never receive an argument following it. If it did, this would throw an error.
-
-4. The colon at the beginning of the list turns off bash’s built-in error reporting, allowing us to handle errors with our checkArg function and the functions that follow, and allowing us to handle no arguments and bad arguments in a more meaningful way. If you pass in an option that is not recognized, the case statement will reach “/?” and it will print an invalid option statement. The final colon case is to ensure that every required option received an argument.
+3. The colon at the beginning of the list turns off bash’s built-in error reporting, allowing us to handle errors with our checkArg function and the functions that follow, and allowing us to handle no arguments and bad arguments in a more meaningful way. If you pass in an option that is not recognized, the case statement will reach “/?” and it will print an invalid option statement. The final colon case is to ensure that every required option received an argument.
  
 </details>
 
@@ -166,7 +164,7 @@ Precheck calls functions from the shared functions.sh file to perform the follow
 4. Sources the file with environmental profile variables
 5. Check if input files, directories, and variables are non-zero
 
-In the case of adapters, if the adapters string is defined to the full path of the file than the variable is set and we do not need to check that file as it would have been checked by the parser.So, the argument to the full path to the adapter file + x ( "${ADAPTERS+x} ") will be passed into the checkVar.It will check it as the first variable of the string and will not throw an error by setting the error code not equal to 1.However, if the full path to the adapter file is not defined than string + x is passed and bash will pass the empty string as the first variable. The exit code will be set to 1 and an error will be thrown.
+In the case of adapters, if the adapters string is defined to the full path of the file than the variable is set and we do not need to check that file as it would have been checked by the parser. So, the argument to the full path to the adapter file + x ( "${ADAPTERS+x} ") will be passed into the checkVar. It will check it as the first variable of the string and will not throw an error by setting the error code not equal to 1. However, if the full path to the adapter file is not defined than string + x is passed and bash will pass the empty string as the first variable. The exit code will be set to 1 and an error will be thrown.
 </details>
 
 <details>
@@ -185,7 +183,7 @@ else
 fi
 ```
 
-The filename parsing section parses the filename without the full path and the reason why it does without the full path is because  cutadapt requires the output option, -o, and hence, file name parsing is necessary.
+The filename parsing section parses the filename without the full path and the reason why it does without the full path is because Cutadapt requires the output option, -o, and hence, file name parsing is necessary.
 </details>
 
 <details>
@@ -224,7 +222,7 @@ The command, set -o error exit is mentioned because the script should be forced 
 1. Trap_line : Variable that refers to the line number where the error occurred
 2. Log error : Function needs to be inside the quotes for the trap to act on it
 3. Dollar zero ($0) : Refers to the name of the bash script followed by input parameters
-4. checkExitcode : checkExitcode checks whether the exit code is zero or not. It needs only two inputs, So it only needs 2 inputs, the exit code and the line number because the function needs to print the exit code with the message that is meaningful into the log and it needs to state the line number at which the exit code is non-zero.
+4. checkExitcode : checkExitcode checks whether the exit code is zero or not. It needs only two inputs, the exit code and the line number because the function needs to print the exit code with the message that is meaningful into the log and it needs to state the line number at which the exit code is non-zero.
 </details>               
 
 
