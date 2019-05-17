@@ -51,13 +51,13 @@ b. Sentieon requires a license to run. This license is a bash environmental vari
 ```bash scripting
 ls Config/ | grep Profile
 
-AlignEnvProfile.file <br>
-BqsrEnvProfile.file <br>
-DedupEnvProfile.file <br>
-HaplotyperEnvProfile.file <br>
-RealignEnvProfile.file <br>
-TrimEnvProfile.file <br>
-VqsrEnvProfile.file <br>
+AlignEnvProfile.file 
+BqsrEnvProfile.file 
+DedupEnvProfile.file 
+HaplotyperEnvProfile.file 
+RealignEnvProfile.file
+TrimEnvProfile.file 
+VqsrEnvProfile.file 
 ```
 
 </details>
