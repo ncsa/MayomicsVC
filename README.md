@@ -121,13 +121,11 @@ a. In order for Cromwell to know the paths to the task scripts, it is necessary 
 ```
 zip -r MayomicsVC.zip MayomicsVC
 ```
-b. To run the script, execute the below command:  
+b. To run the germline workflow, execute the below command:  
 ```  
-java -jar $CROMWELL run <full_path_to_wdl_file>.wdl -i ~/Jsons/<test_name>.json -p MayomicsVC.zip
-java -jar $WOMTOOL inputs src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl > ~/Jsons/TestTrimSequences.json.tmpl
-java -jar $CROMWELL run MayomicsVC/src/wdl_scripts/Alignment/TestTasks/Runtrim_sequences.wdl -i ~/Jsons/TestTrimSequences.json -p MayomicsVC.zip
+java -jar ${CROMWELL} run ./MayomicsVC/src/wdl/GermlineMasterWorkflow.wdl -i Jsons/GermlineMasterWorkflow.FilledIn.json -p MayomicsVC.zip
 ```
-The outputs will be present in the Delivery folder.
+The outputs will be present in the delivery folder.
 </details>
 
 ### Tools 
