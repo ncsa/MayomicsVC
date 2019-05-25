@@ -24,7 +24,8 @@ task mergegvcfsTask {
 
 
    command <<<
-        source ${BashPreamble}
+        #source ${BashPreamble}
+	module load BWA/0.7.17-IGB-gcc-4.9.4 SAMtools/1.7-IGB-gcc-4.9.4 GATK/4.0.9.0-IGB-gcc-4.9.4-Java-1.8.0_152-Python-3.6.1
         /bin/bash ${MergeGvcfsScript} -s ${SampleName} -b ${sep=',' InputGvcfs} -S ${GATKExe} -J ${JavaExe} -e "'${JavaOptionsString}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
 

@@ -170,7 +170,7 @@ checkFileExe ${GATKEXE} "REASON=GATK file ${GATKEXE} is not an executable or doe
 
 ## Check java8 path and options 
 checkVar "${java+x}" "Missing JAVA path option: -J" $LINENO
-checkFileExe ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
+#checkFile ${java} "REASON=JAVA file ${java} is not executable or does not exist." $LINENO
 checkVar "${JAVA_OPTS_STRING+x}" "Missing specification of JAVA memory options: -e" $LINENO
 
 

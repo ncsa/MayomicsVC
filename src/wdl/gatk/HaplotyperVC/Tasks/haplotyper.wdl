@@ -49,7 +49,8 @@ task variantCallingTask {
 
 
    command <<<
-        source ${BashPreamble}
+        #source ${BashPreamble}
+	module load BWA/0.7.17-IGB-gcc-4.9.4 SAMtools/1.7-IGB-gcc-4.9.4 GATK/4.0.9.0-IGB-gcc-4.9.4-Java-1.8.0_152-Python-3.6.1
         /bin/bash ${HaplotyperScript} -s ${SampleName} -b ${InputBams} -G ${Ref} -D ${DBSNP} -I ${GenomicInterval} -S ${GATKExe} -t ${HaplotyperThreads} -o "'${HaplotyperExtraOptionsString}'" -J ${JavaExe} -e "'${JavaOptionsString}'" -F ${BashSharedFunctions} ${DebugMode}
    >>>
 

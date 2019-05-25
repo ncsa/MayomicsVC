@@ -22,7 +22,8 @@ task mergebamTask {
    File MergeBamScript             # Bash script that is called inside the WDL script
 
    command <<<
-   	   source ${BashPreamble}
+   	   #source ${BashPreamble}
+	   module load BWA/0.7.17-IGB-gcc-4.9.4 SAMtools/1.7-IGB-gcc-4.9.4 GATK/4.0.9.0-IGB-gcc-4.9.4-Java-1.8.0_152-Python-3.6.1
    	   /bin/bash ${MergeBamScript} -b ${sep=',' InputBams} -s ${SampleName} -S ${SamtoolsExe} -F ${BashSharedFunctions} ${DebugMode}
    >>>
 
