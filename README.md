@@ -3,9 +3,10 @@ TL;DR
 > To run the pipeline, go to (Workflow Running)[#workflow-running]
 
 Development notes:
-2. The GATK pipeline uses: `bwa, samtools and gatk4`
-3. Only germline calling is considered
-4. Functional equivalence recommendations are hard coded into the pipeline; except that a BAM (as opposed to CRAM file) is produced as output
+
+1. The GATK pipeline uses: `bwa, samtools and gatk4`
+2. Only germline calling is considered
+3. Functional equivalence recommendations are hard coded into the pipeline; except that a BAM (as opposed to CRAM file) is produced as output
  
 
 
